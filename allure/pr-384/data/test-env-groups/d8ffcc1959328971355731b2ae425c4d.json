@@ -1,1 +1,1 @@
-{"id":"d8ffcc1959328971355731b2ae425c4d","fullName":"dev.quokkify.test.ApiTest.testGetMethodAndResponseHelper","name":"Verify 'GET' method and 'ResponseHelper'","status":"passed","testResultsByEnv":{"integrations-rest-assured":"c935e4ee16718fdc0c24b8d6d052b72d"}}
+{"id":"d8ffcc1959328971355731b2ae425c4d","fullName":"dev.quokkify.test.ApiTest.testGetMethodAndResponseHelper","name":"Verify 'GET' method and 'ResponseHelper'","status":"passed","testResultsByEnv":{"integrations-rest-assured":"739ef32ab198bc008c409bdb6941b055"}}
