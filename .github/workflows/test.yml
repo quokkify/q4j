@@ -170,14 +170,14 @@ jobs:
           found=false
           while IFS= read -r dir; do
             found=true
-            bash scripts/ci/write-allure-ci-env-fragment.sh "Common ${{ matrix.name }}" "$dir"
+            bash tools/scripts/ci/write-allure-ci-env-fragment.sh "Common ${{ matrix.name }}" "$dir"
           done < <(find . -type d -path '*/build/allure-results' | sort)
           if [[ "$found" == "false" ]]; then
             module_dir="${MODULE_PATH#:}"
             module_dir="${module_dir//:/\/}"
             module_dir="${module_dir:-.}"
             mkdir -p "$module_dir/build/allure-results"
-            bash scripts/ci/write-allure-ci-env-fragment.sh "Common ${{ matrix.name }}" "$module_dir/build/allure-results"
+            bash tools/scripts/ci/write-allure-ci-env-fragment.sh "Common ${{ matrix.name }}" "$module_dir/build/allure-results"
           fi
         shell: bash
 
@@ -295,14 +295,14 @@ jobs:
           found=false
           while IFS= read -r dir; do
             found=true
-            bash scripts/ci/write-allure-ci-env-fragment.sh "Data ${{ matrix.name }}" "$dir"
+            bash tools/scripts/ci/write-allure-ci-env-fragment.sh "Data ${{ matrix.name }}" "$dir"
           done < <(find . -type d -path '*/build/allure-results' | sort)
           if [[ "$found" == "false" ]]; then
             module_dir="${MODULE_PATH#:}"
             module_dir="${module_dir//:/\/}"
             module_dir="${module_dir:-.}"
             mkdir -p "$module_dir/build/allure-results"
-            bash scripts/ci/write-allure-ci-env-fragment.sh "Data ${{ matrix.name }}" "$module_dir/build/allure-results"
+            bash tools/scripts/ci/write-allure-ci-env-fragment.sh "Data ${{ matrix.name }}" "$module_dir/build/allure-results"
           fi
         shell: bash
 
@@ -433,14 +433,14 @@ jobs:
           found=false
           while IFS= read -r dir; do
             found=true
-            bash scripts/ci/write-allure-ci-env-fragment.sh "Integrations ${{ matrix.name }}" "$dir"
+            bash tools/scripts/ci/write-allure-ci-env-fragment.sh "Integrations ${{ matrix.name }}" "$dir"
           done < <(find . -type d -path '*/build/allure-results' | sort)
           if [[ "$found" == "false" ]]; then
             module_dir="${MODULE_PATH#:}"
             module_dir="${module_dir//:/\/}"
             module_dir="${module_dir:-.}"
             mkdir -p "$module_dir/build/allure-results"
-            bash scripts/ci/write-allure-ci-env-fragment.sh "Integrations ${{ matrix.name }}" "$module_dir/build/allure-results"
+            bash tools/scripts/ci/write-allure-ci-env-fragment.sh "Integrations ${{ matrix.name }}" "$module_dir/build/allure-results"
           fi
         shell: bash
 
