@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.2](https://github.com/quokkify/q4j/compare/v0.2.1...v0.2.2) (2026-08-09)
+
+
+### 🐛 Bug Fixes
+
+* **publishing:** include resolved dependency versions ([#414](https://github.com/quokkify/q4j/issues/414)) ([e3f51df](https://github.com/quokkify/q4j/commit/e3f51dfd1e949bb0cc63566c9074966cca4857d9))
+
 ## [0.2.1](https://github.com/quokkify/q4j/compare/v0.2.0...v0.2.1) (2026-08-09)
 
 
