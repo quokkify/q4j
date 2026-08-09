@@ -38,7 +38,7 @@ jobs:
       - name: 🔨Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/project-toolkit/actions/setup-java-gradle@729768172910e6a0276a472d65f011148c4f37b8 # v2.12.0
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@920a95d26e70665bbe285c41edef1071cef8d51c # v2.12.0
 
       - name: 🧱 Build (check, no tests)
         run: |
@@ -75,7 +75,7 @@ jobs:
       - name: 🔨Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/project-toolkit/actions/setup-java-gradle@729768172910e6a0276a472d65f011148c4f37b8 # v2.12.0
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@920a95d26e70665bbe285c41edef1071cef8d51c # v2.12.0
 
       - name: 🧱 Build (check, no tests)
         run: |
@@ -112,7 +112,7 @@ jobs:
       - name: 🔨Checkout
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/project-toolkit/actions/setup-java-gradle@729768172910e6a0276a472d65f011148c4f37b8 # v2.12.0
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@920a95d26e70665bbe285c41edef1071cef8d51c # v2.12.0
 
       - name: 🧱 Build (check, no tests)
         run: |
