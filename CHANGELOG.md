@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.2.1](https://github.com/quokkify/q4j/compare/v0.2.0...v0.2.1) (2026-08-09)
+
+
+### 🐛 Bug Fixes
+
+* **publishing:** avoid duplicate Javadoc artifacts ([#412](https://github.com/quokkify/q4j/issues/412)) ([6c05ec5](https://github.com/quokkify/q4j/commit/6c05ec579db6415c159a8edcdfe22f4b706a42e4))
+
+
+### 🧹 Chores
+
+* **deps:** update actions/github-script action to v9 ([#411](https://github.com/quokkify/q4j/issues/411)) ([a484cd3](https://github.com/quokkify/q4j/commit/a484cd395b171ef3bcf3720fb91324bf716ddf56))
+
 ## [0.2.0](https://github.com/quokkify/q4j/compare/v0.1.0...v0.2.0) (2026-08-08)
 
 
