@@ -47,8 +47,8 @@ jobs:
               raise SystemExit("renovate=true requires .github/renovate.json")
           allure_paths = (
               Path(".github/workflows/allure-report.yml"),
-              Path(".github/allure/allurerc.mjs"),
-              Path(".github/allure/safe_extract.py"),
+              Path("tools/allure/allurerc.mjs"),
+              Path("tools/allure/safe_extract.py"),
           )
           if answers.get("allure_report") and any(not path.is_file() for path in allure_paths):
               raise SystemExit("allure_report=true requires its generated workflow, config, and bounded extractor")

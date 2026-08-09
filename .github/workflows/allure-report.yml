@@ -154,7 +154,7 @@ jobs:
           ARCHIVE_ROOT: ${{ runner.temp }}/allure-archives
           OUTPUT_ROOT: ${{ runner.temp }}/allure-expanded
           MATERIALIZE_ROOT: ${{ github.workspace }}/.allure-input/source-artifacts
-        run: python .github/allure/safe_extract.py
+        run: python tools/allure/safe_extract.py
       - name: Build Allure report without write privileges
         uses: quokkify/project-toolkit/actions/allure-report@v2.11.1
         with:
@@ -162,8 +162,8 @@ jobs:
           results-directory: .allure-input/results
           source-artifacts-directory: .allure-input/source-artifacts
           report-directory: allure-report
-          config-file: .github/allure/allurerc.mjs
-          categories-file: ".github/allure/categories.json"
+          config-file: tools/allure/allurerc.mjs
+          categories-file: "tools/allure/categories.json"
           source-run-id: ${{ github.event.workflow_run.id }}
           comment-file: allure-report/allure-pr-comment.md
           comment-marker: "<!-- project-toolkit-allure-report -->"
@@ -339,7 +339,7 @@ jobs:
           ARCHIVE_ROOT: ${{ runner.temp }}/allure-pages-archives
           OUTPUT_ROOT: ${{ runner.temp }}/allure-pages-expanded
           MATERIALIZE_ROOT: ${{ github.workspace }}/allure-report
-        run: python .github/allure/safe_extract.py
+        run: python tools/allure/safe_extract.py
       - name: Publish Allure HTML to GitHub Pages
         if: ${{ steps.freshness.outputs.fresh == 'true' }}
         uses: quokkify/project-toolkit/actions/deploy-gh-pages-subdir@v2.11.1
