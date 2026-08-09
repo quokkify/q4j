@@ -1,3 +1,8 @@
+def validateMavenCentralPoms = tasks.register('validateMavenCentralPoms') {
+    group = 'verification'
+    description = 'Validates generated Maven POMs against Maven Central dependency requirements.'
+}
+
 subprojects {
     def metadata = rootProject.q4jModules[path]
     if (metadata == null || metadata.publish == false) {
@@ -39,5 +44,45 @@ subprojects {
                 developerConnection = 'scm:git:ssh://git@github.com/quokkify/q4j.git'
             }
         }
+    }
+
+    publishing {
+        publications.withType(MavenPublication).configureEach {
+            versionMapping {
+                usage('java-api') {
+                    fromResolutionResult()
+                }
+                usage('java-runtime') {
+                    fromResolutionResult()
+                }
+            }
+        }
+    }
+
+    def pomFile = layout.buildDirectory.file('publications/maven/pom-default.xml')
+    def validateMavenCentralPom = tasks.register('validateMavenCentralPom') {
+        group = 'verification'
+        description = 'Validates that every published dependency has an explicit version.'
+        dependsOn tasks.named('generatePomFileForMavenPublication')
+        inputs.file(pomFile)
+
+        doLast {
+            def pom = new groovy.xml.XmlSlurper().parse(pomFile.get().asFile)
+            def missingVersions = pom.dependencies.dependency.findAll {
+                it.version.text().trim().isEmpty()
+            }.collect {
+                "${it.groupId.text()}:${it.artifactId.text()}"
+            }
+
+            if (!missingVersions.isEmpty()) {
+                throw new GradleException(
+                    "${project.path} has published dependencies without versions: ${missingVersions.join(', ')}"
+                )
+            }
+        }
+    }
+
+    validateMavenCentralPoms.configure {
+        dependsOn validateMavenCentralPom
     }
 }
