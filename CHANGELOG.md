@@ -1,5 +1,23 @@
 # Changelog
 
+## [0.2.0](https://github.com/quokkify/q4j/compare/v0.1.0...v0.2.0) (2026-08-08)
+
+
+### ✨ Features
+
+* **ci:** migrate Allure reporting to managed workflow ([#406](https://github.com/quokkify/q4j/issues/406)) ([32dbef4](https://github.com/quokkify/q4j/commit/32dbef419e3cefa20ffe54dc6640a593f6ce1b58))
+* **q4j:** rebrand modules and add Maven Central publishing ([#407](https://github.com/quokkify/q4j/issues/407)) ([5deb487](https://github.com/quokkify/q4j/commit/5deb4876db6c6d895fac393fcf258d8c59180096))
+
+
+### 🐛 Bug Fixes
+
+* **ci:** allow q4j package paths in trusted scan policy ([#408](https://github.com/quokkify/q4j/issues/408)) ([dc442bf](https://github.com/quokkify/q4j/commit/dc442bf66b43fd10589a6e4dbce018467959094d))
+
+
+### 🧹 Chores
+
+* **template:** update shared project template ([#404](https://github.com/quokkify/q4j/issues/404)) ([444b081](https://github.com/quokkify/q4j/commit/444b081640e86ad2d1c7009ab06b89539cbe2c55))
+
 ## [0.1.0](https://github.com/quokkify/q4j/releases/tag/v0.1.0) (2026-08-08)
 
 ### ✨ Features
