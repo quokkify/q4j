@@ -2,10 +2,14 @@
 
 Type-safe Owner configuration backed by environment variables and classpath properties, with singleton caching and runtime overlay support.
 
-## Dependency
+## Installation
 
-```gradle
-testImplementation project(":common-utils:config")
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-config):
+
+```kotlin
+dependencies {
+    testImplementation("dev.quokkify:q4j-config:0.2.2")
+}
 ```
 
 ## Initialization in BaseTest

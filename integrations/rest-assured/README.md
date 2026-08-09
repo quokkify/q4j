@@ -5,10 +5,14 @@ JSON schema validation, and Allure step reporting.
 
 ---
 
-## Dependency
+## Installation
 
-```gradle
-testImplementation project(":integrations:rest-assured")
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-rest-assured):
+
+```kotlin
+dependencies {
+    testImplementation("dev.quokkify:q4j-rest-assured:0.2.2")
+}
 ```
 
 ---

@@ -4,5 +4,31 @@
     "github>quokkify/renovate-presets//presets/base",
     "github>quokkify/renovate-presets//presets/github-actions/default",
     "github>quokkify/renovate-presets//presets/gradle/default"
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Keep Q4J Maven Central coordinates in module documentation current",
+      "managerFilePatterns": [
+        "/^(?:common-utils|data-utils|integrations)/.+/README\\.md$/",
+        "/^testng-extensions/README\\.md$/"
+      ],
+      "matchStrings": [
+        "dev\\.quokkify:(?<depName>q4j-[a-z0-9-]+):(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "maven",
+      "packageNameTemplate": "dev.quokkify:{{{depName}}}",
+      "registryUrlTemplate": "https://repo.maven.apache.org/maven2"
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Update all Q4J module documentation examples together",
+      "matchManagers": ["custom.regex"],
+      "matchDatasources": ["maven"],
+      "matchPackageNames": ["/^dev\\.quokkify:q4j-/"],
+      "groupName": "Q4J module documentation",
+      "groupSlug": "q4j-module-documentation"
+    }
   ]
 }

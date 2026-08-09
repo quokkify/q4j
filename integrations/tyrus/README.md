@@ -6,6 +6,16 @@ via [Eclipse Tyrus 2.x](https://eclipse-ee4j.github.io/tyrus/).
 Provides a fluent API for connecting, sending messages, and asserting received messages with
 built-in polling, timeout configuration, and Allure step reporting.
 
+## Installation
+
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-tyrus):
+
+```kotlin
+dependencies {
+    testImplementation("dev.quokkify:q4j-tyrus:0.2.2")
+}
+```
+
 ---
 
 ## API overview

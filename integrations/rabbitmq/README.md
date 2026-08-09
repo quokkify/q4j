@@ -3,6 +3,16 @@
 Provides a fluent verification API for asserting message presence and content in RabbitMQ queues,
 with configurable polling timeout and Allure step reporting.
 
+## Installation
+
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-rabbitmq):
+
+```kotlin
+dependencies {
+    testImplementation("dev.quokkify:q4j-rabbitmq:0.2.2")
+}
+```
+
 ---
 
 ## API overview

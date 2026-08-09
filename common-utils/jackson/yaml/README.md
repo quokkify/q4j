@@ -2,10 +2,14 @@
 
 Load YAML classpath resources into typed Java objects, lists, or key-ordered maps using SnakeYAML with safe construction.
 
-## Dependency
+## Installation
 
-```gradle
-testImplementation project(":common-utils:jackson:yaml")
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-jackson-yaml):
+
+```kotlin
+dependencies {
+    testImplementation("dev.quokkify:q4j-jackson-yaml:0.2.2")
+}
 ```
 
 ## Usage
