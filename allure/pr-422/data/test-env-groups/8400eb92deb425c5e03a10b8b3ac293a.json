@@ -1,1 +1,1 @@
-{"id":"8400eb92deb425c5e03a10b8b3ac293a","fullName":"dev.quokkify.test.UiProxyTest.testProxyHar","name":"Verify proxy 'Har' recording","status":"skipped","testResultsByEnv":{"integrations-selenide":"f06900bd1a8379426ef5e1679a8fd975"}}
+{"id":"8400eb92deb425c5e03a10b8b3ac293a","fullName":"dev.quokkify.test.UiProxyTest.testProxyHar","name":"Verify proxy 'Har' recording","status":"skipped","testResultsByEnv":{"integrations-selenide":"d0bf056f8b753c9fecb8134f5d10f84a"}}
