@@ -64,7 +64,7 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/project-toolkit/actions/setup-java-gradle@a65ea9508463e3256627f13044858a1a83296631 # v2.11.1
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@c89f4047703d73678e66292eb7587b46ae0be23a # v2.12.0
 
       - name: 🧱 Build (check, no tests)
         run: |
@@ -94,7 +94,7 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/project-toolkit/actions/setup-java-gradle@a65ea9508463e3256627f13044858a1a83296631 # v2.11.1
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@c89f4047703d73678e66292eb7587b46ae0be23a # v2.12.0
 
       - name: 🧱 Build (check, no tests)
         run: |
@@ -124,7 +124,7 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/project-toolkit/actions/setup-java-gradle@a65ea9508463e3256627f13044858a1a83296631 # v2.11.1
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@c89f4047703d73678e66292eb7587b46ae0be23a # v2.12.0
 
       - name: 🧱 Build (check, no tests)
         run: |
@@ -156,7 +156,7 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/project-toolkit/actions/setup-java-gradle@a65ea9508463e3256627f13044858a1a83296631 # v2.11.1
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@c89f4047703d73678e66292eb7587b46ae0be23a # v2.12.0
 
       - name: 🚀 Run tests
         run: ./gradlew ${{ matrix.module }}:test --no-daemon --console=plain --stacktrace
@@ -222,12 +222,19 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/project-toolkit/actions/setup-java-gradle@a65ea9508463e3256627f13044858a1a83296631 # v2.11.1
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@c89f4047703d73678e66292eb7587b46ae0be23a # v2.12.0
 
-      - name: 🟢 Start Infra
+      - name: 🟢 Start Infra with health lifecycle
         if: ${{ matrix.profile != 'none' }}
-        run: ./tools/environment/scripts/infra/run_app.sh "${{ matrix.profile }}"
-        shell: bash
+        uses: quokkify/project-toolkit/actions/compose-up@c89f4047703d73678e66292eb7587b46ae0be23a # v2.12.0
+        with:
+          compose-files: |
+            tools/environment/docker/docker-compose.yml
+            tools/environment/docker/docker-compose.ci.yml
+          profiles: ${{ matrix.profile }}
+          before-compose-hook: tools/environment/scripts/infra/before_compose.sh
+          after-health-hook: tools/environment/scripts/infra/after_health.sh
+          timeout-seconds: "120"
 
       - name: 🚀 Run tests
         run: |
@@ -360,12 +367,19 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/project-toolkit/actions/setup-java-gradle@a65ea9508463e3256627f13044858a1a83296631 # v2.11.1
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@c89f4047703d73678e66292eb7587b46ae0be23a # v2.12.0
 
-      - name: 🟢 Start Infra
+      - name: 🟢 Start Infra with health lifecycle
         if: ${{ matrix.profile != 'none' }}
-        run: ./tools/environment/scripts/infra/run_app.sh "${{ matrix.profile }}"
-        shell: bash
+        uses: quokkify/project-toolkit/actions/compose-up@c89f4047703d73678e66292eb7587b46ae0be23a # v2.12.0
+        with:
+          compose-files: |
+            tools/environment/docker/docker-compose.yml
+            tools/environment/docker/docker-compose.ci.yml
+          profiles: ${{ matrix.profile }}
+          before-compose-hook: tools/environment/scripts/infra/before_compose.sh
+          after-health-hook: tools/environment/scripts/infra/after_health.sh
+          timeout-seconds: "120"
 
       - name: 🚀 Run tests
         run: |

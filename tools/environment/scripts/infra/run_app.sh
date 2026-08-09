@@ -26,39 +26,8 @@ done
 init_compose_files
 
 echo "[infra] docker compose up: ${PROFILES_ARGS[*]}"
-if [[ "${CI:-}" == "true" ]]; then
-  # Run in current shell so exported dynamic ports are visible to docker compose interpolation.
-  source ./tools/environment/scripts/infra/hooks/pre_up_ci.sh "${TOKENS[@]}"
-fi
+source ./tools/environment/scripts/infra/before_compose.sh "${TOKENS[@]}"
 
 compose_cmd "${PROFILES_ARGS[@]}" up -d
 
-for profile in "${TOKENS[@]}"; do
-  profile="$(echo "$profile" | xargs)"
-  case "$profile" in
-    mock)
-      ./tools/environment/scripts/infra/hooks/mock.sh
-      ;;
-    web)
-      ./tools/environment/scripts/infra/hooks/web.sh
-      ;;
-    storage)
-      ./tools/environment/scripts/infra/hooks/storage.sh
-      ;;
-    redis)
-      ./tools/environment/scripts/infra/hooks/redis.sh
-      ;;
-    reporting)
-      ./tools/environment/scripts/infra/hooks/reporting.sh
-      ;;
-    messaging)
-      ./tools/environment/scripts/infra/hooks/messaging.sh
-      ;;
-    rabbitmq)
-      ./tools/environment/scripts/infra/hooks/rabbitmq.sh
-      ;;
-    *)
-      warning "[infra] unknown profile hook skipped: ${profile}"
-      ;;
-  esac
-done
+source ./tools/environment/scripts/infra/after_health.sh "${TOKENS[@]}"
