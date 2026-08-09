@@ -61,6 +61,12 @@ jobs:
           }
           echo "version=$version" >> "$GITHUB_OUTPUT"
 
+      - name: Validate Maven Central POMs
+        run: |
+          ./gradlew validateMavenCentralPoms \
+            -Pversion="${{ steps.release.outputs.version }}" \
+            --no-daemon --console=plain
+
       - name: Validate Maven Central secrets
         env:
           MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
