@@ -16,6 +16,7 @@ subprojects {
     }
 
     tasks.withType(Javadoc).configureEach {
-        failOnError = false
+        failOnError = true
+        options.addBooleanOption('Xdoclint:all,-missing', true)
     }
 }

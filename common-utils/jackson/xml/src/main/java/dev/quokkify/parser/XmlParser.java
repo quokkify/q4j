@@ -14,7 +14,6 @@ import dev.quokkify.converter.XmlConverter;
  *   <li>Does NOT close caller-owned streams.</li>
  *   <li>Provides convenient classpath resource loader.</li>
  * </ul>
- * </p>
  */
 public final class XmlParser {
 

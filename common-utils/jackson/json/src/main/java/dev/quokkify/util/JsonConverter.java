@@ -17,7 +17,6 @@ import com.fasterxml.jackson.databind.json.JsonMapper;
  *   <li>No checked exceptions are thrown; they are wrapped into {@link RuntimeException}.</li>
  *   <li>Configured with sane date defaults and classpath module auto-discovery.</li>
  * </ul>
- * </p>
  */
 public final class JsonConverter {
 
