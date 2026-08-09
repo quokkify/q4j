@@ -41,9 +41,11 @@ public final class ZipUtils {
         throw new IOException("ZIP archive is empty: " + zippedFile.getPath());
       }
       ZipEntry entry = entries.nextElement();
-      File unzippedFile = new File(
-          zippedFile.getPath().replace(zippedFile.getName(), entry.getName())
-      );
+      File destinationDirectory = zippedFile.getCanonicalFile().getParentFile();
+      File unzippedFile = new File(destinationDirectory, entry.getName()).getCanonicalFile();
+      if (!unzippedFile.toPath().startsWith(destinationDirectory.toPath())) {
+        throw new IOException("ZIP entry is outside the destination directory: " + entry.getName());
+      }
       boolean isCreated;
       if (entry.isDirectory()) {
         isCreated = unzippedFile.mkdirs();
