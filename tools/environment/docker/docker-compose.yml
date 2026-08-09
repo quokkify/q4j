@@ -321,7 +321,7 @@ services:
 
   reportportal-api:
     profiles: [reporting]
-    image: reportportal/service-api:5.15.2@sha256:e6856aac2c42fde38f11ff6d9ca51512d63ba4c41810b07dc70defb8ae781113
+    image: reportportal/service-api:5.15.3@sha256:e39a9257073e0dc0ca0b60af8fb1f9e5ec5637c8eda9e7350d3262982f64ef10
     depends_on:
       reportportal-rabbitmq:
         condition: service_healthy
