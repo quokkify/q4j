@@ -82,7 +82,7 @@ public final class CsvParser {
   }
 
   /**
-   * Writes List<Map> using a custom (usually header-based) schema.
+   * Writes {@code List<Map>} using a custom (usually header-based) schema.
    */
   public static File write(File csvFile, List<Map<String, ?>> rows, CsvSchema schema) {
     Objects.requireNonNull(csvFile, "csvFile must not be null");

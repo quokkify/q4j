@@ -53,7 +53,7 @@ public class CalculationUtils {
   /**
    * Get percent value of number.
    *
-   * <p>Example: value = 10.99; percentage = 50.0 (%) -> result = (5.495) -> 5.xx (x - depends on roundingMode)<p/>.
+   * <p>Example: value = 10.99; percentage = 50.0 (%) -> result = (5.495) -> 5.xx (x - depends on roundingMode).</p>
    *
    * @param value         number value to calculate percentage
    * @param percent       percentage amount of number
@@ -72,7 +72,7 @@ public class CalculationUtils {
    *
    * <p>Example: targetValue = 51; valueToCalculatePercent = 80 -> result = (63.75) -> 63.xx</p>
    *
-   * <p>(x - depends on roundingMode)<p/>.
+   * <p>(x - depends on roundingMode).</p>
    *
    * @param targetValue             target number
    * @param valueToCalculatePercent value to calculate percent

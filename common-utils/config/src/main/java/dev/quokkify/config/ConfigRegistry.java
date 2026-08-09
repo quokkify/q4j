@@ -85,7 +85,7 @@ public class ConfigRegistry {
    * Overlays the provided key-value pairs on top of the current configuration.
    * After applying the overrides, the configuration is reloaded.
    *
-   * @param cfg   the configuration instance (must implement Mutable & Reloadable)
+   * @param cfg   the configuration instance (must implement Mutable &amp; Reloadable)
    * @param props the map of property overrides
    * @param <T>   the type of the configuration
    */
@@ -105,7 +105,7 @@ public class ConfigRegistry {
    * Overlays the provided Properties object on top of the current configuration.
    * After applying the overrides, the configuration is reloaded.
    *
-   * @param cfg   the configuration instance (must implement Mutable & Reloadable)
+   * @param cfg   the configuration instance (must implement Mutable &amp; Reloadable)
    * @param props the properties to overlay
    * @param <T>   the type of the configuration
    */
@@ -125,7 +125,7 @@ public class ConfigRegistry {
    * Loads properties from the given InputStream into the configuration,
    * replacing existing values where applicable. After loading, the configuration is reloaded.
    *
-   * @param cfg the configuration instance (must implement Mutable & Reloadable)
+   * @param cfg the configuration instance (must implement Mutable &amp; Reloadable)
    * @param in  the input stream to load from
    * @param <T> the type of the configuration
    * @throws IOException if the stream cannot be read
@@ -143,7 +143,7 @@ public class ConfigRegistry {
    * Loads properties from the given Reader into the configuration,
    * replacing existing values where applicable. After loading, the configuration is reloaded.
    *
-   * @param cfg    the configuration instance (must implement Mutable & Reloadable)
+   * @param cfg    the configuration instance (must implement Mutable &amp; Reloadable)
    * @param reader the reader to load from
    * @param <T>    the type of the configuration
    * @throws IOException if the reader cannot be read

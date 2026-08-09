@@ -14,7 +14,6 @@ import com.fasterxml.jackson.dataformat.xml.ser.ToXmlGenerator;
  *   <li>No checked exceptions are thrown; they are wrapped into {@link RuntimeException}.</li>
  *   <li>Configured with XML defaults and classpath module auto-discovery.</li>
  * </ul>
- * </p>
  */
 public final class XmlConverter {
 

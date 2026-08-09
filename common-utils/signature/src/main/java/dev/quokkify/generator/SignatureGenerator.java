@@ -31,7 +31,6 @@ import org.bouncycastle.jce.provider.BouncyCastleProvider;
  *   <li>HMAC signatures are returned as lowercase hex string.</li>
  *   <li>All checked exceptions are wrapped into {@link RuntimeException} with a meaningful message.</li>
  * </ul>
- * </p>
  */
 public final class SignatureGenerator {
 
