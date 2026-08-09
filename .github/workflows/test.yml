@@ -64,9 +64,7 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: ./.github/actions/setup-java-gradle
-        with:
-          is_self_hosted: ${{ needs.detect-runner.outputs.is_self_hosted }}
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@a65ea9508463e3256627f13044858a1a83296631 # v2.11.1
 
       - name: 🧱 Build (check, no tests)
         run: |
@@ -96,9 +94,7 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: ./.github/actions/setup-java-gradle
-        with:
-          is_self_hosted: ${{ needs.detect-runner.outputs.is_self_hosted }}
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@a65ea9508463e3256627f13044858a1a83296631 # v2.11.1
 
       - name: 🧱 Build (check, no tests)
         run: |
@@ -128,9 +124,7 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: ./.github/actions/setup-java-gradle
-        with:
-          is_self_hosted: ${{ needs.detect-runner.outputs.is_self_hosted }}
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@a65ea9508463e3256627f13044858a1a83296631 # v2.11.1
 
       - name: 🧱 Build (check, no tests)
         run: |
@@ -162,9 +156,7 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: ./.github/actions/setup-java-gradle
-        with:
-          is_self_hosted: ${{ needs.detect-runner.outputs.is_self_hosted }}
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@a65ea9508463e3256627f13044858a1a83296631 # v2.11.1
 
       - name: 🚀 Run tests
         run: ./gradlew ${{ matrix.module }}:test --no-daemon --console=plain --stacktrace
@@ -230,9 +222,7 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: ./.github/actions/setup-java-gradle
-        with:
-          is_self_hosted: ${{ needs.detect-runner.outputs.is_self_hosted }}
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@a65ea9508463e3256627f13044858a1a83296631 # v2.11.1
 
       - name: 🟢 Start Infra
         if: ${{ matrix.profile != 'none' }}
@@ -370,9 +360,7 @@ jobs:
         uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: ./.github/actions/setup-java-gradle
-        with:
-          is_self_hosted: ${{ needs.detect-runner.outputs.is_self_hosted }}
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@a65ea9508463e3256627f13044858a1a83296631 # v2.11.1
 
       - name: 🟢 Start Infra
         if: ${{ matrix.profile != 'none' }}
