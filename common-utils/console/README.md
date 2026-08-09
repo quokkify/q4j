@@ -1,9 +1,13 @@
 Manages SSH tunnels and executes remote shell commands over port-forwarded sessions in integration tests.
 
-## Dependency
+## Installation
 
-```gradle
-testImplementation project(":common-utils:console")
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-ssh):
+
+```kotlin
+dependencies {
+    testImplementation("dev.quokkify:q4j-ssh:0.2.2")
+}
 ```
 
 ## Environment variables

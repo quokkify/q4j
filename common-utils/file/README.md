@@ -2,10 +2,14 @@
 
 Classpath resource loading, file I/O utilities, and zip archive support for tests.
 
-## Dependency
+## Installation
 
-```gradle
-testImplementation project(":common-utils:file")
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-files):
+
+```kotlin
+dependencies {
+    testImplementation("dev.quokkify:q4j-files:0.2.2")
+}
 ```
 
 ## Usage

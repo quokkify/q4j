@@ -5,10 +5,14 @@ with a fluent verification API, configurable polling timeout, and Allure step re
 
 ---
 
-## Dependency
+## Installation
 
-```gradle
-testImplementation project(":data-utils:nosql:redis")
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-redis):
+
+```kotlin
+dependencies {
+    testImplementation("dev.quokkify:q4j-redis:0.2.2")
+}
 ```
 
 ---

@@ -2,10 +2,14 @@
 
 Fluent wrapper around Awaitility for polling assertions and conditions in tests, with preset timeout and interval constants.
 
-## Dependency
+## Installation
 
-```gradle
-testImplementation project(":common-utils:awaitility")
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-awaitility):
+
+```kotlin
+dependencies {
+    testImplementation("dev.quokkify:q4j-awaitility:0.2.2")
+}
 ```
 
 ## Usage

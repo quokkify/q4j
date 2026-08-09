@@ -3,6 +3,16 @@
 Provides a fluent verification API for asserting message presence and count in Kafka topics,
 with configurable polling timeout and Allure step reporting.
 
+## Installation
+
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-kafka):
+
+```kotlin
+dependencies {
+    testImplementation("dev.quokkify:q4j-kafka:0.2.2")
+}
+```
+
 ---
 
 ## API overview

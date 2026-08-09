@@ -5,10 +5,14 @@ and a built-in verification layer with configurable polling timeout and Allure s
 
 ---
 
-## Dependency
+## Installation
 
-```gradle
-testImplementation project(":integrations:selenide")
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-selenide):
+
+```kotlin
+dependencies {
+    testImplementation("dev.quokkify:q4j-selenide:0.2.2")
+}
 ```
 
 ---

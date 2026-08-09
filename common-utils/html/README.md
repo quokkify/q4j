@@ -2,10 +2,14 @@
 
 Parse raw HTML strings and extract elements by XPath — useful for validating HTML embedded in API responses.
 
-## Dependency
+## Installation
 
-```gradle
-testImplementation project(":common-utils:html")
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-html):
+
+```kotlin
+dependencies {
+    testImplementation("dev.quokkify:q4j-html:0.2.2")
+}
 ```
 
 ## Usage

@@ -2,10 +2,14 @@
 
 Scans the classpath to discover methods carrying a specific annotation — useful for auto-registering step definitions or audit checks in test frameworks.
 
-## Dependency
+## Installation
 
-```gradle
-testImplementation project(":common-utils:introspection")
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-reflection):
+
+```kotlin
+dependencies {
+    testImplementation("dev.quokkify:q4j-reflection:0.2.2")
+}
 ```
 
 ## Usage

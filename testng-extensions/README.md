@@ -2,10 +2,14 @@
 
 TestNG extensions providing retry logic, group filtering, lifecycle listeners, and soft-assertion step chains for test automation.
 
-## Dependency
+## Installation
 
-```gradle
-testImplementation project(":testng-extensions")
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-testng):
+
+```kotlin
+dependencies {
+    testImplementation("dev.quokkify:q4j-testng:0.2.2")
+}
 ```
 
 ## Environment variables
