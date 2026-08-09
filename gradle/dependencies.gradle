@@ -46,7 +46,7 @@ ext {
     jakarta_persistence_api = "3.2.0"
     querydsl = "5.1.0"
     jedis = "5.2.0"
-    redisson = "4.6.1"
+    redisson = "4.7.0"
     morphia = "2.5.3"
     mongodb_driver = "5.9.1"
     reportportal = "5.4.3"
