@@ -153,17 +153,22 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ARCHIVE_ROOT: ${{ runner.temp }}/allure-archives
           OUTPUT_ROOT: ${{ runner.temp }}/allure-expanded
-          MATERIALIZE_ROOT: ${{ github.workspace }}/.allure-input/results
+          MATERIALIZE_ROOT: ${{ github.workspace }}/.allure-input/source-artifacts
         run: python .github/allure/safe_extract.py
       - name: Build Allure report without write privileges
         uses: quokkify/project-toolkit/actions/allure-report@v2.11.1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           results-directory: .allure-input/results
+          source-artifacts-directory: .allure-input/source-artifacts
           report-directory: allure-report
           config-file: .github/allure/allurerc.mjs
           categories-file: ".github/allure/categories.json"
           source-run-id: ${{ github.event.workflow_run.id }}
+          comment-file: allure-report/allure-pr-comment.md
+          comment-marker: "<!-- project-toolkit-allure-report -->"
+          pages-url: ${{ format('{0}/allure/pr-{1}/?run={2}', 'https://quokkify.github.io/q4j', needs.resolve.outputs.pr-number, github.event.workflow_run.id) }}
+          fork-pr: ${{ needs.resolve.outputs.fork-pr }}
       - name: Upload generated Allure HTML
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
         with:
@@ -182,12 +187,19 @@ jobs:
       actions: read
       pull-requests: write
     steps:
+      - name: Download generated report summary
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.0
+        with:
+          name: allure-report-${{ github.run_id }}
+          path: .allure-comment
       - name: Revalidate source freshness and update comment
         uses: actions/github-script@3a2844b7e9c422d3c10d287c895573f7108da1b3 # v9.0.0
         env:
           PR_NUMBER: ${{ needs.resolve.outputs.pr-number }}
+          COMMENT_FILE: .allure-comment/allure-pr-comment.md
         with:
           script: |
+            const fs = require("fs");
             const run = context.payload.workflow_run;
             const prNumber = Number(process.env.PR_NUMBER);
             const { data: pull } = await github.rest.pulls.get({
@@ -213,13 +225,10 @@ jobs:
               return;
             }
             const marker = "<!-- project-toolkit-allure-report -->";
-            const reportRun = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${context.runId}`;
-            const sourceRun = `${context.serverUrl}/${context.repo.owner}/${context.repo.repo}/actions/runs/${run.id}`;
-            let body = `${marker}\n## Allure test report\n\nThe report was generated in a read-only job from validated artifacts for \`${run.head_sha.slice(0, 12)}\`.\n\n- [Download the Allure HTML artifact](${reportRun})\n- [Open the source validation run](${sourceRun})`;
-            const pagesBaseUrl = "https://quokkify.github.io/q4j";
-            if (pull.head.repo.full_name === pull.base.repo.full_name &&
-                pull.user?.login !== "dependabot[bot]") {
-              body += `\n- [Open the published report](${pagesBaseUrl}/allure/pr-${prNumber}/)`;
+            const body = fs.readFileSync(process.env.COMMENT_FILE, "utf8");
+            if (!body.includes(marker)) {
+              core.setFailed("Generated Allure comment is missing its ownership marker.");
+              return;
             }
             const comments = await github.paginate(github.rest.issues.listComments, {
               owner: context.repo.owner,
