@@ -233,7 +233,7 @@ services:
 
   reportportal-ui:
     profiles: [reporting]
-    image: reportportal/service-ui:5.15.3@sha256:55839cc351b692c8fc259e5ed8bbc3105ff45f27c25194a92704bb17e7102a5a
+    image: reportportal/service-ui:5.15.4@sha256:343dffd9241368ca2922b460314145d9231f1714b8b27816224e91431e4fa531
     environment:
       RP_SERVER_PORT: "8080"
     labels:
