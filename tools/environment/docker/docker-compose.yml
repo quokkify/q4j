@@ -516,8 +516,10 @@ services:
     healthcheck:
       test:
         [
-          "CMD-SHELL",
-          "curl -f http://localhost:5001 || wget -q --spider http://localhost:5001/ || exit 1",
+          "CMD",
+          "python",
+          "-c",
+          "import urllib.request; urllib.request.urlopen('http://localhost:5001/', timeout=5)",
         ]
       interval: 30s
       timeout: 10s
