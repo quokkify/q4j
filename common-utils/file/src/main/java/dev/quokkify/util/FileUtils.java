@@ -272,7 +272,9 @@ public final class FileUtils {
     try (var stream = Files.list(pathOfConfig)) {
       return stream
           .filter(Files::isDirectory)
-          .map(p -> p.getFileName().toString())
+          .map(Path::getFileName)
+          .filter(Objects::nonNull)
+          .map(Path::toString)
           .map(name -> {
             try {
               return Enum.valueOf(clazz,
