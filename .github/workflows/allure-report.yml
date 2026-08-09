@@ -156,7 +156,7 @@ jobs:
           MATERIALIZE_ROOT: ${{ github.workspace }}/.allure-input/source-artifacts
         run: python tools/allure/safe_extract.py
       - name: Build Allure report without write privileges
-        uses: quokkify/project-toolkit/actions/allure-report@v2.11.1
+        uses: quokkify/project-toolkit/actions/allure-report@a65ea9508463e3256627f13044858a1a83296631 # v2.11.1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           results-directory: .allure-input/results
@@ -188,7 +188,7 @@ jobs:
       pull-requests: write
     steps:
       - name: Download generated report summary
-        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.0
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
         with:
           name: allure-report-${{ github.run_id }}
           path: .allure-comment
@@ -342,7 +342,7 @@ jobs:
         run: python tools/allure/safe_extract.py
       - name: Publish Allure HTML to GitHub Pages
         if: ${{ steps.freshness.outputs.fresh == 'true' }}
-        uses: quokkify/project-toolkit/actions/deploy-gh-pages-subdir@v2.11.1
+        uses: quokkify/project-toolkit/actions/deploy-gh-pages-subdir@a65ea9508463e3256627f13044858a1a83296631 # v2.11.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           publish-dir: allure-report
