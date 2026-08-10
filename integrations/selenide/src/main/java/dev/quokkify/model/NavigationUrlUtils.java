@@ -35,19 +35,6 @@ final class NavigationUrlUtils {
     ).toString();
   }
 
-  static String getPageUrlWithCredentials(String fullPageUrl, String login, String password) throws URISyntaxException {
-    URI uri = URI.create(fullPageUrl);
-    return new URI(
-        uri.getScheme(),
-        login + ":" + password,
-        uri.getHost(),
-        uri.getPort(),
-        uri.getPath(),
-        uri.getQuery(),
-        uri.getFragment()
-    ).toString();
-  }
-
   private static void appendQueryParam(StringBuilder query, String key, String value) {
     if (query.length() > 0) {
       query.append('&');
@@ -57,5 +44,13 @@ final class NavigationUrlUtils {
 
   private static String urlEncode(String value) {
     return URLEncoder.encode(value, StandardCharsets.UTF_8);
+  }
+
+  static String extractHost(String url) throws URISyntaxException {
+    String host = URI.create(url).getHost();
+    if (host == null) {
+      throw new URISyntaxException(url, "Url must contain a host to scope Basic Auth credentials");
+    }
+    return host;
   }
 }

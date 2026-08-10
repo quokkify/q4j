@@ -97,34 +97,47 @@ public abstract class Navigation {
    */
   protected void openPage(String fullPageUrl) {
     if (Objects.nonNull(basicAuthCredentials)) {
-      try {
-        Selenide.open(NavigationUrlUtils.getPageUrlWithCredentials(
-            fullPageUrl,
-            basicAuthCredentials.login(),
-            basicAuthCredentials.password())
-        );
-      } catch (URISyntaxException e) {
-        throw new RuntimeException(e);
-      }
+      Selenide.open(
+          fullPageUrl,
+          resolveBasicAuthDomain(fullPageUrl),
+          basicAuthCredentials.login(),
+          basicAuthCredentials.password());
     } else {
       Selenide.open(fullPageUrl);
     }
   }
 
   private <T extends Page> T openPage(String fullPageUrl, Class<T> pageClass) {
-    String pageUrl;
+    Allure.step("Open page by url: '%s'".formatted(fullPageUrl));
+    return Objects.nonNull(basicAuthCredentials)
+        ? Selenide.open(
+        fullPageUrl,
+        resolveBasicAuthDomain(fullPageUrl),
+        basicAuthCredentials.login(),
+        basicAuthCredentials.password(),
+        pageClass)
+        : Selenide.open(fullPageUrl, pageClass);
+  }
+
+  /**
+   * Resolve the Basic Auth domain to use for the given url.
+   *
+   * An empty domain makes Selenide apply the credentials to every domain the browser
+   * contacts, so unscoped credentials are always narrowed to the target url's host.
+   *
+   * @param fullPageUrl url the credentials are being applied to
+   * @return domain to scope Basic Auth credentials to
+   */
+  private String resolveBasicAuthDomain(String fullPageUrl) {
+    String domain = basicAuthCredentials.domain();
+    if (Objects.nonNull(domain) && !domain.isBlank()) {
+      return domain;
+    }
     try {
-      pageUrl = Objects.nonNull(basicAuthCredentials)
-          ? NavigationUrlUtils.getPageUrlWithCredentials(
-          fullPageUrl,
-          basicAuthCredentials.login(),
-          basicAuthCredentials.password())
-          : fullPageUrl;
+      return NavigationUrlUtils.extractHost(fullPageUrl);
     } catch (URISyntaxException e) {
       throw new RuntimeException(e);
     }
-    Allure.step("Open page by url: '%s'".formatted(pageUrl));
-    return Selenide.open(pageUrl, pageClass);
   }
 
   /**
