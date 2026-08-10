@@ -72,8 +72,8 @@ public abstract class AbstractDatabaseSteps {
    */
   protected <Q> Q waitUntilAppear(Function<SqlDatabaseSteps, JPAQuery<Q>> function, String noResultsErrorMessage,
                                   Duration timeout, Duration pollingInterval) {
-    return waitUntilAppear(function, noResultsErrorMessage, (int) timeout.toSeconds(),
-        (int) pollingInterval.toMillis());
+    return Waiter.awaitCondition(() -> function.apply(getDatabaseSteps()).fetchOne(), Matchers.notNullValue(),
+        noResultsErrorMessage, timeout, pollingInterval);
   }
 
   /**

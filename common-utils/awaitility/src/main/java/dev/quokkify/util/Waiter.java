@@ -288,7 +288,7 @@ public final class Waiter {
 
   private static ConditionTimeoutException buildConditionTimeoutException(
       String message, Duration timeout, ConditionTimeoutException cause) {
-    String msg = "%s, within '%d' seconds".formatted(message, timeout.toSeconds());
+    String msg = "%s, within '%d' ms".formatted(message, timeout.toMillis());
     return new ConditionTimeoutException(msg, cause);
   }
 }
