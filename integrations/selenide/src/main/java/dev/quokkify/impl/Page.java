@@ -4,7 +4,8 @@ import dev.quokkify.annotation.PageTitle;
 import dev.quokkify.annotation.PageUrl;
 import dev.quokkify.formatter.RegexFormatter;
 import dev.quokkify.parser.RegexParser;
-import dev.quokkify.service.Browser;
+
+import com.codeborne.selenide.WebDriverRunner;
 
 /**
  * Interface for Ui page class.
@@ -74,7 +75,7 @@ public interface Page {
    * @return id from url as {@link String}
    */
   default String getIdFromUrl() {
-    String pageUrl = Browser.getUrl();
+    String pageUrl = WebDriverRunner.url();
     return RegexParser.parse("(?<=\\/)\\d+", pageUrl, "Can not find id value from url: %s".formatted(pageUrl));
   }
 }

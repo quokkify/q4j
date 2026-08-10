@@ -2,9 +2,9 @@ package dev.quokkify.model;
 
 import dev.quokkify.impl.Page;
 import dev.quokkify.impl.StepCreator;
-import dev.quokkify.service.Browser;
 import dev.quokkify.step.AbstractSteps;
 
+import com.codeborne.selenide.Selenide;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 import io.qameta.allure.Step;
 
@@ -34,7 +34,7 @@ public abstract class PageSteps<S extends PageSteps<S, V, P>, V extends Verifica
    */
   @Step("Refresh page")
   public S refreshPage() {
-    Browser.refresh();
+    Selenide.refresh();
     return (S) this;
   }
 
@@ -47,7 +47,7 @@ public abstract class PageSteps<S extends PageSteps<S, V, P>, V extends Verifica
    */
   @Step("Back to previous page")
   public <T extends PageSteps<?, ?, ?>> T backToPreviousPage(Class<T> stepClass) {
-    Browser.back();
+    Selenide.back();
     return getPageSteps(stepClass);
   }
 
