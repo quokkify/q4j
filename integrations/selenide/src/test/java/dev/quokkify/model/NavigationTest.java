@@ -61,11 +61,24 @@ public class NavigationTest {
 
       ArgumentCaptor<String> urlCaptor = ArgumentCaptor.forClass(String.class);
       selenideMock.verify(() -> Selenide.open(
-          urlCaptor.capture(), Mockito.eq(""), Mockito.eq(FAKE_LOGIN), Mockito.eq(FAKE_PASSWORD)));
+          urlCaptor.capture(), Mockito.eq("example.com"), Mockito.eq(FAKE_LOGIN), Mockito.eq(FAKE_PASSWORD)));
       Assertions.assertThat(urlCaptor.getValue())
           .as("Url passed to Selenide.open must be the plain page url without embedded credentials")
           .isEqualTo(EXPECTED_URL)
           .doesNotContain(FAKE_LOGIN, FAKE_PASSWORD);
+    }
+  }
+
+  @Test(description = "Basic Auth with an explicit domain must not be overridden by the target url's host")
+  public void openPageByUrlWithExplicitBasicAuthDomainKeepsExplicitDomain() {
+    BasicAuthCredentials credentials = new BasicAuthCredentials("auth.example.com", FAKE_LOGIN, FAKE_PASSWORD);
+    Navigation navigation = new TestNavigation(BASE_URL, credentials);
+
+    try (MockedStatic<Selenide> selenideMock = Mockito.mockStatic(Selenide.class)) {
+      navigation.openPage(EXPECTED_URL);
+
+      selenideMock.verify(() -> Selenide.open(
+          Mockito.eq(EXPECTED_URL), Mockito.eq("auth.example.com"), Mockito.eq(FAKE_LOGIN), Mockito.eq(FAKE_PASSWORD)));
     }
   }
 

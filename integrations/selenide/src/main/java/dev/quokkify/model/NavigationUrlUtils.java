@@ -45,4 +45,12 @@ final class NavigationUrlUtils {
   private static String urlEncode(String value) {
     return URLEncoder.encode(value, StandardCharsets.UTF_8);
   }
+
+  static String extractHost(String url) throws URISyntaxException {
+    String host = URI.create(url).getHost();
+    if (host == null) {
+      throw new URISyntaxException(url, "Url must contain a host to scope Basic Auth credentials");
+    }
+    return host;
+  }
 }

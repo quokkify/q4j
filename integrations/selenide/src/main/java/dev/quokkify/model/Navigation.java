@@ -99,7 +99,7 @@ public abstract class Navigation {
     if (Objects.nonNull(basicAuthCredentials)) {
       Selenide.open(
           fullPageUrl,
-          basicAuthCredentials.domain(),
+          resolveBasicAuthDomain(fullPageUrl),
           basicAuthCredentials.login(),
           basicAuthCredentials.password());
     } else {
@@ -112,11 +112,32 @@ public abstract class Navigation {
     return Objects.nonNull(basicAuthCredentials)
         ? Selenide.open(
         fullPageUrl,
-        basicAuthCredentials.domain(),
+        resolveBasicAuthDomain(fullPageUrl),
         basicAuthCredentials.login(),
         basicAuthCredentials.password(),
         pageClass)
         : Selenide.open(fullPageUrl, pageClass);
+  }
+
+  /**
+   * Resolve the Basic Auth domain to use for the given url.
+   *
+   * An empty domain makes Selenide apply the credentials to every domain the browser
+   * contacts, so unscoped credentials are always narrowed to the target url's host.
+   *
+   * @param fullPageUrl url the credentials are being applied to
+   * @return domain to scope Basic Auth credentials to
+   */
+  private String resolveBasicAuthDomain(String fullPageUrl) {
+    String domain = basicAuthCredentials.domain();
+    if (Objects.nonNull(domain) && !domain.isBlank()) {
+      return domain;
+    }
+    try {
+      return NavigationUrlUtils.extractHost(fullPageUrl);
+    } catch (URISyntaxException e) {
+      throw new RuntimeException(e);
+    }
   }
 
   /**
