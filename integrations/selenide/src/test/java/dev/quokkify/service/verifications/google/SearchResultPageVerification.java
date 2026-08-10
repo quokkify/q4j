@@ -21,8 +21,10 @@ public class SearchResultPageVerification extends Verification<SearchResultPageS
 
   @Step("Verify that search results exist")
   public SearchResultPageVerification verifySearchResultsExist() {
-    Waiter.awaitAssertion(() ->
-        Assertions.assertThat(page.getSearchTitlesCount()).as("The search results not exists").isPositive());
+    Waiter.awaitAssertion(
+        () -> Assertions.assertThat(page.getSearchTitlesCount()).as("The search results not exists").isPositive(),
+        getTimeout(),
+        getPollingInterval());
     return this;
   }
 

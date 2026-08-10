@@ -7,8 +7,6 @@ import java.util.concurrent.Callable;
 import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 
-import dev.quokkify.constant.PollingInterval;
-import dev.quokkify.constant.Timeout;
 import dev.quokkify.generator.LocalDateTimeGenerator;
 
 import org.apache.logging.log4j.LogManager;
@@ -30,6 +28,14 @@ import org.hamcrest.Matchers;
  */
 public final class Waiter {
 
+  private static final Duration DEFAULT_TIMEOUT = Duration.ofSeconds(60);
+  private static final Duration DEFAULT_POLLING_INTERVAL = Duration.ofSeconds(5);
+  private static final Duration QUICK_TIMEOUT = Duration.ofSeconds(5);
+  private static final Duration QUICK_POLLING_INTERVAL = Duration.ofMillis(500);
+  private static final Duration ACTION_TIMEOUT = Duration.ofSeconds(10);
+  private static final Duration SECOND_TICK_POLLING_INTERVAL = Duration.ofMillis(100);
+  private static final Duration ONE_SECOND_POLLING_INTERVAL = Duration.ofSeconds(1);
+
   private static final Logger LOG = LogManager.getLogger(Waiter.class);
 
   private Waiter() {
@@ -46,8 +52,8 @@ public final class Waiter {
         LocalDateTimeGenerator::generateNowWithPrecisionSeconds,
         Matchers.greaterThan(startTime),
         "Next second did not occur",
-        Timeout.SECONDS_5,
-        PollingInterval.MILLIS_100
+        QUICK_TIMEOUT,
+        SECOND_TICK_POLLING_INTERVAL
     );
     return startTime;
   }
@@ -56,37 +62,37 @@ public final class Waiter {
    * Runs a quick assertion with a short timeout.
    */
   public static void awaitQuickAssertion(ThrowingRunnable assertion) {
-    awaitAssertion(assertion, Timeout.SECONDS_5, PollingInterval.MILLIS_500);
+    awaitAssertion(assertion, QUICK_TIMEOUT, QUICK_POLLING_INTERVAL);
   }
 
   /**
    * Runs an assertion with a custom quick timeout.
    */
-  public static void awaitQuickAssertion(ThrowingRunnable assertion, Timeout timeout) {
-    awaitAssertion(assertion, timeout, PollingInterval.MILLIS_500);
+  public static void awaitQuickAssertion(ThrowingRunnable assertion, Duration timeout) {
+    awaitAssertion(assertion, timeout, QUICK_POLLING_INTERVAL);
   }
 
   /**
    * Runs an assertion with a very slow default timeout.
    */
   public static void awaitAssertion(ThrowingRunnable assertion) {
-    awaitAssertion(assertion, Timeout.SECONDS_60, PollingInterval.MILLIS_5000);
+    awaitAssertion(assertion, DEFAULT_TIMEOUT, DEFAULT_POLLING_INTERVAL);
   }
 
   /**
    * Runs an assertion with a custom timeout.
    */
-  public static void awaitAssertion(ThrowingRunnable assertion, Timeout timeout) {
-    awaitAssertion(assertion, timeout, PollingInterval.MILLIS_5000);
+  public static void awaitAssertion(ThrowingRunnable assertion, Duration timeout) {
+    awaitAssertion(assertion, timeout, DEFAULT_POLLING_INTERVAL);
   }
 
   /**
-   * Runs an assertion with custom timeout and polling interval.
+   * Runs an assertion with a custom {@link Duration} timeout and polling interval.
    */
-  public static void awaitAssertion(ThrowingRunnable assertion, Timeout timeout, PollingInterval pollingInterval) {
+  public static void awaitAssertion(ThrowingRunnable assertion, Duration timeout, Duration pollingInterval) {
     Awaitility.await()
-        .atMost(timeout.duration())
-        .pollInterval(pollingInterval.duration())
+        .atMost(timeout)
+        .pollInterval(pollingInterval)
         .pollDelay(Duration.ZERO)
         .pollInSameThread()
         .untilAsserted(assertion);
@@ -96,15 +102,7 @@ public final class Waiter {
    * Waits quickly for a boolean condition.
    */
   public static void awaitQuickCondition(Callable<Boolean> condition, String errorMessage) {
-    awaitCondition(condition, errorMessage, Timeout.SECONDS_5, PollingInterval.MILLIS_1000);
-  }
-
-  /**
-   * Waits for a boolean condition with custom timeout and polling.
-   */
-  public static void awaitCondition(Callable<Boolean> condition, String errorMessage,
-                                    Timeout timeout, PollingInterval pollingInterval) {
-    awaitCondition(condition, errorMessage, timeout.duration(), pollingInterval.duration());
+    awaitCondition(condition, errorMessage, QUICK_TIMEOUT, ONE_SECOND_POLLING_INTERVAL);
   }
 
   /**
@@ -120,11 +118,11 @@ public final class Waiter {
    * Core boolean condition await with {@link Duration}.
    */
   public static void awaitCondition(Callable<Boolean> condition, String errorMessage,
-                                    Duration timeout, Duration pollInterval) {
+                                    Duration timeout, Duration pollingInterval) {
     try {
       Awaitility.await()
           .atMost(timeout)
-          .pollInterval(pollInterval)
+          .pollInterval(pollingInterval)
           .pollDelay(Duration.ZERO)
           .pollInSameThread()
           .ignoreException(ConnectException.class)
@@ -138,22 +136,14 @@ public final class Waiter {
    * Quick await for a supplier with matcher.
    */
   public static <T> T awaitQuickCondition(Callable<T> supplier, Matcher<? super T> matcher, String errorMessage) {
-    return awaitCondition(supplier, matcher, errorMessage, Timeout.SECONDS_5, PollingInterval.MILLIS_500);
+    return awaitCondition(supplier, matcher, errorMessage, QUICK_TIMEOUT, QUICK_POLLING_INTERVAL);
   }
 
   /**
    * Very-slow await for a supplier with matcher.
    */
   public static <T> T awaitVerySlowCondition(Callable<T> supplier, Matcher<? super T> matcher, String errorMessage) {
-    return awaitCondition(supplier, matcher, errorMessage, Timeout.SECONDS_60, PollingInterval.MILLIS_5000);
-  }
-
-  /**
-   * Await supplier result with matcher and custom timeout/polling.
-   */
-  public static <T> T awaitCondition(Callable<T> supplier, Matcher<? super T> matcher,
-                                     String errorMessage, Timeout timeout, PollingInterval pollingInterval) {
-    return awaitCondition(supplier, matcher, errorMessage, timeout.duration(), pollingInterval.duration());
+    return awaitCondition(supplier, matcher, errorMessage, DEFAULT_TIMEOUT, DEFAULT_POLLING_INTERVAL);
   }
 
   /**
@@ -169,11 +159,11 @@ public final class Waiter {
    * Core supplier + matcher await with {@link Duration}.
    */
   public static <T> T awaitCondition(Callable<T> supplier, Matcher<? super T> matcher,
-                                     String errorMessage, Duration timeout, Duration pollInterval) {
+                                     String errorMessage, Duration timeout, Duration pollingInterval) {
     try {
       return Awaitility.await()
           .atMost(timeout)
-          .pollInterval(pollInterval)
+          .pollInterval(pollingInterval)
           .pollDelay(Duration.ZERO)
           .pollInSameThread()
           .ignoreException(ConnectException.class)
@@ -187,14 +177,14 @@ public final class Waiter {
    * Waits for a condition while running an action at each poll.
    */
   public static void awaitConditionWithAction(Callable<Boolean> condition, Runnable action, String errorMessage) {
-    awaitConditionWithAction(condition, action, errorMessage, Timeout.SECONDS_10, PollingInterval.MILLIS_1000);
+    awaitConditionWithAction(condition, action, errorMessage, ACTION_TIMEOUT, ONE_SECOND_POLLING_INTERVAL);
   }
 
   /**
    * Waits for a condition while running an action at each poll with custom timing.
    */
   public static void awaitConditionWithAction(Callable<Boolean> condition, Runnable action, String errorMessage,
-                                              Timeout timeout, PollingInterval pollingInterval) {
+                                              Duration timeout, Duration pollingInterval) {
     Callable<Boolean> conditionWithAction = () -> {
       action.run();
       return condition.call();
@@ -221,10 +211,19 @@ public final class Waiter {
    * @param failMessage     message for the {@link AssertionError} if condition becomes {@code true}
    */
   public static void assertNeverTrue(BooleanSupplier condition,
-                                     Timeout timeout,
-                                     PollingInterval pollingInterval,
+                                     Duration timeout,
+                                     Duration pollingInterval,
                                      String failMessage) {
-    assertNeverTrue(condition, timeout.duration(), pollingInterval.duration(), failMessage);
+    try {
+      Awaitility.await()
+          .atMost(timeout)
+          .pollInterval(pollingInterval)
+          .pollDelay(Duration.ZERO)
+          .pollInSameThread()
+          .until(condition::getAsBoolean);
+      throw new AssertionError(failMessage);
+    } catch (ConditionTimeoutException ignored) {
+    }
   }
 
   /**
@@ -235,23 +234,7 @@ public final class Waiter {
    * @param failMessage message for the {@link AssertionError} if condition becomes {@code true}
    */
   public static void assertNeverTrue(BooleanSupplier condition, String failMessage) {
-    assertNeverTrue(condition, Timeout.SECONDS_60, PollingInterval.MILLIS_1000, failMessage);
-  }
-
-  public static void assertNeverTrue(BooleanSupplier condition,
-                                     Duration timeout,
-                                     Duration pollInterval,
-                                     String failMessage) {
-    try {
-      Awaitility.await()
-          .atMost(timeout)
-          .pollInterval(pollInterval)
-          .pollDelay(Duration.ZERO)
-          .pollInSameThread()
-          .until(condition::getAsBoolean);
-      throw new AssertionError(failMessage);
-    } catch (ConditionTimeoutException ignored) {
-    }
+    assertNeverTrue(condition, DEFAULT_TIMEOUT, ONE_SECOND_POLLING_INTERVAL, failMessage);
   }
 
   /**
@@ -273,8 +256,8 @@ public final class Waiter {
    * @param failMessage     message for the {@link AssertionError} if condition drops to {@code false}
    */
   public static void assertAlwaysTrue(BooleanSupplier condition,
-                                      Timeout timeout,
-                                      PollingInterval pollingInterval,
+                                      Duration timeout,
+                                      Duration pollingInterval,
                                       String failMessage) {
     assertNeverTrue(() -> !condition.getAsBoolean(), timeout, pollingInterval, failMessage);
   }
@@ -287,7 +270,7 @@ public final class Waiter {
    * @param failMessage message for the {@link AssertionError} if condition drops to {@code false}
    */
   public static void assertAlwaysTrue(BooleanSupplier condition, String failMessage) {
-    assertAlwaysTrue(condition, Timeout.SECONDS_60, PollingInterval.MILLIS_1000, failMessage);
+    assertAlwaysTrue(condition, DEFAULT_TIMEOUT, ONE_SECOND_POLLING_INTERVAL, failMessage);
   }
 
   /**
@@ -305,7 +288,7 @@ public final class Waiter {
 
   private static ConditionTimeoutException buildConditionTimeoutException(
       String message, Duration timeout, ConditionTimeoutException cause) {
-    String msg = "%s, within '%d' seconds".formatted(message, timeout.toSeconds());
+    String msg = "%s, within '%d' ms".formatted(message, timeout.toMillis());
     return new ConditionTimeoutException(msg, cause);
   }
 }

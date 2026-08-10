@@ -11,9 +11,7 @@ import java.util.Properties;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
-import dev.quokkify.constant.PollingInterval;
 import dev.quokkify.constant.StringConstant;
-import dev.quokkify.constant.Timeout;
 import dev.quokkify.util.Waiter;
 
 import org.apache.commons.lang3.StringUtils;
@@ -120,7 +118,7 @@ public class ClientConsumer<K, V> implements Closeable {
               new KafkaMessage<>(record.topic(), record.partition(), record.offset(), record.key(), record.value())));
       return partitionsOffsets.keySet().stream()
           .allMatch(topicPartition -> consumer.position(topicPartition) >= endOffsets.get(topicPartition));
-    }, "Can not fetch all messages while consumer polling", Timeout.SECONDS_60, PollingInterval.MILLIS_500);
+    }, "Can not fetch all messages while consumer polling", Duration.ofSeconds(60), Duration.ofMillis(500));
     consumer.unsubscribe();
     return messages;
   }

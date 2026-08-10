@@ -1,11 +1,10 @@
 package dev.quokkify.steps;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Function;
 
-import dev.quokkify.constant.PollingInterval;
-import dev.quokkify.constant.Timeout;
 import dev.quokkify.entity.SqlEntityInterface;
 import dev.quokkify.util.Waiter;
 
@@ -45,7 +44,7 @@ public abstract class AbstractDatabaseSteps {
    * @return entity extends from {@link SqlEntityInterface}
    */
   protected <Q> Q waitUntilAppear(Function<SqlDatabaseSteps, JPAQuery<Q>> function) {
-    return waitUntilAppear(function, Timeout.SECONDS_60, PollingInterval.MILLIS_5000);
+    return waitUntilAppear(function, Duration.ofSeconds(60), Duration.ofMillis(5000));
   }
 
   /**
@@ -53,12 +52,12 @@ public abstract class AbstractDatabaseSteps {
    * Used default error message.
    *
    * @param function        function to get database entity by {@link JPAQuery} using {@link SqlDatabaseSteps}
-   * @param timeout         waiter timeout {@link Timeout}
-   * @param pollingInterval waiter polling interval {@link PollingInterval}
+   * @param timeout         waiter timeout
+   * @param pollingInterval waiter polling interval
    * @return entity extends from {@link SqlEntityInterface}
    */
-  protected <Q> Q waitUntilAppear(Function<SqlDatabaseSteps, JPAQuery<Q>> function, Timeout timeout,
-                                  PollingInterval pollingInterval) {
+  protected <Q> Q waitUntilAppear(Function<SqlDatabaseSteps, JPAQuery<Q>> function, Duration timeout,
+                                  Duration pollingInterval) {
     return waitUntilAppear(function, DEFAULT_NPE_ERROR_MESSAGE, timeout, pollingInterval);
   }
 
@@ -67,13 +66,14 @@ public abstract class AbstractDatabaseSteps {
    *
    * @param function              function to get database entity by {@link JPAQuery} using {@link SqlDatabaseSteps}
    * @param noResultsErrorMessage error message if entity not found
-   * @param timeout               waiter timeout {@link Timeout}
-   * @param pollingInterval       waiter polling interval {@link PollingInterval}
+   * @param timeout               waiter timeout
+   * @param pollingInterval       waiter polling interval
    * @return entity extends from {@link SqlEntityInterface}
    */
   protected <Q> Q waitUntilAppear(Function<SqlDatabaseSteps, JPAQuery<Q>> function, String noResultsErrorMessage,
-                                  Timeout timeout, PollingInterval pollingInterval) {
-    return waitUntilAppear(function, noResultsErrorMessage, timeout.seconds(), pollingInterval.getMillis());
+                                  Duration timeout, Duration pollingInterval) {
+    return Waiter.awaitCondition(() -> function.apply(getDatabaseSteps()).fetchOne(), Matchers.notNullValue(),
+        noResultsErrorMessage, timeout, pollingInterval);
   }
 
   /**

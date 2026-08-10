@@ -1,5 +1,6 @@
 package dev.quokkify.kafka.steps.models;
 
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -8,9 +9,7 @@ import java.util.concurrent.Callable;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
 
-import dev.quokkify.constant.PollingInterval;
 import dev.quokkify.constant.StringConstant;
-import dev.quokkify.constant.Timeout;
 import dev.quokkify.kafka.clients.KafkaMessage;
 import dev.quokkify.kafka.converters.MessageConverter;
 import dev.quokkify.kafka.matchers.KafkaMatcher;
@@ -68,7 +67,7 @@ public abstract class BaseKafkaSteps<M extends KafkaMessageValue, V extends Kafk
    * @return message
    */
   protected M getMessageValue(Predicate<M> predicate) {
-    return getMessageValue(predicate, Timeout.SECONDS_30, PollingInterval.MILLIS_1000);
+    return getMessageValue(predicate, Duration.ofSeconds(30), Duration.ofMillis(1000));
   }
 
   /**
@@ -79,7 +78,7 @@ public abstract class BaseKafkaSteps<M extends KafkaMessageValue, V extends Kafk
    * @param pollingInterval pollingInterval for waiting message
    * @return message
    */
-  protected M getMessageValue(Predicate<M> filterPredicate, Timeout timeout, PollingInterval pollingInterval) {
+  protected M getMessageValue(Predicate<M> filterPredicate, Duration timeout, Duration pollingInterval) {
     return waitMessages(filterPredicate, timeout, pollingInterval).stream()
         .filter(filterPredicate)
         .findFirst()
@@ -95,7 +94,7 @@ public abstract class BaseKafkaSteps<M extends KafkaMessageValue, V extends Kafk
    * @return message
    */
   protected M getMessageValue(Predicate<M> filterPredicate, Map<TopicPartition, Long> partitionsOffsets) {
-    return getMessageValue(filterPredicate, partitionsOffsets, Timeout.SECONDS_30, PollingInterval.MILLIS_1000);
+    return getMessageValue(filterPredicate, partitionsOffsets, Duration.ofSeconds(30), Duration.ofMillis(1000));
   }
 
   /**
@@ -108,7 +107,7 @@ public abstract class BaseKafkaSteps<M extends KafkaMessageValue, V extends Kafk
    * @return message
    */
   protected M getMessageValue(Predicate<M> predicate, Map<TopicPartition, Long> partitionsOffsets,
-                              Timeout timeout, PollingInterval pollingInterval) {
+                              Duration timeout, Duration pollingInterval) {
     return waitMessages(predicate, timeout, pollingInterval, partitionsOffsets).stream()
         .filter(predicate)
         .findFirst()
@@ -123,7 +122,7 @@ public abstract class BaseKafkaSteps<M extends KafkaMessageValue, V extends Kafk
    * @return list of messages
    */
   protected List<M> getMessageValues(Predicate<M> predicate) {
-    return waitMessages(predicate, Timeout.SECONDS_30, PollingInterval.MILLIS_1000);
+    return waitMessages(predicate, Duration.ofSeconds(30), Duration.ofMillis(1000));
   }
 
   /**
@@ -142,7 +141,7 @@ public abstract class BaseKafkaSteps<M extends KafkaMessageValue, V extends Kafk
     return Waiter.awaitCondition(getMessagesSupplier,
         Matchers.hasSize(Matchers.greaterThanOrEqualTo(minRequiredMessagesCount)),
         "Count of messages less than min required '%d'".formatted(minRequiredMessagesCount),
-        Timeout.SECONDS_30, PollingInterval.MILLIS_1000);
+        Duration.ofSeconds(30), Duration.ofMillis(1000));
   }
 
   /**
@@ -153,7 +152,7 @@ public abstract class BaseKafkaSteps<M extends KafkaMessageValue, V extends Kafk
    * @return list of messages
    */
   protected List<M> getMessageValues(Predicate<M> predicate, Map<TopicPartition, Long> partitionsOffsets) {
-    return waitMessages(predicate, Timeout.SECONDS_30, PollingInterval.MILLIS_1000, partitionsOffsets);
+    return waitMessages(predicate, Duration.ofSeconds(30), Duration.ofMillis(1000), partitionsOffsets);
   }
 
   /**
@@ -173,7 +172,7 @@ public abstract class BaseKafkaSteps<M extends KafkaMessageValue, V extends Kafk
    * @param pollingInterval for waiting messages
    * @return list of messages
    */
-  private List<M> waitMessages(Predicate<M> predicate, Timeout timeout, PollingInterval pollingInterval) {
+  private List<M> waitMessages(Predicate<M> predicate, Duration timeout, Duration pollingInterval) {
     return Waiter.awaitCondition(this::readMessageValues, KafkaMatcher.hasItem(predicate),
         "'%s' topic has no required messages".formatted(getTopic()), timeout, pollingInterval);
   }
@@ -187,7 +186,7 @@ public abstract class BaseKafkaSteps<M extends KafkaMessageValue, V extends Kafk
    * @param partitionsOffsets partitions offsets to start reading messages
    * @return list of required messages or throw exception with log all received messages
    */
-  private List<M> waitMessages(Predicate<M> predicate, Timeout timeout, PollingInterval pollingInterval,
+  private List<M> waitMessages(Predicate<M> predicate, Duration timeout, Duration pollingInterval,
                                Map<TopicPartition, Long> partitionsOffsets) {
     try {
       return Waiter.awaitCondition(() -> readMessageValues(partitionsOffsets), KafkaMatcher.hasItem(predicate),
