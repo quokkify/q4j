@@ -1,7 +1,8 @@
 package dev.quokkify.model;
 
+import java.util.function.Supplier;
+
 import dev.quokkify.impl.Page;
-import dev.quokkify.impl.StepCreator;
 import dev.quokkify.step.AbstractSteps;
 
 import com.codeborne.selenide.Selenide;
@@ -17,7 +18,7 @@ import io.qameta.allure.Step;
  */
 @SuppressFBWarnings({"UWF_UNWRITTEN_PUBLIC_OR_PROTECTED_FIELD", "UUF_UNUSED_PUBLIC_OR_PROTECTED_FIELD"})
 public abstract class PageSteps<S extends PageSteps<S, V, P>, V extends Verification<S, V, P>, P extends Page>
-    extends AbstractSteps<V> implements StepCreator {
+    extends AbstractSteps<V> {
 
   protected V verification;
   protected P page;
@@ -41,14 +42,14 @@ public abstract class PageSteps<S extends PageSteps<S, V, P>, V extends Verifica
   /**
    * Back to previous page.
    *
-   * @param stepClass steps class
-   * @param <T>       like {@link PageSteps}
+   * @param stepFactory factory creating the expected page steps
+   * @param <T>         like {@link PageSteps}
    * @return expected page steps
    */
   @Step("Back to previous page")
-  public <T extends PageSteps<?, ?, ?>> T backToPreviousPage(Class<T> stepClass) {
+  public <T extends PageSteps<?, ?, ?>> T backToPreviousPage(Supplier<T> stepFactory) {
     Selenide.back();
-    return getPageSteps(stepClass);
+    return stepFactory.get();
   }
 
   /**
