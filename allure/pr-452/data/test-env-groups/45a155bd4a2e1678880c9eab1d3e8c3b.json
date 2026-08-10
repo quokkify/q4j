@@ -1,0 +1,1 @@
+{"id":"45a155bd4a2e1678880c9eab1d3e8c3b","fullName":"dev.quokkify.util.JsonConverterModuleDiscoveryTest.shouldSerializeWithoutTypeFieldWhenCustomModuleNotRegistered","name":"Verify serialization does not contain type discriminator when module discovery is disabled","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"8b1815f3bd05e614268f2f6ada905c37"}}
