@@ -1,7 +1,8 @@
 package dev.quokkify.page.google;
 
+import java.util.List;
+
 import dev.quokkify.annotation.PageUrl;
-import dev.quokkify.elements.base.ComponentsCollection;
 import dev.quokkify.elements.single.Block;
 import dev.quokkify.elements.single.Link;
 import dev.quokkify.impl.Page;
@@ -13,15 +14,17 @@ import org.openqa.selenium.support.How;
 public class SearchResultPage implements Page {
 
   @FindBy(how = How.CSS, using = "#rso > div")
-  private ComponentsCollection<SearchResultBlock> searchResults;
+  private List<SearchResultBlock> searchResults;
 
   public int getSearchTitlesCount() {
     return searchResults.size();
   }
 
   public void clickOnSearchResultLinkByLinkText(String linkText) {
-    searchResults.get(resultBlock -> resultBlock.getTitleLinkText().startsWith(linkText),
-            "Find by '%s' link text".formatted(linkText))
+    searchResults.stream()
+        .filter(resultBlock -> resultBlock.getTitleLinkText().startsWith(linkText))
+        .findFirst()
+        .orElseThrow(() -> new AssertionError("No search result starts with '%s'".formatted(linkText)))
         .clickOnTitleLink();
   }
 
