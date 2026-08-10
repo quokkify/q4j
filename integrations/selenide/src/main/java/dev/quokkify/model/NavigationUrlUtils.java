@@ -35,19 +35,6 @@ final class NavigationUrlUtils {
     ).toString();
   }
 
-  static String getPageUrlWithCredentials(String fullPageUrl, String login, String password) throws URISyntaxException {
-    URI uri = URI.create(fullPageUrl);
-    return new URI(
-        uri.getScheme(),
-        login + ":" + password,
-        uri.getHost(),
-        uri.getPort(),
-        uri.getPath(),
-        uri.getQuery(),
-        uri.getFragment()
-    ).toString();
-  }
-
   private static void appendQueryParam(StringBuilder query, String key, String value) {
     if (query.length() > 0) {
       query.append('&');

@@ -97,34 +97,26 @@ public abstract class Navigation {
    */
   protected void openPage(String fullPageUrl) {
     if (Objects.nonNull(basicAuthCredentials)) {
-      try {
-        Selenide.open(NavigationUrlUtils.getPageUrlWithCredentials(
-            fullPageUrl,
-            basicAuthCredentials.login(),
-            basicAuthCredentials.password())
-        );
-      } catch (URISyntaxException e) {
-        throw new RuntimeException(e);
-      }
+      Selenide.open(
+          fullPageUrl,
+          basicAuthCredentials.domain(),
+          basicAuthCredentials.login(),
+          basicAuthCredentials.password());
     } else {
       Selenide.open(fullPageUrl);
     }
   }
 
   private <T extends Page> T openPage(String fullPageUrl, Class<T> pageClass) {
-    String pageUrl;
-    try {
-      pageUrl = Objects.nonNull(basicAuthCredentials)
-          ? NavigationUrlUtils.getPageUrlWithCredentials(
-          fullPageUrl,
-          basicAuthCredentials.login(),
-          basicAuthCredentials.password())
-          : fullPageUrl;
-    } catch (URISyntaxException e) {
-      throw new RuntimeException(e);
-    }
-    Allure.step("Open page by url: '%s'".formatted(pageUrl));
-    return Selenide.open(pageUrl, pageClass);
+    Allure.step("Open page by url: '%s'".formatted(fullPageUrl));
+    return Objects.nonNull(basicAuthCredentials)
+        ? Selenide.open(
+        fullPageUrl,
+        basicAuthCredentials.domain(),
+        basicAuthCredentials.login(),
+        basicAuthCredentials.password(),
+        pageClass)
+        : Selenide.open(fullPageUrl, pageClass);
   }
 
   /**

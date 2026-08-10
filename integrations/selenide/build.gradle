@@ -11,6 +11,7 @@ dependencies {
     testImplementation project(":testng-extensions")
     testImplementation project(":integrations:selenide-proxy")
     testImplementation "io.qameta.allure:allure-testng:${allure}"
+    testImplementation "org.mockito:mockito-core"
 
     api "org.assertj:assertj-core"
 }
