@@ -5,6 +5,7 @@ import java.util.UUID;
 
 import com.browserup.bup.BrowserUpProxy;
 import com.browserup.bup.proxy.CaptureType;
+import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.WebDriverRunner;
 import de.sstoehr.harreader.model.Har;
 
@@ -22,7 +23,7 @@ public class ProxyBrowser extends Browser {
    * @param requestHeaders proxy filters request headers
    */
   public static void openBrowserAndAddProxyRequestHeaders(Map<String, String> requestHeaders) {
-    open();
+    Selenide.open();
     addProxyRequestHeaders(requestHeaders);
   }
 
