@@ -23,7 +23,7 @@ Waiter.awaitAssertion(() -> assertThat(order.getStatus()).isEqualTo("CONFIRMED")
 Quick check with a custom timeout (500ms poll):
 
 ```java
-Waiter.awaitQuickAssertion(() -> assertTrue(cache.containsKey("session-123")), Timeout.SECONDS_10);
+Waiter.awaitQuickAssertion(() -> assertTrue(cache.containsKey("session-123")), Duration.ofSeconds(10));
 ```
 
 Wait for a supplier value to match a Hamcrest matcher — using `Duration` directly:
@@ -60,17 +60,13 @@ Waiter.assertAlwaysTrue(
 );
 ```
 
-> **Enum overloads**: `Timeout` and `PollingInterval` enum overloads remain available as convenience wrappers
-> (e.g. `Timeout.SECONDS_30`, `PollingInterval.MILLIS_1000`) and delegate to the `Duration` forms internally.
-> Prefer `Duration` for new code.
-
 ## Key API
 
 | Method                                                          | Timeout | Poll    | Notes                                    |
 | --------------------------------------------------------------- | ------- | ------- | ---------------------------------------- |
 | `awaitAssertion(assertion)`                                     | 60s     | 5s      | AssertJ / TestNG assertion               |
 | `awaitQuickAssertion(assertion)`                                | 5s      | 500ms   | fast path, no overrides                  |
-| `awaitQuickAssertion(assertion, timeout)`                       | custom  | 500ms   | custom `Timeout` constant                |
+| `awaitQuickAssertion(assertion, timeout)`                       | custom  | 500ms   | custom `Duration` timeout                |
 | `awaitCondition(callable, message, timeout, interval)`          | custom  | custom  | boolean `Callable`; accepts `Duration`   |
 | `awaitCondition(supplier, matcher, message, timeout, interval)` | custom  | custom  | Hamcrest `Matcher`; accepts `Duration`   |
 | `awaitConditionWithAction(condition, action, message)`          | default | default | runs `action` each tick                  |
