@@ -10,10 +10,15 @@ import dev.quokkify.service.steps.google.GoogleNavigationSteps;
 import dev.quokkify.service.steps.w3schools.W3SchoolsNavigationSteps;
 
 import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.logevents.SelenideLogger;
+import io.qameta.allure.selenide.AllureSelenide;
 import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
 
 public class BaseTest {
+
+  private static final String ALLURE_LISTENER = "AllureSelenide";
 
   protected static final Configuration APP_CONFIG = ConfigRegistry.get(Configuration.class);
   protected static final BrowserConfiguration BROWSER_CONFIGURATION = ConfigRegistry.get(BrowserConfiguration.class);
@@ -30,8 +35,17 @@ public class BaseTest {
     }
   }
 
+  @BeforeMethod(alwaysRun = true)
+  protected void addAllureSelenideListener() {
+    SelenideLogger.addListener(ALLURE_LISTENER, new AllureSelenide().screenshots(true).savePageSource(false));
+  }
+
   @AfterMethod(alwaysRun = true)
   protected void closeWebDriver() {
-    Selenide.closeWebDriver();
+    try {
+      Selenide.closeWebDriver();
+    } finally {
+      SelenideLogger.removeListener(ALLURE_LISTENER);
+    }
   }
 }
