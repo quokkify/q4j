@@ -3,7 +3,6 @@ package dev.quokkify.test;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
-import java.util.Objects;
 
 import dev.quokkify.ex.TableRowException;
 import dev.quokkify.page.local.DelayedTablePage;
@@ -211,16 +210,10 @@ public class TableRowWaitTest extends BaseTest {
   }
 
   private DelayedTablePage openDelayedTablePage() {
-    return Selenide.open(fixtureUrl(DELAYED_TABLE_FIXTURE_PATH), DelayedTablePage.class);
+    return Selenide.open(APP_CONFIG.baseUrl() + DELAYED_TABLE_FIXTURE_PATH, DelayedTablePage.class);
   }
 
   private LateMountingTablePage openLateMountingTablePage() {
-    return Selenide.open(fixtureUrl(LATE_MOUNTING_TABLE_FIXTURE_PATH), LateMountingTablePage.class);
-  }
-
-  // classpath: URLs silently failed to navigate in this environment, hence the external-form file: URL below.
-  private String fixtureUrl(String fixturePath) {
-    return Objects.requireNonNull(getClass().getResource(fixturePath), "Fixture not found: " + fixturePath)
-        .toExternalForm();
+    return Selenide.open(APP_CONFIG.baseUrl() + LATE_MOUNTING_TABLE_FIXTURE_PATH, LateMountingTablePage.class);
   }
 }
