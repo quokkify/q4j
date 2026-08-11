@@ -37,7 +37,7 @@ public class BaseTest {
 
   @BeforeMethod(alwaysRun = true)
   protected void addAllureSelenideListener() {
-    SelenideLogger.addListener(ALLURE_LISTENER, new AllureSelenide().screenshots(true).savePageSource(false));
+    SelenideLogger.addListener(ALLURE_LISTENER, new AllureSelenide().screenshots(true).savePageSource(true));
   }
 
   @AfterMethod(alwaysRun = true)
