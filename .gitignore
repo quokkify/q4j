@@ -28,7 +28,3 @@ statics/bin
 # MemPalace per-project files (issue #185)
 mempalace.yaml
 entities.json
-
-# Local agent-tooling state
-.omc/
-.mcp.json

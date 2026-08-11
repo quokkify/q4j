@@ -1,9 +1,9 @@
 package dev.quokkify.elements.table.classic.base;
 
 import java.time.Duration;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.function.Function;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
@@ -13,18 +13,22 @@ import dev.quokkify.elements.base.BaseTable;
 import dev.quokkify.elements.table.classic.Row;
 import dev.quokkify.ex.TableRowException;
 import dev.quokkify.html.model.HtmlTag;
-import dev.quokkify.util.Waiter;
 
+import com.codeborne.selenide.CheckResult;
 import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.Driver;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.WebElementCondition;
 import com.codeborne.selenide.ex.UIAssertionError;
+import com.codeborne.selenide.impl.WebElementWrapper;
 import org.apache.commons.lang3.StringUtils;
-import org.awaitility.core.ConditionTimeoutException;
-import org.hamcrest.Matchers;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.WebElement;
+
+import static com.codeborne.selenide.Configuration.timeout;
 
 /**
  * Abstract class to work with Classic Table.
@@ -40,7 +44,7 @@ public abstract class BaseClassicTable<T extends Enum<T>> extends BaseTable<T> {
    * @return table {@link Row} element
    */
   public Row<T> getRow(Map<T, String> expectedRowValues) {
-    return this.getRow(expectedRowValues, DEFAULT_ROW_TIMEOUT, DEFAULT_ROW_POLLING_INTERVAL);
+    return this.getRow(expectedRowValues, Duration.ofMillis(timeout));
   }
 
   /**
@@ -48,12 +52,12 @@ public abstract class BaseClassicTable<T extends Enum<T>> extends BaseTable<T> {
    *
    * @param expectedRowValues map: key - column, value - cell value
    * @param timeout           how long to wait for a matching row
-   * @param pollingInterval   how often to re-read the table rows
    * @return table {@link Row} element
    */
-  public Row<T> getRow(Map<T, String> expectedRowValues, Duration timeout, Duration pollingInterval) {
+  public Row<T> getRow(Map<T, String> expectedRowValues, Duration timeout) {
     return this.getFilteredRow(this.columnsTextsPredicate(expectedRowValues),
-        cause -> new TableRowException(expectedRowValues, timeout, cause), timeout, pollingInterval);
+        "row with expected values %s".formatted(expectedRowValues),
+        cause -> new TableRowException(expectedRowValues, timeout, cause), timeout);
   }
 
   /**
@@ -64,7 +68,7 @@ public abstract class BaseClassicTable<T extends Enum<T>> extends BaseTable<T> {
    * @return table {@link Row} element
    */
   public Row<T> getRow(T columnHeader, String cellValue) {
-    return this.getRow(columnHeader, cellValue, DEFAULT_ROW_TIMEOUT, DEFAULT_ROW_POLLING_INTERVAL);
+    return this.getRow(columnHeader, cellValue, Duration.ofMillis(timeout));
   }
 
   /**
@@ -73,12 +77,12 @@ public abstract class BaseClassicTable<T extends Enum<T>> extends BaseTable<T> {
    * @param columnHeader    column enum
    * @param cellValue       expected cell value
    * @param timeout         how long to wait for a matching row
-   * @param pollingInterval how often to re-read the table rows
    * @return table {@link Row} element
    */
-  public Row<T> getRow(T columnHeader, String cellValue, Duration timeout, Duration pollingInterval) {
+  public Row<T> getRow(T columnHeader, String cellValue, Duration timeout) {
     return this.getFilteredRow(this.columnTextPredicate(columnHeader, cellValue),
-        cause -> new TableRowException(columnHeader, cellValue, timeout, cause), timeout, pollingInterval);
+        "row with '%s' in '%s' column".formatted(cellValue, columnHeader),
+        cause -> new TableRowException(columnHeader, cellValue, timeout, cause), timeout);
   }
 
   /**
@@ -89,7 +93,7 @@ public abstract class BaseClassicTable<T extends Enum<T>> extends BaseTable<T> {
    * @return table {@link Row} element
    */
   public Row<T> getRowByPattern(T columnHeader, String pattern) {
-    return this.getRowByPattern(columnHeader, pattern, DEFAULT_ROW_TIMEOUT, DEFAULT_ROW_POLLING_INTERVAL);
+    return this.getRowByPattern(columnHeader, pattern, Duration.ofMillis(timeout));
   }
 
   /**
@@ -98,12 +102,12 @@ public abstract class BaseClassicTable<T extends Enum<T>> extends BaseTable<T> {
    * @param columnHeader    column enum
    * @param pattern         expected cell pattern
    * @param timeout         how long to wait for a matching row
-   * @param pollingInterval how often to re-read the table rows
    * @return table {@link Row} element
    */
-  public Row<T> getRowByPattern(T columnHeader, String pattern, Duration timeout, Duration pollingInterval) {
+  public Row<T> getRowByPattern(T columnHeader, String pattern, Duration timeout) {
     return this.getFilteredRow(this.columnTextPredicateByPattern(columnHeader, pattern),
-        cause -> new TableRowException(columnHeader, pattern, timeout, cause), timeout, pollingInterval);
+        "row matching '%s' in '%s' column".formatted(pattern, columnHeader),
+        cause -> new TableRowException(columnHeader, pattern, timeout, cause), timeout);
   }
 
   /**
@@ -134,78 +138,80 @@ public abstract class BaseClassicTable<T extends Enum<T>> extends BaseTable<T> {
    * @return boolean row existing status
    */
   private boolean isRowExist(Predicate<Row<T>> condition) {
-    return getAllRows().stream().anyMatch(condition);
+    try {
+      return getAllRows().stream().anyMatch(condition);
+    } catch (NoSuchElementException | StaleElementReferenceException | UIAssertionError error) {
+      return false;
+    }
   }
 
   /**
-   * Get a filtered row by the given condition, waiting until a matching row appears, using a
-   * legacy row-not-found error factory that does not carry the {@link ConditionTimeoutException}
-   * cause. Kept for binary/source compatibility with subclasses extending this class.
+   * Get a filtered row by the given condition, waiting through Selenide's native condition loop.
+   * Kept for source compatibility with subclasses extending this class.
    *
    * @param condition         condition how to filter all rows in the table
-   * @param tableRowException error if no suitable row appears in the table within the timeout
-   * @return filtered row as {@link SelenideElement}
+   * @param tableRowException error if no suitable row appears within Selenide's timeout
+   * @return filtered row
    */
   protected Row<T> getFilteredRow(Predicate<Row<T>> condition, Supplier<TableRowException> tableRowException) {
-    return getFilteredRow(condition, cause -> tableRowException.get(), DEFAULT_ROW_TIMEOUT,
-        DEFAULT_ROW_POLLING_INTERVAL);
+    return getFilteredRow(condition, "matching table row", cause -> tableRowException.get(),
+        Duration.ofMillis(timeout));
   }
 
   /**
-   * Get a filtered row by the given condition, waiting until a matching row appears.
-   *
-   * @param condition         condition how to filter all rows in the table
-   * @param tableRowException error if no suitable row appears in the table within the timeout,
-   *                          receiving the {@link ConditionTimeoutException} that caused the wait to give up
-   * @param timeout           how long to wait for a matching row
-   * @param pollingInterval   how often to re-read the table rows
-   * @return filtered row as {@link SelenideElement}
+   * Wait for a row with Selenide's own retry mechanism. The timeout is per call while the polling
+   * interval comes from Selenide configuration, so there is one authoritative wait loop.
    */
-  protected Row<T> getFilteredRow(Predicate<Row<T>> condition,
+  protected Row<T> getFilteredRow(Predicate<Row<T>> condition, String description,
                                   Function<Throwable, TableRowException> tableRowException,
-                                  Duration timeout, Duration pollingInterval) {
-    Function<T, Integer> columnIndexResolver = memoizeColumnIndex();
+                                  Duration rowTimeout) {
+    MatchingRowCondition matchingRow = new MatchingRowCondition(description, condition);
     try {
-      return Waiter.awaitCondition(() -> findFirstMatch(columnIndexResolver, condition),
-          Matchers.notNullValue(), "Waiting for matching table row", timeout, pollingInterval);
-    } catch (ConditionTimeoutException e) {
-      throw tableRowException.apply(e);
+      getSelf().shouldHave(matchingRow, rowTimeout);
+      return matchingRow.matchedRow();
+    } catch (UIAssertionError error) {
+      throw tableRowException.apply(error);
     }
   }
 
-  /**
-   * Resolve one row matching the given condition, tolerating the transient exceptions that can be
-   * thrown while the table (or its rows) is still mounting asynchronously, so the caller's poll
-   * loop keeps retrying instead of aborting on the first failed read.
-   *
-   * <p>The matched row is re-wrapped with a fresh (non-memoized) column-index resolver before
-   * being returned, so callers of the returned {@link Row} keep re-reading column positions from
-   * the live DOM afterwards instead of being pinned to the index snapshot taken during the wait.
-   *
-   * @param columnIndexResolver column-index lookup, memoized once per {@code getRow}-style call so
-   *                            it is not re-resolved on every row/column access during polling
-   * @param condition           condition how to filter all rows in the table
-   * @return the first matching row, or {@code null} if none matched (yet)
-   */
-  private Row<T> findFirstMatch(Function<T, Integer> columnIndexResolver, Predicate<Row<T>> condition) {
-    try {
-      return getAllRows(columnIndexResolver).stream().filter(condition).findFirst()
-          .map(row -> mapToRow(row.getSelf(), fetchColumnIndex())).orElse(null);
-    } catch (UIAssertionError | NoSuchElementException | StaleElementReferenceException e) {
-      return null;
-    }
-  }
+  private final class MatchingRowCondition extends WebElementCondition {
 
-  /**
-   * Wrap {@link #fetchColumnIndex()} so a given column's index is only resolved once (per call)
-   * instead of on every row/column access during a poll loop.
-   *
-   * @return memoizing column-index lookup
-   */
-  private Function<T, Integer> memoizeColumnIndex() {
-    Map<T, Integer> cache = new ConcurrentHashMap<>();
-    Function<T, Integer> resolver = fetchColumnIndex();
-    return columnHeader -> cache.computeIfAbsent(columnHeader, resolver);
+    private final Predicate<Row<T>> condition;
+    private SelenideElement matchedElement;
+
+    private MatchingRowCondition(String description, Predicate<Row<T>> condition) {
+      super(description);
+      this.condition = condition;
+    }
+
+    @Override
+    public CheckResult check(Driver driver, WebElement table) {
+      try {
+        Map<T, Integer> columnIndexes = new HashMap<>();
+        Function<T, Integer> columnIndexResolver = column ->
+            columnIndexes.computeIfAbsent(column, key -> fetchColumnIndex(driver, table, key));
+        List<WebElement> rowElements = getAllRowsElements(table);
+        for (WebElement rowElement : rowElements) {
+          SelenideElement candidateElement = WebElementWrapper.wrap(driver, rowElement, "table row");
+          if (condition.test(mapToRow(candidateElement, columnIndexResolver))) {
+            matchedElement = candidateElement;
+            return CheckResult.accepted("matched row: " + rowElement.getText());
+          }
+        }
+        matchedElement = null;
+        return CheckResult.rejected("No matching row yet", "rows checked: " + rowElements.size());
+      } catch (NoSuchElementException | StaleElementReferenceException error) {
+        matchedElement = null;
+        return CheckResult.rejected(error.toString(), "table changed while checking rows");
+      }
+    }
+
+    private Row<T> matchedRow() {
+      if (matchedElement == null) {
+        throw new IllegalStateException("Selenide accepted the row condition without a matched row");
+      }
+      return mapToRow(matchedElement, fetchColumnIndex());
+    }
   }
 
   /**
@@ -298,20 +304,8 @@ public abstract class BaseClassicTable<T extends Enum<T>> extends BaseTable<T> {
    */
   @Override
   public List<Row<T>> getAllRows() {
-    return getAllRows(fetchColumnIndex());
-  }
-
-  /**
-   * Get all table rows, resolving each row's column index through the given resolver instead of
-   * a fresh call to {@link #fetchColumnIndex()} per row, so a resolver memoized for the duration
-   * of a poll loop (see {@link #memoizeColumnIndex()}) is reused across every poll iteration.
-   *
-   * @param columnIndexResolver column-index lookup to hand to every mapped row
-   * @return all table {@link Row} element
-   */
-  private List<Row<T>> getAllRows(Function<T, Integer> columnIndexResolver) {
     return getAllRowsElements().asFixedIterable().stream()
-        .map(element -> mapToRow(element, columnIndexResolver)).collect(Collectors.toList());
+        .map(this::mapToRow).collect(Collectors.toList());
   }
 
   /**
@@ -341,7 +335,17 @@ public abstract class BaseClassicTable<T extends Enum<T>> extends BaseTable<T> {
    * @return {@link ElementsCollection}
    */
   protected ElementsCollection getAllRowsElements() {
-    ElementsCollection rowsWithHeader = this.getSelf().shouldBe(Condition.visible).findAll(By.tagName(HtmlTag.TR));
+    ElementsCollection rowsWithHeader = this.getSelf().findAll(By.tagName(HtmlTag.TR));
     return rowsWithHeader.last(Math.max(0, rowsWithHeader.size() - HTML_START_INDEX));
+  }
+
+  /**
+   * Read rows from the root element already supplied to a native Selenide condition.
+   */
+  protected List<WebElement> getAllRowsElements(WebElement table) {
+    List<WebElement> rowsWithHeader = table.findElements(By.tagName(HtmlTag.TR));
+    return rowsWithHeader.size() <= HTML_START_INDEX
+        ? List.of()
+        : rowsWithHeader.subList(HTML_START_INDEX, rowsWithHeader.size());
   }
 }

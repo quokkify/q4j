@@ -6,8 +6,11 @@ import dev.quokkify.elements.table.classic.base.BaseClassicTable;
 import dev.quokkify.html.model.HtmlTag;
 import dev.quokkify.model.ConstantFormat;
 
+import com.codeborne.selenide.CheckResult;
 import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.Driver;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 
 /**
  * Dynamic Table UI element and methods of working with it.
@@ -27,5 +30,16 @@ public class DynamicTable<T extends Enum<T> & ConstantFormat> extends BaseClassi
         .findBy(Condition.text(column.capitalize()))
         .findAll(By.xpath("./preceding-sibling::%s".formatted(HtmlTag.TH)))
         .size();
+  }
+
+  @Override
+  protected int fetchColumnIndex(Driver driver, WebElement table, T columnHeader) {
+    for (WebElement header : table.findElements(By.tagName(HtmlTag.TH))) {
+      CheckResult result = Condition.text(columnHeader.capitalize()).check(driver, header);
+      if (result.verdict() == CheckResult.Verdict.ACCEPT) {
+        return header.findElements(By.xpath("./preceding-sibling::%s".formatted(HtmlTag.TH))).size();
+      }
+    }
+    return -1;
   }
 }

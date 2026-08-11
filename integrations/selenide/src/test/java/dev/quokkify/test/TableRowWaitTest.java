@@ -10,9 +10,9 @@ import dev.quokkify.page.local.DelayedTablePage;
 import dev.quokkify.page.local.LateMountingTablePage;
 
 import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.ex.UIAssertionError;
 import io.qameta.allure.TmsLink;
 import org.assertj.core.api.Assertions;
-import org.awaitility.core.ConditionTimeoutException;
 import org.testng.annotations.Test;
 
 public class TableRowWaitTest extends BaseTest {
@@ -20,14 +20,14 @@ public class TableRowWaitTest extends BaseTest {
   private static final String DELAYED_TABLE_FIXTURE_PATH = "/table/delayed-table.html";
   private static final String LATE_MOUNTING_TABLE_FIXTURE_PATH = "/table/late-mounting-table.html";
   private static final Duration TIMEOUT = Duration.ofSeconds(5);
-  private static final Duration POLLING_INTERVAL = Duration.ofMillis(200);
+  private static final Duration SHORT_TIMEOUT = Duration.ofMillis(600);
 
   @TmsLink("UI_ID_7")
   @Test(description = "Verify 'TABLE' row search waits for a row appearing with a delay")
   public void testTableRowAppearingWithDelayIsFound() {
     DelayedTablePage page = openDelayedTablePage();
 
-    page.getTableRow(DelayedTablePage.Header.COMPANY, "Ernst Handel", TIMEOUT, POLLING_INTERVAL)
+    page.getTableRow(DelayedTablePage.Header.COMPANY, "Ernst Handel", TIMEOUT)
         .verifyCell(DelayedTablePage.Header.COUNTRY, "Austria");
   }
 
@@ -38,11 +38,15 @@ public class TableRowWaitTest extends BaseTest {
     Instant start = Instant.now();
 
     Assertions.assertThatThrownBy(() ->
-            page.getTableRow(DelayedTablePage.Header.COMPANY, "Missing Company", TIMEOUT, POLLING_INTERVAL))
+            page.getTableRow(DelayedTablePage.Header.COMPANY, "Missing Company", TIMEOUT))
         .isInstanceOf(TableRowException.class)
         .hasMessageContaining("Missing Company")
         .hasMessageContaining("Company")
-        .hasCauseInstanceOf(ConditionTimeoutException.class);
+        .hasMessageContaining("5s")
+        .hasCauseInstanceOf(UIAssertionError.class)
+        .cause()
+        .hasMessageContaining("customers")
+        .hasMessageContaining("row with 'Missing Company' in 'COMPANY' column");
 
     Assertions.assertThat(Duration.between(start, Instant.now()))
         .isBetween(TIMEOUT, TIMEOUT.plusSeconds(2));
@@ -53,7 +57,7 @@ public class TableRowWaitTest extends BaseTest {
   public void testHorizontalTableRowAppearingWithDelayIsFound() {
     DelayedTablePage page = openDelayedTablePage();
 
-    page.getHorizontalTableRow(DelayedTablePage.HorizontalHeader.TELEPHONE_2, TIMEOUT, POLLING_INTERVAL)
+    page.getHorizontalTableRow(DelayedTablePage.HorizontalHeader.TELEPHONE_2, TIMEOUT)
         .verifyRow("555 77 855");
   }
 
@@ -63,7 +67,7 @@ public class TableRowWaitTest extends BaseTest {
   public void testDynamicHorizontalTableRowAppearingWithDelayIsFound() {
     DelayedTablePage page = openDelayedTablePage();
 
-    page.getDynamicHorizontalTableRow(DelayedTablePage.HorizontalHeader.TELEPHONE_2, TIMEOUT, POLLING_INTERVAL)
+    page.getDynamicHorizontalTableRow(DelayedTablePage.HorizontalHeader.TELEPHONE_2, TIMEOUT)
         .verifyRow("555 77 855");
   }
 
@@ -73,7 +77,7 @@ public class TableRowWaitTest extends BaseTest {
   public void testTableRowWaitSurvivesLateMountingContainer() {
     LateMountingTablePage page = openLateMountingTablePage();
 
-    page.getLateTableRow(LateMountingTablePage.Header.COMPANY, "Ernst Handel", TIMEOUT, POLLING_INTERVAL)
+    page.getLateTableRow(LateMountingTablePage.Header.COMPANY, "Ernst Handel", TIMEOUT)
         .verifyCell(LateMountingTablePage.Header.COUNTRY, "Austria");
   }
 
@@ -83,7 +87,7 @@ public class TableRowWaitTest extends BaseTest {
   public void testTableRowWaitSurvivesEmptyContainer() {
     LateMountingTablePage page = openLateMountingTablePage();
 
-    page.getEmptyTableRow(LateMountingTablePage.Header.COMPANY, "Ernst Handel", TIMEOUT, POLLING_INTERVAL)
+    page.getEmptyTableRow(LateMountingTablePage.Header.COMPANY, "Ernst Handel", TIMEOUT)
         .verifyCell(LateMountingTablePage.Header.COUNTRY, "Austria");
   }
 
@@ -93,7 +97,7 @@ public class TableRowWaitTest extends BaseTest {
     DelayedTablePage page = openDelayedTablePage();
 
     page.getTableRow(Map.of(DelayedTablePage.Header.COMPANY, "Ernst Handel",
-            DelayedTablePage.Header.COUNTRY, "Austria"), TIMEOUT, POLLING_INTERVAL)
+            DelayedTablePage.Header.COUNTRY, "Austria"), TIMEOUT)
         .verifyCell(DelayedTablePage.Header.CONTACT, "Roland Mendel");
   }
 
@@ -102,7 +106,7 @@ public class TableRowWaitTest extends BaseTest {
   public void testGetRowByPatternWaitsForDelayedRow() {
     DelayedTablePage page = openDelayedTablePage();
 
-    page.getTableRowByPattern(DelayedTablePage.Header.COMPANY, "Ernst.*", TIMEOUT, POLLING_INTERVAL)
+    page.getTableRowByPattern(DelayedTablePage.Header.COMPANY, "Ernst.*", TIMEOUT)
         .verifyCell(DelayedTablePage.Header.COUNTRY, "Austria");
   }
 
@@ -138,6 +142,72 @@ public class TableRowWaitTest extends BaseTest {
     Assertions.assertThat(Duration.between(start, Instant.now()))
         .as("isRowExist() must not wait for the row-wait timeout")
         .isLessThan(TIMEOUT);
+  }
+
+  @TmsLink("UI_ID_18")
+  @Test(description = "Verify 'DYNAMIC TABLE' row search uses Selenide waiting for a delayed row")
+  public void testDynamicTableRowAppearingWithDelayIsFound() {
+    DelayedTablePage page = openDelayedTablePage();
+
+    page.getDynamicTableRow(DelayedTablePage.DynamicHeader.COMPANY, "Ernst Handel", TIMEOUT)
+        .verifyCell(DelayedTablePage.DynamicHeader.COUNTRY, "Austria");
+  }
+
+  @TmsLink("UI_ID_19")
+  @Test(description = "Verify 'FLEX TABLE' row search uses Selenide waiting for a delayed row")
+  public void testFlexTableRowAppearingWithDelayIsFound() {
+    DelayedTablePage page = openDelayedTablePage();
+
+    page.getFlexTableRow(DelayedTablePage.Header.COMPANY, "Ernst Handel", TIMEOUT)
+        .verifyCell(DelayedTablePage.Header.COUNTRY, "Austria");
+  }
+
+  @TmsLink("UI_ID_20")
+  @Test(description = "Verify 'DYNAMIC TABLE' applies the caller timeout")
+  public void testDynamicTableMissingRowUsesCallerTimeout() {
+    DelayedTablePage page = openDelayedTablePage();
+
+    assertCallerTimeout(() ->
+        page.getDynamicTableRow(DelayedTablePage.DynamicHeader.COMPANY, "Missing Company", SHORT_TIMEOUT));
+  }
+
+  @TmsLink("UI_ID_21")
+  @Test(description = "Verify 'FLEX TABLE' applies the caller timeout")
+  public void testFlexTableMissingRowUsesCallerTimeout() {
+    DelayedTablePage page = openDelayedTablePage();
+
+    assertCallerTimeout(() ->
+        page.getFlexTableRow(DelayedTablePage.Header.COMPANY, "Missing Company", SHORT_TIMEOUT));
+  }
+
+  @TmsLink("UI_ID_22")
+  @Test(description = "Verify an unmounted table respects a short caller timeout without a nested visibility wait")
+  public void testUnmountedTableUsesCallerTimeout() {
+    LateMountingTablePage page = openLateMountingTablePage();
+
+    assertCallerTimeout(() ->
+        page.getLateTableRow(LateMountingTablePage.Header.COMPANY, "Missing Company", SHORT_TIMEOUT));
+  }
+
+  @TmsLink("UI_ID_23")
+  @Test(description = "Verify isRowExist remains non-waiting when the table itself is not mounted")
+  public void testIsRowExistDoesNotWaitForUnmountedTable() {
+    LateMountingTablePage page = openLateMountingTablePage();
+    Instant start = Instant.now();
+
+    Assertions.assertThat(page.isLateTableRowExist(LateMountingTablePage.Header.COMPANY, "Ernst Handel"))
+        .isFalse();
+    Assertions.assertThat(Duration.between(start, Instant.now())).isLessThan(SHORT_TIMEOUT);
+  }
+
+  private void assertCallerTimeout(Runnable lookup) {
+    Instant start = Instant.now();
+    Assertions.assertThatThrownBy(lookup::run)
+        .isInstanceOf(TableRowException.class)
+        .hasMessageContaining("600ms")
+        .hasCauseInstanceOf(UIAssertionError.class);
+    Assertions.assertThat(Duration.between(start, Instant.now()))
+        .isBetween(SHORT_TIMEOUT, SHORT_TIMEOUT.plusSeconds(1));
   }
 
   private DelayedTablePage openDelayedTablePage() {

@@ -1,30 +1,37 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <meta charset="utf-8"/>
-  <title>Late mounting table</title>
-</head>
-<body>
-<!-- "empty-customers" exists from the start but with zero rows (not even a header row),
-     reproducing the size() <= HTML_START_INDEX (0 <= 1) negative-index edge case. -->
-<table id="empty-customers"></table>
+  <head>
+    <meta charset="utf-8" />
+    <title>Late mounting table</title>
+  </head>
+  <body>
+    <!-- "empty-customers" exists from the start but with zero rows (not even a header row),
+         reproducing the size() <= HTML_START_INDEX (0 <= 1) negative-index edge case. -->
+    <table id="empty-customers"></table>
 
-<!-- "container-wrapper" starts empty: the whole "late-customers" table element does not exist
-     in the DOM at all until the timeout fires, reproducing the container-mounts-late case
-     (as opposed to rows being appended to an already-visible table). -->
-<div id="container-wrapper"></div>
+    <!-- "container-wrapper" starts empty: the whole "late-customers" table element does not exist
+         in the DOM at all until the timeout fires, reproducing the container-mounts-late case. -->
+    <div id="container-wrapper"></div>
 
-<script>
-  setTimeout(function () {
-    document.getElementById('empty-customers').insertAdjacentHTML('beforeend',
-      '<tr><th>Company</th><th>Contact</th><th>Country</th></tr>' +
-      '<tr><td>Ernst Handel</td><td>Roland Mendel</td><td>Austria</td></tr>');
-    document.getElementById('container-wrapper').insertAdjacentHTML('beforeend',
-      '<table id="late-customers">' +
-      '<tr><th>Company</th><th>Contact</th><th>Country</th></tr>' +
-      '<tr><td>Ernst Handel</td><td>Roland Mendel</td><td>Austria</td></tr>' +
-      '</table>');
-  }, 1500);
-</script>
-</body>
+    <script>
+      setTimeout(function () {
+        document
+          .getElementById("empty-customers")
+          .insertAdjacentHTML(
+            "beforeend",
+            "<tr><th>Company</th><th>Contact</th><th>Country</th></tr>" +
+              "<tr><td>Ernst Handel</td><td>Roland Mendel</td><td>Austria</td></tr>",
+          );
+        document
+          .getElementById("container-wrapper")
+          .insertAdjacentHTML(
+            "beforeend",
+            '<table id="late-customers">' +
+              "<tr><th>Company</th><th>Contact</th><th>Country</th></tr>" +
+              "<tr><td>Ernst Handel</td><td>Roland Mendel</td><td>Austria</td></tr>" +
+              "</table>",
+          );
+      }, 1500);
+    </script>
+  </body>
 </html>

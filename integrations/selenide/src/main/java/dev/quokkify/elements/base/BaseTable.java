@@ -1,6 +1,5 @@
 package dev.quokkify.elements.base;
 
-import java.time.Duration;
 import java.util.List;
 import java.util.Random;
 import java.util.function.Function;
@@ -8,10 +7,11 @@ import java.util.function.Function;
 import dev.quokkify.elements.table.classic.base.BaseColumn;
 import dev.quokkify.elements.table.classic.base.BaseRow;
 import dev.quokkify.html.model.HtmlTag;
-import dev.quokkify.model.WaitDefaults;
 
+import com.codeborne.selenide.Driver;
 import com.codeborne.selenide.ElementsCollection;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 
 /**
  * Abstract class to work with table.
@@ -22,8 +22,6 @@ public abstract class BaseTable<T extends Enum<T>> extends Component {
 
   protected static final int HEADERS_ROW_INDEX = 0;
   protected static final int HTML_START_INDEX = 1;
-  protected static final Duration DEFAULT_ROW_TIMEOUT = WaitDefaults.DEFAULT_TIMEOUT;
-  protected static final Duration DEFAULT_ROW_POLLING_INTERVAL = WaitDefaults.DEFAULT_POLLING_INTERVAL;
 
   private final Random random = new Random();
 
@@ -31,6 +29,14 @@ public abstract class BaseTable<T extends Enum<T>> extends Component {
    * Function to get table column index.
    */
   protected abstract Function<T, Integer> fetchColumnIndex();
+
+  /**
+   * Resolve a column index from the same table element that a Selenide condition is checking.
+   * Dynamic table variants override this method to avoid starting nested Selenide waits.
+   */
+  protected int fetchColumnIndex(Driver driver, WebElement table, T columnHeader) {
+    return fetchColumnIndex().apply(columnHeader);
+  }
 
   /**
    * Get first row in table.

@@ -17,12 +17,16 @@ public class LateMountingTablePage implements Page {
   @FindBy(how = How.ID, using = "late-customers")
   private Table<Header> lateTable;
 
-  public Row<Header> getEmptyTableRow(Header header, String cellValue, Duration timeout, Duration pollingInterval) {
-    return emptyTable.getRow(header, cellValue, timeout, pollingInterval);
+  public Row<Header> getEmptyTableRow(Header header, String cellValue, Duration timeout) {
+    return emptyTable.getRow(header, cellValue, timeout);
   }
 
-  public Row<Header> getLateTableRow(Header header, String cellValue, Duration timeout, Duration pollingInterval) {
-    return lateTable.getRow(header, cellValue, timeout, pollingInterval);
+  public Row<Header> getLateTableRow(Header header, String cellValue, Duration timeout) {
+    return lateTable.getRow(header, cellValue, timeout);
+  }
+
+  public boolean isLateTableRowExist(Header header, String cellValue) {
+    return lateTable.isRowExist(header, cellValue);
   }
 
   public enum Header {

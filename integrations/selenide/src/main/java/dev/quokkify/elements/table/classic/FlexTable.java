@@ -3,10 +3,10 @@ package dev.quokkify.elements.table.classic;
 import java.util.List;
 import java.util.function.Function;
 
-import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 
 /**
  * Flex Table UI element and methods of working with it.
@@ -25,8 +25,16 @@ public class FlexTable<T extends Enum<T>> extends Table<T> {
   @Override
   protected ElementsCollection getAllRowsElements() {
     ElementsCollection rowsWithHeader = this.getSelf()
-        .shouldBe(Condition.visible).findAll(By.cssSelector(".flex-table-row"));
+        .findAll(By.cssSelector(".flex-table-row"));
     return rowsWithHeader.last(Math.max(0, rowsWithHeader.size() - HTML_START_INDEX));
+  }
+
+  @Override
+  protected List<WebElement> getAllRowsElements(WebElement table) {
+    List<WebElement> rowsWithHeader = table.findElements(By.cssSelector(".flex-table-row"));
+    return rowsWithHeader.size() <= HTML_START_INDEX
+        ? List.of()
+        : rowsWithHeader.subList(HTML_START_INDEX, rowsWithHeader.size());
   }
 
   /**

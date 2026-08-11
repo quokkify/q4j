@@ -11,15 +11,19 @@ import dev.quokkify.elements.base.BaseTable;
 import dev.quokkify.ex.TableRowException;
 import dev.quokkify.html.model.HtmlTag;
 import dev.quokkify.model.ConstantFormat;
-import dev.quokkify.util.Waiter;
 
+import com.codeborne.selenide.CheckResult;
+import com.codeborne.selenide.Driver;
 import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.WebElementCondition;
 import com.codeborne.selenide.ex.UIAssertionError;
-import org.awaitility.core.ConditionTimeoutException;
-import org.hamcrest.Matchers;
+import com.codeborne.selenide.impl.WebElementWrapper;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.StaleElementReferenceException;
+import org.openqa.selenium.WebElement;
+
+import static com.codeborne.selenide.Configuration.timeout;
 
 /**
  * Abstract class to work with Horizontal Table.
@@ -35,7 +39,7 @@ public abstract class BaseHorizontalTable<T extends Enum<T> & ConstantFormat> ex
    * @return horizontal table {@link HorizontalRow} element
    */
   public HorizontalRow<T> getRow(T columnHeader) {
-    return getRow(columnHeader, DEFAULT_ROW_TIMEOUT, DEFAULT_ROW_POLLING_INTERVAL);
+    return getRow(columnHeader, Duration.ofMillis(timeout));
   }
 
   /**
@@ -43,41 +47,53 @@ public abstract class BaseHorizontalTable<T extends Enum<T> & ConstantFormat> ex
    *
    * @param columnHeader    column enum
    * @param timeout         how long to wait for the row
-   * @param pollingInterval how often to re-read the table rows
    * @return horizontal table {@link HorizontalRow} element
    */
-  public HorizontalRow<T> getRow(T columnHeader, Duration timeout, Duration pollingInterval) {
+  public HorizontalRow<T> getRow(T columnHeader, Duration timeout) {
+    MatchingHorizontalRowCondition matchingRow = new MatchingHorizontalRowCondition(columnHeader);
     try {
-      return Waiter.awaitCondition(() -> resolveRow(columnHeader), Matchers.notNullValue(),
-          "Waiting for horizontal table row", timeout, pollingInterval);
-    } catch (ConditionTimeoutException e) {
-      throw new TableRowException(columnHeader, timeout, e);
+      getSelf().shouldHave(matchingRow, timeout);
+      return matchingRow.matchedRow();
+    } catch (UIAssertionError error) {
+      throw new TableRowException(columnHeader, timeout, error);
     }
   }
 
-  /**
-   * Resolve the row for the given column, tolerating the exceptions that
-   * {@link #fetchColumnIndex()} or {@link #getAllRows()} can throw while the table is still
-   * mounting asynchronously, so the caller's poll loop keeps retrying instead of aborting on the
-   * first failed read.
-   *
-   * <p>The column index is resolved fresh on every poll rather than cached before the wait
-   * starts, so a text-driven lookup (e.g. {@link DynamicHorizontalTable}) keeps re-checking the
-   * live DOM instead of being stuck with a stale index from before rows finished rendering. The
-   * index and the row list are still two independent reads, so a row insertion landing between
-   * them can still shift the index by one poll; that window is narrowed to a single poll rather
-   * than eliminated.
-   *
-   * @param columnHeader column enum
-   * @return the matching row, or {@code null} if it is not resolvable/present yet
-   */
-  private HorizontalRow<T> resolveRow(T columnHeader) {
-    try {
-      int rowIndex = fetchColumnIndex().apply(columnHeader);
-      List<HorizontalRow<T>> rows = getAllRows();
-      return rowIndex >= 0 && rows.size() > rowIndex ? rows.get(rowIndex) : null;
-    } catch (UIAssertionError | NoSuchElementException | StaleElementReferenceException e) {
-      return null;
+  private final class MatchingHorizontalRowCondition extends WebElementCondition {
+
+    private final T columnHeader;
+    private SelenideElement matchedElement;
+
+    private MatchingHorizontalRowCondition(T columnHeader) {
+      super("row for '%s' header".formatted(columnHeader));
+      this.columnHeader = columnHeader;
+    }
+
+    @Override
+    public CheckResult check(Driver driver, WebElement table) {
+      try {
+        List<WebElement> rows = table.findElements(By.tagName(HtmlTag.TR));
+        int rowIndex = fetchColumnIndex(driver, table, columnHeader);
+        if (rowIndex >= 0 && rowIndex < rows.size()) {
+          List<WebElement> cells = rows.get(rowIndex).findElements(By.tagName(HtmlTag.TD));
+          if (!cells.isEmpty()) {
+            matchedElement = WebElementWrapper.wrap(driver, cells.get(0), "horizontal table row");
+            return CheckResult.accepted("matched row: " + cells.get(0).getText());
+          }
+        }
+        matchedElement = null;
+        return CheckResult.rejected("No matching horizontal row yet", "rows checked: " + rows.size());
+      } catch (NoSuchElementException | StaleElementReferenceException error) {
+        matchedElement = null;
+        return CheckResult.rejected(error.toString(), "table changed while checking rows");
+      }
+    }
+
+    private HorizontalRow<T> matchedRow() {
+      if (matchedElement == null) {
+        throw new IllegalStateException("Selenide accepted the row condition without a matched row");
+      }
+      return new HorizontalRow<>(matchedElement);
     }
   }
 
