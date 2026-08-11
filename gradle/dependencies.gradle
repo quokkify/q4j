@@ -16,7 +16,7 @@ ext {
     restAssured = "5.5.1"
     awaitility = "4.3.0"
     spotbugs_annotations = "4.10.3"
-    bouncy_castle = "1.85"
+    bouncy_castle = "1.85.2"
     snakeyaml = "2.2"
     gson = "2.13.0"
     htmlcleaner = "2.29"
