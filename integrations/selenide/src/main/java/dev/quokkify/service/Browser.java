@@ -38,6 +38,7 @@ public class Browser {
   public static void setRemoteDefaultConfiguration() {
     Configuration.remote = CONFIG.remoteUrl();
     Configuration.browserCapabilities.setCapability("se:downloadsEnabled", true);
+    Configuration.proxyHost = CONFIG.proxyHost();
   }
 
   /**
