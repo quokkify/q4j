@@ -2,10 +2,9 @@ package dev.quokkify.elements.base;
 
 import com.codeborne.selenide.Container;
 import com.codeborne.selenide.SelenideElement;
-import com.codeborne.selenide.WebElementCondition;
 
 /**
- * Abstract class with common methods for Ui elements and blocks.
+ * Base class for composite UI components initialized by Selenide.
  */
 public abstract class Component implements Container {
 
@@ -14,17 +13,5 @@ public abstract class Component implements Container {
 
   public SelenideElement getSelf() {
     return self;
-  }
-
-  public void click() {
-    getSelf().click();
-  }
-
-  public String getText() {
-    return getSelf().getText();
-  }
-
-  public boolean is(WebElementCondition condition) {
-    return getSelf().is(condition);
   }
 }

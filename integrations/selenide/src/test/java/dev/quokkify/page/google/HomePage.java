@@ -2,13 +2,12 @@ package dev.quokkify.page.google;
 
 import dev.quokkify.annotation.PageUrl;
 import dev.quokkify.constant.StringConstant;
-import dev.quokkify.elements.single.Block;
-import dev.quokkify.elements.single.Button;
-import dev.quokkify.elements.single.Input;
+import dev.quokkify.elements.base.Component;
 import dev.quokkify.impl.Page;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.SelenideElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
 
@@ -16,7 +15,7 @@ import org.openqa.selenium.support.How;
 public class HomePage implements Page {
 
   @FindBy(how = How.XPATH, using = "//button/following-sibling::button")
-  private Button acceptCookiesButton;
+  private SelenideElement acceptCookiesButton;
   @FindBy(how = How.CSS, using = "form")
   private SearchBlock searchBlock;
 
@@ -26,10 +25,10 @@ public class HomePage implements Page {
     }
   }
 
-  private static class SearchBlock extends Block {
+  private static class SearchBlock extends Component {
 
     @FindBy(how = How.NAME, using = "q")
-    private Input searchInput;
+    private SelenideElement searchInput;
   }
 
   public SearchResultPage searchText(String searchText) {
