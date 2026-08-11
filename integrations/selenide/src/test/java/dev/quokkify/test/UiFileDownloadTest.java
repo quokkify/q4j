@@ -49,7 +49,10 @@ public class UiFileDownloadTest extends BaseTest {
     Configuration.fileDownload = mode;
     Configuration.proxyEnabled = mode == FileDownloadMode.PROXY;
 
-    Selenide.open(APP_CONFIG.downloadBrowserBaseUrl() + DOWNLOAD_PAGE);
+    String browserBaseUrl = mode == FileDownloadMode.PROXY
+        ? APP_CONFIG.downloadProxyBaseUrl()
+        : APP_CONFIG.downloadBrowserBaseUrl();
+    Selenide.open(browserBaseUrl + DOWNLOAD_PAGE);
     SelenideElement downloadLink = $(byText("Download me"));
     if (mode == FileDownloadMode.HTTPGET) {
       Selenide.executeJavaScript(

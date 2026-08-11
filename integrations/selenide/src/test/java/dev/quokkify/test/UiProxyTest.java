@@ -7,8 +7,10 @@ import java.util.NoSuchElementException;
 import dev.quokkify.annotation.SingleThread;
 import dev.quokkify.parser.HarParser;
 import dev.quokkify.service.ProxyBrowser;
+import dev.quokkify.service.steps.google.GoogleNavigationSteps;
 
 import com.codeborne.selenide.Configuration;
+import com.codeborne.selenide.Selenide;
 import de.sstoehr.harreader.model.Har;
 import io.qameta.allure.TmsLink;
 import org.assertj.core.api.Assertions;
@@ -36,10 +38,12 @@ public class UiProxyTest extends BaseTest {
   public void testProxyHar() {
     String searchLinkText = "Speed Test";
     String requestRelativePath = "/external/speedtest/assets/speedtestpl-logo.webp";
-    String requestUrl = APP_CONFIG.baseUrl() + requestRelativePath;
+    String proxyBaseUrl = APP_CONFIG.downloadProxyBaseUrl();
+    String requestUrl = proxyBaseUrl + requestRelativePath;
 
+    Selenide.open(proxyBaseUrl + "/google/");
     ProxyBrowser.newProxyHar();
-    googleNavigationSteps.openSearchResultPage()
+    new GoogleNavigationSteps(proxyBaseUrl).openSearchResultPage()
         .clickOnSearchResultLink(searchLinkText);
     Har har = ProxyBrowser.endProxyHar();
 

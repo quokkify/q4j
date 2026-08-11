@@ -17,4 +17,8 @@ public interface Configuration extends Config {
   @Key("DOWNLOAD_BROWSER_BASE_URL")
   @DefaultValue("http://localhost")
   String downloadBrowserBaseUrl();
+
+  @Key("DOWNLOAD_PROXY_BASE_URL")
+  @DefaultValue("http://localhost")
+  String downloadProxyBaseUrl();
 }

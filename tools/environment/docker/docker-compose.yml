@@ -23,6 +23,7 @@ services:
       SE_EVENT_BUS_PUBLISH_PORT: "4442"
       SE_EVENT_BUS_SUBSCRIBE_PORT: "4443"
       SE_NODE_DOCKER_CONFIG_FILENAME: config.d/config.toml
+      SE_NODE_GRID_URL: ${GRID_EXTERNAL_URL:-http://localhost:4444/wd/hub}
       SE_OPTS: --enable-managed-downloads true --enable-cdp ${GRID_CDP_ENABLE:-false}
 
   docker-socket-proxy:

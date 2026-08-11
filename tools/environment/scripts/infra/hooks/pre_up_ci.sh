@@ -38,6 +38,13 @@ for profile in "$@"; do
       ;;
     web)
       needs_nginx_build="true"
+      ensure_dynamic_port SELENIUM_HUB_PUBLISHED_PORT "web hook: selenium hub"
+      if [[ "${EXECUTION_MODE:-}" == "DIND" ]]; then
+        grid_host="dind"
+      else
+        grid_host="localhost"
+      fi
+      export GRID_EXTERNAL_URL="http://${grid_host}:${SELENIUM_HUB_PUBLISHED_PORT}/wd/hub"
       ;;
     messaging)
       export KAFKA_EXTERNAL_HOST="$(resolve_runtime_host)"
