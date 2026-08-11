@@ -8,6 +8,7 @@ import dev.quokkify.steps.MongoDatabaseSteps;
 
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
+import dev.morphia.config.MorphiaConfig;
 import dev.morphia.query.filters.Filters;
 import dev.morphia.query.updates.UpdateOperators;
 import io.qameta.allure.TmsLink;
@@ -30,9 +31,11 @@ public class DatabaseNoSqlTest extends BaseDatabaseTest {
   public void initResources() {
     String mongoUrl = System.getenv().getOrDefault("MONGODB_URL", "mongodb://localhost:27017");
     mongoClient = MongoClients.create(mongoUrl);
-    NoSqlFactory noSqlFactory = new NoSqlFactory(mongoClient, "test");
-    noSqlFactory.getThreadLocalDatastore().getMapper().mapPackageFromClass(DatabaseTestUserMongo.class);
-    noSqlFactory.getThreadLocalDatastore().ensureIndexes();
+    MorphiaConfig morphiaConfig = MorphiaConfig.load()
+        .database("test")
+        .packages(List.of(DatabaseTestUserMongo.class.getPackageName()))
+        .applyIndexes(true);
+    NoSqlFactory noSqlFactory = new NoSqlFactory(mongoClient, morphiaConfig);
     mongoDatabaseSteps = new MongoDatabaseSteps(noSqlFactory);
   }
 

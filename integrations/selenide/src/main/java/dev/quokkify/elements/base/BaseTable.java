@@ -8,8 +8,10 @@ import dev.quokkify.elements.table.classic.base.BaseColumn;
 import dev.quokkify.elements.table.classic.base.BaseRow;
 import dev.quokkify.html.model.HtmlTag;
 
+import com.codeborne.selenide.Driver;
 import com.codeborne.selenide.ElementsCollection;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 
 /**
  * Abstract class to work with table.
@@ -18,14 +20,23 @@ import org.openqa.selenium.By;
  */
 public abstract class BaseTable<T extends Enum<T>> extends Component {
 
-  private final Random random = new Random();
   protected static final int HEADERS_ROW_INDEX = 0;
   protected static final int HTML_START_INDEX = 1;
+
+  private final Random random = new Random();
 
   /**
    * Function to get table column index.
    */
   protected abstract Function<T, Integer> fetchColumnIndex();
+
+  /**
+   * Resolve a column index from the same table element that a Selenide condition is checking.
+   * Dynamic table variants override this method to avoid starting nested Selenide waits.
+   */
+  protected int fetchColumnIndex(Driver driver, WebElement table, T columnHeader) {
+    return fetchColumnIndex().apply(columnHeader);
+  }
 
   /**
    * Get first row in table.
