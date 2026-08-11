@@ -17,7 +17,6 @@ import jakarta.persistence.SharedCacheMode;
 import jakarta.persistence.ValidationMode;
 import jakarta.persistence.spi.ClassTransformer;
 import jakarta.persistence.spi.PersistenceUnitInfo;
-import jakarta.persistence.spi.PersistenceUnitTransactionType;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 
@@ -52,8 +51,9 @@ public class PersistenceItem implements PersistenceUnitInfo {
   }
 
   @Override
-  public PersistenceUnitTransactionType getTransactionType() {
-    return PersistenceUnitTransactionType.RESOURCE_LOCAL;
+  @SuppressWarnings("removal")
+  public jakarta.persistence.spi.PersistenceUnitTransactionType getTransactionType() {
+    return jakarta.persistence.spi.PersistenceUnitTransactionType.RESOURCE_LOCAL;
   }
 
   @Override
