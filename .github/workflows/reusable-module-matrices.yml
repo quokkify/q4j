@@ -94,8 +94,7 @@ jobs:
               { name: 'q4j-selenide', module: ':integrations:selenide', slug: 'integrations-selenide', profile: 'web' },
               // TODO: add tests for selenide-proxy, then uncomment
               // { name: 'q4j-selenide-proxy', module: ':integrations:selenide-proxy', slug: 'integrations-selenide-proxy', profile: 'web' },
-              // TODO: add tests for selenide-grid, then uncomment
-              // { name: 'q4j-selenide-grid', module: ':integrations:selenide-grid', slug: 'integrations-selenide-grid', profile: 'none' },
+              { name: 'q4j-selenide-grid', module: ':integrations:selenide-grid', slug: 'integrations-selenide-grid', profile: 'web' },
               { name: 'q4j-tyrus', module: ':integrations:tyrus', slug: 'integrations-tyrus', profile: 'none' },
               { name: 'q4j-kafka', module: ':integrations:kafka', slug: 'integrations-kafka', profile: 'messaging' },
               { name: 'q4j-rabbitmq', module: ':integrations:rabbitmq', slug: 'integrations-rabbitmq', profile: 'rabbitmq' },

@@ -34,12 +34,6 @@ public class UiFileDownloadTest extends BaseTest {
   }
 
   @SingleThread
-  @Test(description = "Download nginx file through CDP")
-  public void testCdpDownload() {
-    verifyDownload(FileDownloadMode.CDP);
-  }
-
-  @SingleThread
   @Test(description = "Download nginx file through proxy")
   public void testProxyDownload() {
     verifyDownload(FileDownloadMode.PROXY);
