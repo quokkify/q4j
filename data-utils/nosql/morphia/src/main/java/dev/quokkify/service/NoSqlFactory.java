@@ -18,15 +18,15 @@ public class NoSqlFactory {
   private final ThreadLocal<Datastore> datastoreThreadLocal = new ThreadLocal<>();
 
   public NoSqlFactory(MongoClient mongoClient, String dbName) {
-    this.mongoClient = mongoClient;
-    this.dbName = dbName;
+    this.mongoClient = Objects.requireNonNull(mongoClient, "mongoClient");
+    this.dbName = Objects.requireNonNull(dbName, "dbName");
     this.morphiaConfig = null;
   }
 
   public NoSqlFactory(MongoClient mongoClient, MorphiaConfig morphiaConfig) {
-    this.mongoClient = mongoClient;
+    this.mongoClient = Objects.requireNonNull(mongoClient, "mongoClient");
     this.dbName = null;
-    this.morphiaConfig = morphiaConfig;
+    this.morphiaConfig = Objects.requireNonNull(morphiaConfig, "morphiaConfig");
   }
 
   /**
