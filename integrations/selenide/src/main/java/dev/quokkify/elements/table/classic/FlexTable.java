@@ -32,7 +32,8 @@ public class FlexTable<T extends Enum<T>> extends Table<T> {
 
   @Override
   protected ElementsCollection getRowsForLookup() {
-    return getSelf().findAll(By.cssSelector(".flex-table-row:not(:first-child)"));
+    return getSelf().findAll(By.xpath(
+        "(.//*[contains(concat(' ', normalize-space(@class), ' '), ' flex-table-row ')])[position() > 1]"));
   }
 
   @Override

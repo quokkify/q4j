@@ -206,8 +206,7 @@ public abstract class BaseClassicTable<T extends Enum<T>> extends BaseTable<T> {
    * is resolved again by Selenide before every subsequent row operation.
    */
   protected ElementsCollection getRowsForLookup() {
-    return getSelf().findAll(By.xpath(
-        ".//%s[count(. | (ancestor::%s[1]//%s)[1]) != 1]".formatted(HtmlTag.TR, HtmlTag.TABLE, HtmlTag.TR)));
+    return getSelf().findAll(By.xpath("(.//%s)[position() > %d]".formatted(HtmlTag.TR, HTML_START_INDEX)));
   }
 
   /**
