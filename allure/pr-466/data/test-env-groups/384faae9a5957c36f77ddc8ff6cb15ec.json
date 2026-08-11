@@ -1,1 +1,1 @@
-{"id":"384faae9a5957c36f77ddc8ff6cb15ec","fullName":"dev.quokkify.test.XmlParserTest.testParseXmlFileToObject","name":"Verify parse xml file to object","status":"passed","testResultsByEnv":{"common-utils-jackson-xml":"5c464a8ab5eac89c225cbeddb2bcd7eb"}}
+{"id":"384faae9a5957c36f77ddc8ff6cb15ec","fullName":"dev.quokkify.test.XmlParserTest.testParseXmlFileToObject","name":"Verify parse xml file to object","status":"passed","testResultsByEnv":{"common-utils-jackson-xml":"5b9478d5e0df378860c24f3947b4ebaf"}}
