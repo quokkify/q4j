@@ -7,6 +7,7 @@ import dev.quokkify.annotation.SingleThread;
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.FileDownloadMode;
 import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.SelenideElement;
 import org.assertj.core.api.Assertions;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
@@ -48,8 +49,15 @@ public class UiFileDownloadTest extends BaseTest {
     Configuration.fileDownload = mode;
     Configuration.proxyEnabled = mode == FileDownloadMode.PROXY;
 
-    Selenide.open(APP_CONFIG.baseUrl() + DOWNLOAD_PAGE);
-    File downloadedFile = $(byText("Download me")).download(withName(FILE_NAME));
+    Selenide.open(APP_CONFIG.downloadBrowserBaseUrl() + DOWNLOAD_PAGE);
+    SelenideElement downloadLink = $(byText("Download me"));
+    if (mode == FileDownloadMode.HTTPGET) {
+      Selenide.executeJavaScript(
+          "arguments[0].href = arguments[1]",
+          downloadLink,
+          APP_CONFIG.downloadHttpBaseUrl() + DOWNLOAD_PAGE + "files/" + FILE_NAME);
+    }
+    File downloadedFile = downloadLink.download(withName(FILE_NAME));
 
     Assertions.assertThat(downloadedFile)
         .hasName(FILE_NAME)
