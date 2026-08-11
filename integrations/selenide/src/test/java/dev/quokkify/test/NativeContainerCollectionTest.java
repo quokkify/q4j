@@ -5,7 +5,7 @@ import java.lang.reflect.Proxy;
 import java.util.List;
 import java.util.Map;
 
-import dev.quokkify.elements.single.Button;
+import dev.quokkify.elements.base.Component;
 
 import com.codeborne.selenide.Config;
 import com.codeborne.selenide.Driver;
@@ -26,7 +26,7 @@ public class NativeContainerCollectionTest {
     WebElement webElement = proxy(WebElement.class, Map.of());
     WebDriver webDriver = proxy(WebDriver.class, (instance, method, arguments) -> {
       if (method.getName().equals("findElements") || method.getName().equals("findElement")) {
-        assertThat(arguments).containsExactly(By.cssSelector("button"));
+        assertThat(arguments).containsExactly(By.cssSelector("article"));
         return method.getName().equals("findElements") ? List.of(webElement) : webElement;
       }
       return defaultValue(method.getReturnType());
@@ -37,11 +37,11 @@ public class NativeContainerCollectionTest {
         "getWebDriver", webDriver
     ));
 
-    PageWithButtons page = new SelenidePageFactory().page(driver, PageWithButtons.class);
+    PageWithSearchResults page = new SelenidePageFactory().page(driver, PageWithSearchResults.class);
 
-    assertThat(page.buttons).hasSize(1);
-    assertThat(page.buttons.getFirst()).isInstanceOf(Button.class);
-    assertThat(page.buttons.getFirst().getSelf().toWebElement()).isSameAs(webElement);
+    assertThat(page.searchResults).hasSize(1);
+    assertThat(page.searchResults.getFirst()).isInstanceOf(SearchResult.class);
+    assertThat(page.searchResults.getFirst().getSelf().toWebElement()).isSameAs(webElement);
   }
 
   @Test
@@ -95,9 +95,12 @@ public class NativeContainerCollectionTest {
     };
   }
 
-  private static class PageWithButtons {
-    @FindBy(css = "button")
-    private List<Button> buttons;
+  private static class PageWithSearchResults {
+    @FindBy(css = "article")
+    private List<SearchResult> searchResults;
+  }
+
+  private static class SearchResult extends Component {
   }
 
   private interface PrimitiveMethods {
