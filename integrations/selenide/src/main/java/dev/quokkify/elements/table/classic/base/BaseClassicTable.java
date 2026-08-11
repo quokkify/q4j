@@ -166,9 +166,10 @@ public abstract class BaseClassicTable<T extends Enum<T>> extends BaseTable<T> {
                                   Function<Throwable, TableRowException> tableRowException,
                                   Duration rowTimeout) {
     MatchingRowCondition matchingRow = new MatchingRowCondition(description, condition);
+    SelenideElement matchingElement = getRowsForLookup().findBy(matchingRow);
     try {
-      getSelf().shouldHave(matchingRow, rowTimeout);
-      return matchingRow.matchedRow();
+      matchingElement.shouldBe(Condition.exist, rowTimeout);
+      return mapToRow(matchingElement, fetchColumnIndex());
     } catch (UIAssertionError error) {
       throw tableRowException.apply(error);
     }
@@ -177,7 +178,6 @@ public abstract class BaseClassicTable<T extends Enum<T>> extends BaseTable<T> {
   private final class MatchingRowCondition extends WebElementCondition {
 
     private final Predicate<Row<T>> condition;
-    private SelenideElement matchedElement;
 
     private MatchingRowCondition(String description, Predicate<Row<T>> condition) {
       super(description);
@@ -185,33 +185,37 @@ public abstract class BaseClassicTable<T extends Enum<T>> extends BaseTable<T> {
     }
 
     @Override
-    public CheckResult check(Driver driver, WebElement table) {
+    public CheckResult check(Driver driver, WebElement rowElement) {
       try {
         Map<T, Integer> columnIndexes = new HashMap<>();
         Function<T, Integer> columnIndexResolver = column ->
-            columnIndexes.computeIfAbsent(column, key -> fetchColumnIndex(driver, table, key));
-        List<WebElement> rowElements = getAllRowsElements(table);
-        for (WebElement rowElement : rowElements) {
-          SelenideElement candidateElement = WebElementWrapper.wrap(driver, rowElement, "table row");
-          if (condition.test(mapToRow(candidateElement, columnIndexResolver))) {
-            matchedElement = candidateElement;
-            return CheckResult.accepted("matched row: " + rowElement.getText());
-          }
+            columnIndexes.computeIfAbsent(column, key -> fetchColumnIndexForRow(driver, rowElement, key));
+        SelenideElement candidateElement = WebElementWrapper.wrap(driver, rowElement, "table row candidate");
+        if (condition.test(mapToRow(candidateElement, columnIndexResolver))) {
+          return CheckResult.accepted("matched row: " + rowElement.getText());
         }
-        matchedElement = null;
-        return CheckResult.rejected("No matching row yet", "rows checked: " + rowElements.size());
+        return CheckResult.rejected("Row does not match yet", rowElement.getText());
       } catch (NoSuchElementException | StaleElementReferenceException error) {
-        matchedElement = null;
         return CheckResult.rejected(error.toString(), "table changed while checking rows");
       }
     }
+  }
 
-    private Row<T> matchedRow() {
-      if (matchedElement == null) {
-        throw new IllegalStateException("Selenide accepted the row condition without a matched row");
-      }
-      return mapToRow(matchedElement, fetchColumnIndex());
-    }
+  /**
+   * Return a lazy collection of data rows. A row selected with {@link ElementsCollection#findBy}
+   * is resolved again by Selenide before every subsequent row operation.
+   */
+  protected ElementsCollection getRowsForLookup() {
+    return getSelf().findAll(By.xpath(
+        ".//%s[count(. | (ancestor::%s[1]//%s)[1]) != 1]".formatted(HtmlTag.TR, HtmlTag.TABLE, HtmlTag.TR)));
+  }
+
+  /**
+   * Resolve the column index from the current table root owning the candidate row.
+   */
+  protected int fetchColumnIndexForRow(Driver driver, WebElement rowElement, T columnHeader) {
+    WebElement table = rowElement.findElement(By.xpath("./ancestor::%s[1]".formatted(HtmlTag.TABLE)));
+    return fetchColumnIndex(driver, table, columnHeader);
   }
 
   /**
@@ -339,13 +343,4 @@ public abstract class BaseClassicTable<T extends Enum<T>> extends BaseTable<T> {
     return rowsWithHeader.last(Math.max(0, rowsWithHeader.size() - HTML_START_INDEX));
   }
 
-  /**
-   * Read rows from the root element already supplied to a native Selenide condition.
-   */
-  protected List<WebElement> getAllRowsElements(WebElement table) {
-    List<WebElement> rowsWithHeader = table.findElements(By.tagName(HtmlTag.TR));
-    return rowsWithHeader.size() <= HTML_START_INDEX
-        ? List.of()
-        : rowsWithHeader.subList(HTML_START_INDEX, rowsWithHeader.size());
-  }
 }

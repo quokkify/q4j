@@ -13,11 +13,11 @@ import dev.quokkify.html.model.HtmlTag;
 import dev.quokkify.model.ConstantFormat;
 
 import com.codeborne.selenide.CheckResult;
+import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Driver;
 import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.WebElementCondition;
 import com.codeborne.selenide.ex.UIAssertionError;
-import com.codeborne.selenide.impl.WebElementWrapper;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.StaleElementReferenceException;
@@ -51,9 +51,12 @@ public abstract class BaseHorizontalTable<T extends Enum<T> & ConstantFormat> ex
    */
   public HorizontalRow<T> getRow(T columnHeader, Duration timeout) {
     MatchingHorizontalRowCondition matchingRow = new MatchingHorizontalRowCondition(columnHeader);
+    SelenideElement matchingElement = getSelf().findAll(By.tagName(HtmlTag.TR))
+        .findBy(matchingRow)
+        .find(By.tagName(HtmlTag.TD));
     try {
-      getSelf().shouldHave(matchingRow, timeout);
-      return matchingRow.matchedRow();
+      matchingElement.shouldBe(Condition.exist, timeout);
+      return new HorizontalRow<>(matchingElement);
     } catch (UIAssertionError error) {
       throw new TableRowException(columnHeader, timeout, error);
     }
@@ -62,7 +65,6 @@ public abstract class BaseHorizontalTable<T extends Enum<T> & ConstantFormat> ex
   private final class MatchingHorizontalRowCondition extends WebElementCondition {
 
     private final T columnHeader;
-    private SelenideElement matchedElement;
 
     private MatchingHorizontalRowCondition(T columnHeader) {
       super("row for '%s' header".formatted(columnHeader));
@@ -70,30 +72,20 @@ public abstract class BaseHorizontalTable<T extends Enum<T> & ConstantFormat> ex
     }
 
     @Override
-    public CheckResult check(Driver driver, WebElement table) {
+    public CheckResult check(Driver driver, WebElement row) {
       try {
+        WebElement table = row.findElement(By.xpath("./ancestor::%s[1]".formatted(HtmlTag.TABLE)));
         List<WebElement> rows = table.findElements(By.tagName(HtmlTag.TR));
         int rowIndex = fetchColumnIndex(driver, table, columnHeader);
-        if (rowIndex >= 0 && rowIndex < rows.size()) {
-          List<WebElement> cells = rows.get(rowIndex).findElements(By.tagName(HtmlTag.TD));
-          if (!cells.isEmpty()) {
-            matchedElement = WebElementWrapper.wrap(driver, cells.get(0), "horizontal table row");
-            return CheckResult.accepted("matched row: " + cells.get(0).getText());
-          }
+        int candidateIndex = rows.indexOf(row);
+        List<WebElement> cells = row.findElements(By.tagName(HtmlTag.TD));
+        if (candidateIndex == rowIndex && !cells.isEmpty()) {
+          return CheckResult.accepted("matched row: " + cells.get(0).getText());
         }
-        matchedElement = null;
-        return CheckResult.rejected("No matching horizontal row yet", "rows checked: " + rows.size());
+        return CheckResult.rejected("Row does not match yet", "candidate index: " + candidateIndex);
       } catch (NoSuchElementException | StaleElementReferenceException error) {
-        matchedElement = null;
         return CheckResult.rejected(error.toString(), "table changed while checking rows");
       }
-    }
-
-    private HorizontalRow<T> matchedRow() {
-      if (matchedElement == null) {
-        throw new IllegalStateException("Selenide accepted the row condition without a matched row");
-      }
-      return new HorizontalRow<>(matchedElement);
     }
   }
 

@@ -4,6 +4,8 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Map;
 
+import dev.quokkify.elements.table.classic.Row;
+import dev.quokkify.elements.table.horizontal.HorizontalRow;
 import dev.quokkify.ex.TableRowException;
 import dev.quokkify.page.local.DelayedTablePage;
 import dev.quokkify.page.local.LateMountingTablePage;
@@ -197,6 +199,61 @@ public class TableRowWaitTest extends BaseTest {
     Assertions.assertThat(page.isLateTableRowExist(LateMountingTablePage.Header.COMPANY, "Ernst Handel"))
         .isFalse();
     Assertions.assertThat(Duration.between(start, Instant.now())).isLessThan(SHORT_TIMEOUT);
+  }
+
+  @Test(description = "Verify a returned TABLE row resolves itself again after the table root is replaced")
+  public void testReturnedTableRowSurvivesTableReload() {
+    DelayedTablePage page = openDelayedTablePage();
+    Row<DelayedTablePage.Header> row =
+        page.getTableRow(DelayedTablePage.Header.COMPANY, "Ernst Handel", TIMEOUT);
+
+    page.reloadClassicTable();
+
+    row.verifyCell(DelayedTablePage.Header.COUNTRY, "Austria reloaded");
+  }
+
+  @Test(description = "Verify a returned DYNAMIC TABLE row resolves itself again after the table root is replaced")
+  public void testReturnedDynamicTableRowSurvivesTableReload() {
+    DelayedTablePage page = openDelayedTablePage();
+    Row<DelayedTablePage.DynamicHeader> row =
+        page.getDynamicTableRow(DelayedTablePage.DynamicHeader.COMPANY, "Ernst Handel", TIMEOUT);
+
+    page.reloadClassicTable();
+
+    row.verifyCell(DelayedTablePage.DynamicHeader.COUNTRY, "Austria reloaded");
+  }
+
+  @Test(description = "Verify a returned FLEX TABLE row resolves itself again after the table root is replaced")
+  public void testReturnedFlexTableRowSurvivesTableReload() {
+    DelayedTablePage page = openDelayedTablePage();
+    Row<DelayedTablePage.Header> row =
+        page.getFlexTableRow(DelayedTablePage.Header.COMPANY, "Ernst Handel", TIMEOUT);
+
+    page.reloadFlexTable();
+
+    row.verifyCell(DelayedTablePage.Header.COUNTRY, "Austria reloaded");
+  }
+
+  @Test(description = "Verify a returned HORIZONTAL TABLE row resolves itself again after the table root is replaced")
+  public void testReturnedHorizontalTableRowSurvivesTableReload() {
+    DelayedTablePage page = openDelayedTablePage();
+    HorizontalRow<DelayedTablePage.HorizontalHeader> row =
+        page.getHorizontalTableRow(DelayedTablePage.HorizontalHeader.TELEPHONE_2, TIMEOUT);
+
+    page.reloadHorizontalTable();
+
+    row.verifyRow("555 77 856");
+  }
+
+  @Test(description = "Verify a returned DYNAMIC HORIZONTAL row resolves itself after the table root is replaced")
+  public void testReturnedDynamicHorizontalTableRowSurvivesTableReload() {
+    DelayedTablePage page = openDelayedTablePage();
+    HorizontalRow<DelayedTablePage.HorizontalHeader> row =
+        page.getDynamicHorizontalTableRow(DelayedTablePage.HorizontalHeader.TELEPHONE_2, TIMEOUT);
+
+    page.reloadHorizontalTable();
+
+    row.verifyRow("555 77 856");
   }
 
   private void assertCallerTimeout(Runnable lookup) {

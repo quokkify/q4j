@@ -47,6 +47,45 @@
     </table>
 
     <script>
+      window.reloadClassicTable = function () {
+        const currentTable = document.getElementById("customers");
+        const reloadedTable = currentTable.cloneNode(true);
+        const countryCell = Array.from(
+          reloadedTable.querySelectorAll("tbody tr"),
+        ).find((row) => row.cells[0].textContent === "Ernst Handel").cells[2];
+        countryCell.textContent = "Austria reloaded";
+        const placeholder = document.createComment("classic table reload");
+        currentTable.replaceWith(placeholder);
+        setTimeout(() => placeholder.replaceWith(reloadedTable), 250);
+      };
+
+      window.reloadFlexTable = function () {
+        const currentTable = document.getElementById("flex-customers");
+        const reloadedTable = currentTable.cloneNode(true);
+        const row = Array.from(
+          reloadedTable.querySelectorAll(".flex-table-row"),
+        ).find(
+          (candidate) => candidate.children[0].textContent === "Ernst Handel",
+        );
+        row.children[2].textContent = "Austria reloaded";
+        const placeholder = document.createComment("flex table reload");
+        currentTable.replaceWith(placeholder);
+        setTimeout(() => placeholder.replaceWith(reloadedTable), 250);
+      };
+
+      window.reloadHorizontalTable = function () {
+        const currentTable = document.getElementById("horizontal-customers");
+        const reloadedTable = currentTable.cloneNode(true);
+        const row = Array.from(reloadedTable.querySelectorAll("tr")).find(
+          (candidate) =>
+            candidate.querySelector("th").textContent === "Telephone 2",
+        );
+        row.querySelector("td").textContent = "555 77 856";
+        const placeholder = document.createComment("horizontal table reload");
+        currentTable.replaceWith(placeholder);
+        setTimeout(() => placeholder.replaceWith(reloadedTable), 250);
+      };
+
       setTimeout(function () {
         document
           .querySelector("#customers tbody")

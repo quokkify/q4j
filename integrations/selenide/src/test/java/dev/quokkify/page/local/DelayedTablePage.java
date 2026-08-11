@@ -13,6 +13,7 @@ import dev.quokkify.elements.table.horizontal.HorizontalTable;
 import dev.quokkify.impl.Page;
 import dev.quokkify.model.ConstantFormat;
 
+import com.codeborne.selenide.Selenide;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
 
@@ -83,6 +84,18 @@ public class DelayedTablePage implements Page {
 
   public boolean isHorizontalTableRowExist(HorizontalHeader header) {
     return horizontalTable.isRowExist(header);
+  }
+
+  public void reloadClassicTable() {
+    Selenide.executeJavaScript("window.reloadClassicTable()");
+  }
+
+  public void reloadFlexTable() {
+    Selenide.executeJavaScript("window.reloadFlexTable()");
+  }
+
+  public void reloadHorizontalTable() {
+    Selenide.executeJavaScript("window.reloadHorizontalTable()");
   }
 
   public enum Header {

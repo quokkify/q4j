@@ -3,6 +3,7 @@ package dev.quokkify.elements.table.classic;
 import java.util.List;
 import java.util.function.Function;
 
+import com.codeborne.selenide.Driver;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import org.openqa.selenium.By;
@@ -30,11 +31,13 @@ public class FlexTable<T extends Enum<T>> extends Table<T> {
   }
 
   @Override
-  protected List<WebElement> getAllRowsElements(WebElement table) {
-    List<WebElement> rowsWithHeader = table.findElements(By.cssSelector(".flex-table-row"));
-    return rowsWithHeader.size() <= HTML_START_INDEX
-        ? List.of()
-        : rowsWithHeader.subList(HTML_START_INDEX, rowsWithHeader.size());
+  protected ElementsCollection getRowsForLookup() {
+    return getSelf().findAll(By.cssSelector(".flex-table-row:not(:first-child)"));
+  }
+
+  @Override
+  protected int fetchColumnIndexForRow(Driver driver, WebElement rowElement, T columnHeader) {
+    return fetchColumnIndex().apply(columnHeader);
   }
 
   /**
