@@ -1,0 +1,1 @@
+{"id":"76bc155de42571c075340ab7694d56b8","fullName":"dev.quokkify.test.CustomExternalServiceLogFilterTest.filter_delegatesToContextNextOnce","name":"Filter delegates execution to context.next exactly once per call","status":"passed","testResultsByEnv":{"integrations-rest-assured":"88e9aeef7f0ed8bc5a320b2fe3c4a9a5"}}
