@@ -1,1 +1,1 @@
-{"id":"dc5363ed7240117107f91d9e806a6532","fullName":"dev.quokkify.test.UiFileDownloadTest.testCdpDownload","name":"Download nginx file through CDP","status":"failed","testResultsByEnv":{"integrations-selenide":"1a98dc336e6c09b076232d8b0cf66680"}}
+{"id":"dc5363ed7240117107f91d9e806a6532","fullName":"dev.quokkify.test.UiFileDownloadTest.testCdpDownload","name":"Download nginx file through CDP","status":"broken","testResultsByEnv":{"integrations-selenide":"5730bf58201337e7dbaeb45792e9cf73"}}

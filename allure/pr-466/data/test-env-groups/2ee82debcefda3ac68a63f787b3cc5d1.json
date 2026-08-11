@@ -1,1 +1,1 @@
-{"id":"2ee82debcefda3ac68a63f787b3cc5d1","fullName":"dev.quokkify.test.RedisSmokeTest.shouldStoreAndReadBasicTypes","name":"shouldStoreAndReadBasicTypes","status":"passed","testResultsByEnv":{"data-utils-nosql-redis":"b68c036e0e4d6d85747a0567dbe7cf62"}}
+{"id":"2ee82debcefda3ac68a63f787b3cc5d1","fullName":"dev.quokkify.test.RedisSmokeTest.shouldStoreAndReadBasicTypes","name":"shouldStoreAndReadBasicTypes","status":"passed","testResultsByEnv":{"data-utils-nosql-redis":"ad3fc776ead873dc00001cf76fbfb74e"}}

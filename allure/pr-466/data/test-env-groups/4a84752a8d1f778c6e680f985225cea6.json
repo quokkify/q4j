@@ -1,1 +1,1 @@
-{"id":"4a84752a8d1f778c6e680f985225cea6","fullName":"dev.quokkify.test.TableRowWaitTest.testDynamicTableMissingRowUsesCallerTimeout","name":"Verify 'DYNAMIC TABLE' applies the caller timeout","status":"passed","testResultsByEnv":{"integrations-selenide":"0947b0eeb93b4a2ac14b0d4e88f1776e"}}
+{"id":"4a84752a8d1f778c6e680f985225cea6","fullName":"dev.quokkify.test.TableRowWaitTest.testDynamicTableMissingRowUsesCallerTimeout","name":"Verify 'DYNAMIC TABLE' applies the caller timeout","status":"passed","testResultsByEnv":{"integrations-selenide":"f5041e894b41fd8a60ed6efdc8b76aa8"}}
