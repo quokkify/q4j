@@ -202,7 +202,7 @@ services:
 
   reportportal-migrations:
     profiles: [reporting]
-    image: reportportal/migrations:5.15.3@sha256:f588bca5e847227dd6afce4d6542d8c03ff99e1e2a9988f83edb9b1c988196d1
+    image: reportportal/migrations:5.15.4@sha256:464468240d7b22dea7c71b6e320f773cf384e9c885321a268ecb1bb05775d59e
     depends_on:
       reportportal-postgres:
         condition: service_healthy
