@@ -1,0 +1,71 @@
+<html lang="en"><head>
+    <meta charset="utf-8">
+    <title>Delayed table</title>
+  </head>
+  <body>
+    <table id="customers">
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th>Contact</th>
+          <th>Country</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Alfreds Futterkiste</td>
+          <td>Maria Anders</td>
+          <td>Germany</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div id="flex-customers">
+      <div class="flex-table-row">
+        <div>Company</div>
+        <div>Contact</div>
+        <div>Country</div>
+      </div>
+      <div class="flex-table-row">
+        <div>Alfreds Futterkiste</div>
+        <div>Maria Anders</div>
+        <div>Germany</div>
+      </div>
+    </div>
+
+    <table id="horizontal-customers">
+      <tbody><tr>
+        <th>Name</th>
+        <td>Bill Gates</td>
+      </tr>
+      <tr>
+        <th>Telephone 1</th>
+        <td>555 77 854</td>
+      </tr>
+    </tbody></table>
+
+    <script>
+      setTimeout(function () {
+        document
+          .querySelector("#customers tbody")
+          .insertAdjacentHTML(
+            "beforeend",
+            "<tr><td>Ernst Handel</td><td>Roland Mendel</td><td>Austria</td></tr>",
+          );
+        document
+          .getElementById("flex-customers")
+          .insertAdjacentHTML(
+            "beforeend",
+            '<div class="flex-table-row"><div>Ernst Handel</div><div>Roland Mendel</div><div>Austria</div></div>',
+          );
+        document
+          .querySelector("#horizontal-customers tbody")
+          .insertAdjacentHTML(
+            "beforeend",
+            "<tr><th>Telephone 2</th><td>555 77 855</td></tr>",
+          );
+      }, 1500);
+    </script>
+  
+
+</body></html>
