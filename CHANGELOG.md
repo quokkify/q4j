@@ -1,5 +1,49 @@
 # Changelog
 
+## [0.3.0](https://github.com/quokkify/q4j/compare/v0.2.3...v0.3.0) (2026-08-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* **selenide:** wait for asynchronously-appearing rows in table lookups ([#461](https://github.com/quokkify/q4j/issues/461))
+* **selenide:** remove semantic element aliases ([#458](https://github.com/quokkify/q4j/issues/458))
+* **selenide:** remove unused public API BaseBlock, ColorFormatter, PageTitle ([#453](https://github.com/quokkify/q4j/issues/453))
+* **selenide:** wire Verification timeout/polling into custom waits ([#452](https://github.com/quokkify/q4j/issues/452))
+* **selenide:** use native container lists ([#441](https://github.com/quokkify/q4j/issues/441))
+
+### 🐛 Bug Fixes
+
+* **allure:** restore Java and Gradle metadata ([#464](https://github.com/quokkify/q4j/issues/464)) ([51d07b5](https://github.com/quokkify/q4j/commit/51d07b57488e66a30e2aec3d14cf41bc12482fb5))
+* **ci:** roll out scoped Allure environments ([#462](https://github.com/quokkify/q4j/issues/462)) ([aae17a5](https://github.com/quokkify/q4j/commit/aae17a5bf69f5d1695d68ce743d5b09d78381d3f))
+* **deps:** update io.github.classgraph:classgraph to v4.8.187 ([#455](https://github.com/quokkify/q4j/issues/455)) ([11a75da](https://github.com/quokkify/q4j/commit/11a75da33cea7492c7b725eca63775ea7802cb84))
+* **deps:** update org.bouncycastle:bcprov-jdk18on to v1.85.2 ([#456](https://github.com/quokkify/q4j/issues/456)) ([4ff11d5](https://github.com/quokkify/q4j/commit/4ff11d5542a37e7459f9e74737f15881685f781a))
+* **selenide:** enable remote Grid downloads ([#466](https://github.com/quokkify/q4j/issues/466)) ([9475dfa](https://github.com/quokkify/q4j/commit/9475dfaf7b9717a356acae3d42a41b34ace11dde))
+* **selenide:** stop leaking Basic Auth credentials into url and Allure ([#450](https://github.com/quokkify/q4j/issues/450)) ([d2c4749](https://github.com/quokkify/q4j/commit/d2c47497ee87b89835f0ab291eca73cfce4c9ddd))
+* **selenide:** wait for asynchronously-appearing rows in table lookups ([#461](https://github.com/quokkify/q4j/issues/461)) ([366c264](https://github.com/quokkify/q4j/commit/366c26497dcf5a8b904b9efd86d473284fd7fd59))
+* **selenide:** wire Verification timeout/polling into custom waits ([#452](https://github.com/quokkify/q4j/issues/452)) ([e7827e1](https://github.com/quokkify/q4j/commit/e7827e1d8018a95bf0144e62d6312ac35139a50e))
+
+
+### ⚙️ CI
+
+* **compose:** run health lifecycle ([#436](https://github.com/quokkify/q4j/issues/436)) ([b44dbf5](https://github.com/quokkify/q4j/commit/b44dbf5a1c3bd47f3752eb144b2563f601323007))
+
+
+### ♻️ Code Refactoring
+
+* **selenide:** remove semantic element aliases ([#458](https://github.com/quokkify/q4j/issues/458)) ([0917d6b](https://github.com/quokkify/q4j/commit/0917d6bebbc288131655957d39a60448858dfa87))
+* **selenide:** remove unused public API BaseBlock, ColorFormatter, PageTitle ([#453](https://github.com/quokkify/q4j/issues/453)) ([7234bcd](https://github.com/quokkify/q4j/commit/7234bcd2cac3965b115b9bc8bad53c95dbc11ad2))
+* **selenide:** shrink Browser facade to project-level configuration ([#451](https://github.com/quokkify/q4j/issues/451)) ([716dff4](https://github.com/quokkify/q4j/commit/716dff477bb11fd69652aa3ef9b92afa81929b64))
+* **selenide:** use native container lists ([#441](https://github.com/quokkify/q4j/issues/441)) ([fbb952a](https://github.com/quokkify/q4j/commit/fbb952a98cee6da896e71b661074a353acf02cfc))
+
+
+### 🧹 Chores
+
+* **deps:** update github-actions ([#440](https://github.com/quokkify/q4j/issues/440)) ([69f54ee](https://github.com/quokkify/q4j/commit/69f54eeebd58f64dbf9063522429e4f814b953f1))
+* **deps:** update gradle to v9.7.0 ([#457](https://github.com/quokkify/q4j/issues/457)) ([b0c64e3](https://github.com/quokkify/q4j/commit/b0c64e3e5af903bfa9a95761d1b8a1aa51618904))
+* **deps:** update nginx:1.31.3 docker digest to 8541484 ([#459](https://github.com/quokkify/q4j/issues/459)) ([bb23657](https://github.com/quokkify/q4j/commit/bb23657b406197e632f863187d8547969a516592))
+* **deps:** update redis docker tag to v8.10.0 ([#439](https://github.com/quokkify/q4j/issues/439)) ([b6397e9](https://github.com/quokkify/q4j/commit/b6397e950acce3755c0abba5403be145285d3927))
+* **deps:** update zookeeper:3.9 docker digest to e0e03e7 ([#460](https://github.com/quokkify/q4j/issues/460)) ([97a0e28](https://github.com/quokkify/q4j/commit/97a0e2897bbe831ce83c5dfd5267c302ee81cb1b))
+
 ## [0.2.3](https://github.com/quokkify/q4j/compare/v0.2.2...v0.2.3) (2026-08-09)
 
 
