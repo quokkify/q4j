@@ -1,0 +1,11 @@
+[
+  {
+    "httpRequest": {
+      "path": "/users"
+    },
+    "httpResponseTemplate": {
+      "templateType": "VELOCITY",
+      "template": "{\"body\":{\"name\":\"my_login\",\"job\":\"my_password\",\"id\":\"19\",\"createdAt\":\"$!now_iso_8601\"},\"statusCode\":201}"
+    }
+  }
+]

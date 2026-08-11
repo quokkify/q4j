@@ -1,0 +1,57 @@
+rootProject.name = "q4j"
+
+// ============================================================================
+// TEST EXTENSIONS
+// ============================================================================
+include(":testng-extensions")            // Extensions for TestNG (used as testImplementation)
+
+// ============================================================================
+// INTEGRATIONS WITH EXTERNAL LIBRARIES / SERVICES
+// ============================================================================
+include(":integrations:rest-assured")    // Wrapper around Rest Assured for HTTP testing
+include(":integrations:selenide")                  // Selenide - UI testing framework wrapper
+include(":integrations:selenide-proxy")            // Selenide proxy - BrowserUpProxy / HAR recording
+include(":integrations:selenide-grid")             // Selenide grid - Selenium Grid file download support
+include(":integrations:kafka")           // Kafka integration
+include(":integrations:rabbitmq")        // RabbitMQ integration
+include(":integrations:tyrus")           // Tyrus WebSocket client wrapper for test automation
+include(":integrations:jira:jira-core")  // Jira core integration
+project(":integrations:jira:jira-core").projectDir = file("integrations/jira/core")
+include(":integrations:jira:testng")     // Jira TestNG integration
+include(":integrations:jira:testrail")   // Jira TestRail TicketSource integration
+project(":integrations:jira:testrail").projectDir = file("integrations/jira/testrail")
+include(":integrations:testrail:testrail-core")   // TestRail core integration
+project(":integrations:testrail:testrail-core").projectDir = file("integrations/testrail/core")
+include(":integrations:testrail:testng") // TestRail TestNG integration
+include(":integrations:reportportal:reportportal-core") // ReportPortal core integration
+project(":integrations:reportportal:reportportal-core").projectDir = file("integrations/reportportal/core")
+include(":integrations:reportportal:testng") // ReportPortal TestNG integration
+include(":integrations:reportportal:testrail") // TestRail description provider for ReportPortal
+project(":integrations:reportportal:testrail").projectDir = file("integrations/reportportal/testrail")
+
+// ============================================================================
+// DATA ACCESS MODULES (SQL / NoSQL)
+// ============================================================================
+include(":data-utils:sql")               // Utilities for relational databases (JDBC, migrations, etc.)
+include(":data-utils:nosql")             // Parent module for non-relational database utilities
+include(":data-utils:nosql:morphia")     // MongoDB utilities (Morphia)
+include(":data-utils:nosql:redis")       // Redis utilities (Redisson)
+
+// ============================================================================
+// COMMON UTILS (runtime modules, used in services and tests)
+// ============================================================================
+include(":common-utils:core")             // Core utilities (logging, commons, shared helpers)
+include(":common-utils:jackson:parent")   // Jackson BOM
+include(":common-utils:jackson:csv")      // CSV parsing and handling
+include(":common-utils:jackson:xml")      // XML parsing and transformation utilities
+include(":common-utils:jackson:json")     // JSON utilities (Jackson, serializers, deserializers)
+include(":common-utils:jackson:yaml")     // YAML utilities (SnakeYAML helpers)
+include(":common-utils:introspection")    // Reflection and introspection helpers
+include(":common-utils:awaitility")       // Runtime wrappers for Awaitility (async waiting)
+include(":common-utils:file")             // File I/O utilities
+include(":common-utils:html")             // HTML utilities (rendering, parsing)
+include(":common-utils:jwt")              // JWT utilities (token handling with Nimbus JOSE/JWT)
+//include(":common-utils:aspects")          // Runtime AOP helpers (cross-cutting concerns, reporting)
+include(":common-utils:config")           // Configuration utilities (YAML/JSON configs, property mapping)
+include(":common-utils:signature")        // Cryptographic signature utilities
+include(":common-utils:console")          // Java wrapper for executing shell/console commands

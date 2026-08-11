@@ -1,0 +1,15 @@
+{
+  "type": "object",
+  "required": ["fact", "length"],
+  "additionalProperties": false,
+  "minProperties": 2,
+  "maxProperties": 2,
+  "properties": {
+    "fact": {
+      "type": "string"
+    },
+    "length": {
+      "type": "integer"
+    }
+  }
+}

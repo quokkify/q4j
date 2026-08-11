@@ -1,0 +1,60 @@
+Configuration:
+  name: quikkify
+
+  Properties:
+    Property:
+      - name: logPath
+        value: "./build/test-logs"
+      - name: defaultLogPattern
+        value: "%highlight{%d{dd MMM HH:mm:ss} [TId-%tid] [%-5level] [%t] %C{1.}}{FATAL=white, ERROR=#FF472B, WARN=bright_yellow, INFO=#2E86FF, DEBUG=bright_yellow, TRACE=blue} - %highlight{%msg%n}{INFO=#2E86FF, WARN=bright_yellow}"
+      - name: fileLogPattern
+        value: "%highlight{%d{dd MMM HH:mm:ss} [TId-%tid] [%-5level] [%t] %C{1.}}{FATAL=white, ERROR=#FF472B, WARN=bright_yellow, INFO=#2E86FF, DEBUG=bright_yellow, TRACE=blue} - %highlight{%msg%n}{INFO=#2E86FF, WARN=bright_yellow}"
+
+  Appenders:
+    Console:
+      - name: ConsoleAppender
+        target: SYSTEM_OUT
+        PatternLayout:
+          pattern: ${defaultLogPattern}
+          disableAnsi: false
+    Routing:
+      name: RoutingFileAppender
+      Routes:
+        pattern: "$${ctx:logFileName}"
+        Route:
+          #This route is chosen if ThreadContext has no value for key logFileName.
+          - key: "$${ctx:logFileName}"
+            RollingFile:
+              name: "Rolling-default"
+              fileName: "${logPath}/default.log"
+              filePattern: "${logPath}/default-%i.log.gz"
+              PatternLayout:
+                Pattern: ${defaultLogPattern}
+              Policies:
+                SizeBasedTriggeringPolicy:
+                  size: 75 MB
+          #This route is chosen if ThreadContext has a value for logFileName
+          #The value dynamically determines the name of the log file.
+          - RollingFile:
+              name: "Rolling-${ctx:logFileName}"
+              fileName: "${logPath}/${ctx:logFileName}.log"
+              filePattern: "${logPath}/${ctx:logFileName}-%i.log"
+              PatternLayout:
+                Pattern: ${fileLogPattern}
+              Policies:
+                SizeBasedTriggeringPolicy:
+                  size: 50 MB
+  Loggers:
+    Root:
+      AppenderRef:
+        - ref: ConsoleAppender
+          level: ${env:LOGGER_LEVEL:-info}
+    Logger:
+      - name: dev.quokkify
+        level: debug
+        AppenderRef:
+          - ref: RoutingFileAppender
+            level: debug
+      - name: io.qameta.allure.AllureLifecycle
+        level: off
+        additivity: false

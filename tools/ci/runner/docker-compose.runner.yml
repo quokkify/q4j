@@ -1,0 +1,33 @@
+services:
+  dind:
+    image: docker:29.7-dind@sha256:084e385b0c9b7ab35d5a46dfedd033721448c000dbec71adcf13da8a9e71baa8
+    privileged: true
+    environment:
+      DOCKER_TLS_CERTDIR: ""
+    command:
+      - --host=tcp://0.0.0.0:2375
+      - --host=unix:///var/run/docker.sock
+    volumes:
+      - dind-data:/var/lib/docker
+
+  runner:
+    image: myoung34/github-runner:2.336.0@sha256:fc28f4cd67cacf3024984d873b2adbbd5809b85095747fa3fcd2421c098fb846
+    depends_on:
+      - dind
+    environment:
+      REPO_URL: ${REPO_URL}
+      RUNNER_TOKEN: ${RUNNER_TOKEN}
+      LABELS: ${RUNNER_LABELS}
+      RUNNER_EPHEMERAL: "true"
+      DISABLE_AUTO_UPDATE: "true"
+      DOCKER_HOST: tcp://dind:2375
+      DOCKER_TLS_CERTDIR: ""
+      RUNNER_TOOL_CACHE: /opt/hostedtoolcache
+    volumes:
+      - runner-toolcache:/opt/hostedtoolcache
+      - runner-gradle-cache:/home/runner/.gradle
+
+volumes:
+  dind-data:
+  runner-toolcache:
+  runner-gradle-cache:

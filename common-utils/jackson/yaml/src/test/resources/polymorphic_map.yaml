@@ -1,0 +1,4 @@
+pet:
+  type: cat
+  name: Tom
+  lives: 9

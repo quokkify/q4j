@@ -1,0 +1,10 @@
+description = "Jira core integration"
+
+dependencies {
+    implementation project(":common-utils:core")
+    implementation project(":common-utils:config")
+
+    implementation "com.atlassian.jira:jira-rest-java-client-core:${jira_rest_client_core}"
+    api "com.atlassian.jira:jira-rest-java-client-api:${jira_rest_client_core}"
+    implementation "io.atlassian.fugue:fugue:${fugue}"
+}

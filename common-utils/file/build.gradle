@@ -1,0 +1,17 @@
+dependencies {
+    api project(":common-utils:core")
+    api project(":common-utils:jackson:json")
+
+    implementation project(":common-utils:jackson:parent")
+    implementation project(":common-utils:config")
+
+    api "commons-io:commons-io"
+    api "org.slf4j:slf4j-api"
+    api "org.apache.logging.log4j:log4j-slf4j2-impl"
+    api "org.apache.logging.log4j:log4j-core"
+    api "org.apache.logging.log4j:log4j-api"
+    api "org.slf4j:jcl-over-slf4j"
+
+    testImplementation project(":testng-extensions")
+    testImplementation "org.assertj:assertj-core"
+}

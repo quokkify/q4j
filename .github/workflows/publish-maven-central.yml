@@ -1,0 +1,91 @@
+name: Publish to Maven Central
+
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      release_tag:
+        description: Existing Q4J release tag to publish, for example v0.2.0
+        required: true
+        type: string
+
+permissions:
+  contents: read
+
+concurrency:
+  group: maven-central-${{ github.event.release.tag_name || inputs.release_tag }}
+  cancel-in-progress: false
+
+jobs:
+  publish:
+    name: Publish signed Q4J modules
+    if: ${{ github.event_name == 'workflow_dispatch' || !github.event.release.prerelease }}
+    runs-on: ubuntu-latest
+    environment: maven-central
+    steps:
+      - name: Checkout the release tag
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          fetch-depth: 0
+          ref: ${{ github.event.release.tag_name || inputs.release_tag }}
+
+      - name: Set up JDK 21
+        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+        with:
+          distribution: temurin
+          java-version: "21"
+
+      - name: Set up Gradle
+        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6
+
+      - name: Verify release identity
+        id: release
+        env:
+          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.release_tag }}
+        run: |
+          set -euo pipefail
+          if [[ ! "$RELEASE_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then
+            echo "Expected a stable semantic release tag such as v0.2.0" >&2
+            exit 1
+          fi
+          version="${RELEASE_TAG#v}"
+          file_version="$(tr -d '[:space:]' < version.txt)"
+          test "$version" = "$file_version" || {
+            echo "Tag $RELEASE_TAG does not match version.txt ($file_version)" >&2
+            exit 1
+          }
+          git tag --points-at HEAD | grep -Fxq "$RELEASE_TAG" || {
+            echo "Checked-out commit is not tagged exactly with $RELEASE_TAG" >&2
+            exit 1
+          }
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+
+      - name: Validate Maven Central POMs
+        run: |
+          ./gradlew validateMavenCentralPoms \
+            -Pversion="${{ steps.release.outputs.version }}" \
+            --no-daemon --console=plain
+
+      - name: Validate Maven Central secrets
+        env:
+          MAVEN_CENTRAL_USERNAME: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          MAVEN_CENTRAL_PASSWORD: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          SIGNING_IN_MEMORY_KEY: ${{ secrets.SIGNING_IN_MEMORY_KEY }}
+        run: |
+          set -euo pipefail
+          test -n "$MAVEN_CENTRAL_USERNAME" || { echo "MAVEN_CENTRAL_USERNAME is not configured" >&2; exit 1; }
+          test -n "$MAVEN_CENTRAL_PASSWORD" || { echo "MAVEN_CENTRAL_PASSWORD is not configured" >&2; exit 1; }
+          test -n "$SIGNING_IN_MEMORY_KEY" || { echo "SIGNING_IN_MEMORY_KEY is not configured" >&2; exit 1; }
+
+      - name: Publish and release on Maven Central
+        env:
+          ORG_GRADLE_PROJECT_mavenCentralUsername: ${{ secrets.MAVEN_CENTRAL_USERNAME }}
+          ORG_GRADLE_PROJECT_mavenCentralPassword: ${{ secrets.MAVEN_CENTRAL_PASSWORD }}
+          ORG_GRADLE_PROJECT_signingInMemoryKey: ${{ secrets.SIGNING_IN_MEMORY_KEY }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyId: ${{ secrets.SIGNING_IN_MEMORY_KEY_ID }}
+          ORG_GRADLE_PROJECT_signingInMemoryKeyPassword: ${{ secrets.SIGNING_IN_MEMORY_KEY_PASSWORD }}
+        run: |
+          ./gradlew publishAndReleaseToMavenCentral \
+            -Pversion="${{ steps.release.outputs.version }}" \
+            --no-daemon --console=plain --stacktrace

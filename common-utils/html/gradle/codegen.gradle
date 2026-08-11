@@ -1,0 +1,344 @@
+import groovy.json.JsonSlurper
+import java.text.Normalizer
+
+ext.npmMetaUrl = 'https://registry.npmjs.org/@mdn/browser-compat-data'
+
+def workDir = layout.buildDirectory.dir('bcd')
+def tarballFile = layout.buildDirectory.file('bcd/bcd.tgz')
+def extractedDir = layout.buildDirectory.dir('bcd/extracted')
+def generatedSrcDir = layout.buildDirectory.dir('generated/sources/codegen')
+def metaFile = layout.buildDirectory.file('bcd/meta/latest_url.txt')
+
+def classnamesTxt = file('custom_attributes.txt')
+def targetPackage = 'dev.quokkify.html.model'
+
+sourceSets.main.java.srcDir(generatedSrcDir)
+
+ext.toConstName = { String raw ->
+    if (!raw) return ''
+    String n = Normalizer.normalize(raw, Normalizer.Form.NFKC)
+    n = n.replaceAll('[:.-]', '_')
+    StringBuilder sb = new StringBuilder()
+    for (int i = 0; i < n.length(); i++) {
+        char c = n.charAt(i)
+        if (Character.isUpperCase(c) && i > 0 && Character.isLowerCase(n.charAt(i - 1))) sb.append('_')
+        sb.append(c)
+    }
+    n = sb.toString().toUpperCase(Locale.ROOT).replaceAll('[^A-Z0-9_]', '')
+    if (n && Character.isDigit(n.charAt(0))) n = '_' + n
+    if (n == 'FOR') n = 'HTML_FOR'
+    return n
+}
+
+ext.toAttrValue = { String raw ->
+    if (!raw) return ''
+    String s = Normalizer.normalize(raw, Normalizer.Form.NFKC)
+    s = s.replaceAll('[:._]', '-')
+    StringBuilder sb = new StringBuilder()
+    for (int i = 0; i < s.length(); i++) {
+        char c = s.charAt(i)
+        if (Character.isUpperCase(c) && i > 0 && Character.isLowerCase(s.charAt(i - 1))) sb.append('-')
+        sb.append(c)
+    }
+    s = sb.toString().replace('_', '-').replaceAll('-+', '-').toLowerCase(Locale.ROOT)
+    if (s == 'html-for') s = 'for'
+    return s
+}
+
+ext.toTagValue = { String raw -> raw == null ? '' : raw.toLowerCase(Locale.ROOT) }
+ext.toClassValue = { String raw ->
+    if (!raw) return ''
+    String s = raw.trim().replaceAll('[\\s_]+', '-')
+    StringBuilder sb = new StringBuilder()
+    for (int i = 0; i < s.length(); i++) {
+        char c = s.charAt(i)
+        if (Character.isUpperCase(c) && i > 0 && Character.isLowerCase(s.charAt(i - 1))) sb.append('-')
+        sb.append(c)
+    }
+    sb.toString().replaceAll('-+', '-').toLowerCase(Locale.ROOT)
+}
+
+ext.writeConstClass = { File file, String pkg, String className, Map<String, String> consts, String javadoc ->
+    file.parentFile.mkdirs()
+    def ordered = consts.findAll { k, v -> k?.trim() && v?.trim() }
+            .collect { [k: it.key, v: it.value] }
+    file.withWriter('UTF-8') { w ->
+        w.println("package ${pkg};")
+        w.println()
+        if (javadoc) w.println(javadoc)
+        w.println("public final class ${className} {")
+        w.println("  private ${className}() {}")
+        w.println()
+        ordered.each { p -> w.println("  public static final String ${p.k} = \"${p.v}\";") }
+        w.println()
+        w.println("  public static final java.util.Set<String> ALL;")
+        w.println("  static {")
+        w.println("    java.util.LinkedHashSet<String> s = new java.util.LinkedHashSet<>();")
+        ordered.each { p -> w.println("    s.add(${p.k});") }
+        w.println("    ALL = java.util.Collections.unmodifiableSet(s);")
+        w.println("  }")
+        w.println("}")
+    }
+}
+
+tasks.register('resolveBcd') {
+    group = 'codegen'
+    description = 'Apply URL tarball for @mdn/browser-compat-data (latest)'
+
+    outputs.file(metaFile)
+
+    doLast {
+        def metaDir = layout.buildDirectory.dir('bcd/meta').get().asFile
+        metaDir.mkdirs()
+
+        String metaJson
+        try {
+            metaJson = new URL(npmMetaUrl as String).text
+        } catch (Exception e) {
+            throw new GradleException("Not received npm meta data ${npmMetaUrl}", e)
+        }
+
+        def meta = new JsonSlurper().parseText(metaJson)
+        if (!(meta instanceof Map)) {
+            throw new GradleException("Expected meta of npm, but actual: ${meta?.getClass()?.name}")
+        }
+
+        def distTags = (meta as Map).containsKey('dist-tags') ? (meta as Map)['dist-tags'] : null
+        def latest = (distTags instanceof Map && (distTags as Map).containsKey('latest')) ? (distTags as Map)['latest'] as String : ''
+        if (!latest) throw new GradleException("Not found dist-tags.latest in npm")
+
+        def versions = (meta as Map).containsKey('versions') ? (meta as Map)['versions'] : null
+        def latestObj = (versions instanceof Map) ? (versions as Map)[latest] : null
+        def dist = (latestObj instanceof Map) ? (latestObj as Map)['dist'] : null
+        def tarUrl = (dist instanceof Map) ? (dist as Map)['tarball'] as String : null
+
+        if (!tarUrl) throw new GradleException("Not found dist.tarball for version ${latest}")
+
+        def out = metaFile.get().asFile
+        out.parentFile.mkdirs()
+        out.text = tarUrl
+
+        println "BCD latest: ${latest}"
+        println "Tarball: ${tarUrl}"
+    }
+}
+
+tasks.register('downloadBcd') {
+    group = 'codegen'
+    description = 'Download tarball @mdn/browser-compat-data'
+    dependsOn tasks.named('resolveBcd')
+
+    inputs.file(metaFile)
+    outputs.file(tarballFile)
+
+    doLast {
+        def url = metaFile.get().asFile.text.trim()
+        def outFile = tarballFile.get().asFile
+        outFile.parentFile.mkdirs()
+        new URL(url).withInputStream { is ->
+            outFile.withOutputStream { os -> os << is }
+        }
+        println "Downloaded: ${outFile.absolutePath}"
+    }
+}
+
+tasks.register('extractBcd') {
+    group = 'codegen'
+    description = 'Download and unpack MDN Browser Compat Data (GitHub main.zip)'
+    outputs.dir(extractedDir)
+    outputs.upToDateWhen { false }
+
+    doLast {
+        def zipUrl = 'https://github.com/mdn/browser-compat-data/archive/refs/heads/main.zip'
+        def zipFile = layout.buildDirectory.file('bcd/bcd.zip').get().asFile
+        zipFile.parentFile.mkdirs()
+
+        println "⬇️ Downloading ${zipUrl} ..."
+        new URL(zipUrl).withInputStream { i -> zipFile.withOutputStream { it << i } }
+        println "✅ Downloaded: ${zipFile.length()} bytes"
+
+        println "📦 Unpacking /html/** ..."
+        copy {
+            from zipTree(zipFile)
+            into extractedDir.get().asFile
+            include '**/html/**'
+            includeEmptyDirs = false
+            eachFile { f ->
+                if (f.path.startsWith('browser-compat-data-main/')) {
+                    f.path = f.path.substring('browser-compat-data-main/'.length())
+                }
+            }
+        }
+
+        println "✅ Unpacked to: ${extractedDir.get().asFile.absolutePath}"
+    }
+}
+
+tasks.register('process') {
+    group = 'codegen'
+    description = 'Generate HtmlTag/HtmlAttribute/HtmlClassName from build/bcd/extracted/html'
+    dependsOn tasks.named('extractBcd')
+
+    inputs.dir(layout.buildDirectory.dir('bcd/extracted/html'))
+    if (classnamesTxt.exists()) inputs.file(classnamesTxt)
+    outputs.dir(generatedSrcDir)
+
+    doLast {
+        File htmlBase = new File(extractedDir.get().asFile, 'html')
+        if (!htmlBase.exists()) {
+            throw new GradleException("Not found catalog: ${htmlBase.absolutePath}. Task 'extractBcd' should make unpacking in bcd/extracted/html.")
+        }
+
+        File elDir = new File(htmlBase, 'elements')
+        if (!elDir.exists()) throw new GradleException("Not found catalog with elements: ${elDir.absolutePath}")
+
+        File gFile = new File(htmlBase, 'global_attributes.json')
+        if (!gFile.exists()) throw new GradleException("Not found file with global attributes: ${gFile.absolutePath}")
+
+        File pkgDir = new File(generatedSrcDir.get().asFile, targetPackage.replace('.', '/'))
+        pkgDir.mkdirs()
+
+        /* ================= TAGS ================= */
+        Map<String, String> tagConsts = new LinkedHashMap<>()
+        elDir.listFiles({ File dir, String name -> name.toLowerCase(Locale.ROOT).endsWith('.json') } as FilenameFilter)
+                .toList()
+                .sort { it.name }
+                .each { f ->
+                    String tagName = f.name.replaceAll(/\.json$/, '')
+                    tagConsts[toConstName(tagName)] = toTagValue(tagName)
+                }
+
+        writeConstClass(
+                new File(pkgDir, 'HtmlTag.java'),
+                targetPackage,
+                'HtmlTag',
+                tagConsts,
+                '''/**
+ * HTML tags from MDN BCD (html/elements/*.json).
+ * Constants are String values in lowercase (e.g., "div", "table").
+ */''')
+
+        /* =============== ATTRIBUTES =============== */
+        Set<String> hardSkip = [
+                '__compat', 'examples', 'obsolete', 'deprecated',
+                'attributes', 'children', 'content', 'permitted_content', 'permittedDescendants',
+                'mdn_url', 'interactive_content', 'form_associated', 'implicit_aria_role',
+                'implicit_role', 'namespace', 'derived', 'dom_interface', 'interface', 'linkTypes',
+                'element', 'desc', 'seealso', 'animation'
+        ] as Set
+
+        Map<String, String> attrConsts = new LinkedHashMap<>()
+        def putAttr = { String key ->
+            String constName = toConstName(key)
+            String value = toAttrValue(key)
+            if (!attrConsts.containsValue(value)) {
+                attrConsts[constName] = value
+            }
+        }
+
+        def gRoot = new groovy.json.JsonSlurper().parse(gFile)
+        Map globals = (gRoot instanceof Map) ? (((gRoot['html'] ?: [:])['global_attributes'] ?: [:]) as Map) : [:]
+        globals.keySet().toList().sort().each { k ->
+            if (!hardSkip.contains(k as String)) putAttr(k as String)
+        }
+
+        elDir.listFiles({ File dir, String name -> name.toLowerCase(Locale.ROOT).endsWith('.json') } as FilenameFilter)
+                .each { f ->
+                    def root = new groovy.json.JsonSlurper().parse(f)
+                    if (!(root instanceof Map)) return
+
+                    Map htmlNode = root['html'] instanceof Map ? (root['html'] as Map) : null
+                    Map elements = htmlNode?.get('elements') instanceof Map ? (htmlNode.get('elements') as Map) : null
+                    if (!(elements instanceof Map) || elements.isEmpty()) return
+
+                    String tagKey = f.name.replaceAll(/\.json$/, '')
+                    Map elObj = elements[tagKey] instanceof Map ? (elements[tagKey] as Map) : null
+                    if (!(elObj instanceof Map)) {
+                        def firstEntry = elements.entrySet().iterator().hasNext() ? elements.entrySet().iterator().next() : null
+                        elObj = (firstEntry?.value instanceof Map) ? (firstEntry.value as Map) : null
+                    }
+                    if (!(elObj instanceof Map)) return
+
+                    elObj.each { k, v ->
+                        if (k in hardSkip) return
+                        if (v instanceof Map && (v as Map).containsKey('__compat')) {
+                            putAttr(k as String)
+                        }
+                    }
+
+                    Map nestedAttrs = elObj['attributes'] instanceof Map ? (elObj['attributes'] as Map) : null
+                    if (nestedAttrs != null) {
+                        nestedAttrs.each { k, v ->
+                            if (v instanceof Map && (v as Map).containsKey('__compat')) {
+                                putAttr(k as String)
+                            }
+                        }
+                    }
+                }
+
+        attrConsts['CLASS'] = 'class'
+        attrConsts['CLASS_NAME'] = 'class'
+        attrConsts = attrConsts.entrySet().toList()
+                .sort { a, b -> a.value <=> b.value }
+                .collectEntries { [(it.key): it.value] }
+
+        writeConstClass(
+                new File(pkgDir, 'HtmlAttribute.java'),
+                targetPackage,
+                'HtmlAttribute',
+                attrConsts,
+                '''/**
+ * HTML attributes (global + element-specific) from MDN BCD.
+ * Source: html/global_attributes.json and html/elements/*.json (html->elements->TAG).
+ * Handles nested "attributes" and top-level features with __compat.
+ * String values use canonical kebab-case (e.g., "http-equiv", "aria-label", "data-id", "class", "href", "placeholder").
+ */''')
+
+        /* ============== CLASS NAMES ============== */
+        Map<String, String> customAttributes = new LinkedHashMap<>()
+        if (classnamesTxt.exists()) {
+            classnamesTxt.readLines('UTF-8').each { line ->
+                String s = line.trim()
+                if (s && !s.startsWith('#')) customAttributes[toConstName(s)] = toClassValue(s)
+            }
+        } else {
+            customAttributes['ITEM'] = 'item'
+        }
+
+        writeConstClass(
+                new File(pkgDir, 'HtmlCustomAttribute.java'),
+                targetPackage,
+                'HtmlCustomAttribute',
+                customAttributes,
+                '''/**
+ * Project-specific CSS class names (from custom_attributes.txt if present).
+ * String values are kebab-case.
+ */''')
+
+        println "Generated: ${new File(pkgDir, 'HtmlTag.java')}"
+        println "Generated: ${new File(pkgDir, 'HtmlAttribute.java')}"
+        println "Generated: ${new File(pkgDir, 'HtmlCustomAttribute.java')}"
+    }
+}
+
+tasks.named('compileJava') {
+    dependsOn tasks.named('process')
+}
+tasks.named('javadoc') {
+    dependsOn tasks.named('process')
+}
+tasks.named('sourcesJar') {
+    dependsOn tasks.named('process')
+    from(generatedSrcDir)
+}
+
+tasks.withType(Jar).configureEach {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+}
+
+tasks.named('clean') {
+    doLast {
+        delete generatedSrcDir
+        delete workDir
+    }
+}

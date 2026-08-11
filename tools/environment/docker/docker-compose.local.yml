@@ -1,0 +1,48 @@
+services:
+  nginx:
+    ports:
+      - "80:80"
+    volumes:
+      - ../assets/nginx/conf.d:/etc/nginx/conf.d:ro
+      - ../assets/nginx/html:/usr/share/nginx/html:ro
+
+  selenium-hub:
+    ports:
+      - "4442:4442"
+      - "4443:4443"
+      - "4444:4444"
+
+  kafka:
+    ports:
+      - "29092:29092"
+      - "9092:9092"
+
+  kafka-ui:
+    ports:
+      - "${KAFKA_UI_PUBLISHED_PORT:-8086}:8080"
+
+  zookeeper:
+    ports:
+      - "2181:2181"
+
+  rabbitmq:
+    ports:
+      - "${RABBITMQ_PUBLISHED_PORT:-5672}:5672"
+      - "${RABBITMQ_MANAGEMENT_PUBLISHED_PORT:-15672}:15672"
+
+  mock-server:
+    ports:
+      - "1080:1080"
+
+  mongodb:
+    ports:
+      - "${MONGODB_PUBLISHED_PORT:-27017}:27017"
+
+  redis:
+    ports:
+      - "${REDIS_PUBLISHED_PORT:-6379}:6379"
+
+  reportportal-gateway:
+    ports:
+      - "${REPORTPORTAL_PUBLISHED_PORT:-8084}:8080"
+      - "${REPORTPORTAL_DASHBOARD_PORT:-8085}:8081"

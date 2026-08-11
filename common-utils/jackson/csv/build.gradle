@@ -1,0 +1,8 @@
+dependencies {
+    implementation project(":common-utils:file")
+    testImplementation project(":testng-extensions")
+
+    api project(":common-utils:jackson:parent")
+    api 'org.assertj:assertj-core'
+    api 'com.fasterxml.jackson.dataformat:jackson-dataformat-csv'
+}

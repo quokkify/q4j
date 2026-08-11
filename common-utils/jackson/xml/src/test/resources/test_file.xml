@@ -1,0 +1,8 @@
+<users>
+    <user name="John">
+        <age>18</age>
+    </user>
+    <user name="Jack">
+        <age>20</age>
+    </user>
+</users>

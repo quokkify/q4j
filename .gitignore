@@ -1,0 +1,30 @@
+build
+hs_err_pid*
+.idea/*
+!/.idea/icon.svg
+out
+*.ipr
+*.iws
+*.iml
+.gradle
+.project
+.classpath
+.settings
+classes
+
+# Ignore all binary files
+modules/*/bin
+statics/bin
+
+# Local resources
+**/local_resources/
+*.env
+
+**/allure-results/
+**/generated/
+**/generated_tests/
+.aider*
+
+# MemPalace per-project files (issue #185)
+mempalace.yaml
+entities.json

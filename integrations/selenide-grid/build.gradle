@@ -1,0 +1,10 @@
+description = "Selenide Selenium Grid integration for remote WebDriver execution"
+
+dependencies {
+    implementation project(":integrations:selenide")
+
+    implementation "com.codeborne:selenide-grid:${selenide}"
+    testImplementation "io.qameta.allure:allure-testng:${allure}"
+
+    api "org.assertj:assertj-core"
+}

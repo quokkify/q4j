@@ -1,0 +1,20 @@
+subprojects {
+    ext {
+        aspectJ = "1.9.25.1"
+    }
+
+    configurations {
+        agent {
+            canBeResolved = true
+            canBeConsumed = true
+        }
+    }
+
+    dependencies {
+        agent("org.aspectj:aspectjweaver:$aspectJ")
+    }
+
+    test {
+        jvmArgs = ["-javaagent:${configurations.agent.singleFile}"]
+    }
+}

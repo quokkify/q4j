@@ -1,0 +1,14 @@
+description = "Kafka integration"
+
+dependencies {
+    implementation project(":common-utils:config")
+    implementation project(":common-utils:core")
+    implementation project(":common-utils:file")
+    implementation project(":common-utils:awaitility")
+    implementation project(":common-utils:jackson:json")
+    implementation project(":common-utils:introspection")
+    implementation project(":testng-extensions")
+
+    implementation "org.apache.kafka:kafka-clients:${kafka}"
+    api "org.apache.commons:commons-lang3"
+}

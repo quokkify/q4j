@@ -1,0 +1,94 @@
+name: "Test summary"
+
+on:
+  workflow_run:
+    workflows: ["Run tests"]
+    types: [completed]
+
+permissions:
+  actions: read
+  contents: read
+
+concurrency:
+  group: >-
+    ${{ github.workflow }}-${{
+      github.event.workflow_run.head_repository.full_name || github.repository
+    }}-${{ github.event.workflow_run.head_branch }}
+  cancel-in-progress: true
+
+jobs:
+  detect-runner:
+    uses: ./.github/workflows/reusable-detect-runner.yml
+    with:
+      strategy: workflow_run_pr_trusted
+      same_repo: ${{ github.event.workflow_run.head_repository.full_name == github.event.workflow_run.repository.full_name }}
+      trusted_author: ${{ contains(fromJson('["OWNER","MEMBER","COLLABORATOR"]'), github.event.workflow_run.actor.association) }}
+      is_renovate_bot: ${{ github.event.workflow_run.actor.login == 'renovate[bot]' }}
+    secrets: inherit
+    if: >-
+      ${{ github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion != 'cancelled' }}
+
+  junit:
+    needs: detect-runner
+    runs-on: ${{ fromJson(needs.detect-runner.outputs.runs_on) }}
+    if: >-
+      ${{ github.event.workflow_run.event == 'pull_request' &&
+      github.event.workflow_run.conclusion != 'cancelled' }}
+    permissions:
+      actions: read
+      checks: write
+      contents: read
+
+    steps:
+      - name: 🔨 Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+        with:
+          persist-credentials: false
+
+      - name: 🔧 Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7
+        with:
+          python-version: "3.14"
+
+      - name: 📦 Download source-run artifacts
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8
+        with:
+          github-token: ${{ secrets.GITHUB_TOKEN }}
+          run-id: ${{ github.event.workflow_run.id }}
+          path: artifacts
+
+      - name: 🔍 Detect JUnit XML files
+        id: junit
+        shell: bash
+        run: |
+          count=$(find artifacts -type f -path "*/build/test-results/*/TEST-*.xml" | wc -l | tr -d ' ')
+          echo "count=$count" >> "$GITHUB_OUTPUT"
+          if [[ "$count" -eq 0 ]]; then
+            echo "No JUnit XML files found. Skipping dorny/test-reporter."
+          fi
+
+      - name: 🧩 Merge JUnit XML
+        if: ${{ steps.junit.outputs.count != '0' }}
+        shell: bash
+        run: ./tools/scripts/ci/merge_junit_reports.sh artifacts artifacts/_combined/combined-junit.xml
+
+      - name: 🔬 Combined test report
+        if: ${{ steps.junit.outputs.count != '0' }}
+        uses: dorny/test-reporter@a43b3a5f7366b97d083190328d2c652e1a8b6aa2 # v3
+        with:
+          name: "🔬 Combined test report"
+          path: "artifacts/_combined/combined-junit.xml"
+          reporter: java-junit
+          fail-on-error: "false"
+
+      - name: Mirror Run tests conclusion
+        if: always()
+        run: |
+          case '${{ github.event.workflow_run.conclusion }}' in
+            success) exit 0 ;;
+            *)
+              echo "::error::Run tests ended as ${{ github.event.workflow_run.conclusion }}. JUnit reporting still ran; see the Checks tab and source artifacts."
+              exit 1
+              ;;
+          esac

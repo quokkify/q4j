@@ -1,0 +1,6 @@
+dependencies {
+    implementation "org.modelmapper:modelmapper:${modelmapper}"
+    api "net.datafaker:datafaker:${faker}"
+    api "org.apache.commons:commons-lang3"
+    api "org.apache.commons:commons-text"
+}

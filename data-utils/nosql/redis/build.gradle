@@ -1,0 +1,7 @@
+dependencies {
+    implementation project(":common-utils:awaitility")
+    implementation project(":testng-extensions")
+
+    api "io.qameta.allure:allure-java-commons:${allure}"
+    api "org.redisson:redisson:${redisson}"
+}

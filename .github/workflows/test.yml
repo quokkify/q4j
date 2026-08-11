@@ -1,0 +1,509 @@
+name: "Run tests"
+on:
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  detect-runner:
+    uses: ./.github/workflows/reusable-detect-runner.yml
+    with:
+      strategy: pr_trusted
+      same_repo: ${{ github.event.pull_request.head.repo.full_name == github.event.pull_request.base.repo.full_name }}
+      trusted_author: ${{ contains(fromJson('["OWNER","MEMBER","COLLABORATOR"]'), github.event.pull_request.author_association) }}
+      is_renovate_bot: ${{ github.event.pull_request.user.login == 'renovate[bot]' }}
+    secrets: inherit
+
+  module-matrices:
+    uses: ./.github/workflows/reusable-module-matrices.yml
+
+  check-formatting:
+    name: Lint (Prettier)
+    needs: detect-runner
+    runs-on: ${{ fromJson(needs.detect-runner.outputs.runs_on) }}
+    if: ${{ github.event_name != 'pull_request_target' }}
+    permissions:
+      contents: read
+    steps:
+      - name: 🔨Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: 🔧 Set up Node
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7
+        with:
+          node-version: "24"
+
+      - name: 🔬Check repository through Prettier
+        uses: creyD/prettier_action@8c18391fdc98ed0d884c6345f03975edac71b8f0 # v4.6
+        with:
+          prettier_options: --check .
+
+  build-common:
+    name: "Build common • ${{ matrix.name }}"
+    needs: [detect-runner, module-matrices, check-formatting]
+    runs-on: ${{ fromJson(needs.detect-runner.outputs.runs_on) }}
+    if: ${{ github.event_name != 'pull_request_target' }}
+    permissions:
+      contents: read
+    env:
+      CI: "true"
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include: ${{ fromJson(needs.module-matrices.outputs.common_modules) }}
+
+    steps:
+      - name: 🔨Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: 🔨Prepare Java/Gradle
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@c79a1d53e620df2c20f8efd43d7488643d85e991 # v2.12.1
+
+      - name: 🧱 Build (check, no tests)
+        run: |
+          ./gradlew \
+            ${{ matrix.module }}:check \
+            -x ${{ matrix.module }}:test \
+            --no-daemon --console=plain --stacktrace
+        shell: bash
+
+  build-data:
+    name: "Build data • ${{ matrix.name }}"
+    needs: [detect-runner, module-matrices, build-common]
+    runs-on: ${{ fromJson(needs.detect-runner.outputs.runs_on) }}
+    if: ${{ github.event_name != 'pull_request_target' }}
+    permissions:
+      contents: read
+    env:
+      CI: "true"
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include: ${{ fromJson(needs.module-matrices.outputs.data_build_modules) }}
+
+    steps:
+      - name: 🔨Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: 🔨Prepare Java/Gradle
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@c79a1d53e620df2c20f8efd43d7488643d85e991 # v2.12.1
+
+      - name: 🧱 Build (check, no tests)
+        run: |
+          ./gradlew \
+            ${{ matrix.module }}:check \
+            -x ${{ matrix.module }}:test \
+            --no-daemon --console=plain --stacktrace
+        shell: bash
+
+  build-integrations:
+    name: "Build integrations • ${{ matrix.name }}"
+    needs: [detect-runner, module-matrices, build-common]
+    runs-on: ${{ fromJson(needs.detect-runner.outputs.runs_on) }}
+    if: ${{ github.event_name != 'pull_request_target' }}
+    permissions:
+      contents: read
+    env:
+      CI: "true"
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include: ${{ fromJson(needs.module-matrices.outputs.integrations_build_modules) }}
+
+    steps:
+      - name: 🔨Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: 🔨Prepare Java/Gradle
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@c79a1d53e620df2c20f8efd43d7488643d85e991 # v2.12.1
+
+      - name: 🧱 Build (check, no tests)
+        run: |
+          ./gradlew \
+            ${{ matrix.module }}:check \
+            -x ${{ matrix.module }}:test \
+            --no-daemon --console=plain --stacktrace
+        shell: bash
+
+  test-common:
+    name: "Common • ${{ matrix.name }}"
+    needs: [detect-runner, module-matrices, build-common]
+    runs-on: ${{ fromJson(needs.detect-runner.outputs.runs_on) }}
+    if: ${{ github.event_name != 'pull_request_target' }}
+    permissions:
+      contents: read
+    env:
+      CI: "true"
+      COMPOSE_PROJECT_NAME: ci-${{ github.run_id }}-${{ matrix.slug }}
+      EXECUTION_MODE: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' && 'DIND' || 'CI' }}
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include: ${{ fromJson(needs.module-matrices.outputs.common_modules) }}
+
+    steps:
+      - name: 🔨Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: 🔨Prepare Java/Gradle
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@c79a1d53e620df2c20f8efd43d7488643d85e991 # v2.12.1
+
+      - name: 🚀 Run tests
+        run: ./gradlew ${{ matrix.module }}:test --no-daemon --console=plain --stacktrace
+        shell: bash
+
+      - name: 🧾 Allure CI env fragment
+        if: always()
+        env:
+          MODULE_PATH: ${{ matrix.module }}
+        run: |
+          found=false
+          while IFS= read -r dir; do
+            found=true
+            bash tools/scripts/ci/write-allure-ci-env-fragment.sh "Common ${{ matrix.name }}" "$dir"
+          done < <(find . -type d -path '*/build/allure-results' | sort)
+          if [[ "$found" == "false" ]]; then
+            module_dir="${MODULE_PATH#:}"
+            module_dir="${module_dir//:/\/}"
+            module_dir="${module_dir:-.}"
+            mkdir -p "$module_dir/build/allure-results"
+            bash tools/scripts/ci/write-allure-ci-env-fragment.sh "Common ${{ matrix.name }}" "$module_dir/build/allure-results"
+          fi
+        shell: bash
+
+      - name: 📊 Upload dedicated Allure results
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: allure-results-common-${{ matrix.slug }}
+          retention-days: 3
+          if-no-files-found: error
+          path: "**/build/allure-results"
+
+      - name: 📦 Pack test results as artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: test-report-common-${{ matrix.slug }}
+          retention-days: 3
+          path: |
+            **/build/reports
+            **/build/test-results
+
+  test-data:
+    name: "Data • ${{ matrix.name }}"
+    needs: [detect-runner, module-matrices, build-data, test-common]
+    runs-on: ${{ fromJson(needs.detect-runner.outputs.runs_on) }}
+    if: ${{ github.event_name != 'pull_request_target' }}
+    permissions:
+      contents: read
+    env:
+      CI: "true"
+      COMPOSE_PROJECT_NAME: ci-${{ github.run_id }}-${{ matrix.slug }}
+      EXECUTION_MODE: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' && 'DIND' || 'CI' }}
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include: ${{ fromJson(needs.module-matrices.outputs.data_test_modules) }}
+
+    steps:
+      - name: 🔨Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: 🔨Prepare Java/Gradle
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@c79a1d53e620df2c20f8efd43d7488643d85e991 # v2.12.1
+
+      - name: 🟢 Start Infra with health lifecycle
+        if: ${{ matrix.profile != 'none' }}
+        uses: quokkify/project-toolkit/actions/compose-up@c79a1d53e620df2c20f8efd43d7488643d85e991 # v2.12.1
+        with:
+          compose-files: |
+            tools/environment/docker/docker-compose.yml
+            tools/environment/docker/docker-compose.ci.yml
+          profiles: ${{ matrix.profile }}
+          before-compose-hook: tools/environment/scripts/infra/before_compose.sh
+          after-health-hook: tools/environment/scripts/infra/after_health.sh
+          timeout-seconds: "120"
+
+      - name: 🚀 Run tests
+        run: |
+          if [[ -f tools/environment/.selenium-grid.env ]]; then
+            set -a
+            source tools/environment/.selenium-grid.env
+            set +a
+          fi
+          if [[ -f tools/environment/.mock-server.env ]]; then
+            set -a
+            source tools/environment/.mock-server.env
+            set +a
+          fi
+          if [[ -f tools/environment/.mongo.env ]]; then
+            set -a
+            source tools/environment/.mongo.env
+            set +a
+          fi
+          if [[ -f tools/environment/.redis.env ]]; then
+            set -a
+            source tools/environment/.redis.env
+            set +a
+          fi
+          if [[ -f tools/environment/.nginx.env ]]; then
+            set -a
+            source tools/environment/.nginx.env
+            set +a
+          fi
+          if [[ -f tools/environment/.reportportal.env ]]; then
+            set -a
+            source tools/environment/.reportportal.env
+            set +a
+          fi
+          if [[ -f tools/environment/.kafka.env ]]; then
+            set -a
+            source tools/environment/.kafka.env
+            set +a
+          fi
+          if [[ -f tools/environment/.rabbitmq.env ]]; then
+            set -a
+            source tools/environment/.rabbitmq.env
+            set +a
+          fi
+          if [[ -n "${KAFKA_BOOTSTRAP_SERVERS:-}" ]]; then
+            export KAFKA_SERVER_ADDRESS="${KAFKA_BOOTSTRAP_SERVERS}"
+          fi
+          if [[ "${{ matrix.profile }}" == "web" ]]; then
+            if [[ -n "${NGINX_BASE_URL:-}" ]]; then
+              export BASE_URL="${NGINX_BASE_URL}"
+            else
+              echo "NGINX_BASE_URL is not set for web profile" >&2
+              exit 1
+            fi
+          fi
+
+          ./gradlew ${{ matrix.module }}:test --no-daemon --console=plain --stacktrace
+        shell: bash
+
+      - name: 🧾 Allure CI env fragment
+        if: always()
+        env:
+          MODULE_PATH: ${{ matrix.module }}
+          QUOKKIFY_TEST_PROFILE: ${{ matrix.profile }}
+        run: |
+          found=false
+          while IFS= read -r dir; do
+            found=true
+            bash tools/scripts/ci/write-allure-ci-env-fragment.sh "Data ${{ matrix.name }}" "$dir"
+          done < <(find . -type d -path '*/build/allure-results' | sort)
+          if [[ "$found" == "false" ]]; then
+            module_dir="${MODULE_PATH#:}"
+            module_dir="${module_dir//:/\/}"
+            module_dir="${module_dir:-.}"
+            mkdir -p "$module_dir/build/allure-results"
+            bash tools/scripts/ci/write-allure-ci-env-fragment.sh "Data ${{ matrix.name }}" "$module_dir/build/allure-results"
+          fi
+        shell: bash
+
+      - name: 🛑 Stop Infra
+        if: ${{ matrix.profile != 'none' && always() }}
+        run: ./tools/environment/scripts/infra/stop_app.sh
+        shell: bash
+
+      - name: 📊 Upload dedicated Allure results
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: allure-results-data-${{ matrix.slug }}
+          retention-days: 3
+          if-no-files-found: error
+          path: "**/build/allure-results"
+
+      - name: 📦 Pack docker compose logs as artifact
+        if: ${{ matrix.profile != 'none' && always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: docker-logs-data-${{ matrix.slug }}
+          retention-days: 3
+          path: logs
+
+      - name: 📦 Pack test results as artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: test-report-data-${{ matrix.slug }}
+          retention-days: 3
+          path: |
+            **/build/reports
+            **/build/test-results
+
+  test-integrations:
+    name: "Integrations • ${{ matrix.name }}"
+    needs: [detect-runner, module-matrices, build-integrations, test-common]
+    runs-on: ${{ fromJson(needs.detect-runner.outputs.runs_on) }}
+    if: ${{ github.event_name != 'pull_request_target' }}
+    permissions:
+      contents: read
+    env:
+      CI: "true"
+      COMPOSE_PROJECT_NAME: ci-${{ github.run_id }}-${{ matrix.slug }}
+      EXECUTION_MODE: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' && 'DIND' || 'CI' }}
+      GRID_CDP_ENABLE: "true"
+    strategy:
+      fail-fast: false
+      max-parallel: 4
+      matrix:
+        include: ${{ fromJson(needs.module-matrices.outputs.integrations_test_modules) }}
+
+    steps:
+      - name: 🔨Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: 🔨Prepare Java/Gradle
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@c79a1d53e620df2c20f8efd43d7488643d85e991 # v2.12.1
+
+      - name: 🟢 Start Infra with health lifecycle
+        if: ${{ matrix.profile != 'none' }}
+        uses: quokkify/project-toolkit/actions/compose-up@c79a1d53e620df2c20f8efd43d7488643d85e991 # v2.12.1
+        with:
+          compose-files: |
+            tools/environment/docker/docker-compose.yml
+            tools/environment/docker/docker-compose.ci.yml
+          profiles: ${{ matrix.profile }}
+          before-compose-hook: tools/environment/scripts/infra/before_compose.sh
+          after-health-hook: tools/environment/scripts/infra/after_health.sh
+          timeout-seconds: "120"
+
+      - name: 🚀 Run tests
+        run: |
+          if [[ -f tools/environment/.selenium-grid.env ]]; then
+            set -a
+            source tools/environment/.selenium-grid.env
+            set +a
+          fi
+          if [[ -f tools/environment/.mock-server.env ]]; then
+            set -a
+            source tools/environment/.mock-server.env
+            set +a
+          fi
+          if [[ -f tools/environment/.mongo.env ]]; then
+            set -a
+            source tools/environment/.mongo.env
+            set +a
+          fi
+          if [[ -f tools/environment/.redis.env ]]; then
+            set -a
+            source tools/environment/.redis.env
+            set +a
+          fi
+          if [[ -f tools/environment/.nginx.env ]]; then
+            set -a
+            source tools/environment/.nginx.env
+            set +a
+          fi
+          if [[ -f tools/environment/.reportportal.env ]]; then
+            set -a
+            source tools/environment/.reportportal.env
+            set +a
+          fi
+          if [[ -f tools/environment/.kafka.env ]]; then
+            set -a
+            source tools/environment/.kafka.env
+            set +a
+          fi
+          if [[ -f tools/environment/.rabbitmq.env ]]; then
+            set -a
+            source tools/environment/.rabbitmq.env
+            set +a
+          fi
+          if [[ -n "${KAFKA_BOOTSTRAP_SERVERS:-}" ]]; then
+            export KAFKA_SERVER_ADDRESS="${KAFKA_BOOTSTRAP_SERVERS}"
+          fi
+          if [[ "${{ matrix.profile }}" == "web" ]]; then
+            if [[ -n "${NGINX_BASE_URL:-}" ]]; then
+              export BASE_URL="${NGINX_BASE_URL}"
+            else
+              echo "NGINX_BASE_URL is not set for web profile" >&2
+              exit 1
+            fi
+          fi
+
+          ./gradlew ${{ matrix.module }}:test --no-daemon --console=plain --stacktrace
+        shell: bash
+
+      - name: 🧾 Allure CI env fragment
+        if: always()
+        env:
+          MODULE_PATH: ${{ matrix.module }}
+          QUOKKIFY_TEST_PROFILE: ${{ matrix.profile }}
+        run: |
+          found=false
+          while IFS= read -r dir; do
+            found=true
+            bash tools/scripts/ci/write-allure-ci-env-fragment.sh "Integrations ${{ matrix.name }}" "$dir"
+          done < <(find . -type d -path '*/build/allure-results' | sort)
+          if [[ "$found" == "false" ]]; then
+            module_dir="${MODULE_PATH#:}"
+            module_dir="${module_dir//:/\/}"
+            module_dir="${module_dir:-.}"
+            mkdir -p "$module_dir/build/allure-results"
+            bash tools/scripts/ci/write-allure-ci-env-fragment.sh "Integrations ${{ matrix.name }}" "$module_dir/build/allure-results"
+          fi
+        shell: bash
+
+      - name: 🛑 Stop Infra
+        if: ${{ matrix.profile != 'none' && always() }}
+        run: ./tools/environment/scripts/infra/stop_app.sh
+        shell: bash
+
+      - name: 📊 Upload dedicated Allure results
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: allure-results-integrations-${{ matrix.slug }}
+          retention-days: 3
+          if-no-files-found: error
+          path: "**/build/allure-results"
+
+      - name: 📦 Pack docker compose logs as artifact
+        if: ${{ matrix.profile != 'none' && always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: docker-logs-integrations-${{ matrix.slug }}
+          retention-days: 3
+          path: logs
+
+      - name: 📦 Pack test results as artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: test-report-integrations-${{ matrix.slug }}
+          retention-days: 3
+          path: |
+            **/build/reports
+            **/build/test-results
+
+  tests-complete:
+    name: Tests pipeline complete
+    needs: [test-data, test-integrations]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Validate stage results
+        shell: bash
+        run: |
+          if [[ "${{ needs.test-data.result }}" != "success" || "${{ needs.test-integrations.result }}" != "success" ]]; then
+            echo "Test stages are not successful."
+            exit 1
+          fi
+          echo "All test stages completed successfully."

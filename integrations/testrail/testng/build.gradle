@@ -1,0 +1,11 @@
+description = "TestRail TestNG integration"
+
+dependencies {
+    implementation project(":integrations:testrail:testrail-core")
+    implementation project(":common-utils:core")
+    implementation project(":common-utils:config")
+    implementation project(":testng-extensions")
+    api "org.apache.commons:commons-lang3"
+
+    implementation "io.qameta.allure:allure-testng:${allure}"
+}

@@ -1,0 +1,10 @@
+dependencies {
+    api project(":common-utils:jackson:parent")
+
+    testImplementation project(":testng-extensions")
+
+    api project(":common-utils:file")
+    api project(":common-utils:jackson:json")
+    api "com.fasterxml.jackson.dataformat:jackson-dataformat-yaml"
+    api 'org.assertj:assertj-core'
+}

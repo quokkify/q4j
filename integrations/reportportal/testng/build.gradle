@@ -1,0 +1,15 @@
+description = "ReportPortal TestNG integration"
+
+dependencies {
+    implementation project(":integrations:reportportal:reportportal-core")
+    implementation project(":common-utils:core")
+    implementation project(":common-utils:config")
+    implementation project(":testng-extensions")
+
+    implementation "com.epam.reportportal:agent-java-testng:${reportportal}"
+    implementation "io.qameta.allure:allure-testng:${allure}"
+    api "org.apache.commons:commons-lang3"
+
+    testImplementation project(":integrations:rest-assured")
+    testImplementation "org.mockito:mockito-core"
+}

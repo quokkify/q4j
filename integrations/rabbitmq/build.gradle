@@ -1,0 +1,11 @@
+description = "RabbitMQ integration"
+
+dependencies {
+    implementation project(":common-utils:config")
+    implementation project(":common-utils:core")
+    implementation project(":common-utils:awaitility")
+    implementation project(":testng-extensions")
+
+    implementation "com.rabbitmq:amqp-client:${rabbitmq}"
+    api "org.apache.commons:commons-lang3"
+}

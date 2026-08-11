@@ -1,0 +1,11 @@
+### Extracted recorded expectations
+PUT http://localhost:1080/mockserver/retrieve
+Content-Type: application/json
+
+{
+  "type": "RECORDED_EXPECTATIONS",
+  "httpRequest": {
+    "method": ".*",
+    "path": ".*"
+  }
+}

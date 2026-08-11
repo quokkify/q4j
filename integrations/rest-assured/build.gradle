@@ -1,0 +1,21 @@
+dependencies {
+    implementation project(":common-utils:core")
+    implementation project(":common-utils:awaitility")
+    implementation project(":common-utils:config")
+    api project(":common-utils:jackson:json")
+    implementation project(":testng-extensions")
+    implementation "com.github.reinert:jjschema:${jjschema}"
+
+    implementation "org.aeonbits.owner:owner:${aeonbits}"
+    api "io.rest-assured:rest-assured:${rest_assured}"
+    api "io.rest-assured:json-schema-validator:${rest_assured}"
+    api "io.qameta.allure:allure-rest-assured:${allure}"
+
+    testImplementation "io.qameta.allure:allure-testng:${allure}"
+    testImplementation "org.mockito:mockito-core"
+
+    implementation platform("com.fasterxml.jackson:jackson-bom:${fasterxml_jackson}")
+    api "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+    api "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
+    api "org.assertj:assertj-core"
+}

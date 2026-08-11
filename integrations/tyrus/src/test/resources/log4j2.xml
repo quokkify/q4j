@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration name="quikkify" status="WARN" monitorInterval="30">
+    <Properties>
+        <Property name="logPath">./build/test-logs</Property>
+        <Property name="defaultLogPattern">%highlight{%d{dd MMM HH:mm:ss} [TId-%tid] [%-5level] [%t] %C{1.}}{FATAL=white, ERROR=#FF472B, WARN=bright_yellow, INFO=#2E86FF, DEBUG=bright_yellow, TRACE=blue} - %highlight{%msg%n}{INFO=#2E86FF, WARN=bright_yellow}</Property>
+        <Property name="fileLogPattern">%highlight{%d{dd MMM HH:mm:ss} [TId-%tid] [%-5level] [%t] %C{1.}}{FATAL=white, ERROR=#FF472B, WARN=bright_yellow, INFO=#2E86FF, DEBUG=bright_yellow, TRACE=blue} - %highlight{%msg%n}{INFO=#2E86FF, WARN=bright_yellow}</Property>
+    </Properties>
+
+    <Appenders>
+        <Console name="ConsoleAppender" target="SYSTEM_OUT">
+            <PatternLayout pattern="${defaultLogPattern}" disableAnsi="false"/>
+        </Console>
+
+        <Routing name="RoutingFileAppender">
+            <Routes pattern="$${ctx:logFileName:-default}">
+                <Route>
+                    <RollingFile name="Rolling-dynamic"
+                                 fileName="${logPath}/${ctx:logFileName:-default}.log"
+                                 filePattern="${logPath}/${ctx:logFileName:-default}-%i.log.gz">
+                        <PatternLayout pattern="${fileLogPattern}"/>
+                        <Policies>
+                            <SizeBasedTriggeringPolicy size="50 MB"/>
+                        </Policies>
+                    </RollingFile>
+                </Route>
+            </Routes>
+        </Routing>
+    </Appenders>
+
+    <Loggers>
+        <Root level="${env:LOGGER_LEVEL:-info}">
+            <AppenderRef ref="ConsoleAppender"/>
+        </Root>
+
+        <Logger name="dev.quokkify" level="debug" additivity="false">
+            <AppenderRef ref="ConsoleAppender"/>
+            <AppenderRef ref="RoutingFileAppender"/>
+        </Logger>
+
+        <Logger name="io.qameta.allure.AllureLifecycle" level="off" additivity="false"/>
+    </Loggers>
+</Configuration>

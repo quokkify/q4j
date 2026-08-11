@@ -1,0 +1,6 @@
+FROM nginx:1.31.3@sha256:8541484afbc9c8a5a8a99b379568ebbc957f658583ec9448fc43104229c03cf8
+
+COPY conf.d/ /etc/nginx/conf.d/
+COPY html/ /usr/share/nginx/html/
+
+RUN test -f /etc/nginx/conf.d/10_site.conf

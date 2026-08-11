@@ -1,0 +1,13 @@
+description = "Tyrus WebSocket client wrapper for test automation"
+
+dependencies {
+    implementation project(":common-utils:config")
+    implementation project(":common-utils:core")
+    implementation project(":common-utils:awaitility")
+    implementation project(":common-utils:jackson:json")
+    implementation project(":testng-extensions")
+
+    implementation "org.glassfish.tyrus.bundles:tyrus-standalone-client:${tyrus}"
+
+    testImplementation "org.glassfish.tyrus:tyrus-container-grizzly-server:${tyrus}"
+}

@@ -1,0 +1,22 @@
+subprojects {
+    ext {
+        encoding = 'UTF-8'
+    }
+
+    tasks.withType(JavaCompile).configureEach {
+        options.encoding = encoding
+        options.debug = true
+        sourceCompatibility = JavaVersion.VERSION_21
+        options.debugOptions.debugLevel = "source,lines,vars"
+    }
+
+    java {
+        toolchain { languageVersion = JavaLanguageVersion.of(21) }
+        withSourcesJar()
+    }
+
+    tasks.withType(Javadoc).configureEach {
+        failOnError = true
+        options.addBooleanOption('Xdoclint:all,-missing', true)
+    }
+}

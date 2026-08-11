@@ -1,0 +1,10 @@
+description = "ReportPortal core integration"
+
+dependencies {
+    implementation project(":common-utils:config")
+    implementation project(":common-utils:core")
+    implementation project(":common-utils:jackson:json")
+    implementation project(":integrations:testrail:testrail-core")
+    api project(":integrations:rest-assured")
+    api "org.apache.commons:commons-lang3"
+}

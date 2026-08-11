@@ -1,0 +1,20 @@
+subprojects {
+    tasks.withType(Test).configureEach {
+        onlyIf {
+            !project.hasProperty("skip.tests") &&
+            !project.hasProperty("skipTests") &&
+            !Boolean.parseBoolean(System.getProperty("skipTests", "false"))
+        }
+        useTestNG()
+        jvmArgs = ["-ea", "-Xmx512m", "-javaagent:${configurations.agent.singleFile}"]
+        systemProperties['file.encoding'] = encoding
+        systemProperties['allure.results.directory'] = "${project.layout.buildDirectory.dir("allure-results").get().asFile.absolutePath}"
+        systemProperties['allure.report.directory'] = "${project.layout.buildDirectory.dir("allure-report").get().asFile.absolutePath}"
+
+        testLogging {
+            events "passed", "skipped", "failed"
+            showExceptions = true
+            exceptionFormat = 'full'
+        }
+    }
+}

@@ -1,0 +1,63 @@
+ext.q4jModules = [
+    ':testng-extensions': [artifactId: 'q4j-testng', displayName: 'Q4J TestNG', description: 'TestNG listeners, retry policies, annotations, and test lifecycle extensions.'],
+
+    ':integrations:rest-assured': [artifactId: 'q4j-rest-assured', displayName: 'Q4J REST Assured', description: 'REST Assured helpers for API testing, validation, and request configuration.'],
+    ':integrations:selenide': [artifactId: 'q4j-selenide', displayName: 'Q4J Selenide', description: 'Selenide components and workflows for browser-based test automation.'],
+    ':integrations:selenide-proxy': [artifactId: 'q4j-selenide-proxy', displayName: 'Q4J Selenide Proxy', description: 'Proxy and HAR capture support for Q4J Selenide tests.'],
+    ':integrations:selenide-grid': [artifactId: 'q4j-selenide-grid', displayName: 'Q4J Selenide Grid', description: 'Selenium Grid support for Q4J Selenide tests.'],
+    ':integrations:kafka': [artifactId: 'q4j-kafka', displayName: 'Q4J Kafka', description: 'Kafka producers, consumers, assertions, and test automation helpers.'],
+    ':integrations:rabbitmq': [artifactId: 'q4j-rabbitmq', displayName: 'Q4J RabbitMQ', description: 'RabbitMQ messaging helpers for integration and end-to-end tests.'],
+    ':integrations:tyrus': [artifactId: 'q4j-tyrus', displayName: 'Q4J Tyrus', description: 'Tyrus WebSocket client and verification helpers for automated tests.'],
+    ':integrations:jira:jira-core': [artifactId: 'q4j-jira-core', displayName: 'Q4J Jira Core', description: 'Core Jira client and ticket abstractions for test automation.'],
+    ':integrations:jira:testng': [artifactId: 'q4j-jira-testng', displayName: 'Q4J Jira TestNG', description: 'TestNG integration for Q4J Jira workflows.'],
+    ':integrations:jira:testrail': [artifactId: 'q4j-jira-testrail', displayName: 'Q4J Jira TestRail', description: 'Jira ticket source integration for Q4J TestRail workflows.'],
+    ':integrations:testrail:testrail-core': [artifactId: 'q4j-testrail-core', displayName: 'Q4J TestRail Core', description: 'Core TestRail API models and services for test automation.'],
+    ':integrations:testrail:testng': [artifactId: 'q4j-testrail-testng', displayName: 'Q4J TestRail TestNG', description: 'TestNG lifecycle integration for Q4J TestRail.'],
+    ':integrations:reportportal:reportportal-core': [artifactId: 'q4j-reportportal-core', displayName: 'Q4J ReportPortal Core', description: 'Core ReportPortal configuration and API services for Q4J.'],
+    ':integrations:reportportal:testng': [artifactId: 'q4j-reportportal-testng', displayName: 'Q4J ReportPortal TestNG', description: 'TestNG listener integration for Q4J ReportPortal reporting.'],
+    ':integrations:reportportal:testrail': [artifactId: 'q4j-reportportal-testrail', displayName: 'Q4J ReportPortal TestRail', description: 'TestRail description provider for Q4J ReportPortal reporting.'],
+
+    ':data-utils:sql': [artifactId: 'q4j-sql', displayName: 'Q4J SQL', description: 'SQL, JPA, persistence, and database verification helpers for tests.'],
+    ':data-utils:nosql': [artifactId: 'q4j-nosql', displayName: 'Q4J NoSQL', description: 'Structural parent for Q4J NoSQL modules.', publish: false],
+    ':data-utils:nosql:morphia': [artifactId: 'q4j-morphia', displayName: 'Q4J Morphia', description: 'MongoDB and Morphia persistence helpers for automated tests.'],
+    ':data-utils:nosql:redis': [artifactId: 'q4j-redis', displayName: 'Q4J Redis', description: 'Redis operations and verification helpers for automated tests.'],
+
+    ':common-utils:core': [artifactId: 'q4j-core', displayName: 'Q4J Core', description: 'Core types, formatting, generation, and utility APIs shared by Q4J modules.'],
+    ':common-utils:jackson:parent': [artifactId: 'q4j-jackson-support', displayName: 'Q4J Jackson Support', description: 'Shared Jackson dependencies and configuration for Q4J data-format modules.'],
+    ':common-utils:jackson:csv': [artifactId: 'q4j-jackson-csv', displayName: 'Q4J Jackson CSV', description: 'CSV parsing and conversion utilities for Q4J.'],
+    ':common-utils:jackson:xml': [artifactId: 'q4j-jackson-xml', displayName: 'Q4J Jackson XML', description: 'XML parsing and conversion utilities for Q4J.'],
+    ':common-utils:jackson:json': [artifactId: 'q4j-jackson-json', displayName: 'Q4J Jackson JSON', description: 'JSON parsing, mapping, and JSON Pointer utilities for Q4J.'],
+    ':common-utils:jackson:yaml': [artifactId: 'q4j-jackson-yaml', displayName: 'Q4J Jackson YAML', description: 'YAML parsing and resource-provider utilities for Q4J.'],
+    ':common-utils:introspection': [artifactId: 'q4j-reflection', displayName: 'Q4J Reflection', description: 'Classpath scanning and reflection utilities for Q4J.'],
+    ':common-utils:awaitility': [artifactId: 'q4j-awaitility', displayName: 'Q4J Awaitility', description: 'Awaitility-based polling and timeout abstractions for Q4J.'],
+    ':common-utils:file': [artifactId: 'q4j-files', displayName: 'Q4J Files', description: 'File, archive, locking, and local-resource utilities for Q4J.'],
+    ':common-utils:html': [artifactId: 'q4j-html', displayName: 'Q4J HTML', description: 'HTML parsing and generated browser-compatibility models for Q4J.'],
+    ':common-utils:jwt': [artifactId: 'q4j-jwt', displayName: 'Q4J JWT', description: 'JWT models, generators, and formatting utilities for Q4J.'],
+    ':common-utils:config': [artifactId: 'q4j-config', displayName: 'Q4J Config', description: 'Typed configuration and locale-provider utilities for Q4J.'],
+    ':common-utils:signature': [artifactId: 'q4j-crypto', displayName: 'Q4J Crypto', description: 'Encryption, key, and digital-signature utilities for Q4J.'],
+    ':common-utils:console': [artifactId: 'q4j-ssh', displayName: 'Q4J SSH', description: 'SSH execution and port-forwarding utilities for Q4J.'],
+]
+
+// Gradle creates structural parent projects (for example :integrations) for
+// nested paths. Only projects with an explicit build file are Q4J modules.
+def activePaths = subprojects.findAll { it.buildFile.exists() }.collect { it.path } as Set
+def configuredPaths = q4jModules.keySet() as Set
+def missingMetadata = activePaths - configuredPaths
+def unknownMetadata = configuredPaths - activePaths
+if (!missingMetadata.empty || !unknownMetadata.empty) {
+    throw new GradleException("Q4J module metadata mismatch. Missing: ${missingMetadata}; unknown: ${unknownMetadata}")
+}
+
+q4jModules.each { modulePath, metadata ->
+    def moduleProject = project(modulePath)
+    moduleProject.description = metadata.description
+    moduleProject.base.archivesName = metadata.artifactId
+    moduleProject.ext.q4jArtifactId = metadata.artifactId
+    moduleProject.ext.q4jDisplayName = metadata.displayName
+}
+
+gradle.projectsEvaluated {
+    q4jModules.each { modulePath, metadata ->
+        project(modulePath).description = metadata.description
+    }
+}

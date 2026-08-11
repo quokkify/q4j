@@ -1,0 +1,9 @@
+dependencies {
+    implementation project(":common-utils:core")
+    api "org.awaitility:awaitility"
+    api "org.slf4j:slf4j-api"
+    api "org.slf4j:jcl-over-slf4j"
+    api "org.apache.logging.log4j:log4j-api"
+    api "org.apache.logging.log4j:log4j-core"
+    api "org.apache.logging.log4j:log4j-slf4j2-impl"
+}

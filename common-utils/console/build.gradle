@@ -1,0 +1,5 @@
+dependencies {
+    implementation project(":common-utils:core")
+    implementation project(":common-utils:config")
+    implementation "com.jcabi:jcabi-ssh:${jcabi_ssh}"
+}

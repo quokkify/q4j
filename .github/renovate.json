@@ -1,0 +1,58 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "github>quokkify/renovate-presets//presets/base",
+    "github>quokkify/renovate-presets//presets/github-actions/default",
+    "github>quokkify/renovate-presets//presets/gradle/default"
+  ],
+  "customManagers": [
+    {
+      "customType": "regex",
+      "description": "Keep Q4J Maven Central coordinates in module documentation current",
+      "managerFilePatterns": [
+        "/^(?:common-utils|data-utils|integrations)/.+/README\\.md$/",
+        "/^testng-extensions/README\\.md$/"
+      ],
+      "matchStrings": [
+        "dev\\.quokkify:(?<depName>q4j-[a-z0-9-]+):(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+      ],
+      "datasourceTemplate": "maven",
+      "packageNameTemplate": "dev.quokkify:{{{depName}}}",
+      "registryUrlTemplate": "https://repo.maven.apache.org/maven2"
+    },
+    {
+      "customType": "regex",
+      "description": "Keep the Selenium dynamic Chromium image aligned with Grid and Selenide",
+      "managerFilePatterns": [
+        "/^tools/environment/assets/selenium-grid/config\\.toml$/"
+      ],
+      "matchStrings": [
+        "configs\\s*=\\s*\\[\\s*\"(?<depName>selenium/standalone-chromium):(?<currentValue>\\d+\\.\\d+(?:\\.\\d+)?-\\d+)\""
+      ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)(?:\\.(?<patch>\\d+))?-(?<build>\\d+)$"
+    }
+  ],
+  "packageRules": [
+    {
+      "description": "Update all Q4J module documentation examples together",
+      "matchManagers": ["custom.regex"],
+      "matchDatasources": ["maven"],
+      "matchPackageNames": ["/^dev\\.quokkify:q4j-/"],
+      "groupName": "Q4J module documentation",
+      "groupSlug": "q4j-module-documentation"
+    },
+    {
+      "description": "Update dated Selenium Grid and Chromium image tags together",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": [
+        "selenium/hub",
+        "selenium/node-docker",
+        "selenium/standalone-chromium"
+      ],
+      "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)(?:\\.(?<patch>\\d+))?-(?<build>\\d+)$",
+      "groupName": "selenium grid images",
+      "groupSlug": "selenium-grid-images"
+    }
+  ]
+}

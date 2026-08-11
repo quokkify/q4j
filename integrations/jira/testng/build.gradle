@@ -1,0 +1,11 @@
+description = "Jira TestNG integration"
+
+dependencies {
+    implementation project(":integrations:jira:jira-core")
+    implementation project(":common-utils:core")
+    implementation project(":common-utils:config")
+    implementation project(":testng-extensions")
+
+    implementation "io.qameta.allure:allure-testng:${allure}"
+    api "org.apache.commons:commons-lang3"
+}

@@ -1,0 +1,35 @@
+services:
+  nginx:
+    image: ci-nginx
+    build:
+      context: ../assets/nginx
+      dockerfile: Dockerfile.ci
+    volumes: []
+    ports:
+      - "${NGINX_PUBLISHED_PORT:-0}:80"
+  kafka:
+    ports:
+      - "${KAFKA_PUBLISHED_PORT:-0}:29092"
+  kafka-ui:
+    ports:
+      - "${KAFKA_UI_PUBLISHED_PORT:-0}:8080"
+  mongodb:
+    ports:
+      - "${MONGODB_PUBLISHED_PORT:-0}:27017"
+  redis:
+    ports:
+      - "${REDIS_PUBLISHED_PORT:-0}:6379"
+  rabbitmq:
+    ports:
+      - "${RABBITMQ_PUBLISHED_PORT:-0}:5672"
+      - "${RABBITMQ_MANAGEMENT_PUBLISHED_PORT:-0}:15672"
+  mock-server:
+    ports:
+      - "${MOCKSERVER_PUBLISHED_PORT:-0}:1080"
+  selenium-hub:
+    ports:
+      - "${SELENIUM_HUB_PUBLISHED_PORT:-0}:4444"
+  reportportal-gateway:
+    ports:
+      - "${REPORTPORTAL_PUBLISHED_PORT:-0}:8080"
+      - "${REPORTPORTAL_DASHBOARD_PORT:-0}:8081"

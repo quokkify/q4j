@@ -1,0 +1,9 @@
+[node]
+detect-drivers = false
+max-sessions = "5"
+selenium-manager = true
+
+[docker]
+configs = ["selenium/standalone-chromium:150.0-20260707", "{\"browserName\":\"chrome\",\"hostConfig\":{\"extraHosts\":[\"host.docker.internal:host-gateway\"],\"NetworkMode\":\"__NETWORK__\"}}"]
+host-config-keys = ["Dns", "DnsOptions", "DnsSearch", "ExtraHosts", "Binds", "NetworkMode"]
+url = "http://docker-socket-proxy:2375"

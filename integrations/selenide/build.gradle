@@ -1,0 +1,18 @@
+description = "Wrapper around Selenide for user interface testing"
+
+dependencies {
+    implementation project(":common-utils:config")
+    implementation project(":common-utils:core")
+    implementation project(":common-utils:html")
+    implementation project(":common-utils:awaitility")
+    compileOnly project(":testng-extensions")
+
+    implementation "com.codeborne:selenide:${selenide}"
+    testImplementation project(":testng-extensions")
+    testImplementation project(":integrations:selenide-proxy")
+    testImplementation "io.qameta.allure:allure-selenide:${allure}"
+    testImplementation "io.qameta.allure:allure-testng:${allure}"
+    testImplementation "org.mockito:mockito-core"
+
+    api "org.assertj:assertj-core"
+}
