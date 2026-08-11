@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8"/>
+  <title>Delayed table</title>
+</head>
+<body>
+<table id="customers">
+  <tr>
+    <th>Company</th>
+    <th>Contact</th>
+    <th>Country</th>
+  </tr>
+  <tr>
+    <td>Alfreds Futterkiste</td>
+    <td>Maria Anders</td>
+    <td>Germany</td>
+  </tr>
+</table>
+
+<table id="horizontal-customers">
+  <tr>
+    <th>Name</th>
+    <td>Bill Gates</td>
+  </tr>
+  <tr>
+    <th>Telephone 1</th>
+    <td>555 77 854</td>
+  </tr>
+</table>
+
+<script>
+  setTimeout(function () {
+    document.getElementById('customers').insertAdjacentHTML('beforeend',
+      '<tr><td>Ernst Handel</td><td>Roland Mendel</td><td>Austria</td></tr>');
+    // Insert into the existing (browser-implied) <tbody>, not the <table> itself: inserting
+    // a raw <tr> fragment directly on the <table> makes the browser wrap it in a *new* sibling
+    // <tbody>, which breaks preceding-sibling::tr-based row-index lookups (DynamicHorizontalTable).
+    document.querySelector('#horizontal-customers tbody').insertAdjacentHTML('beforeend',
+      '<tr><th>Telephone 2</th><td>555 77 855</td></tr>');
+  }, 1500);
+</script>
+</body>
+</html>

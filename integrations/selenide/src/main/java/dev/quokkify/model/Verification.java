@@ -11,8 +11,8 @@ public abstract class Verification<S extends PageSteps<S, V, P>, V extends Verif
 
   private final S steps;
   protected P page;
-  private Duration timeout = Duration.ofSeconds(10);
-  private Duration pollingInterval = Duration.ofMillis(500);
+  private Duration timeout = WaitDefaults.DEFAULT_TIMEOUT;
+  private Duration pollingInterval = WaitDefaults.DEFAULT_POLLING_INTERVAL;
 
   public Verification(S steps, P page) {
     this.steps = steps;
