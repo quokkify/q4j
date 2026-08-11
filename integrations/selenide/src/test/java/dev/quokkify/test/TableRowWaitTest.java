@@ -140,8 +140,8 @@ public class TableRowWaitTest extends BaseTest {
 
     Assertions.assertThat(rowExists).as("Row should not be visible yet").isFalse();
     Assertions.assertThat(Duration.between(start, Instant.now()))
-        .as("isRowExist() must not wait for the row-wait timeout")
-        .isLessThan(TIMEOUT);
+        .as("isRowExist must not wait for an unmounted table")
+        .isLessThan(SHORT_TIMEOUT);
   }
 
   @TmsLink("UI_ID_18")
