@@ -24,9 +24,34 @@ write_kv_nonempty() {
   write_kv "${key}" "${val}"
 }
 
+java_version="${ALLURE_JAVA_VERSION:-}"
+if [[ -z "${java_version}" ]] && command -v java >/dev/null 2>&1; then
+  java_version_output="$(java -version 2>&1 || true)"
+  java_version="${java_version_output%%$'\n'*}"
+  if [[ "${java_version}" =~ version[[:space:]]+\"([^\"]+)\" ]]; then
+    java_version="${BASH_REMATCH[1]}"
+  fi
+fi
+
+gradle_version="${ALLURE_GRADLE_VERSION:-}"
+if [[ -z "${gradle_version}" ]]; then
+  gradle_command="${GRADLE_COMMAND:-./gradlew}"
+  if [[ -x "${gradle_command}" ]] || command -v "${gradle_command}" >/dev/null 2>&1; then
+    gradle_version_output="$("${gradle_command}" --version --no-daemon 2>/dev/null || true)"
+    while IFS= read -r line; do
+      if [[ "${line}" =~ ^Gradle[[:space:]]+(.+)$ ]]; then
+        gradle_version="${BASH_REMATCH[1]}"
+        break
+      fi
+    done <<< "${gradle_version_output}"
+  fi
+fi
+
 : > "${OUT}"
 write_kv "Suite" "Gradle TestNG"
 write_kv "Job" "${GITHUB_JOB:-local}"
 write_kv_nonempty "Module" "${MODULE_PATH:-}"
 write_kv_nonempty "Profile" "${QUOKKIFY_TEST_PROFILE:-}"
 write_kv_nonempty "Runner" "${RUNNER_NAME:-}"
+write_kv_nonempty "Java" "${java_version}"
+write_kv_nonempty "Gradle" "${gradle_version}"
