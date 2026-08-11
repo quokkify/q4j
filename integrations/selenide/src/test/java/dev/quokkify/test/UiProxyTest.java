@@ -5,16 +5,14 @@ import java.net.URISyntaxException;
 import java.util.NoSuchElementException;
 
 import dev.quokkify.annotation.SingleThread;
-import dev.quokkify.config.ConfigRegistry;
-import dev.quokkify.config.TestNGExtension;
 import dev.quokkify.parser.HarParser;
 import dev.quokkify.service.ProxyBrowser;
 
 import com.codeborne.selenide.Configuration;
+import com.codeborne.selenide.Selenide;
 import de.sstoehr.harreader.model.Har;
 import io.qameta.allure.TmsLink;
 import org.assertj.core.api.Assertions;
-import org.testng.SkipException;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.Test;
@@ -23,13 +21,8 @@ import org.testng.annotations.Test;
  * NOTE: Other tests could be affected by the test. Should be executed in single thread
  */
 public class UiProxyTest extends BaseTest {
-  private static final TestNGExtension TESTNG_CONFIG = ConfigRegistry.get(TestNGExtension.class);
-
   @BeforeClass
   public void enableProxy() {
-    if (TESTNG_CONFIG.mode() != TestNGExtension.ExecutionMode.LOCAL) {
-      throw new SkipException("Proxy test is skipped for non-local runs");
-    }
     Configuration.proxyEnabled = true;
   }
 
@@ -42,13 +35,13 @@ public class UiProxyTest extends BaseTest {
   @SingleThread
   @Test(description = "Verify proxy 'Har' recording")
   public void testProxyHar() {
-    String searchLinkText = "Speed Test";
     String requestRelativePath = "/external/speedtest/assets/speedtestpl-logo.webp";
-    String requestUrl = APP_CONFIG.baseUrl() + requestRelativePath;
+    String proxyBaseUrl = APP_CONFIG.downloadProxyBaseUrl();
+    String requestUrl = proxyBaseUrl + requestRelativePath;
 
+    Selenide.open(proxyBaseUrl + "/google/");
     ProxyBrowser.newProxyHar();
-    googleNavigationSteps.openSearchResultPage()
-        .clickOnSearchResultLink(searchLinkText);
+    Selenide.open(proxyBaseUrl + "/external/speedtest/");
     Har har = ProxyBrowser.endProxyHar();
 
     Assertions.assertThat(getStatusCodeWithFallback(har, requestUrl))

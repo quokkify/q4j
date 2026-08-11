@@ -356,6 +356,7 @@ jobs:
       CI: "true"
       COMPOSE_PROJECT_NAME: ci-${{ github.run_id }}-${{ matrix.slug }}
       EXECUTION_MODE: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' && 'DIND' || 'CI' }}
+      GRID_CDP_ENABLE: "true"
     strategy:
       fail-fast: false
       max-parallel: 4

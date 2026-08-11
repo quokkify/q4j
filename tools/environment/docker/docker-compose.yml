@@ -5,13 +5,13 @@ services:
 
   selenium-hub:
     profiles: [web]
-    image: selenium/hub:4.40.0-20260120@sha256:e49e85c3a481f3c63292436266bb56a72036dc977ab0fd5a9ec7fbd78c5636fa
+    image: selenium/hub:4.46.0-20260707@sha256:25896f926cd4d1e09a8d4a82ca72dd91aa7c022a6f187825ab524f988a139714
     environment:
       SE_SUB_PATH: /wd/hub
 
   selenium-node-docker:
     profiles: [web]
-    image: selenium/node-docker:4.40.0-20260120@sha256:adf92f879b1024086d7ce0070c3a8a48324cd97c1e1278bdf150cfc692192f55
+    image: selenium/node-docker:4.46.0-20260707@sha256:40ff0441b878de6e197fa53f09809c8d69df1d6ea205c5653034b05ec5348a8d
     depends_on:
       - selenium-hub
       - docker-socket-proxy
@@ -23,7 +23,8 @@ services:
       SE_EVENT_BUS_PUBLISH_PORT: "4442"
       SE_EVENT_BUS_SUBSCRIBE_PORT: "4443"
       SE_NODE_DOCKER_CONFIG_FILENAME: config.d/config.toml
-      SE_OPTS: --enable-managed-downloads true --enable-cdp false
+      SE_NODE_GRID_URL: ${GRID_EXTERNAL_URL:-http://localhost:4444/wd/hub}
+      SE_OPTS: --enable-managed-downloads true --enable-cdp ${GRID_CDP_ENABLE:-false}
 
   docker-socket-proxy:
     profiles: [web]

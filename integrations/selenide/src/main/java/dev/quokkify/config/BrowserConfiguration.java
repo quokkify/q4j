@@ -16,4 +16,7 @@ public interface BrowserConfiguration extends Config {
 
   @Key("BROWSER_REMOTE_URL")
   String remoteUrl();
+
+  @Key("BROWSER_PROXY_HOST")
+  String proxyHost();
 }
