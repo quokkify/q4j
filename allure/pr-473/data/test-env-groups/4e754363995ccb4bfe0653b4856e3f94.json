@@ -1,1 +1,1 @@
-{"id":"4e754363995ccb4bfe0653b4856e3f94","fullName":"dev.quokkify.test.NoSqlFactoryTest.rejectNullMorphiaConfig","name":"Reject a null Morphia configuration","status":"passed","testResultsByEnv":{"data-utils-nosql-morphia":"8e95e3e9ffca78fcc54697019f402e84"}}
+{"id":"4e754363995ccb4bfe0653b4856e3f94","fullName":"dev.quokkify.test.NoSqlFactoryTest.rejectNullMorphiaConfig","name":"Reject a null Morphia configuration","status":"passed","testResultsByEnv":{"data-utils-nosql-morphia":"05766980ae72c65edeccb94ef50ab4af"}}

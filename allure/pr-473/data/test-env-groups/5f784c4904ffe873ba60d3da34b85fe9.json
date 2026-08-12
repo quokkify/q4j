@@ -1,1 +1,1 @@
-{"id":"5f784c4904ffe873ba60d3da34b85fe9","fullName":"dev.quokkify.test.ApiTest.testLocalDateTimeFormatterAndParser","name":"Verify 'LocalDateFormatter' and 'LocalDateParser'","status":"passed","testResultsByEnv":{"integrations-rest-assured":"f2ab0c3f4a4ba78b879cd0c5db991d67"}}
+{"id":"5f784c4904ffe873ba60d3da34b85fe9","fullName":"dev.quokkify.test.ApiTest.testLocalDateTimeFormatterAndParser","name":"Verify 'LocalDateFormatter' and 'LocalDateParser'","status":"passed","testResultsByEnv":{"integrations-rest-assured":"c1e7e465d5fa054c17c5c8c2f1991c6a"}}

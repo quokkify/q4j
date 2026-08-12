@@ -1,1 +1,1 @@
-{"id":"321bd6a831a24a0c3307fbdc992f8a88","fullName":"dev.quokkify.model.JsonPojoTest.testSetFieldWithScalar","name":"Verify set field with scalar value","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"16e3854dadc4db0bacdc08e243ce9043"}}
+{"id":"321bd6a831a24a0c3307fbdc992f8a88","fullName":"dev.quokkify.model.JsonPojoTest.testSetFieldWithScalar","name":"Verify set field with scalar value","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"d8d934616e29306cce2f57acddd31b49"}}
