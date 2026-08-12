@@ -84,13 +84,13 @@ jobs:
           selenium_grid = Path("tools/environment/assets/selenium-grid/config.toml").read_text()
           import re
           marker = re.search(
-              r'(?m)^# renovate: depName=selenium/standalone-chromium currentValue=(?P<currentValue>\\d+\\.\\d+(?:\\.\\d+)?-\\d+) currentDigest=(?P<currentDigest>sha256:[a-f0-9]{64})$',
+              r'(?m)^# renovate: depName=selenium/standalone-chromium currentValue=(?P<currentValue>\d+\.\d+(?:\.\d+)?-\d+) currentDigest=(?P<currentDigest>sha256:[a-f0-9]{64})$',
               selenium_grid,
           )
           if not marker:
               raise SystemExit("selenium grid config must keep a valid Renovate marker comment for the standalone-chromium image")
           configs_line = re.search(
-              r'(?m)^configs = \["selenium/standalone-chromium:(?P<currentValue>\\d+\\.\\d+(?:\\.\\d+)?-\\d+)"',
+              r'(?m)^configs = \["selenium/standalone-chromium:(?P<currentValue>\d+\.\d+(?:\.\d+)?-\d+)"',
               selenium_grid,
           )
           if not configs_line or configs_line.group("currentValue") != marker.group("currentValue"):
@@ -98,13 +98,18 @@ jobs:
           if '@sha256:' in selenium_grid:
               raise SystemExit("selenium grid config must not use a digest reference in configs")
           renovate = json.loads(Path(".github/renovate.json").read_text())
-          selenium_rule = next(
+          tag_rule = next(
               rule for rule in renovate["customManagers"]
-              if rule.get("description") == "Keep the Selenium dynamic Chromium image aligned with Grid and Selenide"
+              if rule.get("description") == "Keep the Selenium dynamic Chromium image tag current"
           )
-          matcher = selenium_rule["matchStrings"][0]
-          if "currentDigest=(?<currentDigest>sha256:[a-f0-9]{64})" not in matcher or 'selenium/standalone-chromium:\\k<currentValue>' not in matcher:
-              raise SystemExit("selenium Renovate matcher must keep digest and tag capture enabled")
+          if 'configs\\s*=\\s*\\[\\s*\"selenium/standalone-chromium:(?<currentValue>' not in tag_rule["matchStrings"][0]:
+              raise SystemExit("selenium Renovate matcher must keep the standalone-chromium tag capture enabled")
+          digest_rule = next(
+              rule for rule in renovate["customManagers"]
+              if rule.get("description") == "Keep the Selenium dynamic Chromium digest note current"
+          )
+          if "currentDigest=(?<currentDigest>sha256:[a-f0-9]{64})" not in digest_rule["matchStrings"][0]:
+              raise SystemExit("selenium Renovate matcher must keep digest capture enabled")
           PY
       - name: Install actionlint
         env:
