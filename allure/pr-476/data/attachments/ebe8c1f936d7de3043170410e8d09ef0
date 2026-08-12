@@ -1,0 +1,9 @@
+
+    select
+        dtui1_0.id,
+        dtui1_0.firstName,
+        dtui1_0.lastName 
+    from
+        DatabaseTestUserIdentity dtui1_0 
+    where
+        dtui1_0.firstName='Agrip'
