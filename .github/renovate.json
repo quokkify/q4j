@@ -27,21 +27,10 @@
         "/^tools/environment/assets/selenium-grid/config\\.toml$/"
       ],
       "matchStrings": [
-        "configs\\s*=\\s*\\[\\s*\"selenium/standalone-chromium:(?<currentValue>\\d+\\.\\d+(?:\\.\\d+)?-\\d+)\""
+        "# renovate: depName=(?<depName>selenium/standalone-chromium) currentValue=\\d+\\.\\d+(?:\\.\\d+)?-\\d+ currentDigest=(?<currentDigest>sha256:[a-f0-9]{64})[\\s\\S]*?configs\\s*=\\s*\\[\\s*\"selenium/standalone-chromium:(?<currentValue>\\d+\\.\\d+(?:\\.\\d+)?-\\d+)\""
       ],
       "datasourceTemplate": "docker",
-      "versioningTemplate": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)(?:\\.(?<patch>\\d+))?-(?<build>\\d+)$"
-    },
-    {
-      "customType": "regex",
-      "description": "Keep the Selenium dynamic Chromium digest note current",
-      "managerFilePatterns": [
-        "/^tools/environment/assets/selenium-grid/config\\.toml$/"
-      ],
-      "matchStrings": [
-        "# renovate: depName=(?<depName>selenium/standalone-chromium) currentValue=(?<currentValue>\\d+\\.\\d+(?:\\.\\d+)?-\\d+) currentDigest=(?<currentDigest>sha256:[a-f0-9]{64})"
-      ],
-      "datasourceTemplate": "docker",
+      "packageNameTemplate": "selenium/standalone-chromium",
       "versioningTemplate": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)(?:\\.(?<patch>\\d+))?-(?<build>\\d+)$"
     }
   ],
@@ -53,6 +42,12 @@
       "matchPackageNames": ["/^dev\\.quokkify:q4j-/"],
       "groupName": "Q4J module documentation",
       "groupSlug": "q4j-module-documentation"
+    },
+    {
+      "description": "Keep standalone-chromium on the custom Selenium regex manager only",
+      "matchManagers": ["docker-compose"],
+      "matchPackageNames": ["selenium/standalone-chromium"],
+      "enabled": false
     },
     {
       "description": "Update dated Selenium Grid and Chromium image tags together",
