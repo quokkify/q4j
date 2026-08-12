@@ -56,6 +56,10 @@ extract_grid_image() {
 
 GRID_IMAGE="$(extract_grid_image)"
 if [[ -n "$GRID_IMAGE" ]]; then
+  if [[ ! "$GRID_IMAGE" =~ @sha256:[a-f0-9]{64}$ ]]; then
+    echo "[selenium-grid] browser image must stay digest-pinned: ${GRID_IMAGE}" >&2
+    exit 1
+  fi
   echo "[selenium-grid] pulling grid image: ${GRID_IMAGE}"
   docker pull "$GRID_IMAGE"
 fi

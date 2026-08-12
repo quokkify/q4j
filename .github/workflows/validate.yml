@@ -80,6 +80,18 @@ jobs:
                       pinned_release = len(reference) == 40 and all(char in "0123456789abcdef" for char in reference) and comment == answers["toolkit_version"]
                       if reference != answers["toolkit_version"] and not pinned_release:
                           raise SystemExit(f"{path} uses toolkit {reference}, expected {answers['toolkit_version']}")
+
+          selenium_grid = Path("tools/environment/assets/selenium-grid/config.toml").read_text()
+          if "selenium/standalone-chromium:151.0-20260808@sha256:" not in selenium_grid:
+              raise SystemExit("selenium grid config must pin the standalone-chromium image by digest")
+          renovate = json.loads(Path(".github/renovate.json").read_text())
+          selenium_rule = next(
+              rule for rule in renovate["customManagers"]
+              if rule.get("description") == "Keep the Selenium dynamic Chromium image aligned with Grid and Selenide"
+          )
+          matcher = selenium_rule["matchStrings"][0]
+          if "currentDigest" not in matcher or "sha256:[a-f0-9]{64}" not in matcher:
+              raise SystemExit("selenium Renovate matcher must keep digest capture enabled")
           PY
       - name: Install actionlint
         env:
