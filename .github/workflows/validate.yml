@@ -106,7 +106,7 @@ jobs:
               raise SystemExit("selenium Renovate extraction must stay consolidated into a single custom manager")
           selenium_rule = selenium_rules[0]
           pattern = selenium_rule["matchStrings"][0]
-          if "depName=(?<depName>selenium/standalone-chromium)" not in pattern or "configs\\s*=\\s*\\[\\s*\"selenium/standalone-chromium:(?<currentValue>" not in pattern:
+          if "depName=(?<depName>selenium/standalone-chromium)" not in pattern or "currentDigest=(?<currentDigest>sha256:[a-f0-9]{64})" not in pattern or "configs\\s*=\\s*\\[\\s*\"selenium/standalone-chromium:(?<currentValue>" not in pattern:
               raise SystemExit("selenium Renovate matcher must capture both the digest marker and config tag in one rule")
           if selenium_rule.get("datasourceTemplate") != "docker":
               raise SystemExit("selenium Renovate matcher must stay on the docker datasource")

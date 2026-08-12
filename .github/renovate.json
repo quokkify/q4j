@@ -45,7 +45,7 @@
     },
     {
       "description": "Keep standalone-chromium on the custom Selenium regex manager only",
-      "matchManagers": ["docker"],
+      "matchManagers": ["docker-compose"],
       "matchPackageNames": ["selenium/standalone-chromium"],
       "enabled": false
     },
