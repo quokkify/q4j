@@ -43,7 +43,7 @@ else
   render_config "$CONFIG_PATH" "${SELENIUM_GRID_MOUNT}/config.toml"
 fi
 
-extract_grid_image() {
+extract_grid_image_tag() {
   local line
   line="$(grep -E '^[[:space:]]*configs[[:space:]]*=' "$CONFIG_PATH" | head -n1 || true)"
   if [[ -z "$line" ]]; then
@@ -54,10 +54,32 @@ extract_grid_image() {
     | grep -E '.+/.+:.+' || true
 }
 
-GRID_IMAGE="$(extract_grid_image)"
-if [[ -n "$GRID_IMAGE" ]]; then
-  echo "[selenium-grid] pulling grid image: ${GRID_IMAGE}"
-  docker pull "$GRID_IMAGE"
+extract_grid_digest() {
+  local line
+  line="$(grep -E '^[[:space:]]*# renovate: depName=selenium/standalone-chromium ' "$CONFIG_PATH" | head -n1 || true)"
+  if [[ -z "$line" ]]; then
+    return
+  fi
+  echo "$line" \
+    | sed -E 's/.*currentDigest=(sha256:[a-f0-9]{64}).*/\1/' \
+    | grep -E '^sha256:[a-f0-9]{64}$' || true
+}
+
+GRID_IMAGE_TAG="$(extract_grid_image_tag)"
+GRID_IMAGE_DIGEST="$(extract_grid_digest)"
+if [[ -n "$GRID_IMAGE_TAG" ]]; then
+  if [[ -n "$GRID_IMAGE_DIGEST" ]]; then
+    GRID_IMAGE="${GRID_IMAGE_TAG%@*}@${GRID_IMAGE_DIGEST}"
+    echo "[selenium-grid] pulling grid image: ${GRID_IMAGE}"
+    docker pull "$GRID_IMAGE"
+  else
+    if [[ ! "$GRID_IMAGE_TAG" =~ @sha256:[a-f0-9]{64}$ ]]; then
+      echo "[selenium-grid] browser image must stay digest-pinned: ${GRID_IMAGE_TAG}" >&2
+      exit 1
+    fi
+    echo "[selenium-grid] pulling grid image: ${GRID_IMAGE_TAG}"
+    docker pull "$GRID_IMAGE_TAG"
+  fi
 fi
 
 echo "[selenium-grid] starting selenium hub + node"

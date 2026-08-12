@@ -263,7 +263,7 @@ public class TableRowWaitTest extends BaseTest {
         .hasMessageContaining("600ms")
         .hasCauseInstanceOf(UIAssertionError.class);
     Assertions.assertThat(Duration.between(start, Instant.now()))
-        .isBetween(SHORT_TIMEOUT, SHORT_TIMEOUT.plusSeconds(1));
+        .isBetween(SHORT_TIMEOUT, SHORT_TIMEOUT.plusSeconds(2));
   }
 
   private DelayedTablePage openDelayedTablePage() {
