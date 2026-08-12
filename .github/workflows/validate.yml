@@ -98,18 +98,20 @@ jobs:
           if '@sha256:' in selenium_grid:
               raise SystemExit("selenium grid config must not use a digest reference in configs")
           renovate = json.loads(Path(".github/renovate.json").read_text())
-          tag_rule = next(
+          selenium_rules = [
               rule for rule in renovate["customManagers"]
-              if rule.get("description") == "Keep the Selenium dynamic Chromium image tag current"
-          )
-          if 'configs\\s*=\\s*\\[\\s*\"selenium/standalone-chromium:(?<currentValue>' not in tag_rule["matchStrings"][0]:
-              raise SystemExit("selenium Renovate matcher must keep the standalone-chromium tag capture enabled")
-          digest_rule = next(
-              rule for rule in renovate["customManagers"]
-              if rule.get("description") == "Keep the Selenium dynamic Chromium digest note current"
-          )
-          if "currentDigest=(?<currentDigest>sha256:[a-f0-9]{64})" not in digest_rule["matchStrings"][0]:
-              raise SystemExit("selenium Renovate matcher must keep digest capture enabled")
+              if "Selenium" in str(rule.get("description", ""))
+          ]
+          if len(selenium_rules) != 1:
+              raise SystemExit("selenium Renovate extraction must stay consolidated into a single custom manager")
+          selenium_rule = selenium_rules[0]
+          pattern = selenium_rule["matchStrings"][0]
+          if "depName=(?<depName>selenium/standalone-chromium)" not in pattern or "configs\\s*=\\s*\\[\\s*\"selenium/standalone-chromium:(?<currentValue>" not in pattern:
+              raise SystemExit("selenium Renovate matcher must capture both the digest marker and config tag in one rule")
+          if selenium_rule.get("datasourceTemplate") != "docker":
+              raise SystemExit("selenium Renovate matcher must stay on the docker datasource")
+          if selenium_rule.get("versioningTemplate") != "regex:^(?<major>\\d+)\\.(?<minor>\\d+)(?:\\.(?<patch>\\d+))?-(?<build>\\d+)$":
+              raise SystemExit("selenium Renovate matcher must keep the dated tag versioning")
           PY
       - name: Install actionlint
         env:
