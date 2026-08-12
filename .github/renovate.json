@@ -22,12 +22,24 @@
     },
     {
       "customType": "regex",
-      "description": "Keep the Selenium dynamic Chromium image aligned with Grid and Selenide",
+      "description": "Keep the Selenium dynamic Chromium image tag current",
       "managerFilePatterns": [
         "/^tools/environment/assets/selenium-grid/config\\.toml$/"
       ],
       "matchStrings": [
-        "# renovate: depName=(?<depName>selenium/standalone-chromium) currentValue=(?<currentValue>\\d+\\.\\d+(?:\\.\\d+)?-\\d+)\\s*configs\\s*=\\s*\\[\\s*\"selenium/standalone-chromium@(?<currentDigest>sha256:[a-f0-9]{64})\""
+        "configs\\s*=\\s*\\[\\s*\"selenium/standalone-chromium:(?<currentValue>\\d+\\.\\d+(?:\\.\\d+)?-\\d+)\""
+      ],
+      "datasourceTemplate": "docker",
+      "versioningTemplate": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)(?:\\.(?<patch>\\d+))?-(?<build>\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Keep the Selenium dynamic Chromium digest note current",
+      "managerFilePatterns": [
+        "/^tools/environment/assets/selenium-grid/config\\.toml$/"
+      ],
+      "matchStrings": [
+        "# renovate: depName=(?<depName>selenium/standalone-chromium) currentValue=(?<currentValue>\\d+\\.\\d+(?:\\.\\d+)?-\\d+) currentDigest=(?<currentDigest>sha256:[a-f0-9]{64})"
       ],
       "datasourceTemplate": "docker",
       "versioningTemplate": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)(?:\\.(?<patch>\\d+))?-(?<build>\\d+)$"

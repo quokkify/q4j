@@ -82,18 +82,29 @@ jobs:
                           raise SystemExit(f"{path} uses toolkit {reference}, expected {answers['toolkit_version']}")
 
           selenium_grid = Path("tools/environment/assets/selenium-grid/config.toml").read_text()
-          if "# renovate: depName=selenium/standalone-chromium currentValue=151.0-20260808" not in selenium_grid:
-              raise SystemExit("selenium grid config must keep the Renovate marker comment for the standalone-chromium image")
-          if 'selenium/standalone-chromium@sha256:' not in selenium_grid:
-              raise SystemExit("selenium grid config must pin the standalone-chromium image by digest")
+          import re
+          marker = re.search(
+              r'(?m)^# renovate: depName=selenium/standalone-chromium currentValue=(?P<currentValue>\\d+\\.\\d+(?:\\.\\d+)?-\\d+) currentDigest=(?P<currentDigest>sha256:[a-f0-9]{64})$',
+              selenium_grid,
+          )
+          if not marker:
+              raise SystemExit("selenium grid config must keep a valid Renovate marker comment for the standalone-chromium image")
+          configs_line = re.search(
+              r'(?m)^configs = \["selenium/standalone-chromium:(?P<currentValue>\\d+\\.\\d+(?:\\.\\d+)?-\\d+)"',
+              selenium_grid,
+          )
+          if not configs_line or configs_line.group("currentValue") != marker.group("currentValue"):
+              raise SystemExit("selenium grid config must pin the standalone-chromium image by tag and keep marker/config values aligned")
+          if '@sha256:' in selenium_grid:
+              raise SystemExit("selenium grid config must not use a digest reference in configs")
           renovate = json.loads(Path(".github/renovate.json").read_text())
           selenium_rule = next(
               rule for rule in renovate["customManagers"]
               if rule.get("description") == "Keep the Selenium dynamic Chromium image aligned with Grid and Selenide"
           )
           matcher = selenium_rule["matchStrings"][0]
-          if "currentDigest" not in matcher or "selenium/standalone-chromium@(?<currentDigest>sha256:[a-f0-9]{64})" not in matcher:
-              raise SystemExit("selenium Renovate matcher must keep digest capture enabled")
+          if "currentDigest=(?<currentDigest>sha256:[a-f0-9]{64})" not in matcher or 'selenium/standalone-chromium:\\k<currentValue>' not in matcher:
+              raise SystemExit("selenium Renovate matcher must keep digest and tag capture enabled")
           PY
       - name: Install actionlint
         env:
