@@ -1,1 +1,0 @@
-{"id":"a8932e9be17b3e4fcc60ba8ab47bb81d","fullName":"dev.quokkify.test.TableRowWaitTest.testTableRowAppearingWithDelayIsFound","name":"Verify 'TABLE' row search waits for a row appearing with a delay","status":"broken","testResultsByEnv":{"integrations-selenide":"64658c5f00a6426f008de812b1d980e5"}}
