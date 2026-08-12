@@ -27,7 +27,7 @@
         "/^tools/environment/assets/selenium-grid/config\\.toml$/"
       ],
       "matchStrings": [
-        "configs\\s*=\\s*\\[\\s*\"(?<depName>selenium/standalone-chromium):(?<currentValue>\\d+\\.\\d+(?:\\.\\d+)?-\\d+)\""
+        "configs\\s*=\\s*\\[\\s*\"(?<depName>selenium/standalone-chromium):(?<currentValue>\\d+\\.\\d+(?:\\.\\d+)?-\\d+)(?:@(?<currentDigest>sha256:[a-f0-9]{64}))?\""
       ],
       "datasourceTemplate": "docker",
       "versioningTemplate": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)(?:\\.(?<patch>\\d+))?-(?<build>\\d+)$"
@@ -52,7 +52,9 @@
       ],
       "versioning": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)(?:\\.(?<patch>\\d+))?-(?<build>\\d+)$",
       "groupName": "selenium grid images",
-      "groupSlug": "selenium-grid-images"
+      "groupSlug": "selenium-grid-images",
+      "minimumReleaseAge": "0 days",
+      "dependencyDashboardApproval": true
     }
   ]
 }
