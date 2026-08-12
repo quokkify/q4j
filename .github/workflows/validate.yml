@@ -110,6 +110,8 @@ jobs:
               raise SystemExit("selenium Renovate matcher must capture both the digest marker and config tag in one rule")
           if selenium_rule.get("datasourceTemplate") != "docker":
               raise SystemExit("selenium Renovate matcher must stay on the docker datasource")
+          if selenium_rule.get("packageNameTemplate") != "selenium/standalone-chromium":
+              raise SystemExit("selenium Renovate matcher must explicitly pin the standalone-chromium package name")
           if selenium_rule.get("versioningTemplate") != "regex:^(?<major>\\d+)\\.(?<minor>\\d+)(?:\\.(?<patch>\\d+))?-(?<build>\\d+)$":
               raise SystemExit("selenium Renovate matcher must keep the dated tag versioning")
           PY

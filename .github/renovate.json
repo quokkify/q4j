@@ -30,6 +30,7 @@
         "# renovate: depName=(?<depName>selenium/standalone-chromium) currentValue=\\d+\\.\\d+(?:\\.\\d+)?-\\d+ currentDigest=(?<currentDigest>sha256:[a-f0-9]{64})[\\s\\S]*?configs\\s*=\\s*\\[\\s*\"selenium/standalone-chromium:(?<currentValue>\\d+\\.\\d+(?:\\.\\d+)?-\\d+)\""
       ],
       "datasourceTemplate": "docker",
+      "packageNameTemplate": "selenium/standalone-chromium",
       "versioningTemplate": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)(?:\\.(?<patch>\\d+))?-(?<build>\\d+)$"
     }
   ],
