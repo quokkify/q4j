@@ -1,0 +1,1 @@
+{"id":"0779de6da0c1cddad463619720bd88e9","fullName":"dev.quokkify.test.TableRowWaitTest.testHorizontalGetRowDefaultTimeoutOverloadWaits","name":"Verify the default-timeout 'HORIZONTAL TABLE' getRow(column) overload also waits for a delayed row","status":"passed","testResultsByEnv":{"integrations-selenide":"d35220bf6c7e35f1fa9f4675e8be04c8"}}
