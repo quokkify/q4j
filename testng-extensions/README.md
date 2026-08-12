@@ -8,7 +8,7 @@ Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.qu
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-testng:0.2.2")
+    testImplementation("dev.quokkify:q4j-testng:0.2.3")
 }
 ```
 
