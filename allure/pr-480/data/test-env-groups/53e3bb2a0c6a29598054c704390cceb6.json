@@ -1,0 +1,1 @@
+{"id":"53e3bb2a0c6a29598054c704390cceb6","fullName":"dev.quokkify.test.DropdownWaitTest.testCustomDropdownWaitsForDelayedOption","name":"Verify custom dropdown waits for a delayed option and selects it by exact text","status":"broken","testResultsByEnv":{"integrations-selenide":"065d54042ec66f6420c82159e9c5df97"}}
