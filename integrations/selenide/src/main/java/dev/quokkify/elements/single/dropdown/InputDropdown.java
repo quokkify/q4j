@@ -1,5 +1,7 @@
 package dev.quokkify.elements.single.dropdown;
 
+import java.util.Objects;
+
 import dev.quokkify.elements.base.Component;
 import dev.quokkify.html.model.HtmlTag;
 
@@ -23,6 +25,10 @@ public class InputDropdown extends Component {
 
   protected By getSelectedOptionsSelector() {
     return By.cssSelector(".item");
+  }
+
+  protected By getSelectedOptionLabelSelector() {
+    return By.cssSelector("[data-dropdown-label], .item-label, .label");
   }
 
   protected By getOptionsContainerSelector() {
@@ -68,11 +74,6 @@ public class InputDropdown extends Component {
     closeDropdown();
   }
 
-  /** Clears the input-backed combobox query without toggling its popup. */
-  public void clearInput() {
-    getInput().clear();
-  }
-
   protected final SelenideElement getInput() {
     return getSelf().find(getInputSelector());
   }
@@ -85,8 +86,22 @@ public class InputDropdown extends Component {
     getInput().setValue(text);
   }
 
+  protected final void clearInputValue() {
+    getInput().clear();
+  }
+
+  protected final String getSelectedOptionLabelText(SelenideElement selectedOption) {
+    String selectedText = selectedOption.getText();
+    String labelText = selectedOption.findAll(getSelectedOptionLabelSelector()).texts().stream()
+        .map(String::trim)
+        .filter(text -> !text.isEmpty())
+        .findFirst()
+        .orElse(selectedText);
+    return Objects.requireNonNullElse(labelText, selectedText).trim();
+  }
+
   protected final void selectOptionByCondition(WebElementCondition condition) {
-    getOptionsContainer().findAll(getOptionsSelector()).findBy(condition).click();
+    getOptionsContainer().findAll(getOptionsSelector()).filter(condition).first().click();
   }
 
   private void openDropdown() {

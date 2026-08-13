@@ -31,6 +31,8 @@ public class BaseTest {
   protected void beforeSuite() {
     Browser.setDefaultConfigurations();
     com.codeborne.selenide.Configuration.headless = true;
+    // Keep the shared headless Chrome flags: this environment reproducibly fails to create sessions
+    // without them during targeted Selenide verification.
     com.codeborne.selenide.Configuration.browserCapabilities = Browser.mergeCapabilities(new ChromeOptions()
         .addArguments("--no-sandbox")
         .addArguments("--disable-dev-shm-usage"));
