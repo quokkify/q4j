@@ -88,6 +88,8 @@
         <h2>Multi dropdowns</h2>
         <div id="multi-primary" class="widget"></div>
         <div id="multi-secondary" class="widget"></div>
+        <div id="multi-literal" class="widget"></div>
+        <div id="multi-direct-text" class="widget"></div>
         <div id="multi-stuck" class="widget"></div>
       </section>
     </div>
@@ -97,9 +99,11 @@
         function createSingleDropdown(root, config) {
           const options = config.options.slice();
           const state = {
-            highlightedIndex: options.findIndex(option => option.text === config.highlightedText),
+            highlightedIndex: options.findIndex(
+              (option) => option.text === config.highlightedText,
+            ),
             open: Boolean(config.initiallyOpen),
-            selectedText: config.selectedText || ''
+            selectedText: config.selectedText || "",
           };
 
           root.innerHTML = `
@@ -112,7 +116,7 @@
             </label>
             <button type="button" data-toggle>Toggle</button>
             <div class="chip-row">
-              <div class="item" ${state.selectedText ? '' : 'hidden'}>
+              <div class="item" ${state.selectedText ? "" : "hidden"}>
                 <span class="item-label" data-dropdown-label>${state.selectedText}</span>
               </div>
             </div>
@@ -120,16 +124,18 @@
             <div class="status" data-status></div>
           `;
 
-          const input = root.querySelector('input');
-          const toggle = root.querySelector('[data-toggle]');
-          const selected = root.querySelector('[data-dropdown-label]');
-          const selectedContainer = root.querySelector('.item');
+          const input = root.querySelector("input");
+          const toggle = root.querySelector("[data-toggle]");
+          const selected = root.querySelector("[data-dropdown-label]");
+          const selectedContainer = root.querySelector(".item");
           const listbox = root.querySelector('[role="listbox"]');
-          const status = root.querySelector('[data-status]');
+          const status = root.querySelector("[data-status]");
 
           function visibleOptions() {
             const query = input.value.toLowerCase();
-            return options.filter(option => option.text.toLowerCase().includes(query));
+            return options.filter((option) =>
+              option.text.toLowerCase().includes(query),
+            );
           }
 
           function renderOptions() {
@@ -140,13 +146,16 @@
             if (state.highlightedIndex < 0 && filtered.length > 0) {
               state.highlightedIndex = 0;
             }
-            listbox.innerHTML = '';
+            listbox.innerHTML = "";
             filtered.forEach((option, index) => {
-              const el = document.createElement('div');
-              el.setAttribute('role', 'option');
-              el.className = index === state.highlightedIndex ? 'is-active option' : 'option';
+              const el = document.createElement("div");
+              el.setAttribute("role", "option");
+              el.className =
+                index === state.highlightedIndex
+                  ? "is-active option"
+                  : "option";
               el.textContent = option.text;
-              el.addEventListener('click', () => select(option.text));
+              el.addEventListener("click", () => select(option.text));
               listbox.appendChild(el);
             });
           }
@@ -154,8 +163,8 @@
           function setOpen(isOpen) {
             state.open = isOpen;
             listbox.hidden = !isOpen;
-            input.setAttribute('aria-expanded', String(isOpen));
-            status.textContent = `${config.label} is ${isOpen ? 'open' : 'closed'}`;
+            input.setAttribute("aria-expanded", String(isOpen));
+            status.textContent = `${config.label} is ${isOpen ? "open" : "closed"}`;
             if (isOpen) {
               renderOptions();
             }
@@ -175,37 +184,44 @@
           root.__dropdown = {
             isOpen: () => state.open,
             selectedText: () => state.selectedText,
-            inputValue: () => input.value
+            inputValue: () => input.value,
           };
 
-          toggle.addEventListener('click', () => setOpen(!state.open));
-          input.addEventListener('click', () => setOpen(true));
-          input.addEventListener('input', () => {
+          toggle.addEventListener("click", () => setOpen(!state.open));
+          input.addEventListener("click", () => setOpen(true));
+          input.addEventListener("input", () => {
             if (!state.open) {
               setOpen(true);
             } else {
               renderOptions();
             }
           });
-          input.addEventListener('keydown', event => {
+          input.addEventListener("keydown", (event) => {
             const filtered = visibleOptions();
-            if (event.key === 'Escape') {
+            if (event.key === "Escape") {
               setOpen(false);
               return;
             }
-            if (event.key === 'ArrowDown') {
+            if (event.key === "ArrowDown") {
               event.preventDefault();
               if (!state.open) {
                 setOpen(true);
                 return;
               }
               if (filtered.length > 0) {
-                state.highlightedIndex = (state.highlightedIndex + 1 + filtered.length) % filtered.length;
+                state.highlightedIndex =
+                  (state.highlightedIndex + 1 + filtered.length) %
+                  filtered.length;
                 renderOptions();
               }
               return;
             }
-            if (event.key === 'Enter' && state.open && filtered.length > 0 && state.highlightedIndex >= 0) {
+            if (
+              event.key === "Enter" &&
+              state.open &&
+              filtered.length > 0 &&
+              state.highlightedIndex >= 0
+            ) {
               event.preventDefault();
               select(filtered[state.highlightedIndex].text);
             }
@@ -220,11 +236,11 @@
 
         function createMultiDropdown(root, config) {
           const state = {
-            chips: config.selected.map(item => ({ ...item })),
+            chips: config.selected.map((item) => ({ ...item })),
             open: Boolean(config.initiallyOpen),
             highlightedIndex: 0,
             pendingRemovalDelayMs: config.pendingRemovalDelayMs || 0,
-            refuseRemoval: Boolean(config.refuseRemoval)
+            refuseRemoval: Boolean(config.refuseRemoval),
           };
 
           root.innerHTML = `
@@ -241,35 +257,41 @@
             <div class="status" data-status></div>
           `;
 
-          const input = root.querySelector('input');
-          const toggle = root.querySelector('[data-toggle]');
-          const chipsRoot = root.querySelector('[data-chips]');
+          const input = root.querySelector("input");
+          const toggle = root.querySelector("[data-toggle]");
+          const chipsRoot = root.querySelector("[data-chips]");
           const listbox = root.querySelector('[role="listbox"]');
-          const status = root.querySelector('[data-status]');
+          const status = root.querySelector("[data-status]");
 
           function visibleOptions() {
             const query = input.value.toLowerCase();
-            return config.options.filter(option => option.text.toLowerCase().includes(query));
+            return config.options.filter((option) =>
+              option.text.toLowerCase().includes(query),
+            );
           }
 
           function renderChips() {
-            chipsRoot.innerHTML = '';
+            chipsRoot.innerHTML = "";
             state.chips.forEach((chip, index) => {
-              const el = document.createElement('div');
-              el.className = 'item';
+              const el = document.createElement("div");
+              el.className = "item";
               el.dataset.index = String(index);
 
-              const label = document.createElement('span');
-              label.className = 'item-label';
-              label.dataset.dropdownLabel = '';
-              label.textContent = chip.label;
-              el.appendChild(label);
+              if (chip.directText) {
+                el.append(document.createTextNode(chip.label));
+              } else {
+                const label = document.createElement("span");
+                label.className = "item-label";
+                label.dataset.dropdownLabel = "";
+                label.textContent = chip.label;
+                el.appendChild(label);
+              }
 
-              const remove = document.createElement('button');
-              remove.type = 'button';
-              remove.className = chip.removeClass || 'remove-chip';
+              const remove = document.createElement("button");
+              remove.type = "button";
+              remove.className = chip.removeClass || "remove-chip";
               remove.textContent = chip.removeText;
-              remove.addEventListener('click', () => removeChip(index));
+              remove.addEventListener("click", () => removeChip(chip.key));
               el.appendChild(remove);
 
               chipsRoot.appendChild(el);
@@ -284,13 +306,16 @@
             if (state.highlightedIndex < 0 && filtered.length > 0) {
               state.highlightedIndex = 0;
             }
-            listbox.innerHTML = '';
+            listbox.innerHTML = "";
             filtered.forEach((option, index) => {
-              const el = document.createElement('div');
-              el.className = index === state.highlightedIndex ? 'is-active option' : 'option';
-              el.setAttribute('role', 'option');
+              const el = document.createElement("div");
+              el.className =
+                index === state.highlightedIndex
+                  ? "is-active option"
+                  : "option";
+              el.setAttribute("role", "option");
               el.textContent = option.text;
-              el.addEventListener('click', () => addChip(option));
+              el.addEventListener("click", () => addChip(option));
               listbox.appendChild(el);
             });
           }
@@ -298,7 +323,7 @@
           function setOpen(isOpen) {
             state.open = isOpen;
             listbox.hidden = !isOpen;
-            input.setAttribute('aria-expanded', String(isOpen));
+            input.setAttribute("aria-expanded", String(isOpen));
             status.textContent = `${config.label} has ${state.chips.length} chip(s)`;
             if (isOpen) {
               renderOptions();
@@ -307,9 +332,11 @@
 
           function addChip(option) {
             state.chips.push({
+              key: option.key || option.text,
               label: option.text,
-              removeText: option.removeText || 'REMOVE',
-              removeClass: option.removeClass || 'remove-chip'
+              removeText: option.removeText || "REMOVE",
+              removeClass: option.removeClass || "remove-chip",
+              directText: Boolean(option.directText),
             });
             renderChips();
             if (config.autoClose !== false) {
@@ -319,13 +346,19 @@
             }
           }
 
-          function removeChip(index) {
+          function removeChip(chipKey) {
             if (state.refuseRemoval) {
               status.textContent = `${config.label} refused to remove chip`;
               return;
             }
             const applyRemoval = () => {
-              state.chips.splice(index, 1);
+              const chipIndex = state.chips.findIndex(
+                (chip) => chip.key === chipKey,
+              );
+              if (chipIndex < 0) {
+                return;
+              }
+              state.chips.splice(chipIndex, 1);
               renderChips();
               status.textContent = `${config.label} has ${state.chips.length} chip(s)`;
             };
@@ -337,46 +370,58 @@
           }
 
           root.__dropdown = {
-            chips: () => state.chips.map(chip => ({ ...chip })),
+            chips: () => state.chips.map((chip) => ({ ...chip })),
             inputValue: () => input.value,
-            isOpen: () => state.open
+            isOpen: () => state.open,
           };
 
-          toggle.addEventListener('click', () => setOpen(!state.open));
-          input.addEventListener('click', () => setOpen(true));
-          input.addEventListener('input', () => {
+          toggle.addEventListener("click", () => setOpen(!state.open));
+          input.addEventListener("click", () => setOpen(true));
+          input.addEventListener("input", () => {
             if (!state.open) {
               setOpen(true);
             } else {
               renderOptions();
             }
           });
-          input.addEventListener('keydown', event => {
+          input.addEventListener("keydown", (event) => {
             const filtered = visibleOptions();
-            if (event.key === 'Escape') {
+            if (event.key === "Escape") {
               setOpen(false);
               return;
             }
-            if (event.key === 'ArrowDown') {
+            if (event.key === "ArrowDown") {
               event.preventDefault();
               if (!state.open) {
                 setOpen(true);
                 return;
               }
               if (filtered.length > 0) {
-                state.highlightedIndex = (state.highlightedIndex + 1 + filtered.length) % filtered.length;
+                state.highlightedIndex =
+                  (state.highlightedIndex + 1 + filtered.length) %
+                  filtered.length;
                 renderOptions();
               }
               return;
             }
-            if (event.key === 'Enter' && state.open && filtered.length > 0 && state.highlightedIndex >= 0) {
+            if (
+              event.key === "Enter" &&
+              state.open &&
+              filtered.length > 0 &&
+              state.highlightedIndex >= 0
+            ) {
               event.preventDefault();
               addChip(filtered[state.highlightedIndex]);
               return;
             }
-            if (event.key === 'Backspace' && !input.value && state.chips.length > 0 && config.backspaceRemovesLast !== false) {
+            if (
+              event.key === "Backspace" &&
+              !input.value &&
+              state.chips.length > 0 &&
+              config.backspaceRemovesLast !== false
+            ) {
               event.preventDefault();
-              removeChip(state.chips.length - 1);
+              removeChip(state.chips[state.chips.length - 1].key);
             }
           });
 
@@ -385,71 +430,156 @@
           setOpen(Boolean(config.initiallyOpen));
         }
 
-        createSingleDropdown(document.getElementById('single-open'), {
-          id: 'single-open',
-          label: 'Open single',
+        createSingleDropdown(document.getElementById("single-open"), {
+          id: "single-open",
+          label: "Open single",
           initiallyOpen: true,
-          highlightedText: 'Apricot',
-          options: [
-            { text: 'Apple' },
-            { text: 'Apricot' },
-            { text: 'Banana' }
-          ]
+          highlightedText: "Apricot",
+          options: [{ text: "Apple" }, { text: "Apricot" }, { text: "Banana" }],
         });
 
-        createSingleDropdown(document.getElementById('single-closed'), {
-          id: 'single-closed',
-          label: 'Closed single',
+        createSingleDropdown(document.getElementById("single-closed"), {
+          id: "single-closed",
+          label: "Closed single",
           initiallyOpen: false,
-          highlightedText: 'Blueberry',
+          highlightedText: "Blueberry",
           options: [
-            { text: 'Blueberry' },
-            { text: 'Blackberry' },
-            { text: 'Cranberry' }
-          ]
+            { text: "Blueberry" },
+            { text: "Blackberry" },
+            { text: "Cranberry" },
+          ],
         });
 
-        createMultiDropdown(document.getElementById('multi-primary'), {
-          id: 'multi-primary',
-          label: 'Primary multi',
+        createMultiDropdown(document.getElementById("multi-primary"), {
+          id: "multi-primary",
+          label: "Primary multi",
           initiallyOpen: false,
           pendingRemovalDelayMs: 250,
           selected: [
-            { label: 'Alpha', removeText: 'REMOVE ALPHA', removeClass: 'remove-chip-primary' },
-            { label: 'Beta', removeText: 'REMOVE BETA', removeClass: 'remove-chip-primary' }
+            {
+              key: "Alpha",
+              label: "Alpha",
+              removeText: "REMOVE ALPHA",
+              removeClass: "remove-chip-primary",
+            },
+            {
+              key: "Beta",
+              label: "Beta",
+              removeText: "REMOVE BETA",
+              removeClass: "remove-chip-primary",
+            },
           ],
           options: [
-            { text: 'Gamma', removeText: 'REMOVE GAMMA', removeClass: 'remove-chip-primary' },
-            { text: 'Delta', removeText: 'REMOVE DELTA', removeClass: 'remove-chip-primary' }
-          ]
+            {
+              key: "Gamma",
+              text: "Gamma",
+              removeText: "REMOVE GAMMA",
+              removeClass: "remove-chip-primary",
+            },
+            {
+              key: "Delta",
+              text: "Delta",
+              removeText: "REMOVE DELTA",
+              removeClass: "remove-chip-primary",
+            },
+          ],
         });
 
-        createMultiDropdown(document.getElementById('multi-secondary'), {
-          id: 'multi-secondary',
-          label: 'Secondary multi',
+        createMultiDropdown(document.getElementById("multi-secondary"), {
+          id: "multi-secondary",
+          label: "Secondary multi",
           initiallyOpen: false,
           autoClose: false,
           backspaceRemovesLast: false,
           selected: [
-            { label: 'Omega', removeText: 'REMOVE OMEGA', removeClass: 'remove-chip-secondary' }
+            {
+              key: "Omega",
+              label: "Omega",
+              removeText: "REMOVE OMEGA",
+              removeClass: "remove-chip-secondary",
+            },
           ],
           options: [
-            { text: 'Omicron', removeText: 'REMOVE OMICRON', removeClass: 'remove-chip-secondary' },
-            { text: 'Sigma', removeText: 'REMOVE SIGMA', removeClass: 'remove-chip-secondary' }
-          ]
+            {
+              key: "Omicron",
+              text: "Omicron",
+              removeText: "REMOVE OMICRON",
+              removeClass: "remove-chip-secondary",
+            },
+            {
+              key: "Sigma",
+              text: "Sigma",
+              removeText: "REMOVE SIGMA",
+              removeClass: "remove-chip-secondary",
+            },
+          ],
         });
 
-        createMultiDropdown(document.getElementById('multi-stuck'), {
-          id: 'multi-stuck',
-          label: 'Stuck multi',
+        createMultiDropdown(document.getElementById("multi-literal"), {
+          id: "multi-literal",
+          label: "Literal multi",
+          initiallyOpen: false,
+          selected: [
+            {
+              key: "AlphaBeta",
+              label: "AlphaBeta",
+              removeText: "REMOVE ALPHABETA",
+              removeClass: "remove-chip-literal",
+            },
+            {
+              key: "Alpha|Beta",
+              label: "Alpha|Beta",
+              removeText: "REMOVE ALPHA|BETA",
+              removeClass: "remove-chip-literal",
+            },
+          ],
+          options: [],
+        });
+
+        createMultiDropdown(document.getElementById("multi-direct-text"), {
+          id: "multi-direct-text",
+          label: "Direct text multi",
+          initiallyOpen: false,
+          selected: [
+            {
+              key: "Direct Alpha",
+              label: "Direct Alpha",
+              removeText: "REMOVE DIRECT",
+              removeClass: "remove-chip-direct",
+              directText: true,
+            },
+            {
+              key: "Direct Beta",
+              label: "Direct Beta",
+              removeText: "REMOVE SECONDARY",
+              removeClass: "remove-chip-direct",
+              directText: true,
+            },
+          ],
+          options: [],
+        });
+
+        createMultiDropdown(document.getElementById("multi-stuck"), {
+          id: "multi-stuck",
+          label: "Stuck multi",
           initiallyOpen: false,
           refuseRemoval: true,
           selected: [
-            { label: 'Locked', removeText: 'REMOVE LOCKED', removeClass: 'remove-chip-locked' }
+            {
+              key: "Locked",
+              label: "Locked",
+              removeText: "REMOVE LOCKED",
+              removeClass: "remove-chip-locked",
+            },
           ],
           options: [
-            { text: 'Unlocked', removeText: 'REMOVE UNLOCKED', removeClass: 'remove-chip-locked' }
-          ]
+            {
+              key: "Unlocked",
+              text: "Unlocked",
+              removeText: "REMOVE UNLOCKED",
+              removeClass: "remove-chip-locked",
+            },
+          ],
         });
       })();
     </script>

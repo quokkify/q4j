@@ -31,11 +31,10 @@ public class BaseTest {
   protected void beforeSuite() {
     Browser.setDefaultConfigurations();
     com.codeborne.selenide.Configuration.headless = true;
-    // Keep the shared headless Chrome flags: this environment reproducibly fails to create sessions
-    // without them during targeted Selenide verification.
+    // Selenide 7.17.0 already contributes --disable-dev-shm-usage for Chrome. Keep only the
+    // empirically required extra flag here for this headless environment.
     com.codeborne.selenide.Configuration.browserCapabilities = Browser.mergeCapabilities(new ChromeOptions()
-        .addArguments("--no-sandbox")
-        .addArguments("--disable-dev-shm-usage"));
+        .addArguments("--no-sandbox"));
     if (Objects.nonNull(BROWSER_CONFIGURATION.remoteUrl())) {
       Browser.setRemoteDefaultConfiguration();
     }

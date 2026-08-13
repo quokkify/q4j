@@ -6,6 +6,7 @@ import dev.quokkify.elements.base.Component;
 import dev.quokkify.html.model.HtmlTag;
 
 import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.WebElementCondition;
 import org.openqa.selenium.By;
@@ -29,6 +30,10 @@ public class InputDropdown extends Component {
 
   protected By getSelectedOptionLabelSelector() {
     return By.cssSelector("[data-dropdown-label], .item-label, .label");
+  }
+
+  protected String getSelectedOptionExcludedTextSelector() {
+    return null;
   }
 
   protected By getOptionsContainerSelector() {
@@ -96,8 +101,22 @@ public class InputDropdown extends Component {
         .map(String::trim)
         .filter(text -> !text.isEmpty())
         .findFirst()
-        .orElse(selectedText);
+        .orElseGet(() -> extractFallbackSelectedOptionText(selectedOption, selectedText));
     return Objects.requireNonNullElse(labelText, selectedText).trim();
+  }
+
+  private String extractFallbackSelectedOptionText(SelenideElement selectedOption, String selectedText) {
+    String excludedTextSelector = getSelectedOptionExcludedTextSelector();
+    if (excludedTextSelector == null) {
+      return selectedText;
+    }
+    String fallbackText = Selenide.executeJavaScript(
+        "const clone = arguments[0].cloneNode(true);"
+            + "clone.querySelectorAll(arguments[1]).forEach(element => element.remove());"
+            + "return (clone.textContent || '').trim();",
+        selectedOption,
+        excludedTextSelector);
+    return fallbackText == null || fallbackText.isBlank() ? selectedText : fallbackText;
   }
 
   protected final void selectOptionByCondition(WebElementCondition condition) {

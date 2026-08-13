@@ -28,6 +28,12 @@ public class DropdownPage implements Page {
   @FindBy(how = How.ID, using = "multi-secondary")
   private TestMultiDropdown secondaryMultiDropdown;
 
+  @FindBy(how = How.ID, using = "multi-literal")
+  private TestMultiDropdown literalMultiDropdown;
+
+  @FindBy(how = How.ID, using = "multi-direct-text")
+  private TestMultiDropdown directTextMultiDropdown;
+
   @FindBy(how = How.ID, using = "multi-stuck")
   private StuckMultiDropdown stuckMultiDropdown;
 
@@ -45,6 +51,14 @@ public class DropdownPage implements Page {
 
   public TestMultiDropdown secondaryMultiDropdown() {
     return secondaryMultiDropdown;
+  }
+
+  public TestMultiDropdown literalMultiDropdown() {
+    return literalMultiDropdown;
+  }
+
+  public TestMultiDropdown directTextMultiDropdown() {
+    return directTextMultiDropdown;
   }
 
   public StuckMultiDropdown stuckMultiDropdown() {
@@ -102,11 +116,6 @@ public class DropdownPage implements Page {
     @Override
     protected By getOptionsSelector() {
       return By.cssSelector("[role='option']");
-    }
-
-    @Override
-    protected By getSelectedOptionLabelSelector() {
-      return By.cssSelector("[data-dropdown-label]");
     }
 
     public String inputValue() {

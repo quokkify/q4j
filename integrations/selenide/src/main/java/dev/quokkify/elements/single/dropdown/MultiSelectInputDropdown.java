@@ -20,6 +20,11 @@ public class MultiSelectInputDropdown extends InputDropdown {
     return By.cssSelector("[class^='remove']");
   }
 
+  @Override
+  protected String getSelectedOptionExcludedTextSelector() {
+    return "[class^='remove']";
+  }
+
   protected Duration chipRemovalTimeout() {
     return CHIP_REMOVAL_TIMEOUT;
   }
@@ -57,7 +62,7 @@ public class MultiSelectInputDropdown extends InputDropdown {
   /** Removes the first selected chip containing the supplied label. */
   public void removeSelectedPartial(String text) {
     SelenideElement chip = getSelf().findAll(getSelectedOptionsSelector())
-        .filter(Condition.matchText(text))
+        .filter(Condition.partialText(text))
         .first();
     clickAndAwaitRemoval(chip, getSelectedOptionLabelText(chip));
     closeDropdown();

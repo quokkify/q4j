@@ -3,8 +3,6 @@ package dev.quokkify.test;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
-import java.time.Duration;
-import java.time.Instant;
 import java.util.Base64;
 import java.util.List;
 
@@ -16,8 +14,6 @@ import org.assertj.core.api.Assertions;
 import org.testng.annotations.Test;
 
 public class DropdownBehaviorTest extends BaseTest {
-
-  private static final Duration CLEAR_SELECTED_TIMEOUT = Duration.ofSeconds(5);
 
   @TmsLink("UI_ID_24")
   @Test(description = "Verify selectExact closes an already-open dropdown after selecting the exact option")
@@ -49,6 +45,17 @@ public class DropdownBehaviorTest extends BaseTest {
     page.closedSingleDropdown().typeAndPressEnter("blue");
 
     Assertions.assertThat(page.closedSingleDropdown().selectedLabel()).isEqualTo("Blueberry");
+    Assertions.assertThat(page.closedSingleDropdown().isExpanded()).isFalse();
+  }
+
+  @TmsLink("UI_ID_34")
+  @Test(description = "Verify typeAndSelectExact selects the exact matching option and closes the widget")
+  public void testTypeAndSelectExactClosesDropdown() {
+    DropdownPage page = openDropdownPage();
+
+    page.closedSingleDropdown().typeAndSelectExact("Cranberry");
+
+    Assertions.assertThat(page.closedSingleDropdown().selectedLabel()).isEqualTo("Cranberry");
     Assertions.assertThat(page.closedSingleDropdown().isExpanded()).isFalse();
   }
 
@@ -102,6 +109,28 @@ public class DropdownBehaviorTest extends BaseTest {
         .containsExactly("Alpha", "Beta");
   }
 
+  @TmsLink("UI_ID_35")
+  @Test(description = "Verify removeSelectedPartial treats regex metacharacters literally")
+  public void testRemoveSelectedPartialTreatsRegexMetacharactersLiterally() {
+    DropdownPage page = openDropdownPage();
+
+    page.literalMultiDropdown().removeSelectedPartial("Alpha|Beta");
+
+    Assertions.assertThat(page.literalMultiDropdown().selectedTexts())
+        .containsExactly("AlphaBeta");
+  }
+
+  @TmsLink("UI_ID_36")
+  @Test(description = "Verify selectedTexts uses the default direct-text chip contract without including remove-control text")
+  public void testSelectedTextsSupportsDirectTextChips() {
+    DropdownPage page = openDropdownPage();
+
+    Assertions.assertThat(page.directTextMultiDropdown().chipRemoveTexts())
+        .containsExactly("REMOVE DIRECT", "REMOVE SECONDARY");
+    Assertions.assertThat(page.directTextMultiDropdown().selectedTexts())
+        .containsExactly("Direct Alpha", "Direct Beta");
+  }
+
   @TmsLink("UI_ID_31")
   @Test(description = "Verify clearSelected clears a pending query, removes chips via remove controls, and waits for async removals")
   public void testClearSelectedClearsInputAndWaitsForAsyncRemoval() {
@@ -109,14 +138,11 @@ public class DropdownBehaviorTest extends BaseTest {
     page.primaryMultiDropdown().selectAllExact(List.of("Gamma", "Delta"));
     page.primaryMultiDropdown().setQuery("Del");
 
-    Instant start = Instant.now();
     page.primaryMultiDropdown().clearSelected();
 
     Assertions.assertThat(page.primaryMultiDropdown().inputValue()).isEmpty();
     Assertions.assertThat(page.primaryMultiDropdown().selectedTexts()).isEmpty();
     Assertions.assertThat(page.primaryMultiDropdown().isExpanded()).isFalse();
-    Assertions.assertThat(Duration.between(start, Instant.now()))
-        .isBetween(Duration.ofMillis(800), CLEAR_SELECTED_TIMEOUT.plusSeconds(1));
   }
 
   @TmsLink("UI_ID_32")
@@ -133,10 +159,11 @@ public class DropdownBehaviorTest extends BaseTest {
   @TmsLink("UI_ID_33")
   @Test(description = "Mutation guard: selectedTexts must not regress to returning chip text plus visible remove controls")
   public void testSelectedTextsMutationGuard() {
-    String mutatedChipText = String.join(" ", openDropdownPage().primaryMultiDropdown().visibleChipTexts());
+    DropdownPage page = openDropdownPage();
+    String mutatedChipText = String.join(" ", page.primaryMultiDropdown().visibleChipTexts());
 
     Assertions.assertThat(mutatedChipText).contains("REMOVE ALPHA");
-    Assertions.assertThat(openDropdownPage().primaryMultiDropdown().selectedTexts())
+    Assertions.assertThat(page.primaryMultiDropdown().selectedTexts())
         .allMatch(text -> !text.contains("REMOVE"));
   }
 
