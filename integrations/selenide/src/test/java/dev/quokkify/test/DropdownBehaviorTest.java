@@ -162,6 +162,14 @@ public class DropdownBehaviorTest extends BaseTest {
         .containsExactly("DELETE CONTROL TWO");
   }
 
+  @TmsLink("UI_ID_39")
+  @Test(description = "Verify plain InputDropdown fallback returns full selected text when no explicit label element is present")
+  public void testSingleDropdownFallbackReturnsFullSelectedText() {
+    DropdownPage page = openDropdownPage();
+
+    Assertions.assertThat(page.directTextSingleDropdown().selectedLabel()).isEqualTo("Apricot");
+  }
+
   @TmsLink("UI_ID_31")
   @Test(description = "Verify clearSelected clears a pending query, removes chips via remove controls, and waits for async removals")
   public void testClearSelectedClearsInputAndWaitsForAsyncRemoval() {

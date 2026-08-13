@@ -22,6 +22,9 @@ public class DropdownPage implements Page {
   @FindBy(how = How.ID, using = "single-closed")
   private TestSingleDropdown closedSingleDropdown;
 
+  @FindBy(how = How.ID, using = "single-direct-text")
+  private TestSingleDropdown directTextSingleDropdown;
+
   @FindBy(how = How.ID, using = "multi-primary")
   private TestMultiDropdown primaryMultiDropdown;
 
@@ -49,6 +52,10 @@ public class DropdownPage implements Page {
 
   public TestSingleDropdown closedSingleDropdown() {
     return closedSingleDropdown;
+  }
+
+  public TestSingleDropdown directTextSingleDropdown() {
+    return directTextSingleDropdown;
   }
 
   public TestMultiDropdown primaryMultiDropdown() {
@@ -171,8 +178,8 @@ public class DropdownPage implements Page {
   public static class DeleteSelectorMultiDropdown extends TestMultiDropdown {
 
     @Override
-    protected By removeOptionButtonSelector() {
-      return By.cssSelector("[class^='delete']");
+    protected String removeOptionButtonCssSelector() {
+      return "[class^='delete']";
     }
   }
 }

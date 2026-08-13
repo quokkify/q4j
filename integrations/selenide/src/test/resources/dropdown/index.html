@@ -83,6 +83,7 @@
         <h2>Single dropdowns</h2>
         <div id="single-open" class="widget"></div>
         <div id="single-closed" class="widget"></div>
+        <div id="single-direct-text" class="widget"></div>
       </section>
       <section class="fixture-card">
         <h2>Multi dropdowns</h2>
@@ -119,7 +120,9 @@
             <button type="button" data-toggle>Toggle</button>
             <div class="chip-row">
               <div class="item" ${state.selectedText ? "" : "hidden"}>
-                <span class="item-label" data-dropdown-label>${state.selectedText}</span>
+                ${config.directSelectedText
+                  ? state.selectedText
+                  : `<span class="item-label" data-dropdown-label>${state.selectedText}</span>`}
               </div>
             </div>
             <div id="${config.id}-listbox" role="listbox"></div>
@@ -450,6 +453,16 @@
             { text: "Blackberry" },
             { text: "Cranberry" },
           ],
+        });
+
+        createSingleDropdown(document.getElementById("single-direct-text"), {
+          id: "single-direct-text",
+          label: "Direct text single",
+          initiallyOpen: true,
+          highlightedText: "Apricot",
+          selectedText: "Apricot",
+          directSelectedText: true,
+          options: [{ text: "Apple" }, { text: "Apricot" }, { text: "Banana" }],
         });
 
         createMultiDropdown(document.getElementById("multi-primary"), {

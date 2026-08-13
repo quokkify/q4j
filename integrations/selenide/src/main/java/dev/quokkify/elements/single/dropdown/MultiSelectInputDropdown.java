@@ -5,6 +5,7 @@ import java.util.List;
 
 import dev.quokkify.util.Waiter;
 
+import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import org.awaitility.core.ConditionTimeoutException;
 import org.openqa.selenium.By;
@@ -15,13 +16,23 @@ public class MultiSelectInputDropdown extends InputDropdown {
   private static final Duration CHIP_REMOVAL_TIMEOUT = Duration.ofSeconds(5);
   private static final Duration CHIP_REMOVAL_POLLING_INTERVAL = Duration.ofMillis(100);
 
-  protected By removeOptionButtonSelector() {
-    return By.cssSelector("[class^='remove']");
+  protected String removeOptionButtonCssSelector() {
+    return "[class^='remove']";
   }
 
   @Override
-  protected By getSelectedOptionExcludedSelector() {
-    return removeOptionButtonSelector();
+  protected String getFallbackSelectedOptionLabelText(SelenideElement selectedOption, String selectedText) {
+    String fallbackText = Selenide.executeJavaScript(
+        "const clone = arguments[0].cloneNode(true);"
+            + "clone.querySelectorAll(arguments[1]).forEach(element => element.remove());"
+            + "return (clone.textContent || '').trim();",
+        selectedOption,
+        removeOptionButtonCssSelector());
+    return fallbackText == null || fallbackText.isBlank() ? selectedText : fallbackText;
+  }
+
+  protected By removeOptionButtonSelector() {
+    return By.cssSelector(removeOptionButtonCssSelector());
   }
 
   protected Duration chipRemovalTimeout() {
