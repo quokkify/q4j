@@ -1,19 +1,18 @@
 package dev.quokkify.test;
 
+import java.io.IOException;
+import java.io.OutputStream;
+import java.net.InetSocketAddress;
+import java.nio.charset.StandardCharsets;
+
 import dev.quokkify.page.local.DelayedDropdownPage;
 
 import com.codeborne.selenide.Selenide;
+import com.sun.net.httpserver.HttpServer;
 import io.qameta.allure.TmsLink;
 import org.assertj.core.api.Assertions;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
-
-import java.io.IOException;
-import java.nio.charset.StandardCharsets;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
-
-import com.sun.net.httpserver.HttpServer;
 
 public class DropdownWaitTest extends BaseTest {
 
