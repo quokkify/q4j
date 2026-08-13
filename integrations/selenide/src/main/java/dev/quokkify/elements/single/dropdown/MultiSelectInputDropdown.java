@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
-import dev.quokkify.impl.MultiSelectizeDropdown;
-
 import com.codeborne.selenide.SelenideElement;
 import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
@@ -16,7 +14,7 @@ import org.openqa.selenium.Keys;
  * Abstract dropdown which has an input with possibility to print the text and select any matches.
  * It's possible to select multiply options
  */
-public class MultiSelectInputDropdown extends InputDropdown implements MultiSelectizeDropdown {
+public class MultiSelectInputDropdown extends InputDropdown {
 
   /**
    * Dropdown selector for options remove button.
@@ -46,14 +44,12 @@ public class MultiSelectInputDropdown extends InputDropdown implements MultiSele
     this.closeDropdown();
   }
 
-  @Override
   public void selectOptions(List<String> texts) {
     openDropdown();
     texts.forEach(this::findAndSelectOptionByPartialText);
     closeDropdown();
   }
 
-  @Override
   public void clear() {
     SelenideElement input = getSelf().find(getInputSelector());
     int selectedOptionCount = getSelf().findAll(getSelectedOptionsSelector()).size();
@@ -61,7 +57,6 @@ public class MultiSelectInputDropdown extends InputDropdown implements MultiSele
     closeDropdown();
   }
 
-  @Override
   public List<String> getSelectedOptionsTexts() {
     return Arrays.stream(getSelectedOptionText().split("\n×, "))
         .map(option -> option.replaceAll("\n×", StringUtils.EMPTY))

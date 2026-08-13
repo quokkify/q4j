@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Dropdown demo</title>
+    <style>
+      .option {
+        cursor: pointer;
+        padding: 4px 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="native-dropdown">
+      <select id="native-select">
+        <option value="">Choose</option>
+        <option value="pear">Pear</option>
+        <option value="apple">Apple</option>
+      </select>
+    </div>
+
+    <div id="custom-dropdown" role="application">
+      <input
+        id="custom-dropdown-input"
+        type="text"
+        role="combobox"
+        aria-expanded="false"
+        aria-controls="custom-dropdown-listbox"
+        placeholder="Search fruit"
+      />
+      <button id="custom-dropdown-toggle" type="button">Open fruit menu</button>
+      <div id="custom-dropdown-selected" class="item"></div>
+      <div id="custom-dropdown-listbox" role="listbox" hidden>
+        <div class="option" role="option">Banana</div>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        const root = document.getElementById("custom-dropdown");
+        const input = document.getElementById("custom-dropdown-input");
+        const toggle = document.getElementById("custom-dropdown-toggle");
+        const listbox = document.getElementById("custom-dropdown-listbox");
+        const selected = document.getElementById("custom-dropdown-selected");
+
+        function setOpen(isOpen) {
+          listbox.hidden = !isOpen;
+          input.setAttribute("aria-expanded", String(isOpen));
+        }
+
+        function ensureDelayedOption() {
+          if (listbox.querySelector('[data-delayed="true"]')) {
+            return;
+          }
+          const delayed = document.createElement("div");
+          delayed.className = "option";
+          delayed.setAttribute("role", "option");
+          delayed.setAttribute("data-delayed", "true");
+          delayed.textContent = "Dragon Fruit";
+          delayed.addEventListener("click", function () {
+            selected.textContent = delayed.textContent;
+            setOpen(false);
+          });
+          listbox.appendChild(delayed);
+        }
+
+        toggle.addEventListener("click", function () {
+          setOpen(listbox.hidden);
+        });
+
+        input.addEventListener("keydown", function (event) {
+          if (event.key === "Escape") {
+            setOpen(false);
+          }
+        });
+
+        listbox.querySelectorAll('[role="option"]').forEach(function (option) {
+          option.addEventListener("click", function () {
+            selected.textContent = option.textContent;
+            setOpen(false);
+          });
+        });
+
+        setTimeout(ensureDelayedOption, 1500);
+      })();
+    </script>
+  </body>
+</html>

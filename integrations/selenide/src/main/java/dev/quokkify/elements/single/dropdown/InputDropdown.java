@@ -1,9 +1,7 @@
 package dev.quokkify.elements.single.dropdown;
 
 import java.util.List;
-import java.util.Objects;
 
-import dev.quokkify.html.model.HtmlAttribute;
 import dev.quokkify.html.model.HtmlTag;
 
 import com.codeborne.selenide.Condition;
@@ -16,7 +14,7 @@ import org.openqa.selenium.Keys;
 /**
  * Abstract dropdown which has an input with possibility to print the text and select any matches.
  */
-public class InputDropdown extends SimpleDropdown {
+public class InputDropdown extends AbstractDropdown {
 
   /**
    * Dropdown selector for input element.
@@ -30,6 +28,14 @@ public class InputDropdown extends SimpleDropdown {
    */
   protected By getSelectedOptionsSelector() {
     return By.cssSelector(".item");
+  }
+
+  /**
+   * Dropdown selector for options items container.
+   */
+  @Override
+  protected By getOptionsContainerSelector() {
+    return By.cssSelector("[role='listbox'], .dropdown-menu, .menu");
   }
 
   /**
@@ -74,6 +80,18 @@ public class InputDropdown extends SimpleDropdown {
   @Override
   public void selectOption(String value) {
     openAndChoseOptionByPartialText(value);
+    closeDropdown();
+  }
+
+  @Override
+  public void selectOptionByExactText(String text) {
+    openAndChoseOptionByExactText(text);
+    closeDropdown();
+  }
+
+  @Override
+  public void selectOptionByPartialText(String text) {
+    openAndChoseOptionByPartialText(text);
     closeDropdown();
   }
 
@@ -139,7 +157,7 @@ public class InputDropdown extends SimpleDropdown {
    * @param text expected option partial text
    */
   public SelenideElement findSelectedOptionByPartialText(String text) {
-    return this.getSelf().findAll(getSelectedOptionsSelector()).filter(Condition.partialText(text)).first();
+    return this.getSelf().findAll(getSelectedOptionsSelector()).findBy(Condition.partialText(text));
   }
 
   /**
@@ -148,6 +166,7 @@ public class InputDropdown extends SimpleDropdown {
    * @param value expected option partial text
    */
   public void findAndSelectOptionByPartialText(String value) {
+    getOptionsContainer().shouldHave(Condition.text(value));
     findAndSelectOptionByCondition(Condition.partialText(value));
   }
 
@@ -157,6 +176,7 @@ public class InputDropdown extends SimpleDropdown {
    * @param value expected option exact text
    */
   public void findAndSelectOptionByExactText(String value) {
+    getOptionsContainer().shouldHave(Condition.text(value));
     findAndSelectOptionByCondition(Condition.exactText(value));
   }
 
@@ -166,7 +186,7 @@ public class InputDropdown extends SimpleDropdown {
    * @param condition filtered condition
    */
   protected void findAndSelectOptionByCondition(WebElementCondition condition) {
-    getOptions().filter(condition).first().click();
+    getOptions().findBy(condition).click();
   }
 
   /**
@@ -188,28 +208,6 @@ public class InputDropdown extends SimpleDropdown {
   }
 
   /**
-   * Get dropdown closed status.
-   *
-   * @return dropdown closed status as {@link Boolean}
-   */
-  public boolean isClosed() {
-    SelenideElement dropdownBox = this.getSelf().find(getExpandStatusSelector());
-    return Objects.requireNonNull(dropdownBox.getAttribute(HtmlAttribute.STYLE))
-        .contains("display: none");
-  }
-
-  /**
-   * Get dropdown opened status.
-   *
-   * @return dropdown opened status as {@link Boolean}
-   */
-  public boolean isOpened() {
-    SelenideElement dropdownBox = this.getSelf().find(getExpandStatusSelector());
-    return Objects.requireNonNull(dropdownBox.getAttribute(HtmlAttribute.STYLE))
-        .contains("display: block");
-  }
-
-  /**
    * Get dropdown enabled status.
    *
    * @return dropdown enabled status as {@link Boolean}
@@ -224,7 +222,6 @@ public class InputDropdown extends SimpleDropdown {
    * @return dropdown disabled status as {@link Boolean}
    */
   public boolean isDisabled() {
-    return getSelf().find(getInputSelector())
-        .is(Condition.have(Condition.attribute(HtmlAttribute.DISABLED)));
+    return getSelf().find(getInputSelector()).is(Condition.disabled);
   }
 }

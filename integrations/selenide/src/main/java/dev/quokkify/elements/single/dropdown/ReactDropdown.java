@@ -7,7 +7,7 @@ import org.openqa.selenium.By;
 /**
  * React Dropdown menu looking like a button.
  */
-public class ReactDropdown extends SimpleDropdown {
+public class ReactDropdown extends AbstractDropdown {
 
   @Override
   protected By getOptionsContainerSelector() {
