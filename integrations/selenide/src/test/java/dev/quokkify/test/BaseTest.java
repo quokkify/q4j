@@ -12,6 +12,7 @@ import dev.quokkify.service.steps.w3schools.W3SchoolsNavigationSteps;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.logevents.SelenideLogger;
 import io.qameta.allure.selenide.AllureSelenide;
+import org.openqa.selenium.chrome.ChromeOptions;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.BeforeSuite;
@@ -30,6 +31,10 @@ public class BaseTest {
   protected void beforeSuite() {
     Browser.setDefaultConfigurations();
     com.codeborne.selenide.Configuration.headless = true;
+    // Selenide 7.17.0 already contributes --disable-dev-shm-usage for Chrome. Keep only the
+    // empirically required extra flag here for this headless environment.
+    com.codeborne.selenide.Configuration.browserCapabilities = Browser.mergeCapabilities(new ChromeOptions()
+        .addArguments("--no-sandbox"));
     if (Objects.nonNull(BROWSER_CONFIGURATION.remoteUrl())) {
       Browser.setRemoteDefaultConfiguration();
     }

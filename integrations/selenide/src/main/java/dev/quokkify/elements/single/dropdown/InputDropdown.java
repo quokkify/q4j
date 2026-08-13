@@ -1,230 +1,126 @@
 package dev.quokkify.elements.single.dropdown;
 
-import java.util.List;
 import java.util.Objects;
 
-import dev.quokkify.html.model.HtmlAttribute;
+import dev.quokkify.elements.base.Component;
 import dev.quokkify.html.model.HtmlTag;
 
 import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.WebElementCondition;
-import org.apache.commons.lang3.StringUtils;
 import org.openqa.selenium.By;
-import org.openqa.selenium.Keys;
 
 /**
- * Abstract dropdown which has an input with possibility to print the text and select any matches.
+ * Component object for an input-backed custom combobox.
+ *
+ * <p>The public operations describe combobox orchestration: type a query, select a matching
+ * option, and leave the widget closed. Native element operations remain available through
+ * Selenide and are intentionally not duplicated here.
  */
-public class InputDropdown extends SimpleDropdown {
+public class InputDropdown extends Component {
 
-  /**
-   * Dropdown selector for input element.
-   */
   protected By getInputSelector() {
     return By.cssSelector(HtmlTag.INPUT);
   }
 
-  /**
-   * Dropdown selector for selected options elements.
-   */
   protected By getSelectedOptionsSelector() {
     return By.cssSelector(".item");
   }
 
-  /**
-   * Set value to dropdown input and press enter.
-   */
-  public void sendKeysAndPressEnter(String value) {
-    SelenideElement inputElement = getSelf().find(getInputSelector());
-    inputElement.sendKeys(value);
-    inputElement.pressEnter();
+  protected By getSelectedOptionLabelSelector() {
+    return By.cssSelector("[data-dropdown-label], .item-label, .label");
+  }
+
+  protected By getOptionsContainerSelector() {
+    return By.cssSelector("[role='listbox'], .dropdown-menu, .menu");
+  }
+
+  protected By getOptionsSelector() {
+    return By.cssSelector("[role='option'], li, .option");
+  }
+
+  /** Types a query and selects the exact matching custom option. */
+  public void typeAndSelectExact(String text) {
+    type(text);
+    selectOptionByCondition(Condition.exactText(text));
     closeDropdown();
   }
 
-  /**
-   * Find option by the expected option partial text.
-   *
-   * @param text expected option partial text
-   */
-  public void sendKeysAndChoseOptionByPartialText(String text) {
-    sendKeys(text);
-    findAndSelectOptionByPartialText(text);
-  }
-
-  /**
-   * Find option by the expected option exact text.
-   *
-   * @param text expected option exact text
-   */
-  public void sendKeysAndChoseOptionByExactText(String text) {
-    sendKeys(text);
-    findAndSelectOptionByExactText(text);
-  }
-
-  /**
-   * Send keys.
-   *
-   * @param text text to send.
-   */
-  public void sendKeys(String text) {
-    this.getSelf().find(getInputSelector()).sendKeys(text);
-  }
-
-  @Override
-  public void selectOption(String value) {
-    openAndChoseOptionByPartialText(value);
+  /** Types a query and selects the first custom option containing the query. */
+  public void typeAndSelectPartial(String text) {
+    type(text);
+    selectOptionByCondition(Condition.partialText(text));
     closeDropdown();
   }
 
-  /**
-   * Open dropdown menu and chose the option by partial text without closing.
-   *
-   * @param value partial visible text of option
-   */
-  public void openAndChoseOptionByPartialText(String value) {
+  /** Selects an exact option, opening the combobox only when necessary. */
+  public void selectExact(String text) {
     openDropdown();
-    findAndSelectOptionByPartialText(value);
-  }
-
-  /**
-   * Open dropdown menu and chose the option by exact text without closing.
-   *
-   * @param value exact visible text of option
-   */
-  public void openAndChoseOptionByExactText(String value) {
-    openDropdown();
-    findAndSelectOptionByExactText(value);
-  }
-
-  /**
-   * Get input value.
-   *
-   * @return input value as {@link String}
-   */
-  public String getInputValue() {
-    return this.getSelf().find(getInputSelector()).getValue();
-  }
-
-  @Override
-  public String getSelectedOptionText() {
-    return this.getSelf().findAll(getSelectedOptionsSelector()).texts().toString().replaceAll("[\\[\\]]", StringUtils.EMPTY);
-  }
-
-  @Override
-  public List<String> getOptionsTexts() {
-    openDropdown();
-    List<String> optionsTexts = getOptions().texts();
-    closeDropdown();
-    return optionsTexts;
-  }
-
-  @Override
-  public int getSize() {
-    return getOptions().size();
-  }
-
-  /**
-   * Make the dropdown input clear.
-   */
-  public void clear() {
-    openDropdown();
-    this.getSelf().find(getInputSelector()).sendKeys(Keys.BACK_SPACE);
+    selectOptionByCondition(Condition.exactText(text));
     closeDropdown();
   }
 
-  /**
-   * Find selected option element by partial text.
-   *
-   * @param text expected option partial text
-   */
-  public SelenideElement findSelectedOptionByPartialText(String text) {
-    return this.getSelf().findAll(getSelectedOptionsSelector()).filter(Condition.partialText(text)).first();
+  /** Selects the first option containing the supplied text. */
+  public void selectPartial(String text) {
+    openDropdown();
+    selectOptionByCondition(Condition.partialText(text));
+    closeDropdown();
   }
 
-  /**
-   * Find a dropdown option by the expected option partial text.
-   *
-   * @param value expected option partial text
-   */
-  public void findAndSelectOptionByPartialText(String value) {
-    findAndSelectOptionByCondition(Condition.partialText(value));
+  /** Types text and accepts the widget's currently highlighted option. */
+  public void typeAndPressEnter(String text) {
+    type(text);
+    getInput().pressEnter();
+    closeDropdown();
   }
 
-  /**
-   * Find a dropdown option by the expected option exact text.
-   *
-   * @param value expected option exact text
-   */
-  public void findAndSelectOptionByExactText(String value) {
-    findAndSelectOptionByCondition(Condition.exactText(value));
+  protected final SelenideElement getInput() {
+    return getSelf().find(getInputSelector());
   }
 
-  /**
-   * Find a dropdown option by filtering condition.
-   *
-   * @param condition filtered condition
-   */
-  protected void findAndSelectOptionByCondition(WebElementCondition condition) {
-    getOptions().filter(condition).first().click();
+  protected final SelenideElement getOptionsContainer() {
+    return getSelf().find(getOptionsContainerSelector());
   }
 
-  /**
-   * Check is dropdown closed and open the dropdown if needed.
-   */
-  public void openDropdown() {
-    if (isClosed()) {
-      this.getSelf().click();
+  protected final void type(String text) {
+    getInput().setValue(text);
+  }
+
+  protected final void clearInputValue() {
+    getInput().clear();
+  }
+
+  protected final String getSelectedOptionLabelText(SelenideElement selectedOption) {
+    String selectedText = selectedOption.getText();
+    String labelText = selectedOption.findAll(getSelectedOptionLabelSelector()).texts().stream()
+        .map(String::trim)
+        .filter(text -> !text.isEmpty())
+        .findFirst()
+        .orElseGet(() -> getFallbackSelectedOptionLabelText(selectedOption, selectedText));
+    return Objects.requireNonNullElse(labelText, selectedText).trim();
+  }
+
+  protected String getFallbackSelectedOptionLabelText(SelenideElement selectedOption, String selectedText) {
+    return selectedText;
+  }
+
+  protected final void selectOptionByCondition(WebElementCondition condition) {
+    getOptionsContainer().findAll(getOptionsSelector()).filter(condition).first().click();
+  }
+
+  private void openDropdown() {
+    if (!isDropdownOpen()) {
+      getInput().click();
     }
   }
 
-  /**
-   * Check is dropdown opened and close the dropdown if needed.
-   */
-  public void closeDropdown() {
-    if (isOpened()) {
-      this.getSelf().find(getInputSelector()).pressEscape();
+  protected final void closeDropdown() {
+    if (isDropdownOpen()) {
+      getInput().pressEscape();
     }
   }
 
-  /**
-   * Get dropdown closed status.
-   *
-   * @return dropdown closed status as {@link Boolean}
-   */
-  public boolean isClosed() {
-    SelenideElement dropdownBox = this.getSelf().find(getExpandStatusSelector());
-    return Objects.requireNonNull(dropdownBox.getAttribute(HtmlAttribute.STYLE))
-        .contains("display: none");
-  }
-
-  /**
-   * Get dropdown opened status.
-   *
-   * @return dropdown opened status as {@link Boolean}
-   */
-  public boolean isOpened() {
-    SelenideElement dropdownBox = this.getSelf().find(getExpandStatusSelector());
-    return Objects.requireNonNull(dropdownBox.getAttribute(HtmlAttribute.STYLE))
-        .contains("display: block");
-  }
-
-  /**
-   * Get dropdown enabled status.
-   *
-   * @return dropdown enabled status as {@link Boolean}
-   */
-  public boolean isEnabled() {
-    return !isDisabled();
-  }
-
-  /**
-   * Get dropdown disabled status.
-   *
-   * @return dropdown disabled status as {@link Boolean}
-   */
-  public boolean isDisabled() {
-    return getSelf().find(getInputSelector())
-        .is(Condition.have(Condition.attribute(HtmlAttribute.DISABLED)));
+  private boolean isDropdownOpen() {
+    return getOptionsContainer().is(Condition.visible);
   }
 }
