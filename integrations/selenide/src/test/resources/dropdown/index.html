@@ -120,9 +120,11 @@
             <button type="button" data-toggle>Toggle</button>
             <div class="chip-row">
               <div class="item" ${state.selectedText ? "" : "hidden"}>
-                ${config.directSelectedText
-                  ? state.selectedText
-                  : `<span class="item-label" data-dropdown-label>${state.selectedText}</span>`}
+                ${
+                  config.directSelectedText
+                    ? state.selectedText
+                    : `<span class="item-label" data-dropdown-label>${state.selectedText}</span>`
+                }
               </div>
             </div>
             <div id="${config.id}-listbox" role="listbox"></div>
