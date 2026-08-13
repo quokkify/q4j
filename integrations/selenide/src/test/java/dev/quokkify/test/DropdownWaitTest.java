@@ -1,17 +1,14 @@
 package dev.quokkify.test;
 
-import java.io.IOException;
-import java.io.OutputStream;
-import java.net.InetSocketAddress;
 import java.nio.charset.StandardCharsets;
+import java.util.Base64;
 
 import dev.quokkify.page.local.DelayedDropdownPage;
 
 import com.codeborne.selenide.Selenide;
-import com.sun.net.httpserver.HttpServer;
+
 import io.qameta.allure.TmsLink;
 import org.assertj.core.api.Assertions;
-import org.testng.annotations.AfterMethod;
 import org.testng.annotations.Test;
 
 public class DropdownWaitTest extends BaseTest {
@@ -102,44 +99,16 @@ public class DropdownWaitTest extends BaseTest {
       </html>
       """;
 
-  private HttpServer dropdownServer;
-
   @TmsLink("UI_ID_24")
   @Test(description = "Verify custom dropdown waits for a delayed option and selects it by exact text")
-  public void testCustomDropdownWaitsForDelayedOption() throws IOException {
-    try {
-      DelayedDropdownPage page = Selenide.open(startDropdownServer(), DelayedDropdownPage.class);
+  public void testCustomDropdownWaitsForDelayedOption() {
+    String fixture = "data:text/html;base64," + Base64.getEncoder().encodeToString(
+        DELAYED_DROPDOWN_HTML.getBytes(StandardCharsets.UTF_8));
+    DelayedDropdownPage page = Selenide.open(fixture, DelayedDropdownPage.class);
 
-      page.selectDelayedFruit("Dragon Fruit");
+    page.selectDelayedFruit("Dragon Fruit");
 
-      Assertions.assertThat(page.getSelectedFruit()).isEqualTo("Dragon Fruit");
-      Assertions.assertThat(page.isDropdownClosed()).isTrue();
-    } finally {
-      if (dropdownServer != null) {
-        dropdownServer.stop(0);
-      }
-    }
-  }
-
-  @AfterMethod(alwaysRun = true)
-  public void stopDropdownServer() {
-    if (dropdownServer != null) {
-      dropdownServer.stop(0);
-      dropdownServer = null;
-    }
-  }
-
-  private String startDropdownServer() throws IOException {
-    dropdownServer = HttpServer.create(new InetSocketAddress("127.0.0.1", 0), 0);
-    dropdownServer.createContext("/dropdown.html", exchange -> {
-      byte[] response = DELAYED_DROPDOWN_HTML.getBytes(StandardCharsets.UTF_8);
-      exchange.getResponseHeaders().add("Content-Type", "text/html; charset=utf-8");
-      exchange.sendResponseHeaders(200, response.length);
-      try (OutputStream output = exchange.getResponseBody()) {
-        output.write(response);
-      }
-    });
-    dropdownServer.start();
-    return "http://127.0.0.1:" + dropdownServer.getAddress().getPort() + "/dropdown.html";
+    Assertions.assertThat(page.getSelectedFruit()).isEqualTo("Dragon Fruit");
+    Assertions.assertThat(page.isDropdownClosed()).isTrue();
   }
 }
