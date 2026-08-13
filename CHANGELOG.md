@@ -1,5 +1,29 @@
 # Changelog
 
+## [0.5.0](https://github.com/quokkify/q4j/compare/v0.4.0...v0.5.0) (2026-08-13)
+
+
+### ✨ Features
+
+* **selenide:** simplify dropdown abstractions ([#480](https://github.com/quokkify/q4j/issues/480)) ([2b5ee80](https://github.com/quokkify/q4j/commit/2b5ee80a6d337728326d78c542d55480db541288))
+
+
+### 🐛 Bug Fixes
+
+* **deps:** update checkstyle to v13.10.0 ([#479](https://github.com/quokkify/q4j/issues/479)) ([3c49673](https://github.com/quokkify/q4j/commit/3c496732eb69c21aadb3e2eeea9723747598526c))
+* **deps:** update io.github.classgraph:classgraph to v4.8.189 ([#470](https://github.com/quokkify/q4j/issues/470)) ([63862b6](https://github.com/quokkify/q4j/commit/63862b62beeae20d0d9c477535d1908e69b54ed9))
+* **renovate:** align Selenium Grid image updates ([#473](https://github.com/quokkify/q4j/issues/473)) ([5746f96](https://github.com/quokkify/q4j/commit/5746f9690c334de8707939cd422ecbb71ecae48d))
+* **renovate:** consolidate selenium extraction ([#475](https://github.com/quokkify/q4j/issues/475)) ([176516d](https://github.com/quokkify/q4j/commit/176516d6db982da5b075315a62c5cab163297f40))
+
+
+### 🧹 Chores
+
+* **deps:** update q4j module documentation to v0.2.3 ([#476](https://github.com/quokkify/q4j/issues/476)) ([839b480](https://github.com/quokkify/q4j/commit/839b480172329db2cf5e689c6750029d0a90d296))
+* **deps:** update q4j module documentation to v0.4.0 ([#477](https://github.com/quokkify/q4j/issues/477)) ([be3f65b](https://github.com/quokkify/q4j/commit/be3f65b817cf5003366f8484cafdc95c13d69dbb))
+* **deps:** update reportportal/migrations docker tag to v5.15.4 ([#469](https://github.com/quokkify/q4j/issues/469)) ([b820eda](https://github.com/quokkify/q4j/commit/b820edaab621b05802dd784c891d063e46248d28))
+* **deps:** update selenium grid images to v4.47.0-20260808 ([#478](https://github.com/quokkify/q4j/issues/478)) ([54e033e](https://github.com/quokkify/q4j/commit/54e033e69b01ca7f739edca6b3dc4262afbf7fec))
+* **deps:** update selenium/standalone-chromium docker tag to v151 ([#472](https://github.com/quokkify/q4j/issues/472)) ([eda92df](https://github.com/quokkify/q4j/commit/eda92df81c604713a2a4160709a572fd5a5d397a))
+
 ## [0.4.0](https://github.com/quokkify/q4j/compare/v0.3.0...v0.4.0) (2026-08-11)
 
 
