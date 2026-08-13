@@ -6,7 +6,6 @@ import java.util.Base64;
 import dev.quokkify.page.local.DelayedDropdownPage;
 
 import com.codeborne.selenide.Selenide;
-
 import io.qameta.allure.TmsLink;
 import org.assertj.core.api.Assertions;
 import org.testng.annotations.Test;
