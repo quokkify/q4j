@@ -166,7 +166,6 @@ public class InputDropdown extends AbstractDropdown {
    * @param value expected option partial text
    */
   public void findAndSelectOptionByPartialText(String value) {
-    getOptionsContainer().shouldHave(Condition.text(value));
     findAndSelectOptionByCondition(Condition.partialText(value));
   }
 
@@ -176,7 +175,6 @@ public class InputDropdown extends AbstractDropdown {
    * @param value expected option exact text
    */
   public void findAndSelectOptionByExactText(String value) {
-    getOptionsContainer().shouldHave(Condition.text(value));
     findAndSelectOptionByCondition(Condition.exactText(value));
   }
 
@@ -194,7 +192,7 @@ public class InputDropdown extends AbstractDropdown {
    */
   public void openDropdown() {
     if (isClosed()) {
-      this.getSelf().click();
+      toggle();
     }
   }
 
