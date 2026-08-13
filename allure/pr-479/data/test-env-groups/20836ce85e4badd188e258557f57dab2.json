@@ -1,0 +1,1 @@
+{"id":"20836ce85e4badd188e258557f57dab2","fullName":"dev.quokkify.test.TableRowWaitTest.testReturnedTableRowSurvivesTableReload","name":"Verify a returned TABLE row resolves itself again after the table root is replaced","status":"passed","testResultsByEnv":{"integrations-selenide":"0edfeef8a4f250ca5e308a9c99a35d60"}}

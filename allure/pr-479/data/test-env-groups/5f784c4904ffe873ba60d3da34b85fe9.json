@@ -1,0 +1,1 @@
+{"id":"5f784c4904ffe873ba60d3da34b85fe9","fullName":"dev.quokkify.test.ApiTest.testLocalDateTimeFormatterAndParser","name":"Verify 'LocalDateFormatter' and 'LocalDateParser'","status":"passed","testResultsByEnv":{"integrations-rest-assured":"a44f552d9af59cc690abf4e937c4df8a"}}

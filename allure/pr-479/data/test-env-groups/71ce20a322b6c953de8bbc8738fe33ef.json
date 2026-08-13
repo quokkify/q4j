@@ -1,0 +1,1 @@
+{"id":"71ce20a322b6c953de8bbc8738fe33ef","fullName":"dev.quokkify.model.JsonPojoTest.testAsJsonRoundTrip","name":"Verify custom pojo json round trip","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"d21a355c78876bf30b7091f42e50c6b5"}}
