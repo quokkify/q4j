@@ -120,6 +120,19 @@ public class DropdownBehaviorTest extends BaseTest {
         .containsExactly("AlphaBeta");
   }
 
+  @TmsLink("UI_ID_37")
+  @Test(description = "Verify removeSelectedPartial matches chip labels only when earlier remove-control text also contains the query")
+  public void testRemoveSelectedPartialIgnoresRemoveControlTextWhenMatchingLabels() {
+    DropdownPage page = openDropdownPage();
+
+    page.adversarialMultiDropdown().removeSelectedPartial("Delta");
+
+    Assertions.assertThat(page.adversarialMultiDropdown().selectedTexts())
+        .containsExactly("Alpha");
+    Assertions.assertThat(page.adversarialMultiDropdown().chipRemoveTexts())
+        .containsExactly("REMOVE Delta BAIT");
+  }
+
   @TmsLink("UI_ID_36")
   @Test(description = "Verify selectedTexts uses the default direct-text chip contract without including remove-control text")
   public void testSelectedTextsSupportsDirectTextChips() {
@@ -129,6 +142,24 @@ public class DropdownBehaviorTest extends BaseTest {
         .containsExactly("REMOVE DIRECT", "REMOVE SECONDARY");
     Assertions.assertThat(page.directTextMultiDropdown().selectedTexts())
         .containsExactly("Direct Alpha", "Direct Beta");
+  }
+
+  @TmsLink("UI_ID_38")
+  @Test(description = "Verify overriding the authoritative remove selector also governs direct-text label extraction and chip removal")
+  public void testSelectedTextsAndRemovalHonorOverriddenRemoveSelector() {
+    DropdownPage page = openDropdownPage();
+
+    Assertions.assertThat(page.deleteSelectorMultiDropdown().chipRemoveTexts())
+        .containsExactly("DELETE CONTROL ONE", "DELETE CONTROL TWO");
+    Assertions.assertThat(page.deleteSelectorMultiDropdown().selectedTexts())
+        .containsExactly("Delete Alpha", "Delete Beta");
+
+    page.deleteSelectorMultiDropdown().removeSelectedPartial("Delete Alpha");
+
+    Assertions.assertThat(page.deleteSelectorMultiDropdown().selectedTexts())
+        .containsExactly("Delete Beta");
+    Assertions.assertThat(page.deleteSelectorMultiDropdown().chipRemoveTexts())
+        .containsExactly("DELETE CONTROL TWO");
   }
 
   @TmsLink("UI_ID_31")

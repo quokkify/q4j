@@ -34,6 +34,12 @@ public class DropdownPage implements Page {
   @FindBy(how = How.ID, using = "multi-direct-text")
   private TestMultiDropdown directTextMultiDropdown;
 
+  @FindBy(how = How.ID, using = "multi-adversarial")
+  private TestMultiDropdown adversarialMultiDropdown;
+
+  @FindBy(how = How.ID, using = "multi-delete-selector")
+  private DeleteSelectorMultiDropdown deleteSelectorMultiDropdown;
+
   @FindBy(how = How.ID, using = "multi-stuck")
   private StuckMultiDropdown stuckMultiDropdown;
 
@@ -59,6 +65,14 @@ public class DropdownPage implements Page {
 
   public TestMultiDropdown directTextMultiDropdown() {
     return directTextMultiDropdown;
+  }
+
+  public TestMultiDropdown adversarialMultiDropdown() {
+    return adversarialMultiDropdown;
+  }
+
+  public DeleteSelectorMultiDropdown deleteSelectorMultiDropdown() {
+    return deleteSelectorMultiDropdown;
   }
 
   public StuckMultiDropdown stuckMultiDropdown() {
@@ -151,6 +165,14 @@ public class DropdownPage implements Page {
     @Override
     protected Duration chipRemovalPollingInterval() {
       return QUICK_POLLING_INTERVAL;
+    }
+  }
+
+  public static class DeleteSelectorMultiDropdown extends TestMultiDropdown {
+
+    @Override
+    protected By removeOptionButtonSelector() {
+      return By.cssSelector("[class^='delete']");
     }
   }
 }

@@ -90,6 +90,8 @@
         <div id="multi-secondary" class="widget"></div>
         <div id="multi-literal" class="widget"></div>
         <div id="multi-direct-text" class="widget"></div>
+        <div id="multi-adversarial" class="widget"></div>
+        <div id="multi-delete-selector" class="widget"></div>
         <div id="multi-stuck" class="widget"></div>
       </section>
     </div>
@@ -553,6 +555,50 @@
               label: "Direct Beta",
               removeText: "REMOVE SECONDARY",
               removeClass: "remove-chip-direct",
+              directText: true,
+            },
+          ],
+          options: [],
+        });
+
+        createMultiDropdown(document.getElementById("multi-adversarial"), {
+          id: "multi-adversarial",
+          label: "Adversarial multi",
+          initiallyOpen: false,
+          selected: [
+            {
+              key: "Alpha",
+              label: "Alpha",
+              removeText: "REMOVE Delta BAIT",
+              removeClass: "remove-chip-adversarial",
+            },
+            {
+              key: "Delta",
+              label: "Delta",
+              removeText: "REMOVE DELTA",
+              removeClass: "remove-chip-adversarial",
+            },
+          ],
+          options: [],
+        });
+
+        createMultiDropdown(document.getElementById("multi-delete-selector"), {
+          id: "multi-delete-selector",
+          label: "Delete selector multi",
+          initiallyOpen: false,
+          selected: [
+            {
+              key: "Delete Alpha",
+              label: "Delete Alpha",
+              removeText: "DELETE CONTROL ONE",
+              removeClass: "delete-chip-direct",
+              directText: true,
+            },
+            {
+              key: "Delete Beta",
+              label: "Delete Beta",
+              removeText: "DELETE CONTROL TWO",
+              removeClass: "delete-chip-direct",
               directText: true,
             },
           ],

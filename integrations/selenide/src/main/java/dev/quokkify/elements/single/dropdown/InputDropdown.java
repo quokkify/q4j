@@ -32,7 +32,7 @@ public class InputDropdown extends Component {
     return By.cssSelector("[data-dropdown-label], .item-label, .label");
   }
 
-  protected String getSelectedOptionExcludedTextSelector() {
+  protected By getSelectedOptionExcludedSelector() {
     return null;
   }
 
@@ -106,7 +106,7 @@ public class InputDropdown extends Component {
   }
 
   private String extractFallbackSelectedOptionText(SelenideElement selectedOption, String selectedText) {
-    String excludedTextSelector = getSelectedOptionExcludedTextSelector();
+    By excludedTextSelector = getSelectedOptionExcludedSelector();
     if (excludedTextSelector == null) {
       return selectedText;
     }
@@ -115,7 +115,7 @@ public class InputDropdown extends Component {
             + "clone.querySelectorAll(arguments[1]).forEach(element => element.remove());"
             + "return (clone.textContent || '').trim();",
         selectedOption,
-        excludedTextSelector);
+        excludedTextSelector.toString().replaceFirst("^By\\.cssSelector: ", ""));
     return fallbackText == null || fallbackText.isBlank() ? selectedText : fallbackText;
   }
 

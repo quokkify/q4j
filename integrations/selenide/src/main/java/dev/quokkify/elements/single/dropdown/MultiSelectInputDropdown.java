@@ -5,7 +5,6 @@ import java.util.List;
 
 import dev.quokkify.util.Waiter;
 
-import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 import org.awaitility.core.ConditionTimeoutException;
 import org.openqa.selenium.By;
@@ -21,8 +20,8 @@ public class MultiSelectInputDropdown extends InputDropdown {
   }
 
   @Override
-  protected String getSelectedOptionExcludedTextSelector() {
-    return "[class^='remove']";
+  protected By getSelectedOptionExcludedSelector() {
+    return removeOptionButtonSelector();
   }
 
   protected Duration chipRemovalTimeout() {
@@ -61,9 +60,11 @@ public class MultiSelectInputDropdown extends InputDropdown {
 
   /** Removes the first selected chip containing the supplied label. */
   public void removeSelectedPartial(String text) {
-    SelenideElement chip = getSelf().findAll(getSelectedOptionsSelector())
-        .filter(Condition.partialText(text))
-        .first();
+    SelenideElement chip = getSelf().findAll(getSelectedOptionsSelector()).stream()
+        .filter(selectedOption -> getSelectedOptionLabelText(selectedOption).contains(text))
+        .findFirst()
+        .orElseThrow(() -> new IllegalArgumentException(
+            "Selected chip containing '%s' was not found".formatted(text)));
     clickAndAwaitRemoval(chip, getSelectedOptionLabelText(chip));
     closeDropdown();
   }
