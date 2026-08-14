@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.5.1](https://github.com/quokkify/q4j/compare/v0.5.0...v0.5.1) (2026-08-14)
+
+
+### 🐛 Bug Fixes
+
+* **selenide:** use proxy HAR dependency ([#483](https://github.com/quokkify/q4j/issues/483)) ([d77487f](https://github.com/quokkify/q4j/commit/d77487f10f4073a36e5ade2cf6e145b46b0be0d4))
+
 ## [0.5.0](https://github.com/quokkify/q4j/compare/v0.4.0...v0.5.0) (2026-08-13)
 
 
