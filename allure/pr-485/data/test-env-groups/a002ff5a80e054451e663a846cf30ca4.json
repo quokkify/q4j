@@ -1,0 +1,1 @@
+{"id":"a002ff5a80e054451e663a846cf30ca4","fullName":"dev.quokkify.test.TableRowWaitTest.testGetRowByPatternWaitsForDelayedRow","name":"Verify 'TABLE' row search by pattern waits for a delayed row","status":"passed","testResultsByEnv":{"integrations-selenide":"ecea64f269d058cf76412961d9a5120f"}}

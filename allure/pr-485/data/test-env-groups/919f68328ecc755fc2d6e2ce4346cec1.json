@@ -1,0 +1,1 @@
+{"id":"919f68328ecc755fc2d6e2ce4346cec1","fullName":"dev.quokkify.test.DropdownBehaviorTest.testRemoveSelectedPartialIgnoresRemoveControlTextWhenMatchingLabels","name":"Verify removeSelectedPartial matches chip labels only when earlier remove-control text also contains the query","status":"passed","testResultsByEnv":{"integrations-selenide":"84a304098f9cdd407af08e8227324e72"}}
