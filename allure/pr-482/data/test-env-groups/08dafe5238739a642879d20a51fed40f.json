@@ -1,1 +1,1 @@
-{"id":"08dafe5238739a642879d20a51fed40f","fullName":"dev.quokkify.test.TableRowWaitTest.testFlexTableMissingRowUsesCallerTimeout","name":"Verify 'FLEX TABLE' applies the caller timeout","status":"passed","testResultsByEnv":{"integrations-selenide":"10f2e9778f201af8478dfaca3dee323b"}}
+{"id":"08dafe5238739a642879d20a51fed40f","fullName":"dev.quokkify.test.TableRowWaitTest.testFlexTableMissingRowUsesCallerTimeout","name":"Verify 'FLEX TABLE' applies the caller timeout","status":"passed","testResultsByEnv":{"integrations-selenide":"6d7001fc77f11a4e1d93eb05e3cdf493"}}

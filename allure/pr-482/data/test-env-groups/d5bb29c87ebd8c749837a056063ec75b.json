@@ -1,1 +1,1 @@
-{"id":"d5bb29c87ebd8c749837a056063ec75b","fullName":"dev.quokkify.test.ApiTest.testValidateSchemaByPojoClass","name":"Verify scheme validation by Pojo class","status":"passed","testResultsByEnv":{"integrations-rest-assured":"f75eb14a6c8a643d6e2366c67c4be936"}}
+{"id":"d5bb29c87ebd8c749837a056063ec75b","fullName":"dev.quokkify.test.ApiTest.testValidateSchemaByPojoClass","name":"Verify scheme validation by Pojo class","status":"passed","testResultsByEnv":{"integrations-rest-assured":"c02aba2fe1ee6720b22f91555fa2b8ec"}}
