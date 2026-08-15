@@ -1,1 +1,1 @@
-{"id":"469462a4096bdcce19da56efb89ac8d4","fullName":"dev.quokkify.test.DatabaseSqlTest.checkDelete","name":"Check delete record from database","status":"passed","testResultsByEnv":{"data-utils-sql":"aae4b80b46b790593c2eff8bcb21cf2e"}}
+{"id":"469462a4096bdcce19da56efb89ac8d4","fullName":"dev.quokkify.test.DatabaseSqlTest.checkDelete","name":"Check delete record from database","status":"passed","testResultsByEnv":{"data-utils-sql":"97e0a2508d0356c53cc7f53357a2f063"}}

@@ -1,1 +1,1 @@
-{"id":"34c12bdea0d7781f91b316995eafafd0","fullName":"dev.quokkify.test.NoSqlFactoryTest.rejectNullMongoClientForMorphiaConfig","name":"Reject a null Mongo client for Morphia configuration","status":"passed","testResultsByEnv":{"data-utils-nosql-morphia":"1abc35735aa1d8c327b2c301e58c2341"}}
+{"id":"34c12bdea0d7781f91b316995eafafd0","fullName":"dev.quokkify.test.NoSqlFactoryTest.rejectNullMongoClientForMorphiaConfig","name":"Reject a null Mongo client for Morphia configuration","status":"passed","testResultsByEnv":{"data-utils-nosql-morphia":"58217f2db064c78d647b3bbb6ef162f5"}}
