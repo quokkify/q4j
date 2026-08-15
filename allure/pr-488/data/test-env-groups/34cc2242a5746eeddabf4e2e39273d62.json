@@ -1,0 +1,1 @@
+{"id":"34cc2242a5746eeddabf4e2e39273d62","fullName":"dev.quokkify.test.TableRowWaitTest.testUnmountedTableUsesCallerTimeout","name":"Verify an unmounted table respects a short caller timeout without a nested visibility wait","status":"passed","testResultsByEnv":{"integrations-selenide":"cc194f0cb1315e2a7f2eff23a1f42ca9"}}

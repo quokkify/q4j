@@ -1,0 +1,1 @@
+{"id":"a9b5a6f45377f7b054da8430927da1eb","fullName":"dev.quokkify.model.JsonPojoTest.testSetFieldCopiesJsonNodeValue","name":"Verify set field deep copies json node values","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"2cd281e7c074c937a67f0a2a45c5d65f"}}
