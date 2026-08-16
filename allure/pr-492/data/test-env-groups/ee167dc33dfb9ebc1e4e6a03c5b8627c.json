@@ -1,0 +1,1 @@
+{"id":"ee167dc33dfb9ebc1e4e6a03c5b8627c","fullName":"dev.quokkify.test.DropdownBehaviorTest.testTypeAndPressEnterSelectsHighlightedOption","name":"Verify typeAndPressEnter selects the highlighted option and closes the widget","status":"passed","testResultsByEnv":{"integrations-selenide":"0f1df976a74f32057c157eaf6fe86605"}}
