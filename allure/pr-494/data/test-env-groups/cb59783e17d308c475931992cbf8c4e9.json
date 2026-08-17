@@ -1,0 +1,1 @@
+{"id":"cb59783e17d308c475931992cbf8c4e9","fullName":"dev.quokkify.test.AllureSelenideTest.testAllureSelenideListenerIsRegistered","name":"Verify the native Allure listener is registered on the current TestNG worker thread","status":"passed","testResultsByEnv":{"integrations-selenide":"5b7f1a5cf6c62f4786bb2b1b51d2f701"}}
