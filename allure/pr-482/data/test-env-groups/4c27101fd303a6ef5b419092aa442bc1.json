@@ -1,1 +1,1 @@
-{"id":"4c27101fd303a6ef5b419092aa442bc1","fullName":"dev.quokkify.kafka.test.KafkaTest.testKafkaPublishMessage","name":"Verify the publication of Kafka message","status":"passed","testResultsByEnv":{"integrations-kafka":"078a2f4afc3e79d40194c51294f63d75"}}
+{"id":"4c27101fd303a6ef5b419092aa442bc1","fullName":"dev.quokkify.kafka.test.KafkaTest.testKafkaPublishMessage","name":"Verify the publication of Kafka message","status":"passed","testResultsByEnv":{"integrations-kafka":"c087afe8d4c0bec0fe8d6bbcd1aebdc0"}}
