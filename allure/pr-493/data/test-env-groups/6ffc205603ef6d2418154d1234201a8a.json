@@ -1,1 +1,1 @@
-{"id":"6ffc205603ef6d2418154d1234201a8a","fullName":"dev.quokkify.model.JsonPojoTest.testSetFieldWithMap","name":"Verify set field with map value","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"75051b709868b3f7c1c1d373b0633121"}}
+{"id":"6ffc205603ef6d2418154d1234201a8a","fullName":"dev.quokkify.model.JsonPojoTest.testSetFieldWithMap","name":"Verify set field with map value","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"b28e56f06b9cea47be12bfee1b625f26"}}
