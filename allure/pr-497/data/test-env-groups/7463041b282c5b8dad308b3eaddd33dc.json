@@ -1,0 +1,1 @@
+{"id":"7463041b282c5b8dad308b3eaddd33dc","fullName":"dev.quokkify.test.CustomExternalServiceLogFilterTest.filter_withErrorStatus_callsProcessFilter","name":"Filter logs request/response when status code is 400 or above","status":"passed","testResultsByEnv":{"integrations-rest-assured":"d5859b1754d5dca9e1dd21458b0b927a"}}

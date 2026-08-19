@@ -1,0 +1,1 @@
+{"id":"8320e1cab7ce295cee3707b511606bff","fullName":"dev.quokkify.test.CsvParserTest.testReadAllLinesHeader","name":"Verify read all lines as String[] with header","status":"passed","testResultsByEnv":{"common-utils-jackson-csv":"e54fc5f7a5b0ee8bf77b4bebe80dadd9"}}

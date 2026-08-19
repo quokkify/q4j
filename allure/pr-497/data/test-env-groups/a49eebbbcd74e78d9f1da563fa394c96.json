@@ -1,0 +1,1 @@
+{"id":"a49eebbbcd74e78d9f1da563fa394c96","fullName":"dev.quokkify.converter.CsvConverterModuleDiscoveryTest.shouldFailDeserializeCustomFormattedEnumWhenModuleNotRegistered","name":"Verify CSV deserialization fails without discovered custom module","status":"passed","testResultsByEnv":{"common-utils-jackson-csv":"9a5d2af7593445df91de717e58f6e8c6"}}
