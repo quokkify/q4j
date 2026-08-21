@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.5.2](https://github.com/quokkify/q4j/compare/v0.5.1...v0.5.2) (2026-08-21)
+
+
+### 🐛 Bug Fixes
+
+* **deps:** update checkstyle to v14 ([#496](https://github.com/quokkify/q4j/issues/496)) ([457a244](https://github.com/quokkify/q4j/commit/457a24400a7600b2041401601d3e6f57d59c27dd))
+* **deps:** update com.fasterxml.jackson:jackson-bom to v2.22.2 ([#497](https://github.com/quokkify/q4j/issues/497)) ([9ff95ed](https://github.com/quokkify/q4j/commit/9ff95ed05b7544114dfcfc1c1bc48942a42bcc81))
+* **deps:** update io.github.classgraph:classgraph to v4.8.190 ([#488](https://github.com/quokkify/q4j/issues/488)) ([87ac938](https://github.com/quokkify/q4j/commit/87ac93826b42cbb70811ceee96ed8de3188ceda4))
+* **deps:** update io.github.classgraph:classgraph to v4.8.191 ([#491](https://github.com/quokkify/q4j/issues/491)) ([0376e55](https://github.com/quokkify/q4j/commit/0376e551929c5c4b34df7a87a0563feb22ee69d3))
+* **deps:** update io.github.classgraph:classgraph to v4.8.192 ([#492](https://github.com/quokkify/q4j/issues/492)) ([e2c8e78](https://github.com/quokkify/q4j/commit/e2c8e78d364e6e4f2244c05dd7920fc35b2d5e7e))
+* **deps:** update org.mongodb:mongodb-driver-sync to v5.10.0 ([#495](https://github.com/quokkify/q4j/issues/495)) ([813b104](https://github.com/quokkify/q4j/commit/813b1049d7e262fb10ac0f76b25d8f74914c0f1f))
+* **deps:** update org.mongodb:mongodb-driver-sync to v5.9.2 ([#489](https://github.com/quokkify/q4j/issues/489)) ([4ffb641](https://github.com/quokkify/q4j/commit/4ffb6419a6469679972dc11fae116fc779f9ffc6))
+* **deps:** update selenide to v7.18.0 ([#500](https://github.com/quokkify/q4j/issues/500)) ([e5198c6](https://github.com/quokkify/q4j/commit/e5198c6a91500ef505d31d072085a0252a7363a0))
+
+
+### 🧹 Chores
+
+* **deps:** update gradle to v9.7.1 ([#498](https://github.com/quokkify/q4j/issues/498)) ([24fead0](https://github.com/quokkify/q4j/commit/24fead0a67187d6cd33795aacf6bff9f7e1a4f87))
+* **deps:** update mongo docker tag to v8.3.8 ([#490](https://github.com/quokkify/q4j/issues/490)) ([7977ae1](https://github.com/quokkify/q4j/commit/7977ae1f9b66a75ea91fd242f70d3d7e3c92c3e8))
+* **deps:** update q4j module documentation to v0.5.1 ([#494](https://github.com/quokkify/q4j/issues/494)) ([91dd22d](https://github.com/quokkify/q4j/commit/91dd22daf9e94011e1d40c4eb4655f9af3c04fef))
+* **deps:** update reportportal/service-api docker tag to v5.15.4 ([#485](https://github.com/quokkify/q4j/issues/485)) ([7251148](https://github.com/quokkify/q4j/commit/7251148ec90da702d7a3efc67894fcf5411a068a))
+* **deps:** update reportportal/service-ui docker tag to v5.15.5 ([#487](https://github.com/quokkify/q4j/issues/487)) ([aef435f](https://github.com/quokkify/q4j/commit/aef435fc94dfcb1f1ffe060760207d943a15125a))
+
 ## [0.5.1](https://github.com/quokkify/q4j/compare/v0.5.0...v0.5.1) (2026-08-14)
 
 
