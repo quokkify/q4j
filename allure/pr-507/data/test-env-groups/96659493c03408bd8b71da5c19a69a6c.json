@@ -1,0 +1,1 @@
+{"id":"96659493c03408bd8b71da5c19a69a6c","fullName":"dev.quokkify.test.DropdownBehaviorTest.testSelectedTextsAndRemovalHonorOverriddenRemoveSelector","name":"Verify overriding the authoritative remove selector also governs direct-text label extraction and chip removal","status":"passed","testResultsByEnv":{"integrations-selenide":"a04839fd9ed71875cdc1d0a88dea0645"}}

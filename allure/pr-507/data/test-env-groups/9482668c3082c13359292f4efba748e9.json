@@ -1,0 +1,1 @@
+{"id":"9482668c3082c13359292f4efba748e9","fullName":"dev.quokkify.model.JsonPojoTest.testRemoveAtArrayElement","name":"Verify remove array element by json pointer","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"74f8ad8896d70db3be2932cc5b63b85b"}}
