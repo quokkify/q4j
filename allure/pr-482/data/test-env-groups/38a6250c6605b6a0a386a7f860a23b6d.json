@@ -1,1 +1,1 @@
-{"id":"38a6250c6605b6a0a386a7f860a23b6d","fullName":"dev.quokkify.test.DatabaseNoSqlTest.checkSelect","name":"Check select record from database","status":"passed","testResultsByEnv":{"data-utils-nosql-morphia":"1623cb0182096a7cc134680a5287364d"}}
+{"id":"38a6250c6605b6a0a386a7f860a23b6d","fullName":"dev.quokkify.test.DatabaseNoSqlTest.checkSelect","name":"Check select record from database","status":"passed","testResultsByEnv":{"data-utils-nosql-morphia":"95cd4a94f6074998dbb9a8b5b0599eab"}}
