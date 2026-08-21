@@ -1,6 +1,7 @@
 import json
 import tempfile
 import unittest
+from unittest.mock import patch
 from pathlib import Path
 
 import report_timing
@@ -43,6 +44,44 @@ class TimingReportTest(unittest.TestCase):
         rendered = report_timing.markdown(report_timing.collect({"run": {}, "jobs": []}))
         self.assertIn("| — | no jobs returned |", rendered)
         self.assertIn("Jobs: **0**", rendered)
+
+    def test_unstarted_job_keeps_placeholder_without_parsing(self):
+        job = report_timing.normalise_job({"id": 9, "name": "Queued", "status": "queued", "started_at": None})
+        self.assertEqual(job["started"], "—")
+        self.assertEqual(report_timing.format_started(job["started"]), "—")
+
+    @patch.object(report_timing, "urlopen")
+    @patch.object(report_timing, "api_json")
+    def test_update_paginates_and_patches_owned_marker_endpoint(self, api_json, urlopen):
+        api_json.side_effect = [
+            [{"id": index, "body": "unrelated", "user": {"login": "someone"}} for index in range(100)],
+            [{"id": 123, "body": report_timing.MARKER, "user": {"login": "github-actions[bot]"}}],
+        ]
+        report_timing.update_comment("quokkify/q4j", 501, "new body", "token")
+        self.assertEqual(api_json.call_count, 2)
+        self.assertIn("page=1", api_json.call_args_list[0].args[0])
+        self.assertIn("page=2", api_json.call_args_list[1].args[0])
+        request = urlopen.call_args.args[0]
+        self.assertEqual(request.full_url, "https://api.github.com/repos/quokkify/q4j/issues/comments/123")
+        self.assertEqual(request.method, "PATCH")
+
+    @patch.object(report_timing, "urlopen")
+    @patch.object(report_timing, "api_json")
+    def test_post_ignores_unowned_marker(self, api_json, urlopen):
+        api_json.return_value = [{"id": 123, "body": report_timing.MARKER, "user": {"login": "human"}}]
+        report_timing.update_comment("quokkify/q4j", 501, "new body", "token")
+        request = urlopen.call_args.args[0]
+        self.assertEqual(request.full_url, "https://api.github.com/repos/quokkify/q4j/issues/501/comments")
+        self.assertEqual(request.method, "POST")
+
+    @patch.object(report_timing, "api_json")
+    def test_duplicate_owned_markers_are_rejected(self, api_json):
+        api_json.return_value = [
+            {"id": 1, "body": report_timing.MARKER, "user": {"login": "github-actions[bot]"}},
+            {"id": 2, "body": report_timing.MARKER, "user": {"login": "github-actions[bot]"}},
+        ]
+        with self.assertRaisesRegex(RuntimeError, "at most one"):
+            report_timing.update_comment("quokkify/q4j", 501, "new body", "token")
 
     def test_offline_cli_writes_fixture(self):
         with tempfile.TemporaryDirectory() as directory:

@@ -15,7 +15,7 @@ MARKER = "<!-- q4j-ci-timing -->"
 
 
 def parse_time(value: str | None) -> datetime | None:
-    if not value:
+    if not value or value == "—":
         return None
     return datetime.fromisoformat(value.replace("Z", "+00:00"))
 
@@ -76,9 +76,9 @@ def format_duration(value: float | None) -> str:
     return f"{hours}h {minutes:02d}m {secs:02d}s" if hours else f"{minutes}m {secs:02d}s"
 
 
-def format_started(value: str) -> str:
+def format_started(value: str | None) -> str:
     parsed = parse_time(value)
-    return parsed.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M UTC") if parsed else value
+    return parsed.astimezone(timezone.utc).strftime("%Y-%m-%d %H:%M UTC") if parsed else (value or "—")
 
 
 def markdown(result: dict[str, Any]) -> str:
@@ -121,6 +121,23 @@ def api_json(url: str, token: str) -> Any:
         return json.load(response)
 
 
+def list_comments(repo: str, pr: int, token: str) -> list[dict[str, Any]]:
+    """Return all issue comments, following GitHub's pagination links."""
+    comments: list[dict[str, Any]] = []
+    page = 1
+    while True:
+        batch = api_json(
+            f"https://api.github.com/repos/{repo}/issues/{pr}/comments?per_page=100&page={page}",
+            token,
+        )
+        if not isinstance(batch, list):
+            raise ValueError("GitHub comments response must be a list")
+        comments.extend(batch)
+        if len(batch) < 100:
+            return comments
+        page += 1
+
+
 def load_payload(args: argparse.Namespace) -> dict[str, Any]:
     if args.input:
         return json.loads(Path(args.input).read_text())
@@ -145,11 +162,19 @@ def load_payload(args: argparse.Namespace) -> dict[str, Any]:
 
 def update_comment(repo: str, pr: int, body: str, token: str) -> None:
     base = f"https://api.github.com/repos/{repo}/issues/{pr}/comments"
-    comments = api_json(base + "?per_page=100", token)
-    existing = next((comment for comment in comments if MARKER in comment.get("body", "")), None)
+    comments = list_comments(repo, pr, token)
+    owned = [
+        comment
+        for comment in comments
+        if MARKER in comment.get("body", "")
+        and comment.get("user", {}).get("login") == "github-actions[bot]"
+    ]
+    if len(owned) > 1:
+        raise RuntimeError(f"expected at most one owned timing comment, found {len(owned)}")
+    existing = owned[0] if owned else None
     data = json.dumps({"body": body}).encode()
     if existing:
-        url, method = f"{base}/{existing['id']}", "PATCH"
+        url, method = f"https://api.github.com/repos/{repo}/issues/comments/{existing['id']}", "PATCH"
     else:
         url, method = base, "POST"
     request = Request(url, data=data, method=method, headers={"Accept": "application/vnd.github+json", "Authorization": f"Bearer {token}", "Content-Type": "application/json", "X-GitHub-Api-Version": "2022-11-28"})
