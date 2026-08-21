@@ -83,8 +83,7 @@ jobs:
 
             const dataTestModules = [
               { name: 'q4j-sql', module: ':data-utils:sql', slug: 'data-utils-sql', profile: 'none' },
-              // TODO: add tests for data-utils:nosql, then uncomment
-              // { name: 'q4j-nosql', module: ':data-utils:nosql', slug: 'data-utils-nosql', profile: 'none' },
+              { name: 'q4j-nosql', module: ':data-utils:nosql', slug: 'data-utils-nosql', profile: 'none' },
               { name: 'q4j-morphia', module: ':data-utils:nosql:morphia', slug: 'data-utils-nosql-morphia', profile: 'storage' },
               { name: 'q4j-redis', module: ':data-utils:nosql:redis', slug: 'data-utils-nosql-redis', profile: 'redis' },
             ];
@@ -92,27 +91,19 @@ jobs:
             const integrationsTestModules = [
               { name: 'q4j-rest-assured', module: ':integrations:rest-assured', slug: 'integrations-rest-assured', profile: 'mock' },
               { name: 'q4j-selenide', module: ':integrations:selenide', slug: 'integrations-selenide', profile: 'web' },
-              // TODO: add tests for selenide-proxy, then uncomment
-              // { name: 'q4j-selenide-proxy', module: ':integrations:selenide-proxy', slug: 'integrations-selenide-proxy', profile: 'web' },
+              { name: 'q4j-selenide-proxy', module: ':integrations:selenide-proxy', slug: 'integrations-selenide-proxy', profile: 'web' },
               { name: 'q4j-selenide-grid', module: ':integrations:selenide-grid', slug: 'integrations-selenide-grid', profile: 'web' },
               { name: 'q4j-tyrus', module: ':integrations:tyrus', slug: 'integrations-tyrus', profile: 'none' },
               { name: 'q4j-kafka', module: ':integrations:kafka', slug: 'integrations-kafka', profile: 'messaging' },
               { name: 'q4j-rabbitmq', module: ':integrations:rabbitmq', slug: 'integrations-rabbitmq', profile: 'rabbitmq' },
-              // TODO: add tests for jira:core, then uncomment
-              // { name: 'q4j-jira-core', module: ':integrations:jira:jira-core', slug: 'integrations-jira-core', profile: 'none' },
-              // TODO: add tests for jira:testng, then uncomment
-              // { name: 'q4j-jira-testng', module: ':integrations:jira:testng', slug: 'integrations-jira-testng', profile: 'none' },
-              // TODO: add tests for jira:testrail, then uncomment
-              // { name: 'q4j-jira-testrail', module: ':integrations:jira:testrail', slug: 'integrations-jira-testrail', profile: 'none' },
-              // TODO: add tests for testrail:core, then uncomment
-              // { name: 'q4j-testrail-core', module: ':integrations:testrail:testrail-core', slug: 'integrations-testrail-core', profile: 'none' },
-              // TODO: add tests for testrail:testng, then uncomment
-              // { name: 'q4j-testrail-testng', module: ':integrations:testrail:testng', slug: 'integrations-testrail-testng', profile: 'none' },
-              // TODO: add tests for reportportal:core, then uncomment
-              // { name: 'q4j-reportportal-core', module: ':integrations:reportportal:reportportal-core', slug: 'integrations-reportportal-core', profile: 'none' },
+              { name: 'q4j-jira-core', module: ':integrations:jira:jira-core', slug: 'integrations-jira-core', profile: 'none' },
+              { name: 'q4j-jira-testng', module: ':integrations:jira:testng', slug: 'integrations-jira-testng', profile: 'none' },
+              { name: 'q4j-jira-testrail', module: ':integrations:jira:testrail', slug: 'integrations-jira-testrail', profile: 'none' },
+              { name: 'q4j-testrail-core', module: ':integrations:testrail:testrail-core', slug: 'integrations-testrail-core', profile: 'none' },
+              { name: 'q4j-testrail-testng', module: ':integrations:testrail:testng', slug: 'integrations-testrail-testng', profile: 'none' },
+              { name: 'q4j-reportportal-core', module: ':integrations:reportportal:reportportal-core', slug: 'integrations-reportportal-core', profile: 'none' },
               { name: 'q4j-reportportal-testng', module: ':integrations:reportportal:testng', slug: 'integrations-reportportal-testng', profile: 'reporting' },
-              // TODO: add tests for reportportal:testrail, then uncomment
-              // { name: 'q4j-reportportal-testrail', module: ':integrations:reportportal:testrail', slug: 'integrations-reportportal-testrail', profile: 'none' },
+              { name: 'q4j-reportportal-testrail', module: ':integrations:reportportal:testrail', slug: 'integrations-reportportal-testrail', profile: 'none' },
             ];
 
             core.setOutput('common_modules', JSON.stringify(commonModules));
