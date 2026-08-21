@@ -1,5 +1,18 @@
 # Changelog
 
+## [0.5.3](https://github.com/quokkify/q4j/compare/v0.5.2...v0.5.3) (2026-08-21)
+
+
+### 🐛 Bug Fixes
+
+* **deps:** update com.google.guava:guava to v33.7.1-jre ([#506](https://github.com/quokkify/q4j/issues/506)) ([2939f0a](https://github.com/quokkify/q4j/commit/2939f0a77c358d2a71034bcf4a31416a104a7521))
+* **deps:** update io.hypersistence:hypersistence-utils-hibernate-73 to v3.15.5 ([#499](https://github.com/quokkify/q4j/issues/499)) ([2c33db8](https://github.com/quokkify/q4j/commit/2c33db8c8788241993ca722fde50962b10f0eaaf))
+
+
+### 🧹 Chores
+
+* **deps:** update mockserver/mockserver docker tag to v7.6.0 ([#505](https://github.com/quokkify/q4j/issues/505)) ([7d04566](https://github.com/quokkify/q4j/commit/7d045664bb6029222a9f76b26f193102b56c46b5))
+
 ## [0.5.2](https://github.com/quokkify/q4j/compare/v0.5.1...v0.5.2) (2026-08-21)
 
 
