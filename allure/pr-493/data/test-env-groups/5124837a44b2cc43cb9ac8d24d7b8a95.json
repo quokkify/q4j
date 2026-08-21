@@ -1,1 +1,1 @@
-{"id":"5124837a44b2cc43cb9ac8d24d7b8a95","fullName":"dev.quokkify.test.UiTableTest.testVerifyRow","name":"Verify 'Cell' in 'Row' found by several values","status":"passed","testResultsByEnv":{"integrations-selenide":"3ecc8607dcaacd860529bc4b201dccf1"}}
+{"id":"5124837a44b2cc43cb9ac8d24d7b8a95","fullName":"dev.quokkify.test.UiTableTest.testVerifyRow","name":"Verify 'Cell' in 'Row' found by several values","status":"passed","testResultsByEnv":{"integrations-selenide":"da9d8a1894fd18b3bdf20c668d7d4117"}}
