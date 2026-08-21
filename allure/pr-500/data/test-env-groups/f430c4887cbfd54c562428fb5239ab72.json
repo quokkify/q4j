@@ -1,0 +1,1 @@
+{"id":"f430c4887cbfd54c562428fb5239ab72","fullName":"dev.quokkify.parser.YamlParserModuleDiscoveryIntegrationTest.shouldConvertYamlToPolymorphicTypeUsingDiscoveredModule","name":"Verify YamlParser + JsonConverter path applies discovered polymorphic module","status":"passed","testResultsByEnv":{"common-utils-jackson-yaml":"dd1ac61c002569d31bcd4c7ded91889d"}}
