@@ -4,7 +4,9 @@ on:
     branches: [main]
 
 permissions:
+  actions: read
   contents: read
+  pull-requests: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -44,99 +46,9 @@ jobs:
         with:
           prettier_options: --check .
 
-  build-common:
-    name: "Build common • ${{ matrix.name }}"
-    needs: [detect-runner, module-matrices, check-formatting]
-    runs-on: ${{ fromJson(needs.detect-runner.outputs.runs_on) }}
-    if: ${{ github.event_name != 'pull_request_target' }}
-    permissions:
-      contents: read
-    env:
-      CI: "true"
-    strategy:
-      fail-fast: false
-      max-parallel: 4
-      matrix:
-        include: ${{ fromJson(needs.module-matrices.outputs.common_modules) }}
-
-    steps:
-      - name: 🔨Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-
-      - name: 🔨Prepare Java/Gradle
-        uses: quokkify/project-toolkit/actions/setup-java-gradle@c79a1d53e620df2c20f8efd43d7488643d85e991 # v2.12.1
-
-      - name: 🧱 Build (check, no tests)
-        run: |
-          ./gradlew \
-            ${{ matrix.module }}:check \
-            -x ${{ matrix.module }}:test \
-            --no-daemon --console=plain --stacktrace
-        shell: bash
-
-  build-data:
-    name: "Build data • ${{ matrix.name }}"
-    needs: [detect-runner, module-matrices, build-common]
-    runs-on: ${{ fromJson(needs.detect-runner.outputs.runs_on) }}
-    if: ${{ github.event_name != 'pull_request_target' }}
-    permissions:
-      contents: read
-    env:
-      CI: "true"
-    strategy:
-      fail-fast: false
-      max-parallel: 4
-      matrix:
-        include: ${{ fromJson(needs.module-matrices.outputs.data_build_modules) }}
-
-    steps:
-      - name: 🔨Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-
-      - name: 🔨Prepare Java/Gradle
-        uses: quokkify/project-toolkit/actions/setup-java-gradle@c79a1d53e620df2c20f8efd43d7488643d85e991 # v2.12.1
-
-      - name: 🧱 Build (check, no tests)
-        run: |
-          ./gradlew \
-            ${{ matrix.module }}:check \
-            -x ${{ matrix.module }}:test \
-            --no-daemon --console=plain --stacktrace
-        shell: bash
-
-  build-integrations:
-    name: "Build integrations • ${{ matrix.name }}"
-    needs: [detect-runner, module-matrices, build-common]
-    runs-on: ${{ fromJson(needs.detect-runner.outputs.runs_on) }}
-    if: ${{ github.event_name != 'pull_request_target' }}
-    permissions:
-      contents: read
-    env:
-      CI: "true"
-    strategy:
-      fail-fast: false
-      max-parallel: 4
-      matrix:
-        include: ${{ fromJson(needs.module-matrices.outputs.integrations_build_modules) }}
-
-    steps:
-      - name: 🔨Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-
-      - name: 🔨Prepare Java/Gradle
-        uses: quokkify/project-toolkit/actions/setup-java-gradle@c79a1d53e620df2c20f8efd43d7488643d85e991 # v2.12.1
-
-      - name: 🧱 Build (check, no tests)
-        run: |
-          ./gradlew \
-            ${{ matrix.module }}:check \
-            -x ${{ matrix.module }}:test \
-            --no-daemon --console=plain --stacktrace
-        shell: bash
-
   test-common:
     name: "Common • ${{ matrix.name }}"
-    needs: [detect-runner, module-matrices, build-common]
+    needs: [detect-runner, module-matrices, check-formatting]
     runs-on: ${{ fromJson(needs.detect-runner.outputs.runs_on) }}
     if: ${{ github.event_name != 'pull_request_target' }}
     permissions:
@@ -159,7 +71,7 @@ jobs:
         uses: quokkify/project-toolkit/actions/setup-java-gradle@c79a1d53e620df2c20f8efd43d7488643d85e991 # v2.12.1
 
       - name: 🚀 Run tests
-        run: ./gradlew ${{ matrix.module }}:test --no-daemon --console=plain --stacktrace
+        run: ./gradlew ${{ matrix.module }}:check --no-daemon --console=plain --stacktrace
         shell: bash
 
       - name: 🧾 Allure CI env fragment
@@ -202,7 +114,7 @@ jobs:
 
   test-data:
     name: "Data • ${{ matrix.name }}"
-    needs: [detect-runner, module-matrices, build-data, test-common]
+    needs: [detect-runner, module-matrices, test-common]
     runs-on: ${{ fromJson(needs.detect-runner.outputs.runs_on) }}
     if: ${{ github.event_name != 'pull_request_target' }}
     permissions:
@@ -290,7 +202,7 @@ jobs:
             fi
           fi
 
-          ./gradlew ${{ matrix.module }}:test --no-daemon --console=plain --stacktrace
+          ./gradlew ${{ matrix.module }}:check --no-daemon --console=plain --stacktrace
         shell: bash
 
       - name: 🧾 Allure CI env fragment
@@ -347,7 +259,7 @@ jobs:
 
   test-integrations:
     name: "Integrations • ${{ matrix.name }}"
-    needs: [detect-runner, module-matrices, build-integrations, test-common]
+    needs: [detect-runner, module-matrices, test-common]
     runs-on: ${{ fromJson(needs.detect-runner.outputs.runs_on) }}
     if: ${{ github.event_name != 'pull_request_target' }}
     permissions:
@@ -436,7 +348,7 @@ jobs:
             fi
           fi
 
-          ./gradlew ${{ matrix.module }}:test --no-daemon --console=plain --stacktrace
+          ./gradlew ${{ matrix.module }}:check --no-daemon --console=plain --stacktrace
         shell: bash
 
       - name: 🧾 Allure CI env fragment
@@ -507,3 +419,36 @@ jobs:
             exit 1
           fi
           echo "All test stages completed successfully."
+
+  ci-timing:
+    name: Report CI timing statistics
+    needs: [tests-complete]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: write
+    steps:
+      - name: 🔨Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: 📊 Collect and publish timing statistics
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 tools/scripts/ci/report_timing.py \
+            --repo "${{ github.repository }}" \
+            --run-id "${{ github.run_id }}" \
+            --pr "${{ github.event.pull_request.number }}" \
+            --output timing-report.md \
+            --comment
+
+      - name: 📦 Upload timing report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: ci-timing-report
+          retention-days: 3
+          if-no-files-found: error
+          path: timing-report.md
