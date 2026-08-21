@@ -1,0 +1,1 @@
+{"id":"275fdb09b826671214eba0fab04dbd6e","fullName":"dev.quokkify.test.SqlConverterTest.checkInWithNumericCollection","name":"IN: numeric collection should render without quotes","status":"passed","testResultsByEnv":{"data-utils-sql":"bd56057f598874cb898f9a81f3b472a1"}}
