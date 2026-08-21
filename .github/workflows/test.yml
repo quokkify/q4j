@@ -4,7 +4,9 @@ on:
     branches: [main]
 
 permissions:
+  actions: read
   contents: read
+  pull-requests: write
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -417,3 +419,36 @@ jobs:
             exit 1
           fi
           echo "All test stages completed successfully."
+
+  ci-timing:
+    name: Report CI timing statistics
+    needs: [tests-complete]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    permissions:
+      actions: read
+      contents: read
+      pull-requests: write
+    steps:
+      - name: 🔨Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: 📊 Collect and publish timing statistics
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          python3 tools/scripts/ci/report_timing.py \
+            --repo "${{ github.repository }}" \
+            --run-id "${{ github.run_id }}" \
+            --pr "${{ github.event.pull_request.number }}" \
+            --output timing-report.md \
+            --comment
+
+      - name: 📦 Upload timing report
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: ci-timing-report
+          retention-days: 3
+          if-no-files-found: error
+          path: timing-report.md
