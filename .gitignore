@@ -28,7 +28,3 @@ statics/bin
 # MemPalace per-project files (issue #185)
 mempalace.yaml
 entities.json
-
-# Python CI helper caches
-__pycache__/
-*.py[cod]
