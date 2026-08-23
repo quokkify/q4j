@@ -1,0 +1,1 @@
+{"id":"a9f48055a84a2cf381cb2d7e3826a172","fullName":"dev.quokkify.model.JsonPojoTest.testSetAtCreatesArrayForIndexSegment","name":"Verify set value by json pointer creates array for index segment","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"c590a889c2fe8b8892e025f3cb2368d3"}}
