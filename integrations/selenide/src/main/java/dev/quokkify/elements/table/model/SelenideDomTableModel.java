@@ -51,6 +51,9 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
 
   @Override
   public List<? extends TableRow<C>> rows() {
+    if (!table.exists()) {
+      return List.of();
+    }
     int firstDataRow = layout == DomTableLayout.HORIZONTAL ? 0 : 1;
     return new AbstractList<>() {
       @Override
@@ -70,8 +73,11 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
 
   @Override
   public TableRow<C> requiredRow(Predicate<TableRow<C>> predicate, String description, Duration timeout) {
-    SelenideElement matching = rowsElements().findBy(new MatchingRowCondition(predicate, description));
     try {
+      if (!table.exists()) {
+        table.shouldBe(Condition.exist, timeout);
+      }
+      SelenideElement matching = rowsElements().findBy(new MatchingRowCondition(predicate, description));
       matching.shouldBe(Condition.exist, timeout);
       return new SelenideRow(() -> matching);
     } catch (UIAssertionError error) {
