@@ -115,6 +115,20 @@ public class TableQueryContractTest extends BaseTest {
         .isEqualTo(1);
   }
 
+  @Test(description = "Native query waits keep cell reads on the same candidate snapshot")
+  public void keepsIndexedAndTypedConditionReadsOnCapturedSnapshot() {
+    SelenideTableQuery<Header> query = page.classic.query(header -> header.displayed);
+
+    Assertions.assertThat(query.requiredRow(row -> {
+      if (row.index() == 1) {
+        Selenide.executeJavaScript(
+            "const body = document.querySelector('#query-classic tbody');"
+                + "body.prepend(body.lastElementChild);");
+      }
+      return row.requiredCell(Header.COMPANY).text().equals("Berglunds");
+    }, Duration.ofSeconds(2)).index()).isEqualTo(1);
+  }
+
   @Test(description = "Flex columns are vertical and horizontal logical columns contain one cell")
   public void appliesLayoutSpecificColumnSemantics() {
     SelenideTableQuery<Header> flex = page.flex.query(header -> header.displayed);

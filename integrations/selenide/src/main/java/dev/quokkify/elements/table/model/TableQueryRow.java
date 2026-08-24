@@ -1,5 +1,6 @@
 package dev.quokkify.elements.table.model;
 
+import java.time.Duration;
 import java.util.Objects;
 import java.util.Optional;
 import java.util.function.Supplier;
@@ -9,10 +10,12 @@ public final class TableQueryRow<C> {
 
   private final int index;
   private final Supplier<? extends TableRow<C>> row;
+  private final SelenideDomTableModel<C> model;
 
-  TableQueryRow(int index, Supplier<? extends TableRow<C>> row) {
+  TableQueryRow(int index, Supplier<? extends TableRow<C>> row, SelenideDomTableModel<C> model) {
     this.index = index;
     this.row = Objects.requireNonNull(row, "row");
+    this.model = Objects.requireNonNull(model, "model");
   }
 
   /** Returns the zero-based mounted-row index captured by this reference. */
@@ -42,6 +45,18 @@ public final class TableQueryRow<C> {
     return cell(column).orElseThrow(() -> new TableCellNotFoundException(column));
   }
 
+  /** Waits for a Selenide-native assertion against this lazily re-resolved row. */
+  public TableQueryRow<C> shouldHave(RowAssertion<C> assertion) {
+    model.assertRow(index, assertion);
+    return this;
+  }
+
+  /** Waits for a Selenide-native assertion against this lazily re-resolved row. */
+  public TableQueryRow<C> shouldHave(RowAssertion<C> assertion, Duration timeout) {
+    model.assertRow(index, assertion, Objects.requireNonNull(timeout, "timeout"));
+    return this;
+  }
+
   @SuppressWarnings("unchecked")
   private IndexedTableRow<C> indexedRow() {
     TableRow<C> current = row.get();
@@ -51,40 +66,30 @@ public final class TableQueryRow<C> {
     return (IndexedTableRow<C>) current;
   }
 
-  private final class IndexedCellReference implements TableCellRef<C> {
-    private final int columnIndex;
-
+  private final class IndexedCellReference extends ElementTableCellRef<C> {
     private IndexedCellReference(int columnIndex) {
-      this.columnIndex = columnIndex;
-    }
-
-    @Override
-    public int rowIndex() {
-      return index;
-    }
-
-    @Override
-    public int columnIndex() {
-      return columnIndex;
+      super(index, columnIndex,
+          () -> indexedRow().cellElement(columnIndex),
+          "row index " + index + ", column index " + columnIndex);
     }
 
     @Override
     public String text() {
-      return indexedRow().cellText(columnIndex)
-          .orElseThrow(() -> new IndexOutOfBoundsException(columnIndex));
+      return indexedRow().cellText(columnIndex())
+          .orElseThrow(() -> new IndexOutOfBoundsException(columnIndex()));
     }
   }
 
-  private final class TypedCellReference implements TypedTableCellRef<C> {
+  private final class TypedCellReference extends ElementTableCellRef<C>
+      implements TypedTableCellRef<C> {
     private final C column;
 
     private TypedCellReference(C column) {
+      super(TableQueryRow.this.index, TableQueryRow.this.indexedRow().columnIndex(column),
+          () -> indexedRow().cellElement(indexedRow().columnIndex(column)),
+          "row index " + TableQueryRow.this.index + ", column key " + column
+              + ", displayed header " + model.displayedHeaderResolver().displayedHeader(column));
       this.column = column;
-    }
-
-    @Override
-    public int rowIndex() {
-      return index;
     }
 
     @Override
@@ -93,13 +98,13 @@ public final class TableQueryRow<C> {
     }
 
     @Override
-    public C column() {
-      return column;
+    public String text() {
+      return row.get().requiredCell(column).text();
     }
 
     @Override
-    public String text() {
-      return row.get().requiredCell(column).text();
+    public C column() {
+      return column;
     }
   }
 }

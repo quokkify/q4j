@@ -95,6 +95,19 @@ public final class SelenideTableQuery<C> {
     return new TypedColumnReference(column, index);
   }
 
+  /** Waits for a table assertion using one native Selenide root condition. */
+  public SelenideTableQuery<C> shouldHave(TableAssertion<C> assertion) {
+    model.assertTable(Objects.requireNonNull(assertion, "assertion"));
+    return this;
+  }
+
+  /** Waits for a table assertion using one native Selenide root condition. */
+  public SelenideTableQuery<C> shouldHave(TableAssertion<C> assertion, Duration timeout) {
+    model.assertTable(Objects.requireNonNull(assertion, "assertion"),
+        Objects.requireNonNull(timeout, "timeout"));
+    return this;
+  }
+
   /** Finds the first currently mounted matching row. */
   public Optional<TableQueryRow<C>> findRow(RowCondition<C> condition) {
     Objects.requireNonNull(condition, "condition");
@@ -126,9 +139,10 @@ public final class SelenideTableQuery<C> {
   public TableQueryRow<C> requiredRow(RowCondition<C> condition, Duration timeout) {
     Objects.requireNonNull(condition, "condition");
     Objects.requireNonNull(timeout, "timeout");
-    model.requiredIndexedRow((index, candidate) -> condition.test(conditionRow(index, candidate)),
+    int matchedIndex = model.requiredRowIndex(
+        (index, candidate) -> condition.test(conditionRow(index, candidate)),
         "query condition", timeout);
-    return requiredRow(condition);
+    return rowReference(matchedIndex);
   }
 
   /** Requires exactly one currently mounted matching row. */
@@ -153,11 +167,11 @@ public final class SelenideTableQuery<C> {
   }
 
   private TableQueryRow<C> rowReference(int index) {
-    return new TableQueryRow<>(index, () -> model.rows().get(index));
+    return new TableQueryRow<>(index, () -> model.rows().get(index), model);
   }
 
   private TableQueryRow<C> conditionRow(int index, TableRow<C> candidate) {
-    return new TableQueryRow<>(index, () -> candidate);
+    return new TableQueryRow<>(index, () -> candidate, model);
   }
 
   private void validateColumnIndex(int index) {
@@ -204,6 +218,18 @@ public final class SelenideTableQuery<C> {
       }
       return List.copyOf(cells);
     }
+
+    @Override
+    public TableColumnRef<C> shouldHave(ColumnAssertion condition) {
+      model.assertColumn(index, condition);
+      return this;
+    }
+
+    @Override
+    public TableColumnRef<C> shouldHave(ColumnAssertion condition, Duration timeout) {
+      model.assertColumn(index, condition, Objects.requireNonNull(timeout, "timeout"));
+      return this;
+    }
   }
 
   private final class TypedColumnReference implements TypedTableColumnRef<C> {
@@ -229,6 +255,18 @@ public final class SelenideTableQuery<C> {
     public List<? extends TypedTableCellRef<C>> cells() {
       return mountedRows().stream().map(current -> current.cell(column))
           .flatMap(Optional::stream).toList();
+    }
+
+    @Override
+    public TableColumnRef<C> shouldHave(ColumnAssertion condition) {
+      model.assertColumn(column, condition);
+      return this;
+    }
+
+    @Override
+    public TableColumnRef<C> shouldHave(ColumnAssertion condition, Duration timeout) {
+      model.assertColumn(column, condition, Objects.requireNonNull(timeout, "timeout"));
+      return this;
     }
   }
 }

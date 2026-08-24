@@ -213,6 +213,33 @@ DOM when read, so they do not cache raw `WebElement` instances across a remount.
 columns contain their matching cells down the mounted rows. A horizontal table's logical column
 contains the single data cell beside that row's header.
 
+### Selenide table assertions and actions
+
+Query, row, cell, and column handles expose additive Selenide-native assertions. Table, row, and
+column assertions run as one condition on the current table root, so headers, rows, and cells come
+from the same DOM snapshot on every poll. Cell assertions delegate directly to Selenide's lazy
+element condition. Handles retain only their root, adapter, row index, and column index or key;
+they do not cache raw `WebElement` instances between operations.
+
+```java
+query.shouldHave(TableAssertions.rowCount(2))
+    .shouldHave(TableAssertions.headers("Name", "Status", "Action"))
+    .shouldHave(TableAssertions.matchingRow(
+        RowAssertions.cell(Header.STATUS, Condition.exactText("Ready"))));
+
+query.row(0).shouldHave(RowAssertions.values("Alpha", "Ready", "Run"));
+query.column(Header.STATUS).shouldHave(ColumnAssertions.values("Ready", "Ready"));
+query.row(0).requiredCell(Header.ACTION)
+    .shouldBe(Condition.visible)
+    .button().click();
+```
+
+Plain cell text and embedded controls have separate contracts. `input()`, `select()`, `checkbox()`,
+`radio()`, `button()`, and `link()` return capability-specific lazy handles using standard HTML
+semantics. Value editing is available only through `EditableTableControl`; `editable()` raises
+`UnsupportedTableEditException` for a read-only cell. Custom key types remain independent of
+`ConstantFormat`: callers always supply their own displayed-header resolver.
+
 ---
 
 ## Run tests
