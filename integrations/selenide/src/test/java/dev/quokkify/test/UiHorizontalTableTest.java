@@ -1,6 +1,7 @@
 package dev.quokkify.test;
 
 import java.time.Duration;
+import java.util.LinkedHashMap;
 import java.util.Map;
 
 import dev.quokkify.page.local.DelayedTablePage;
@@ -23,11 +24,12 @@ public class UiHorizontalTableTest extends BaseTest {
     page.getDynamicHorizontalTableRow(
             DelayedTablePage.DynamicHorizontalHeader.TELEPHONE_2, Duration.ofSeconds(5))
         .verifyRow("555 77 855");
+    Map<String, String> expected = new LinkedHashMap<>();
+    expected.put("Name", "Bill Gates");
+    expected.put("Telephone 1", "555 77 854");
+    expected.put("Telephone 2", "555 77 855");
     Assertions.assertThat(page.getHorizontalTableValues())
-        .containsExactlyInAnyOrderEntriesOf(Map.of(
-            "Name", "Bill Gates",
-            "Telephone 1", "555 77 854",
-            "Telephone 2", "555 77 855"));
+        .containsExactlyEntriesOf(expected);
   }
 
   @Test(description = "Verify missing local HORIZONTAL TABLE row is reported")
