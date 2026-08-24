@@ -1,1 +1,1 @@
-{"id":"5c1f417c15bb08300d74b81ccf948ff6","fullName":"dev.quokkify.test.DatabaseSqlTest.checkSelectViaIdentity","name":"Check select record from database","status":"passed","testResultsByEnv":{"data-utils-sql":"ed4fc4d74c11e859a6cc09100dfc2566"}}
+{"id":"5c1f417c15bb08300d74b81ccf948ff6","fullName":"dev.quokkify.test.DatabaseSqlTest.checkSelectViaIdentity","name":"Check select record from database","status":"passed","testResultsByEnv":{"data-utils-sql":"99ede4657505464c714a6f6d85bc2584"}}

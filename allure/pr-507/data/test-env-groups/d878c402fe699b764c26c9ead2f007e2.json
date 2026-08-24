@@ -1,1 +1,1 @@
-{"id":"d878c402fe699b764c26c9ead2f007e2","fullName":"dev.quokkify.test.DatabaseNoSqlTest.checkInsert","name":"Check insert record into database","status":"passed","testResultsByEnv":{"data-utils-nosql-morphia":"873e75a63f0bae6446782efb7dcf2e0c"}}
+{"id":"d878c402fe699b764c26c9ead2f007e2","fullName":"dev.quokkify.test.DatabaseNoSqlTest.checkInsert","name":"Check insert record into database","status":"passed","testResultsByEnv":{"data-utils-nosql-morphia":"2ea0eed4f8038602655980dcc390842f"}}

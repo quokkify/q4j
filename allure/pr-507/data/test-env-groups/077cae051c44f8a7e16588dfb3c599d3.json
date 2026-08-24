@@ -1,1 +1,1 @@
-{"id":"077cae051c44f8a7e16588dfb3c599d3","fullName":"dev.quokkify.test.NoSqlFactoryTest.rejectNullDatabaseName","name":"Reject a null database name","status":"passed","testResultsByEnv":{"data-utils-nosql-morphia":"2a69db390054cc29af794be89e85aa2d"}}
+{"id":"077cae051c44f8a7e16588dfb3c599d3","fullName":"dev.quokkify.test.NoSqlFactoryTest.rejectNullDatabaseName","name":"Reject a null database name","status":"passed","testResultsByEnv":{"data-utils-nosql-morphia":"27b85a96e1afd5744c45004c9e993332"}}
