@@ -9,7 +9,6 @@ import java.util.function.Predicate;
 import java.util.function.Supplier;
 
 import com.codeborne.selenide.CheckResult;
-import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.Driver;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
@@ -74,12 +73,9 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
   @Override
   public TableRow<C> requiredRow(Predicate<TableRow<C>> predicate, String description, Duration timeout) {
     try {
-      if (!table.exists()) {
-        table.shouldBe(Condition.exist, timeout);
-      }
-      SelenideElement matching = rowsElements().findBy(new MatchingRowCondition(predicate, description));
-      matching.shouldBe(Condition.exist, timeout);
-      return new SelenideRow(() -> matching);
+      table.shouldBe(new MatchingTableCondition(predicate, description), timeout);
+      return new SelenideRow(
+          () -> rowsElements().findBy(new MatchingRowCondition(predicate, description)));
     } catch (UIAssertionError error) {
       TableRowNotFoundException failure = new TableRowNotFoundException(
           description + "; timeout=" + timeout);
@@ -92,6 +88,37 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
     return layout == DomTableLayout.FLEX
         ? table.findAll(By.cssSelector(".flex-table-row"))
         : table.findAll(By.tagName("tr"));
+  }
+
+  private final class MatchingTableCondition extends WebElementCondition {
+    private final Predicate<TableRow<C>> predicate;
+
+    private MatchingTableCondition(Predicate<TableRow<C>> predicate, String description) {
+      super(description);
+      this.predicate = predicate;
+    }
+
+    @Override
+    public CheckResult check(Driver driver, WebElement tableElement) {
+      try {
+        int firstDataRow = layout == DomTableLayout.HORIZONTAL ? 0 : 1;
+        By rowSelector = layout == DomTableLayout.FLEX
+            ? By.cssSelector(".flex-table-row")
+            : By.tagName("tr");
+        List<WebElement> rowElements = tableElement.findElements(rowSelector);
+        for (int index = firstDataRow; index < rowElements.size(); index++) {
+          WebElement rowElement = rowElements.get(index);
+          TableRow<C> candidate = new SelenideRow(
+              () -> WebElementWrapper.wrap(driver, rowElement, "table row candidate"));
+          if (predicate.test(candidate)) {
+            return CheckResult.accepted("matched row");
+          }
+        }
+        return CheckResult.rejected("row does not match", "table has no matching row yet");
+      } catch (NoSuchElementException | StaleElementReferenceException error) {
+        return CheckResult.rejected(error.toString(), "table changed while checking rows");
+      }
+    }
   }
 
   private final class MatchingRowCondition extends WebElementCondition {

@@ -143,6 +143,29 @@ public class TableModelContractTest extends BaseTest {
         .requiredCell(Header.COUNTRY).text()).isEqualTo("Austria");
   }
 
+  @Test(description = "Required lookup applies one timeout across late root and row discovery")
+  public void timesOutAcrossLateRootAndRowDiscovery() {
+    openFixture();
+    FixturePage page = Selenide.page(FixturePage.class);
+    TableModel<Header> model = page.classic.asDomModel(h -> h.displayed);
+
+    Selenide.executeJavaScript("""
+        const table = document.getElementById('classic');
+        const row = table.querySelector('tbody tr');
+        row.remove();
+        table.remove();
+        window.setTimeout(() => document.body.prepend(table), 250);
+        window.setTimeout(() => table.querySelector('tbody').appendChild(row), 650);
+        """);
+
+    Assertions.assertThatThrownBy(() -> model.requiredRow(candidate -> candidate.cell(Header.COMPANY)
+            .map(cell -> cell.text().equals("Alfreds")).orElse(false),
+        "late row", Duration.ofMillis(450)))
+        .isInstanceOf(dev.quokkify.elements.table.model.TableRowNotFoundException.class)
+        .hasMessageContaining("late row")
+        .hasMessageContaining("PT0.45S");
+  }
+
   private static void openFixture() {
     String baseUrl = System.getenv().getOrDefault("NGINX_BASE_URL", "http://localhost");
     Selenide.open(baseUrl + "/table-model-contract/");
