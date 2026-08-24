@@ -1,6 +1,7 @@
 package dev.quokkify.page.local;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 
 import dev.quokkify.elements.table.classic.DynamicTable;
@@ -70,6 +71,14 @@ public class DelayedTablePage implements Page {
     return flexTable.getRow(header, cellValue, timeout);
   }
 
+  public List<String> getTableColumnValues(Header header) {
+    return table.getAllColumnValuesByXpath(header);
+  }
+
+  public List<String> getFlexTableColumnValues(Header header) {
+    return flexTable.getAllColumnValuesByXpath(header);
+  }
+
   public HorizontalRow<HorizontalHeader> getHorizontalTableRow(HorizontalHeader header, Duration timeout) {
     return horizontalTable.getRow(header, timeout);
   }
@@ -84,6 +93,14 @@ public class DelayedTablePage implements Page {
 
   public boolean isHorizontalTableRowExist(HorizontalHeader header) {
     return horizontalTable.isRowExist(header);
+  }
+
+  public boolean isHorizontalTableRowExist(String header) {
+    return horizontalTable.isRowExist(header);
+  }
+
+  public Map<String, String> getHorizontalTableValues() {
+    return horizontalTable.columnsAndValuesAsMap();
   }
 
   public void reloadClassicTable() {
@@ -103,7 +120,7 @@ public class DelayedTablePage implements Page {
   }
 
   public enum DynamicHeader implements ConstantFormat {
-    COMPANY, CONTACT, COUNTRY;
+    COUNTRY, COMPANY, CONTACT;
 
     @Override
     public String formatValue() {
