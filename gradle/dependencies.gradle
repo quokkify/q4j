@@ -40,7 +40,7 @@ ext {
     jjschema = "1.16"
     report_portal_rest_assured = "5.3.4"
     report_portal_client_java = "5.2.15"
-    hibernate = "7.4.5.Final"
+    hibernate = "7.4.6.Final"
     hibernate_type = "3.15.5"
     jakarta_persistence_api = "3.2.0"
     querydsl = "5.1.0"
