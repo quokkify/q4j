@@ -1,1 +1,1 @@
-{"id":"717dca81a42019f1233d9ec2b6960ab9","fullName":"dev.quokkify.tyrus.client.WsClientTest.messageCollector_storesMessages","name":"messageCollector_storesMessages","status":"passed","testResultsByEnv":{"integrations-tyrus":"44a36b953226174977fc4b04e1b09895"}}
+{"id":"717dca81a42019f1233d9ec2b6960ab9","fullName":"dev.quokkify.tyrus.client.WsClientTest.messageCollector_storesMessages","name":"messageCollector_storesMessages","status":"passed","testResultsByEnv":{"integrations-tyrus":"adb21ea6a400c08e4298cc1427e250b3"}}
