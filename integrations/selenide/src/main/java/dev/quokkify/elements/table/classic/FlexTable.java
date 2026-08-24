@@ -19,8 +19,10 @@ public class FlexTable<T extends Enum<T>> extends Table<T> {
 
   @Override
   public List<String> getAllColumnValuesByXpath(T columnHeader, String xpathAdditionalLocator) {
-    return this.getSelf().findAll(By.xpath(".//div[%d]%s".formatted(this
-        .fetchColumnIndex().apply(columnHeader) + HTML_START_INDEX, xpathAdditionalLocator))).texts();
+    return this.getSelf().findAll(By.xpath(
+        "(.//*[contains(concat(' ', normalize-space(@class), ' '), ' flex-table-row ')])[position() > 1]/div[%d]%s"
+            .formatted(this.fetchColumnIndex().apply(columnHeader) + HTML_START_INDEX, xpathAdditionalLocator)))
+        .texts();
   }
 
   @Override

@@ -1,26 +1,46 @@
 package dev.quokkify.test;
 
-import dev.quokkify.page.w3school.HtmlHorizontalTablePage;
+import java.time.Duration;
+import java.util.LinkedHashMap;
+import java.util.Map;
+
+import dev.quokkify.page.local.DelayedTablePage;
 
 import io.qameta.allure.TmsLink;
+import org.assertj.core.api.Assertions;
 import org.testng.annotations.Test;
 
 public class UiHorizontalTableTest extends BaseTest {
 
   @TmsLink("UI_ID_5")
-  @Test(description = "Verify 'HORIZONTAL TABLE'")
+  @Test(description = "Verify local HORIZONTAL TABLE and DYNAMIC HORIZONTAL TABLE rows")
   public void testTable() {
-    Person person = new Person("Bill Gates", "555 77 854", "555 77 855");
+    DelayedTablePage page = openPage();
 
-    w3SchoolsNavigationSteps.openHtmlHorizontalTablePage()
-        .acceptTerms()
-        .verify()
-        .verifyTableRow(HtmlHorizontalTablePage.Header.NAME, person.name())
-        .verifyTableRow(HtmlHorizontalTablePage.Header.TELEPHONE_1, person.telephone1())
-        .verifyTableRow(HtmlHorizontalTablePage.Header.TELEPHONE_2, person.telephone2());
+    page.getHorizontalTableRow(DelayedTablePage.HorizontalHeader.NAME, Duration.ofSeconds(5))
+        .verifyRow("Bill Gates");
+    page.getHorizontalTableRow(DelayedTablePage.HorizontalHeader.TELEPHONE_1, Duration.ofSeconds(5))
+        .verifyRow("555 77 854");
+    page.getDynamicHorizontalTableRow(
+            DelayedTablePage.DynamicHorizontalHeader.TELEPHONE_2, Duration.ofSeconds(5))
+        .verifyRow("555 77 855");
+    Map<String, String> expected = new LinkedHashMap<>();
+    expected.put("Name", "Bill Gates");
+    expected.put("Telephone 1", "555 77 854");
+    expected.put("Telephone 2", "555 77 855");
+    Assertions.assertThat(page.getHorizontalTableValues())
+        .containsExactlyEntriesOf(expected);
   }
 
-  private record Person(String name, String telephone1, String telephone2) {
+  @Test(description = "Verify missing local HORIZONTAL TABLE row is reported")
+  public void testMissingRow() {
+    DelayedTablePage page = openPage();
 
+    Assertions.assertThat(page.isHorizontalTableRowExist("Missing Header"))
+        .isFalse();
+  }
+
+  private DelayedTablePage openPage() {
+    return com.codeborne.selenide.Selenide.open(APP_CONFIG.baseUrl() + "/table/delayed-table.html", DelayedTablePage.class);
   }
 }

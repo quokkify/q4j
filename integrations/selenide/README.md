@@ -136,3 +136,26 @@ configured values to `Waiter` calls.
 ```bash
 ./gradlew :integrations:selenide:test
 ```
+
+---
+
+## Table support
+
+The table elements support the DOM structures already represented by the module:
+
+- classic HTML tables (`<table>`, header row followed by data rows), using enum ordinal
+  columns with `Table`;
+- classic HTML tables whose columns are resolved by displayed `<th>` text, using
+  `DynamicTable` and `ConstantFormat`;
+- flex tables represented by sibling `.flex-table-row` elements, where the first row is
+  the header and is excluded from data-row lookups and column-value reads;
+- horizontal tables represented by `<tr><th>header</th><td>value</td></tr>`, using
+  `HorizontalTable` or `DynamicHorizontalTable`.
+
+`getRow(...)` lookup methods use Selenide's native wait loop, so rows or table
+containers may appear after page initialization. `isRowExist(...)` remains a
+non-waiting status check.
+
+The following models are intentionally deferred until their DOM and behavior contracts
+are defined: ARIA grids, virtualized rows, pagination/infinite scrolling, and
+tree/master-detail tables. They are not implied by the current table abstractions.

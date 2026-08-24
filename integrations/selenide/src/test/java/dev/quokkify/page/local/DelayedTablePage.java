@@ -1,6 +1,7 @@
 package dev.quokkify.page.local;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 
 import dev.quokkify.elements.table.classic.DynamicTable;
@@ -32,7 +33,7 @@ public class DelayedTablePage implements Page {
   private HorizontalTable<HorizontalHeader> horizontalTable;
 
   @FindBy(how = How.ID, using = "horizontal-customers")
-  private DynamicHorizontalTable<HorizontalHeader> dynamicHorizontalTable;
+  private DynamicHorizontalTable<DynamicHorizontalHeader> dynamicHorizontalTable;
 
   public Row<Header> getTableRow(Header header, String cellValue, Duration timeout) {
     return table.getRow(header, cellValue, timeout);
@@ -70,6 +71,14 @@ public class DelayedTablePage implements Page {
     return flexTable.getRow(header, cellValue, timeout);
   }
 
+  public List<String> getTableColumnValues(Header header) {
+    return table.getAllColumnValuesByXpath(header);
+  }
+
+  public List<String> getFlexTableColumnValues(Header header) {
+    return flexTable.getAllColumnValuesByXpath(header);
+  }
+
   public HorizontalRow<HorizontalHeader> getHorizontalTableRow(HorizontalHeader header, Duration timeout) {
     return horizontalTable.getRow(header, timeout);
   }
@@ -78,12 +87,21 @@ public class DelayedTablePage implements Page {
     return horizontalTable.getRow(header);
   }
 
-  public HorizontalRow<HorizontalHeader> getDynamicHorizontalTableRow(HorizontalHeader header, Duration timeout) {
+  public HorizontalRow<DynamicHorizontalHeader> getDynamicHorizontalTableRow(
+      DynamicHorizontalHeader header, Duration timeout) {
     return dynamicHorizontalTable.getRow(header, timeout);
   }
 
   public boolean isHorizontalTableRowExist(HorizontalHeader header) {
     return horizontalTable.isRowExist(header);
+  }
+
+  public boolean isHorizontalTableRowExist(String header) {
+    return horizontalTable.isRowExist(header);
+  }
+
+  public Map<String, String> getHorizontalTableValues() {
+    return horizontalTable.columnsAndValuesAsMap();
   }
 
   public void reloadClassicTable() {
@@ -103,7 +121,7 @@ public class DelayedTablePage implements Page {
   }
 
   public enum DynamicHeader implements ConstantFormat {
-    COMPANY, CONTACT, COUNTRY;
+    COUNTRY, COMPANY, CONTACT;
 
     @Override
     public String formatValue() {
@@ -113,6 +131,18 @@ public class DelayedTablePage implements Page {
 
   public enum HorizontalHeader implements ConstantFormat {
     NAME, TELEPHONE_1, TELEPHONE_2;
+
+    @Override
+    public String formatValue() {
+      return name();
+    }
+  }
+
+  /**
+   * Deliberately differs from the DOM row order to prove dynamic header lookup.
+   */
+  public enum DynamicHorizontalHeader implements ConstantFormat {
+    TELEPHONE_2, NAME, TELEPHONE_1;
 
     @Override
     public String formatValue() {

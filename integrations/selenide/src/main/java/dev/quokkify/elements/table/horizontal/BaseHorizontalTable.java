@@ -1,6 +1,7 @@
 package dev.quokkify.elements.table.horizontal;
 
 import java.time.Duration;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.function.Function;
@@ -125,7 +126,7 @@ public abstract class BaseHorizontalTable<T extends Enum<T> & ConstantFormat> ex
     List<String> keys = getAllColumnsNames();
     List<String> values = getAllRowsValues();
     return IntStream.range(0, keys.size()).boxed()
-        .collect(Collectors.toMap(keys::get, values::get));
+        .collect(Collectors.toMap(keys::get, values::get, (left, right) -> right, LinkedHashMap::new));
   }
 
   /**
