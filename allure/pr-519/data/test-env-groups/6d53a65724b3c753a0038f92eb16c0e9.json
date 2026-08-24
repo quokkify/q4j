@@ -1,0 +1,1 @@
+{"id":"6d53a65724b3c753a0038f92eb16c0e9","fullName":"dev.quokkify.test.DropdownBehaviorTest.testSingleDropdownFallbackReturnsFullSelectedText","name":"Verify plain InputDropdown fallback returns full selected text when no explicit label element is present","status":"passed","testResultsByEnv":{"integrations-selenide":"82f76f55c5a0e0cf5fe4cbb6c0cc633f"}}

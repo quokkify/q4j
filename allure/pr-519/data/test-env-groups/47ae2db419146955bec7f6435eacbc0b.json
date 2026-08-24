@@ -1,0 +1,1 @@
+{"id":"47ae2db419146955bec7f6435eacbc0b","fullName":"dev.quokkify.test.TableRowWaitTest.testHorizontalTableRowAppearingWithDelayIsFound","name":"Verify 'HORIZONTAL TABLE' row search waits for a row appearing with a delay","status":"passed","testResultsByEnv":{"integrations-selenide":"569079fc68e3696487cc4d3d166d3c1a"}}
