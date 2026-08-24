@@ -1,0 +1,1 @@
+{"id":"1831dd6a810997f76998cc83cc4094c8","fullName":"dev.quokkify.test.YamlParserTest.testParseToObject","name":"Verify parse yaml file to object","status":"passed","testResultsByEnv":{"common-utils-jackson-yaml":"78b1e095455105bb9983e12080a92df6"}}
