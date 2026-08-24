@@ -1,0 +1,1 @@
+{"id":"1cd134271e7472d1b3349d17987491b7","fullName":"dev.quokkify.reportportal.test.ReportPortalApiServiceTest.getItemByUuid_nonExistentUuid_returnsItemWithNullId","name":"getItemByUuid returns an object for an existing project (negative: non-existent UUID)","status":"broken","testResultsByEnv":{"integrations-reportportal-testng":"6312111415072b434cef15cf43243c12"}}

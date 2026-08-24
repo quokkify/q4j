@@ -1,0 +1,1 @@
+{"id":"eb342520deb95d44ea692d2c4eb6a76b","fullName":"dev.quokkify.reportportal.test.ReportPortalApiServiceTest.getItemByUuid_pathContainsProjectAndUuid","name":"getItemByUuid path is built correctly for project and UUID","status":"broken","testResultsByEnv":{"integrations-reportportal-testng":"7ab17194d7b12c2b457f30d53be43269"}}
