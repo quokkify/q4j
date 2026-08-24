@@ -33,7 +33,7 @@ public class DelayedTablePage implements Page {
   private HorizontalTable<HorizontalHeader> horizontalTable;
 
   @FindBy(how = How.ID, using = "horizontal-customers")
-  private DynamicHorizontalTable<HorizontalHeader> dynamicHorizontalTable;
+  private DynamicHorizontalTable<DynamicHorizontalHeader> dynamicHorizontalTable;
 
   public Row<Header> getTableRow(Header header, String cellValue, Duration timeout) {
     return table.getRow(header, cellValue, timeout);
@@ -87,7 +87,8 @@ public class DelayedTablePage implements Page {
     return horizontalTable.getRow(header);
   }
 
-  public HorizontalRow<HorizontalHeader> getDynamicHorizontalTableRow(HorizontalHeader header, Duration timeout) {
+  public HorizontalRow<DynamicHorizontalHeader> getDynamicHorizontalTableRow(
+      DynamicHorizontalHeader header, Duration timeout) {
     return dynamicHorizontalTable.getRow(header, timeout);
   }
 
@@ -130,6 +131,18 @@ public class DelayedTablePage implements Page {
 
   public enum HorizontalHeader implements ConstantFormat {
     NAME, TELEPHONE_1, TELEPHONE_2;
+
+    @Override
+    public String formatValue() {
+      return name();
+    }
+  }
+
+  /**
+   * Deliberately differs from the DOM row order to prove dynamic header lookup.
+   */
+  public enum DynamicHorizontalHeader implements ConstantFormat {
+    TELEPHONE_2, NAME, TELEPHONE_1;
 
     @Override
     public String formatValue() {

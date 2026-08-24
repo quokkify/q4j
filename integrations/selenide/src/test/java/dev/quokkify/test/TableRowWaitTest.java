@@ -68,7 +68,7 @@ public class TableRowWaitTest extends BaseTest {
   public void testDynamicHorizontalTableRowAppearingWithDelayIsFound() {
     DelayedTablePage page = openDelayedTablePage();
 
-    page.getDynamicHorizontalTableRow(DelayedTablePage.HorizontalHeader.TELEPHONE_2, TIMEOUT)
+    page.getDynamicHorizontalTableRow(DelayedTablePage.DynamicHorizontalHeader.TELEPHONE_2, TIMEOUT)
         .verifyRow("555 77 855");
   }
 
@@ -248,8 +248,8 @@ public class TableRowWaitTest extends BaseTest {
   @Test(description = "Verify a returned DYNAMIC HORIZONTAL row resolves itself after the table root is replaced")
   public void testReturnedDynamicHorizontalTableRowSurvivesTableReload() {
     DelayedTablePage page = openDelayedTablePage();
-    HorizontalRow<DelayedTablePage.HorizontalHeader> row =
-        page.getDynamicHorizontalTableRow(DelayedTablePage.HorizontalHeader.TELEPHONE_2, TIMEOUT);
+    HorizontalRow<DelayedTablePage.DynamicHorizontalHeader> row =
+        page.getDynamicHorizontalTableRow(DelayedTablePage.DynamicHorizontalHeader.TELEPHONE_2, TIMEOUT);
 
     page.reloadHorizontalTable();
 

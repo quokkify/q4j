@@ -20,7 +20,8 @@ public class UiHorizontalTableTest extends BaseTest {
         .verifyRow("Bill Gates");
     page.getHorizontalTableRow(DelayedTablePage.HorizontalHeader.TELEPHONE_1, Duration.ofSeconds(5))
         .verifyRow("555 77 854");
-    page.getDynamicHorizontalTableRow(DelayedTablePage.HorizontalHeader.TELEPHONE_2, Duration.ofSeconds(5))
+    page.getDynamicHorizontalTableRow(
+            DelayedTablePage.DynamicHorizontalHeader.TELEPHONE_2, Duration.ofSeconds(5))
         .verifyRow("555 77 855");
     Assertions.assertThat(page.getHorizontalTableValues())
         .containsExactlyInAnyOrderEntriesOf(Map.of(
