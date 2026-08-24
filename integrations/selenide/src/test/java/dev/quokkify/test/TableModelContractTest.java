@@ -11,6 +11,7 @@ import dev.quokkify.elements.table.horizontal.DynamicHorizontalTable;
 import dev.quokkify.elements.table.horizontal.HorizontalTable;
 import dev.quokkify.elements.table.model.DisplayedHeaderResolver;
 import dev.quokkify.elements.table.model.TableCell;
+import dev.quokkify.elements.table.model.TableCellNotFoundException;
 import dev.quokkify.elements.table.model.TableColumnNotFoundException;
 import dev.quokkify.elements.table.model.TableModel;
 import dev.quokkify.elements.table.model.TableRow;
@@ -78,7 +79,7 @@ public class TableModelContractTest extends BaseTest {
 
   @Test(description = "Every legacy table variant exposes the neutral model and typed cells")
   public void bridgesAllLegacyVariants() {
-    Selenide.open(getClass().getResource("/table-model-contract.html").toExternalForm());
+    openFixture();
     FixturePage page = Selenide.page(FixturePage.class);
 
     Assertions.assertThat(page.classic.asDomModel(h -> h.displayed).rows().get(0)
@@ -97,9 +98,12 @@ public class TableModelContractTest extends BaseTest {
 
   @Test(description = "Required lookup waits through Selenide and survives a DOM remount")
   public void waitsForAndSurvivesRemount() {
-    Selenide.open(getClass().getResource("/table-model-contract.html").toExternalForm());
+    openFixture();
     FixturePage page = Selenide.page(FixturePage.class);
     TableModel<Header> model = page.classic.asDomModel(h -> h.displayed);
+    Selenide.executeJavaScript("window.prepareDelayedRow()");
+    Assertions.assertThat(model.row(candidate -> candidate.cell(Header.COMPANY)
+        .map(cell -> cell.text().equals("Alfreds")).orElse(false))).isEmpty();
     TableRow<Header> row = model.requiredRow(candidate -> candidate.cell(Header.COMPANY)
         .map(cell -> cell.text().equals("Alfreds")).orElse(false), "company", Duration.ofSeconds(2));
 
@@ -109,16 +113,39 @@ public class TableModelContractTest extends BaseTest {
 
   @Test(description = "Optional and required lookups distinguish missing rows and cells")
   public void reportsMissingRowsAndCellsConsistently() {
-    Selenide.open(getClass().getResource("/table-model-contract.html").toExternalForm());
+    openFixture();
     FixturePage page = Selenide.page(FixturePage.class);
     TableModel<Header> model = page.classic.asDomModel(h -> h.displayed);
     TableRow<Header> row = model.rows().get(0);
 
     Assertions.assertThat(row.cell(Header.COUNTRY)).isPresent();
-    Assertions.assertThat(row.cell(Header.COMPANY)).isPresent();
+    Selenide.executeJavaScript("window.prepareMissingCell()");
+    Assertions.assertThat(row.cell(Header.COMPANY)).isEmpty();
+    Assertions.assertThatThrownBy(() -> row.requiredCell(Header.COMPANY))
+        .isInstanceOf(TableCellNotFoundException.class)
+        .hasMessageContaining("COMPANY");
     Assertions.assertThatThrownBy(() -> model.requiredRow(candidate -> false, "missing", Duration.ofMillis(100)))
         .isInstanceOf(RuntimeException.class)
         .hasMessageContaining("missing");
+  }
+
+  @Test(description = "Required lookup waits for a table root mounted after the initial DOM")
+  public void waitsForLateRootMount() {
+    openFixture();
+    FixturePage page = Selenide.page(FixturePage.class);
+    TableModel<Header> model = page.classic.asDomModel(h -> h.displayed);
+
+    Selenide.executeJavaScript("window.prepareLateMount()");
+    Assertions.assertThat(model.row(candidate -> candidate.cell(Header.COMPANY)
+        .map(cell -> cell.text().equals("Alfreds")).orElse(false))).isEmpty();
+    Assertions.assertThat(model.requiredRow(candidate -> candidate.cell(Header.COMPANY)
+        .map(cell -> cell.text().equals("Alfreds")).orElse(false), "late company", Duration.ofSeconds(2))
+        .requiredCell(Header.COUNTRY).text()).isEqualTo("Austria");
+  }
+
+  private static void openFixture() {
+    String baseUrl = System.getenv().getOrDefault("NGINX_BASE_URL", "http://localhost");
+    Selenide.open(baseUrl + "/table-model-contract/");
   }
 
   private static final class FixturePage {

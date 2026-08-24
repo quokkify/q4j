@@ -60,6 +60,28 @@
       </tr>
     </table>
     <script>
+      function prepareDelayedRow() {
+        const table = document.getElementById("classic");
+        const row = table.querySelector("tbody tr");
+        row.remove();
+        window.setTimeout(
+          () => table.querySelector("tbody").appendChild(row),
+          250,
+        );
+      }
+
+      function prepareMissingCell() {
+        document.getElementById("classic").querySelector("tbody tr").innerHTML =
+          "<td>Austria</td>";
+      }
+
+      function prepareLateMount() {
+        const table = document.getElementById("classic");
+        const replacement = table.cloneNode(true);
+        table.remove();
+        window.setTimeout(() => document.body.prepend(replacement), 250);
+      }
+
       function remount() {
         const old = document.getElementById("classic");
         const replacement = old.cloneNode(true);

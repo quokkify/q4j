@@ -131,12 +131,12 @@ configured values to `Waiter` calls.
 
 ## Table DOM model
 
-Table APIs use typed column keys mapped to the text displayed by the DOM; enum ordinal is never
-used as a column position. The additive `dev.quokkify.elements.table.model` contract consists of
-`TableModel<C>`, `TableRow<C>`, and `TableCell<C>`. `DomTableLayout.CLASSIC` and
-`DomTableLayout.HORIZONTAL` describe markup shape only. `DisplayedHeaderResolver<C>` maps a typed
-key to its displayed header, and missing headers fail with `TableColumnNotFoundException` rather
-than silently selecting a neighbouring column.
+The neutral DOM model uses typed column keys mapped to the text displayed by the DOM; its enum
+ordinal is never used as a column position. The additive `dev.quokkify.elements.table.model`
+contract consists of `TableModel<C>`, `TableRow<C>`, and `TableCell<C>`. `DomTableLayout.CLASSIC`,
+`DomTableLayout.FLEX`, and `DomTableLayout.HORIZONTAL` describe markup shape only.
+`DisplayedHeaderResolver<C>` maps a typed key to its displayed header, and missing headers fail
+with `TableColumnNotFoundException` rather than silently selecting a neighbouring column.
 
 Rows and cells are allowed to be lazy: a concrete Selenide adapter may resolve the current DOM
 element on each operation. `TableModel.rows()` represents rows currently available; adapters that
