@@ -1,0 +1,88 @@
+<html><head></head><body><table id="classic">
+      <thead>
+        <tr>
+          <th>Country</th>
+          <th>Company</th>
+        </tr>
+      </thead>
+      <tbody>
+        
+      </tbody>
+    </table>
+    
+    <table id="dynamic">
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th>Country</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Alfreds</td>
+          <td>Austria</td>
+        </tr>
+      </tbody>
+    </table>
+    <div id="flex" class="flex-table">
+      <div class="flex-table-row">
+        <div>Country</div>
+        <div>Company</div>
+      </div>
+      <div class="flex-table-row">
+        <div>Austria</div>
+        <div>Alfreds</div>
+      </div>
+    </div>
+    <table id="horizontal">
+      <tbody><tr>
+        <th>Country</th>
+        <td>Austria</td>
+      </tr>
+      <tr>
+        <th>Company</th>
+        <td>Alfreds</td>
+      </tr>
+    </tbody></table>
+    <table id="dynamic-horizontal">
+      <tbody><tr>
+        <th>Company</th>
+        <td>Alfreds</td>
+      </tr>
+      <tr>
+        <th>Country</th>
+        <td>Austria</td>
+      </tr>
+    </tbody></table>
+    <script>
+      function prepareDelayedRow() {
+        const table = document.getElementById("classic");
+        const row = table.querySelector("tbody tr");
+        row.remove();
+        window.setTimeout(
+          () => table.querySelector("tbody").appendChild(row),
+          250,
+        );
+      }
+
+      function prepareMissingCell() {
+        document.getElementById("classic").querySelector("tbody tr").innerHTML =
+          "<td>Austria</td>";
+      }
+
+      function prepareLateMount() {
+        const table = document.getElementById("classic");
+        const replacement = table.cloneNode(true);
+        table.remove();
+        window.setTimeout(() => document.body.prepend(replacement), 250);
+      }
+
+      function remount() {
+        const old = document.getElementById("classic");
+        const replacement = old.cloneNode(true);
+        old.replaceWith(replacement);
+      }
+    </script>
+  
+
+</body></html>

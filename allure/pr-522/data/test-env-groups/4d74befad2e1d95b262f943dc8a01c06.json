@@ -1,1 +1,1 @@
-{"id":"4d74befad2e1d95b262f943dc8a01c06","fullName":"dev.quokkify.test.TableModelContractTest.readsTypedCellLazily","name":"Rows expose typed lazy-cell contract without table capabilities","status":"passed","testResultsByEnv":{"integrations-selenide":"f2d52d77d5867a739f041f5f896d9c95"}}
+{"id":"4d74befad2e1d95b262f943dc8a01c06","fullName":"dev.quokkify.test.TableModelContractTest.readsTypedCellLazily","name":"Rows expose typed lazy-cell contract without table capabilities","status":"passed","testResultsByEnv":{"integrations-selenide":"7b94bbc503289b4481a1f18cfac980ec"}}
