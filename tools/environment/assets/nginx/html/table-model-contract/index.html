@@ -83,9 +83,11 @@
       }
 
       function remount() {
-        const old = document.getElementById("classic");
-        const replacement = old.cloneNode(true);
-        old.replaceWith(replacement);
+        ["classic", "flex"].forEach((id) => {
+          const old = document.getElementById(id);
+          const replacement = old.cloneNode(true);
+          old.replaceWith(replacement);
+        });
       }
     </script>
   </body>

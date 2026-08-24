@@ -121,6 +121,8 @@ public class TableModelContractTest extends BaseTest {
     TableRow<Header> flexRow = page.flex.asDomModel(h -> h.displayed)
         .requiredRow(candidate -> true, "first flex", Duration.ofMillis(100));
 
+    Assertions.assertThat(classicRow.requiredCell(Header.COUNTRY).text()).isEqualTo("Austria");
+    Assertions.assertThat(flexRow.requiredCell(Header.COUNTRY).text()).isEqualTo("Austria");
     Selenide.executeJavaScript("window.remount()");
     Assertions.assertThat(classicRow.requiredCell(Header.COUNTRY).text()).isEqualTo("Austria");
     Assertions.assertThat(flexRow.requiredCell(Header.COUNTRY).text()).isEqualTo("Austria");
