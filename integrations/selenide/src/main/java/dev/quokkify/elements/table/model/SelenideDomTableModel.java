@@ -74,8 +74,7 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
   public TableRow<C> requiredRow(Predicate<TableRow<C>> predicate, String description, Duration timeout) {
     try {
       table.shouldBe(new MatchingTableCondition(predicate, description), timeout);
-      return new SelenideRow(
-          () -> rowsElements().findBy(new MatchingRowCondition(predicate, description)));
+      return new SelenideRow(() -> matchingDataRow(predicate));
     } catch (UIAssertionError error) {
       TableRowNotFoundException failure = new TableRowNotFoundException(
           description + "; timeout=" + timeout);
@@ -88,6 +87,18 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
     return layout == DomTableLayout.FLEX
         ? table.findAll(By.cssSelector(".flex-table-row"))
         : table.findAll(By.tagName("tr"));
+  }
+
+  private SelenideElement matchingDataRow(Predicate<TableRow<C>> predicate) {
+    int firstDataRow = layout == DomTableLayout.HORIZONTAL ? 0 : 1;
+    ElementsCollection currentRows = rowsElements();
+    for (int index = firstDataRow; index < currentRows.size(); index++) {
+      SelenideElement currentRow = currentRows.get(index);
+      if (predicate.test(new SelenideRow(() -> currentRow))) {
+        return currentRow;
+      }
+    }
+    throw new NoSuchElementException("table has no matching data row");
   }
 
   private final class MatchingTableCondition extends WebElementCondition {
@@ -115,28 +126,6 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
           }
         }
         return CheckResult.rejected("row does not match", "table has no matching row yet");
-      } catch (NoSuchElementException | StaleElementReferenceException error) {
-        return CheckResult.rejected(error.toString(), "table changed while checking rows");
-      }
-    }
-  }
-
-  private final class MatchingRowCondition extends WebElementCondition {
-    private final Predicate<TableRow<C>> predicate;
-
-    private MatchingRowCondition(Predicate<TableRow<C>> predicate, String description) {
-      super(description);
-      this.predicate = predicate;
-    }
-
-    @Override
-    public CheckResult check(Driver driver, WebElement element) {
-      try {
-        TableRow<C> candidate = new SelenideRow(
-            () -> WebElementWrapper.wrap(driver, element, "table row candidate"));
-        return predicate.test(candidate)
-            ? CheckResult.accepted("matched row")
-            : CheckResult.rejected("row does not match", element.getText());
       } catch (NoSuchElementException | StaleElementReferenceException error) {
         return CheckResult.rejected(error.toString(), "table changed while checking rows");
       }

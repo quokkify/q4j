@@ -111,6 +111,21 @@ public class TableModelContractTest extends BaseTest {
     Assertions.assertThat(row.requiredCell(Header.COUNTRY).text()).isEqualTo("Austria");
   }
 
+  @Test(description = "Required row handles skip CLASSIC and FLEX header rows")
+  public void requiredRowsSkipHeaders() {
+    openFixture();
+    FixturePage page = Selenide.page(FixturePage.class);
+
+    TableRow<Header> classicRow = page.classic.asDomModel(h -> h.displayed)
+        .requiredRow(candidate -> true, "first classic", Duration.ofMillis(100));
+    TableRow<Header> flexRow = page.flex.asDomModel(h -> h.displayed)
+        .requiredRow(candidate -> true, "first flex", Duration.ofMillis(100));
+
+    Selenide.executeJavaScript("window.remount()");
+    Assertions.assertThat(classicRow.requiredCell(Header.COUNTRY).text()).isEqualTo("Austria");
+    Assertions.assertThat(flexRow.requiredCell(Header.COUNTRY).text()).isEqualTo("Austria");
+  }
+
   @Test(description = "Optional and required lookups distinguish missing rows and cells")
   public void reportsMissingRowsAndCellsConsistently() {
     openFixture();
