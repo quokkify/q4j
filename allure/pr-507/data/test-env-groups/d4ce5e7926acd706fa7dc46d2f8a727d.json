@@ -1,1 +1,1 @@
-{"id":"d4ce5e7926acd706fa7dc46d2f8a727d","fullName":"dev.quokkify.test.UiGridFileDownloadTest.testCdpDownload","name":"Download nginx file through CDP on Selenium Grid","status":"passed","testResultsByEnv":{"integrations-selenide-grid":"b1d132ac26a5784bf2927a20185f7182"}}
+{"id":"d4ce5e7926acd706fa7dc46d2f8a727d","fullName":"dev.quokkify.test.UiGridFileDownloadTest.testCdpDownload","name":"Download nginx file through CDP on Selenium Grid","status":"passed","testResultsByEnv":{"integrations-selenide-grid":"166932d5aaa39fb9569045a43105a05b"}}

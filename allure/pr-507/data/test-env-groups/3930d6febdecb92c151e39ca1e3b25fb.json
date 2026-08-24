@@ -1,1 +1,1 @@
-{"id":"3930d6febdecb92c151e39ca1e3b25fb","fullName":"dev.quokkify.test.DatabaseNoSqlTest.checkDelete","name":"Check delete records from database","status":"passed","testResultsByEnv":{"data-utils-nosql-morphia":"7d4000f5601270604c2e962d876fe4e4"}}
+{"id":"3930d6febdecb92c151e39ca1e3b25fb","fullName":"dev.quokkify.test.DatabaseNoSqlTest.checkDelete","name":"Check delete records from database","status":"passed","testResultsByEnv":{"data-utils-nosql-morphia":"b849b3de335dc2aa10655b32011fad2b"}}
