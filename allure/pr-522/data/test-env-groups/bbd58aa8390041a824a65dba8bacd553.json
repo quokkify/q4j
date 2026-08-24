@@ -1,0 +1,1 @@
+{"id":"bbd58aa8390041a824a65dba8bacd553","fullName":"dev.quokkify.test.TableModelContractTest.bridgesAllLegacyVariants","name":"Every legacy table variant exposes the neutral model and typed cells","status":"broken","testResultsByEnv":{"integrations-selenide":"5d5163f0a12979cf49d74249630d579c"}}
