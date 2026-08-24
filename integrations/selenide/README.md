@@ -129,6 +129,26 @@ steps.verify()
 Use `getTimeout()` and `getPollingInterval()` inside `Verification` subclasses to pass the
 configured values to `Waiter` calls.
 
+## Table DOM model
+
+The neutral DOM model uses typed column keys mapped to the text displayed by the DOM; its enum
+ordinal is never used as a column position. The additive `dev.quokkify.elements.table.model`
+contract consists of `TableModel<C>`, `TableRow<C>`, and `TableCell<C>`. `DomTableLayout.CLASSIC`,
+`DomTableLayout.FLEX`, and `DomTableLayout.HORIZONTAL` describe markup shape only.
+`DisplayedHeaderResolver<C>` maps a typed key to its displayed header, and missing headers fail
+with `TableColumnNotFoundException` rather than silently selecting a neighbouring column.
+
+Rows and cells are allowed to be lazy: a concrete Selenide adapter may resolve the current DOM
+element on each operation. `TableModel.rows()` represents rows currently available; adapters that
+wait for asynchronous rows expose that policy through their existing timeout overloads. A required
+row reports `TableRowNotFoundException` when the adapter's lookup policy expires. Optional row and
+cell lookups use `Optional` and do not throw for missing data.
+Required cells fail with `TableCellNotFoundException`; this is distinct from a missing table
+header (`TableColumnNotFoundException`).
+
+This model intentionally contains no sorting, filtering, pagination, selection, editing,
+virtualization, or loading flags. Those capabilities must be separate components when added.
+
 ---
 
 ## Run tests
@@ -152,9 +172,11 @@ The table elements support the DOM structures already represented by the module:
 - horizontal tables represented by `<tr><th>header</th><td>value</td></tr>`, using
   `HorizontalTable` or `DynamicHorizontalTable`.
 
-`getRow(...)` lookup methods use Selenide's native wait loop, so rows or table
-containers may appear after page initialization. `isRowExist(...)` remains a
-non-waiting status check.
+`getRow(...)` lookup methods and the neutral model's `requiredRow(..., Duration)` use one
+Selenide-native condition loop, so rows or table containers may appear after page
+initialization. Neutral-model `rows()` and row/cell handles re-resolve their locators when
+read, which keeps them usable after DOM remounts. `isRowExist(...)` and the neutral model's
+`row(...)` remain non-waiting status checks and return absence through `false`/`Optional.empty()`.
 
 The following models are intentionally deferred until their DOM and behavior contracts
 are defined: ARIA grids, virtualized rows, pagination/infinite scrolling, and
