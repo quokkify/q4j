@@ -7,7 +7,6 @@ import dev.quokkify.config.ConfigRegistry;
 import dev.quokkify.config.Configuration;
 import dev.quokkify.service.Browser;
 import dev.quokkify.service.steps.google.GoogleNavigationSteps;
-import dev.quokkify.service.steps.w3schools.W3SchoolsNavigationSteps;
 
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.logevents.SelenideLogger;
@@ -25,7 +24,6 @@ public class BaseTest {
   protected static final BrowserConfiguration BROWSER_CONFIGURATION = ConfigRegistry.get(BrowserConfiguration.class);
 
   protected GoogleNavigationSteps googleNavigationSteps = new GoogleNavigationSteps(APP_CONFIG.baseUrl());
-  protected W3SchoolsNavigationSteps w3SchoolsNavigationSteps = new W3SchoolsNavigationSteps(APP_CONFIG.baseUrl());
 
   @BeforeSuite(alwaysRun = true)
   protected void beforeSuite() {
