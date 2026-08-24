@@ -1,1 +1,1 @@
-{"id":"44287f4b648e8ff075380066a67fa347","fullName":"dev.quokkify.test.UiHorizontalTableTest.testMissingRow","name":"Verify missing local HORIZONTAL TABLE row is reported","status":"passed","testResultsByEnv":{"integrations-selenide":"d3cf635be288dca081ce8aa5194a3f53"}}
+{"id":"44287f4b648e8ff075380066a67fa347","fullName":"dev.quokkify.test.UiHorizontalTableTest.testMissingRow","name":"Verify missing local HORIZONTAL TABLE row is reported","status":"passed","testResultsByEnv":{"integrations-selenide":"eaa572955e489e39438b1d2c88d7b342"}}
