@@ -1,0 +1,1 @@
+{"id":"0acddb1815b599a1dae2d970105a8417","fullName":"dev.quokkify.test.UiTableTest.testDynamicAndFlexTables","name":"Verify DYNAMIC TABLE maps displayed headers and FLEX TABLE excludes its header row","status":"passed","testResultsByEnv":{"integrations-selenide":"d11b862ca797717f4c9691f9f4c15c88"}}
