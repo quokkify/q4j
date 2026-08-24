@@ -1,6 +1,7 @@
 package dev.quokkify.page.local;
 
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 
 import dev.quokkify.elements.table.classic.DynamicTable;
@@ -10,6 +11,7 @@ import dev.quokkify.elements.table.classic.Table;
 import dev.quokkify.elements.table.horizontal.DynamicHorizontalTable;
 import dev.quokkify.elements.table.horizontal.HorizontalRow;
 import dev.quokkify.elements.table.horizontal.HorizontalTable;
+import dev.quokkify.annotation.PageUrl;
 import dev.quokkify.impl.Page;
 import dev.quokkify.model.ConstantFormat;
 
@@ -17,6 +19,7 @@ import com.codeborne.selenide.Selenide;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
 
+@PageUrl("/table/delayed-table.html")
 public class DelayedTablePage implements Page {
 
   @FindBy(how = How.ID, using = "customers")
@@ -58,6 +61,10 @@ public class DelayedTablePage implements Page {
     return table.getRowByPattern(header, pattern);
   }
 
+  public List<String> getTableColumnValues(Header header) {
+    return table.getAllColumnValuesByXpath(header);
+  }
+
   public boolean isTableRowExist(Header header, String cellValue) {
     return table.isRowExist(header, cellValue);
   }
@@ -68,6 +75,10 @@ public class DelayedTablePage implements Page {
 
   public Row<Header> getFlexTableRow(Header header, String cellValue, Duration timeout) {
     return flexTable.getRow(header, cellValue, timeout);
+  }
+
+  public List<String> getFlexTableColumnValues(Header header) {
+    return flexTable.getAllColumnValuesByXpath(header);
   }
 
   public HorizontalRow<HorizontalHeader> getHorizontalTableRow(HorizontalHeader header, Duration timeout) {
@@ -84,6 +95,14 @@ public class DelayedTablePage implements Page {
 
   public boolean isHorizontalTableRowExist(HorizontalHeader header) {
     return horizontalTable.isRowExist(header);
+  }
+
+  public boolean isHorizontalTableRowExist(String header) {
+    return horizontalTable.isRowExist(header);
+  }
+
+  public Map<String, String> getHorizontalTableValues() {
+    return horizontalTable.columnsAndValuesAsMap();
   }
 
   public void reloadClassicTable() {
