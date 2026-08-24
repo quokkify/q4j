@@ -25,6 +25,9 @@ public interface TableModel<C> {
     if (index < 0) {
       throw new TableColumnNotFoundException(column, displayedHeader, headers);
     }
+    if (index != headers.lastIndexOf(displayedHeader)) {
+      throw new TableColumnAmbiguousException(column, displayedHeader, headers);
+    }
     return index;
   }
 

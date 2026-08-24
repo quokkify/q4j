@@ -12,6 +12,7 @@ import dev.quokkify.elements.table.horizontal.HorizontalTable;
 import dev.quokkify.elements.table.model.DisplayedHeaderResolver;
 import dev.quokkify.elements.table.model.TableCell;
 import dev.quokkify.elements.table.model.TableCellNotFoundException;
+import dev.quokkify.elements.table.model.TableColumnAmbiguousException;
 import dev.quokkify.elements.table.model.TableColumnNotFoundException;
 import dev.quokkify.elements.table.model.TableModel;
 import dev.quokkify.elements.table.model.TableRow;
@@ -55,6 +56,17 @@ public class TableModelContractTest extends BaseTest {
         .hasMessageContaining("Country");
   }
 
+  @Test(description = "Reject typed columns whose displayed header occurs more than once")
+  public void rejectsAmbiguousDisplayedHeader() {
+    TableModel<Header> model = model(List.of("Country", "Company", "Company"));
+
+    Assertions.assertThatThrownBy(() -> model.columnIndex(Header.COMPANY,
+            DisplayedHeaderResolver.requiringNonNull(h -> h.displayed)))
+        .isInstanceOf(TableColumnAmbiguousException.class)
+        .hasMessageContaining("Company")
+        .hasMessageContaining("[Country, Company, Company]");
+  }
+
   @Test(description = "Rows expose typed lazy-cell contract without table capabilities")
   public void readsTypedCellLazily() {
     TableRow<Header> row = new TableRow<>() {
@@ -86,6 +98,8 @@ public class TableModelContractTest extends BaseTest {
         .requiredCell(Header.COUNTRY).text()).isEqualTo("Austria");
     Assertions.assertThat(page.dynamic.asDomModel(h -> h.formatValue()).displayedHeaders())
         .containsExactly("Company", "Country");
+    Assertions.assertThat(page.flex.asDomModel(h -> h.displayed).displayedHeaders())
+        .containsExactly("Country", "Company");
     Assertions.assertThat(page.flex.asDomModel(h -> h.displayed).rows().get(0)
         .requiredCell(Header.COMPANY).text()).isEqualTo("Alfreds");
     Assertions.assertThat(page.horizontal.asDomModel(h -> h.formatValue()).row(

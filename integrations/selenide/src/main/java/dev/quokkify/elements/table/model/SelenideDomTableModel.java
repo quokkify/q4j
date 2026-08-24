@@ -44,7 +44,7 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
   @Override
   public List<String> displayedHeaders() {
     return layout == DomTableLayout.FLEX
-        ? table.findAll(By.cssSelector(".flex-table-row:first-child > div")).texts()
+        ? table.find(By.cssSelector(".flex-table-row")).findAll(By.cssSelector(":scope > div")).texts()
         : table.findAll(By.tagName("th")).texts();
   }
 
