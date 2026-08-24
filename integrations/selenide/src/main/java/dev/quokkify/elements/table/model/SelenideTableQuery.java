@@ -95,6 +95,21 @@ public final class SelenideTableQuery<C> {
     return new TypedColumnReference(column, index);
   }
 
+  /** Composes the opt-in sorting capability around this query. */
+  public SortableTable<C> sortable(TableSortingSpec<C> spec) {
+    return new SelenideSortableTable<>(this, spec);
+  }
+
+  /** Composes the opt-in filtering capability around this query. */
+  public FilterableTable<C> filterable(TableFilteringSpec<C> spec) {
+    return new SelenideFilterableTable<>(this, spec);
+  }
+
+  /** Composes the opt-in pagination capability around this query. */
+  public PaginatedTable<C> paginated(TablePaginationSpec spec) {
+    return new SelenidePaginatedTable<>(this, spec);
+  }
+
   /** Waits for a table assertion using one native Selenide root condition. */
   public SelenideTableQuery<C> shouldHave(TableAssertion<C> assertion) {
     model.assertTable(Objects.requireNonNull(assertion, "assertion"));
