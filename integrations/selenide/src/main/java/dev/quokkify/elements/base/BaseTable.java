@@ -9,6 +9,7 @@ import dev.quokkify.elements.table.classic.base.BaseRow;
 import dev.quokkify.elements.table.model.DisplayedHeaderResolver;
 import dev.quokkify.elements.table.model.DomTableLayout;
 import dev.quokkify.elements.table.model.SelenideDomTableModel;
+import dev.quokkify.elements.table.model.TableDomAdapter;
 import dev.quokkify.elements.table.model.TableModel;
 import dev.quokkify.html.model.HtmlTag;
 
@@ -45,6 +46,12 @@ public abstract class BaseTable<T extends Enum<T>> extends Component {
   /** Exposes this legacy table through the framework-neutral DOM model. */
   public TableModel<T> asDomModel(Function<T, String> displayedHeader) {
     return new SelenideDomTableModel<>(getSelf(), domTableLayout(),
+        DisplayedHeaderResolver.requiringNonNull(displayedHeader));
+  }
+
+  /** Exposes this table through a caller-supplied DOM adapter. */
+  public TableModel<T> asDomModel(TableDomAdapter adapter, Function<T, String> displayedHeader) {
+    return new SelenideDomTableModel<>(getSelf(), adapter,
         DisplayedHeaderResolver.requiringNonNull(displayedHeader));
   }
 

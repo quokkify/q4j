@@ -10,16 +10,22 @@ import dev.quokkify.elements.table.classic.Table;
 import dev.quokkify.elements.table.horizontal.DynamicHorizontalTable;
 import dev.quokkify.elements.table.horizontal.HorizontalTable;
 import dev.quokkify.elements.table.model.DisplayedHeaderResolver;
+import dev.quokkify.elements.table.model.NoTableHeaders;
+import dev.quokkify.elements.table.model.SelenideDomTableModel;
 import dev.quokkify.elements.table.model.TableCell;
 import dev.quokkify.elements.table.model.TableCellNotFoundException;
 import dev.quokkify.elements.table.model.TableColumnAmbiguousException;
 import dev.quokkify.elements.table.model.TableColumnNotFoundException;
+import dev.quokkify.elements.table.model.TableDomAdapter;
+import dev.quokkify.elements.table.model.TableDomAdapters;
+import dev.quokkify.elements.table.model.TableHeaderRowLocator;
 import dev.quokkify.elements.table.model.TableModel;
 import dev.quokkify.elements.table.model.TableRow;
 import dev.quokkify.model.ConstantFormat;
 
 import com.codeborne.selenide.Selenide;
 import org.assertj.core.api.Assertions;
+import org.openqa.selenium.By;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
 import org.testng.annotations.Test;
@@ -195,6 +201,70 @@ public class TableModelContractTest extends BaseTest {
         .isInstanceOf(dev.quokkify.elements.table.model.TableRowNotFoundException.class)
         .hasMessageContaining("late row")
         .hasMessageContaining("PT0.45S");
+  }
+
+  @Test(description = "Public adapters support custom div grids, hidden columns, and empty cells")
+  public void supportsCustomDivAdapter() {
+    openFixture();
+    TableDomAdapter adapter = TableDomAdapters.of(
+        By.cssSelector(".data-row"),
+        By.cssSelector(":scope > .cell:not([hidden])"),
+        new TableHeaderRowLocator(
+            By.cssSelector(".header-row"),
+            By.cssSelector(":scope > .cell:not([hidden])")));
+    TableModel<Header> model = SelenideDomTableModel.of(
+        Selenide.$("#custom-grid"), adapter,
+        DisplayedHeaderResolver.requiringNonNull(header -> header.displayed));
+
+    Assertions.assertThat(model.displayedHeaders()).containsExactly("Country", "Company");
+    Assertions.assertThat(model.rows().get(0).requiredCell(Header.COMPANY).text()).isEmpty();
+    Assertions.assertThat(model.rows().get(1).cell(Header.COMPANY)).isEmpty();
+  }
+
+  @Test(description = "Classic adapter preserves tables whose header row is inside tbody")
+  public void supportsBodyOnlyClassicTable() {
+    openFixture();
+    TableModel<Header> model = SelenideDomTableModel.of(
+        Selenide.$("#body-only-classic"), TableDomAdapters.classic(),
+        DisplayedHeaderResolver.requiringNonNull(header -> header.displayed));
+
+    Assertions.assertThat(model.displayedHeaders()).containsExactly("Country", "Company");
+    Assertions.assertThat(model.rows().get(0).requiredCell(Header.COMPANY).text())
+        .isEqualTo("Alfreds");
+  }
+
+  @Test(description = "Generic ARIA adapter addresses role-based grids and survives root remount")
+  public void supportsAriaGridAndRemount() {
+    openFixture();
+    TableModel<Header> model = SelenideDomTableModel.of(
+        Selenide.$("#aria-grid"), TableDomAdapters.ariaGrid(),
+        DisplayedHeaderResolver.requiringNonNull(header -> header.displayed));
+    TableRow<Header> row = model.rows().get(0);
+
+    Assertions.assertThat(model.displayedHeaders()).containsExactly("Country", "Company");
+    Assertions.assertThat(row.requiredCell(Header.COMPANY).text()).isEqualTo("Alfreds");
+    Selenide.executeJavaScript("window.remountAriaGrid()");
+    Assertions.assertThat(row.requiredCell(Header.COUNTRY).text()).isEqualTo("Austria");
+  }
+
+  @Test(description = "Headerless and repeated headers preserve typed lookup failures")
+  public void handlesHeaderlessAndRepeatedHeaders() {
+    openFixture();
+    TableDomAdapter headerlessAdapter = TableDomAdapters.of(
+        By.cssSelector(".data-row"), By.cssSelector(":scope > .cell"),
+        NoTableHeaders.instance());
+    TableModel<Header> headerless = SelenideDomTableModel.of(
+        Selenide.$("#headerless-grid"), headerlessAdapter,
+        DisplayedHeaderResolver.requiringNonNull(header -> header.displayed));
+    TableModel<Header> repeated = SelenideDomTableModel.of(
+        Selenide.$("#repeated-table"), TableDomAdapters.classic(),
+        DisplayedHeaderResolver.requiringNonNull(header -> header.displayed));
+
+    Assertions.assertThat(headerless.displayedHeaders()).isEmpty();
+    Assertions.assertThatThrownBy(() -> headerless.rows().get(0).cell(Header.COUNTRY))
+        .isInstanceOf(TableColumnNotFoundException.class);
+    Assertions.assertThatThrownBy(() -> repeated.rows().get(0).cell(Header.COMPANY))
+        .isInstanceOf(TableColumnAmbiguousException.class);
   }
 
   private static void openFixture() {
