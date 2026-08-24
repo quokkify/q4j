@@ -6,6 +6,10 @@ import java.util.function.Function;
 
 import dev.quokkify.elements.table.classic.base.BaseColumn;
 import dev.quokkify.elements.table.classic.base.BaseRow;
+import dev.quokkify.elements.table.model.DisplayedHeaderResolver;
+import dev.quokkify.elements.table.model.DomTableLayout;
+import dev.quokkify.elements.table.model.SelenideDomTableModel;
+import dev.quokkify.elements.table.model.TableModel;
 import dev.quokkify.html.model.HtmlTag;
 
 import com.codeborne.selenide.Driver;
@@ -36,6 +40,17 @@ public abstract class BaseTable<T extends Enum<T>> extends Component {
    */
   protected int fetchColumnIndex(Driver driver, WebElement table, T columnHeader) {
     return fetchColumnIndex().apply(columnHeader);
+  }
+
+  /** Exposes this legacy table through the framework-neutral DOM model. */
+  public TableModel<T> asDomModel(Function<T, String> displayedHeader) {
+    return new SelenideDomTableModel<>(getSelf(), domTableLayout(),
+        DisplayedHeaderResolver.requiringNonNull(displayedHeader));
+  }
+
+  /** DOM shape used by the neutral model bridge. */
+  protected DomTableLayout domTableLayout() {
+    return DomTableLayout.CLASSIC;
   }
 
   /**

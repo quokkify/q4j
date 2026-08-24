@@ -172,9 +172,11 @@ The table elements support the DOM structures already represented by the module:
 - horizontal tables represented by `<tr><th>header</th><td>value</td></tr>`, using
   `HorizontalTable` or `DynamicHorizontalTable`.
 
-`getRow(...)` lookup methods use Selenide's native wait loop, so rows or table
-containers may appear after page initialization. `isRowExist(...)` remains a
-non-waiting status check.
+`getRow(...)` lookup methods and the neutral model's `requiredRow(..., Duration)` use one
+Selenide-native condition loop, so rows or table containers may appear after page
+initialization. Neutral-model `rows()` and row/cell handles re-resolve their locators when
+read, which keeps them usable after DOM remounts. `isRowExist(...)` and the neutral model's
+`row(...)` remain non-waiting status checks and return absence through `false`/`Optional.empty()`.
 
 The following models are intentionally deferred until their DOM and behavior contracts
 are defined: ARIA grids, virtualized rows, pagination/infinite scrolling, and

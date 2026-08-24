@@ -3,6 +3,8 @@ package dev.quokkify.elements.table.classic;
 import java.util.List;
 import java.util.function.Function;
 
+import dev.quokkify.elements.table.model.DomTableLayout;
+
 import com.codeborne.selenide.Driver;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
@@ -16,6 +18,11 @@ import org.openqa.selenium.WebElement;
  * @param <T> enum with columns enumerations
  */
 public class FlexTable<T extends Enum<T>> extends Table<T> {
+
+  @Override
+  protected DomTableLayout domTableLayout() {
+    return DomTableLayout.FLEX;
+  }
 
   @Override
   public List<String> getAllColumnValuesByXpath(T columnHeader, String xpathAdditionalLocator) {

@@ -1,0 +1,15 @@
+<!doctype html>
+<html><body>
+<table id="classic"><thead><tr><th>Country</th><th>Company</th></tr></thead><tbody><tr><td>Austria</td><td>Alfreds</td></tr></tbody></table>
+<table id="dynamic"><thead><tr><th>Company</th><th>Country</th></tr></thead><tbody><tr><td>Alfreds</td><td>Austria</td></tr></tbody></table>
+<div id="flex" class="flex-table"><div class="flex-table-row"><div>Country</div><div>Company</div></div><div class="flex-table-row"><div>Austria</div><div>Alfreds</div></div></div>
+<table id="horizontal"><tr><th>Country</th><td>Austria</td></tr><tr><th>Company</th><td>Alfreds</td></tr></table>
+<table id="dynamic-horizontal"><tr><th>Company</th><td>Alfreds</td></tr><tr><th>Country</th><td>Austria</td></tr></table>
+<script>
+function remount() {
+  const old = document.getElementById('classic');
+  const replacement = old.cloneNode(true);
+  old.replaceWith(replacement);
+}
+</script>
+</body></html>

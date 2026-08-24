@@ -1,5 +1,6 @@
 package dev.quokkify.elements.table.model;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -38,5 +39,10 @@ public interface TableModel<C> {
   /** Requires a currently available row; waiting policy belongs to the concrete adapter. */
   default TableRow<C> requiredRow(Predicate<TableRow<C>> predicate, String description) {
     return row(predicate).orElseThrow(() -> new TableRowNotFoundException(description));
+  }
+
+  /** Requires a row, allowing the concrete adapter to apply its native wait policy. */
+  default TableRow<C> requiredRow(Predicate<TableRow<C>> predicate, String description, Duration timeout) {
+    return requiredRow(predicate, description);
   }
 }

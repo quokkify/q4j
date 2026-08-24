@@ -9,6 +9,7 @@ import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 import dev.quokkify.elements.base.BaseTable;
+import dev.quokkify.elements.table.model.DomTableLayout;
 import dev.quokkify.ex.TableRowException;
 import dev.quokkify.html.model.HtmlTag;
 import dev.quokkify.model.ConstantFormat;
@@ -32,6 +33,11 @@ import static com.codeborne.selenide.Configuration.timeout;
  * @param <T> enum with columns enumerations
  */
 public abstract class BaseHorizontalTable<T extends Enum<T> & ConstantFormat> extends BaseTable<T> {
+
+  @Override
+  protected DomTableLayout domTableLayout() {
+    return DomTableLayout.HORIZONTAL;
+  }
 
   /**
    * Get row by column, waiting for it to appear with the default timeout.
