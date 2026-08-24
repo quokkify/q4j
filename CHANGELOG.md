@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.5.3](https://github.com/quokkify/q4j/compare/v0.5.2...v0.5.3) (2026-08-24)
+
+
+### 🐛 Bug Fixes
+
+* **deps:** update com.github.spotbugs:spotbugs-annotations to v4.10.4 ([#510](https://github.com/quokkify/q4j/issues/510)) ([206d364](https://github.com/quokkify/q4j/commit/206d36465dba8d38af2f7bead2b0ca9652eb665d))
+* **deps:** update com.google.guava:guava to v33.7.1-jre ([#506](https://github.com/quokkify/q4j/issues/506)) ([2939f0a](https://github.com/quokkify/q4j/commit/2939f0a77c358d2a71034bcf4a31416a104a7521))
+* **deps:** update feign monorepo to v13.14 ([#511](https://github.com/quokkify/q4j/issues/511)) ([ddf7faa](https://github.com/quokkify/q4j/commit/ddf7faa6310082db290dcab9c3df4eba1628168f))
+* **deps:** update hibernate-orm monorepo to v7.4.6.final ([#514](https://github.com/quokkify/q4j/issues/514)) ([64a9cf9](https://github.com/quokkify/q4j/commit/64a9cf967bd0ade4f5e08d3a57c32b475a5bf920))
+* **deps:** update io.github.classgraph:classgraph to v4.8.193 ([#513](https://github.com/quokkify/q4j/issues/513)) ([13902b0](https://github.com/quokkify/q4j/commit/13902b04671f2db034f51cf534bd688af97e7006))
+* **deps:** update io.hypersistence:hypersistence-utils-hibernate-73 to v3.15.5 ([#499](https://github.com/quokkify/q4j/issues/499)) ([2c33db8](https://github.com/quokkify/q4j/commit/2c33db8c8788241993ca722fde50962b10f0eaaf))
+
+
+### 🧹 Chores
+
+* **deps:** update docker:29.7-dind docker digest to 12e683a ([#482](https://github.com/quokkify/q4j/issues/482)) ([851e343](https://github.com/quokkify/q4j/commit/851e3436adec45533c108345e90a5c4bf333930d))
+* **deps:** update github/codeql-action digest to db488dd ([#493](https://github.com/quokkify/q4j/issues/493)) ([40a1890](https://github.com/quokkify/q4j/commit/40a1890eb9b3d12c0d83e3bdaa3c800204b94e84))
+* **deps:** update mockserver/mockserver docker tag to v7.6.0 ([#505](https://github.com/quokkify/q4j/issues/505)) ([7d04566](https://github.com/quokkify/q4j/commit/7d045664bb6029222a9f76b26f193102b56c46b5))
+* **deps:** update mongo:8.3.8 docker digest to 5211c51 ([#507](https://github.com/quokkify/q4j/issues/507)) ([3705b19](https://github.com/quokkify/q4j/commit/3705b19a0380d7f0bd61a0e769fa3fe16cff8308))
+* **deps:** update plugin com.github.spotbugs to v6.5.11 ([#508](https://github.com/quokkify/q4j/issues/508)) ([dee1834](https://github.com/quokkify/q4j/commit/dee18343e9d690ec646509214865e29ecd36226a))
+* **deps:** update redis docker tag to v8.10.1 ([#512](https://github.com/quokkify/q4j/issues/512)) ([6c569d7](https://github.com/quokkify/q4j/commit/6c569d7247100657ca8825fd99423a0934c9cb0e))
+* **deps:** update traefik docker tag to v3.7.11 ([#509](https://github.com/quokkify/q4j/issues/509)) ([8dac7d3](https://github.com/quokkify/q4j/commit/8dac7d30dc94e7b0a1bc572efac031b2e370db0e))
+
 ## [0.5.2](https://github.com/quokkify/q4j/compare/v0.5.1...v0.5.2) (2026-08-21)
 
 
