@@ -3,6 +3,7 @@ package dev.quokkify.service.verifications.google;
 import java.time.Duration;
 import java.time.Instant;
 
+import dev.quokkify.model.TimeoutOptions;
 import dev.quokkify.page.google.SearchResultPage;
 import dev.quokkify.service.steps.google.SearchResultPageSteps;
 
@@ -21,9 +22,8 @@ public class SearchResultPageVerificationTest {
 
   @Test
   public void verifySearchResultsExistHonoursCustomTimeoutAndPollingFromVerification() {
-    SearchResultPageVerification verification = new SearchResultPageSteps(new EmptySearchResultPage()).verify()
-        .withTimeout(Duration.ofMillis(500))
-        .withPolling(Duration.ofMillis(100));
+    SearchResultPageVerification verification = new SearchResultPageSteps(new EmptySearchResultPage()).verify(
+        new TimeoutOptions(Duration.ofMillis(500), Duration.ofMillis(100)));
     Instant start = Instant.now();
 
     Assertions.assertThatThrownBy(verification::verifySearchResultsExist)

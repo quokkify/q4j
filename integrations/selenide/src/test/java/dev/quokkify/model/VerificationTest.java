@@ -63,4 +63,33 @@ public class VerificationTest {
 
     Assertions.assertThat(pollCount.get()).isBetween(3, 7);
   }
+
+  @Test
+  public void optionsUseDefaultsAndSupportFullPairAndPartialOverrides() {
+    TestVerification verification = new TestSteps().verify(TimeoutOptions.defaults());
+    Assertions.assertThat(verification.getTimeout()).isEqualTo(Duration.ofSeconds(10));
+    Assertions.assertThat(verification.getPollingInterval()).isEqualTo(Duration.ofMillis(500));
+
+    verification = new TestSteps().verify(
+        TimeoutOptions.timeout(Duration.ofSeconds(2)),
+        TimeoutOptions.polling(Duration.ofMillis(100)));
+    Assertions.assertThat(verification.getTimeout()).isEqualTo(Duration.ofSeconds(2));
+    Assertions.assertThat(verification.getPollingInterval()).isEqualTo(Duration.ofMillis(100));
+
+    verification = new TestSteps().verify(new TimeoutOptions(Duration.ofSeconds(3), Duration.ofMillis(150)));
+    Assertions.assertThat(verification.getTimeout()).isEqualTo(Duration.ofSeconds(3));
+    Assertions.assertThat(verification.getPollingInterval()).isEqualTo(Duration.ofMillis(150));
+  }
+
+  @Test
+  public void optionsRejectNullDurations() {
+    Assertions.assertThatNullPointerException()
+        .isThrownBy(() -> TimeoutOptions.timeout(null));
+    Assertions.assertThatNullPointerException()
+        .isThrownBy(() -> TimeoutOptions.polling(null));
+    Assertions.assertThatNullPointerException()
+        .isThrownBy(() -> new TimeoutOptions(null, Duration.ofSeconds(1)));
+    Assertions.assertThatNullPointerException()
+        .isThrownBy(() -> new TimeoutOptions(Duration.ofSeconds(1), null));
+  }
 }

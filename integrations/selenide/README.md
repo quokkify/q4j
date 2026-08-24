@@ -106,8 +106,7 @@ public class LoginSteps
 ```java
 loginSteps
     .loginAs("alice", "wrong-password")
-    .verify()
-    .withTimeout(Duration.ofSeconds(5))
+    .verify(TimeoutOptions.timeout(Duration.ofSeconds(5)))
     .errorMessageIsDisplayed()
     .backToSteps()
     .loginAs("alice", "correct-password");
@@ -120,9 +119,7 @@ loginSteps
 Default timeout is 10 seconds with 500 ms polling. Override per assertion block:
 
 ```java
-steps.verify()
-    .withTimeout(Duration.ofSeconds(15))
-    .withPolling(Duration.ofMillis(200))
+steps.verify(new TimeoutOptions(Duration.ofSeconds(15), Duration.ofMillis(200)))
     .someCondition();
 ```
 
