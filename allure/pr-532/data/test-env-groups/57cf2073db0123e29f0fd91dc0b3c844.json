@@ -1,1 +1,0 @@
-{"id":"57cf2073db0123e29f0fd91dc0b3c844","fullName":"dev.quokkify.test.DropdownBehaviorTest.testSelectedTextsReturnsOnlyLabels","name":"Verify selectedTexts returns chip labels only and excludes visible remove-button text","status":"passed","testResultsByEnv":{"integrations-selenide":"7f880e71084351d3255e12e67a7fbc04"}}

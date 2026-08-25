@@ -1,1 +1,0 @@
-{"id":"4edc5f8a212300e47cbb09ffd82f1ea5","fullName":"dev.quokkify.converter.XmlConverterModuleDiscoveryTest.shouldDeserializePolymorphicPayloadWhenCustomModuleRegistered","name":"Verify XML deserialization to base type works with discovered custom module","status":"passed","testResultsByEnv":{"common-utils-jackson-xml":"476f0448ba387f933978a7d6860b2abc"}}
