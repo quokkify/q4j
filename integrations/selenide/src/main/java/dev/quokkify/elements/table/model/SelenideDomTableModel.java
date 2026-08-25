@@ -15,7 +15,6 @@ import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.WebElementCondition;
 import com.codeborne.selenide.ex.UIAssertionError;
 import com.codeborne.selenide.impl.WebElementWrapper;
-import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.StaleElementReferenceException;
 import org.openqa.selenium.WebElement;
@@ -31,21 +30,40 @@ import org.openqa.selenium.WebElement;
 public final class SelenideDomTableModel<C> implements TableModel<C> {
 
   private final SelenideElement table;
-  private final DomTableLayout layout;
+  private final TableDomAdapter adapter;
   private final DisplayedHeaderResolver<C> resolver;
 
-  public SelenideDomTableModel(SelenideElement table, DomTableLayout layout,
+  /** Creates a model backed by a public per-table DOM adapter. */
+  public SelenideDomTableModel(SelenideElement table, TableDomAdapter adapter,
                                DisplayedHeaderResolver<C> resolver) {
     this.table = Objects.requireNonNull(table, "table");
-    this.layout = Objects.requireNonNull(layout, "layout");
+    this.adapter = Objects.requireNonNull(adapter, "adapter");
     this.resolver = Objects.requireNonNull(resolver, "resolver");
+  }
+
+  /** Creates a model backed by a public per-table DOM adapter. */
+  public static <C> SelenideDomTableModel<C> of(SelenideElement table, TableDomAdapter adapter,
+                                                DisplayedHeaderResolver<C> resolver) {
+    return new SelenideDomTableModel<>(table, adapter, resolver);
+  }
+
+  /** Compatibility constructor for the legacy layout enum. */
+  public SelenideDomTableModel(SelenideElement table, DomTableLayout layout,
+                               DisplayedHeaderResolver<C> resolver) {
+    this(table, adapterFor(layout), resolver);
   }
 
   @Override
   public List<String> displayedHeaders() {
-    return layout == DomTableLayout.FLEX
-        ? table.find(By.cssSelector(".flex-table-row")).findAll(By.cssSelector(":scope > div")).texts()
-        : table.findAll(By.tagName("th")).texts();
+    if (adapter.headerLocator() instanceof TableHeaderRowLocator headers) {
+      return table.find(headers.headerRowLocator()).findAll(headers.headerCellLocator()).texts();
+    }
+    if (adapter.headerLocator() instanceof RowHeaderCellLocator headers) {
+      return rowsElements().stream()
+          .map(row -> row.find(headers.headerCellLocator()).text())
+          .toList();
+    }
+    return List.of();
   }
 
   @Override
@@ -53,19 +71,18 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
     if (!table.exists()) {
       return List.of();
     }
-    int firstDataRow = layout == DomTableLayout.HORIZONTAL ? 0 : 1;
     return new AbstractList<>() {
       @Override
       public TableRow<C> get(int index) {
         if (index < 0 || index >= size()) {
           throw new IndexOutOfBoundsException(index);
         }
-        return new SelenideRow(() -> rowsElements().get(firstDataRow + index));
+        return rowAt(index);
       }
 
       @Override
       public int size() {
-        return Math.max(0, rowsElements().size() - firstDataRow);
+        return rowsElements().size();
       }
     };
   }
@@ -84,21 +101,21 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
   }
 
   private ElementsCollection rowsElements() {
-    return layout == DomTableLayout.FLEX
-        ? table.findAll(By.cssSelector(".flex-table-row"))
-        : table.findAll(By.tagName("tr"));
+    return table.findAll(adapter.mountedDataRowLocator());
   }
 
   private SelenideElement matchingDataRow(Predicate<TableRow<C>> predicate) {
-    int firstDataRow = layout == DomTableLayout.HORIZONTAL ? 0 : 1;
     ElementsCollection currentRows = rowsElements();
-    for (int index = firstDataRow; index < currentRows.size(); index++) {
-      SelenideElement currentRow = currentRows.get(index);
-      if (predicate.test(new SelenideRow(() -> currentRow))) {
-        return currentRow;
+    for (int index = 0; index < currentRows.size(); index++) {
+      if (predicate.test(rowAt(index))) {
+        return rowsElements().get(index);
       }
     }
     throw new NoSuchElementException("table has no matching data row");
+  }
+
+  private SelenideRow rowAt(int index) {
+    return new SelenideRow(() -> rowsElements().get(index));
   }
 
   private final class MatchingTableCondition extends WebElementCondition {
@@ -112,12 +129,8 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
     @Override
     public CheckResult check(Driver driver, WebElement tableElement) {
       try {
-        int firstDataRow = layout == DomTableLayout.HORIZONTAL ? 0 : 1;
-        By rowSelector = layout == DomTableLayout.FLEX
-            ? By.cssSelector(".flex-table-row")
-            : By.tagName("tr");
-        List<WebElement> rowElements = tableElement.findElements(rowSelector);
-        for (int index = firstDataRow; index < rowElements.size(); index++) {
+        List<WebElement> rowElements = tableElement.findElements(adapter.mountedDataRowLocator());
+        for (int index = 0; index < rowElements.size(); index++) {
           WebElement rowElement = rowElements.get(index);
           TableRow<C> candidate = new SelenideRow(
               () -> WebElementWrapper.wrap(driver, rowElement, "table row candidate"));
@@ -142,9 +155,10 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
     @Override
     public Optional<? extends TableCell<C>> cell(C column) {
       int index;
-      if (layout == DomTableLayout.HORIZONTAL) {
+      if (adapter.headerLocator() instanceof RowHeaderCellLocator headers) {
         String expected = resolver.displayedHeader(column);
-        if (!row.get().findAll(By.tagName("th")).texts().contains(expected)) {
+        columnIndex(column, resolver);
+        if (!row.get().findAll(headers.headerCellLocator()).texts().contains(expected)) {
           return Optional.empty();
         }
         index = 0;
@@ -152,14 +166,10 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
         index = columnIndex(column, resolver);
       }
       final int cellIndex = index;
-      ElementsCollection cells = layout == DomTableLayout.FLEX
-          ? row.get().findAll(By.cssSelector(":scope > div"))
-          : row.get().findAll(By.tagName("td"));
+      ElementsCollection cells = row.get().findAll(adapter.dataCellLocator());
       return index < cells.size()
           ? Optional.of(new SelenideCell(column, () -> {
-            ElementsCollection currentCells = layout == DomTableLayout.FLEX
-                ? row.get().findAll(By.cssSelector(":scope > div"))
-                : row.get().findAll(By.tagName("td"));
+            ElementsCollection currentCells = row.get().findAll(adapter.dataCellLocator());
             return currentCells.get(cellIndex);
           }))
           : Optional.empty();
@@ -171,5 +181,13 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
     public String text() {
       return element.get().text();
     }
+  }
+
+  private static TableDomAdapter adapterFor(DomTableLayout layout) {
+    return switch (Objects.requireNonNull(layout, "layout")) {
+      case CLASSIC -> TableDomAdapters.classic();
+      case FLEX -> TableDomAdapters.flex();
+      case HORIZONTAL -> TableDomAdapters.horizontal();
+    };
   }
 }

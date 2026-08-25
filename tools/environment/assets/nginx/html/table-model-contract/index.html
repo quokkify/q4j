@@ -60,6 +60,65 @@
         <td>Austria</td>
       </tr>
     </table>
+    <div id="custom-grid">
+      <div class="header-row">
+        <span class="cell">Country</span>
+        <span class="cell" hidden>Internal ID</span>
+        <span class="cell">Company</span>
+      </div>
+      <div class="data-row">
+        <span class="cell">Austria</span>
+        <span class="cell" hidden>42</span>
+        <span class="cell"></span>
+      </div>
+      <div class="data-row">
+        <span class="cell">Germany</span>
+      </div>
+    </div>
+    <div id="aria-grid" role="grid">
+      <div role="row">
+        <span role="columnheader">Country</span>
+        <span role="columnheader">Company</span>
+      </div>
+      <div role="row">
+        <span role="gridcell">Austria</span>
+        <span role="gridcell">Alfreds</span>
+      </div>
+    </div>
+    <div id="headerless-grid">
+      <div class="data-row">
+        <span class="cell">Austria</span>
+        <span class="cell">Alfreds</span>
+      </div>
+    </div>
+    <table id="repeated-table">
+      <thead>
+        <tr>
+          <th>Country</th>
+          <th>Company</th>
+          <th>Company</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Austria</td>
+          <td>Alfreds</td>
+          <td>Duplicate</td>
+        </tr>
+      </tbody>
+    </table>
+    <table id="body-only-classic">
+      <tbody>
+        <tr>
+          <th>Country</th>
+          <th>Company</th>
+        </tr>
+        <tr>
+          <th scope="row">Austria</th>
+          <td>Alfreds</td>
+        </tr>
+      </tbody>
+    </table>
     <script>
       function prepareDelayedRow() {
         const table = document.getElementById("classic");
@@ -89,6 +148,11 @@
           const replacement = old.cloneNode(true);
           old.replaceWith(replacement);
         });
+      }
+
+      function remountAriaGrid() {
+        const old = document.getElementById("aria-grid");
+        old.replaceWith(old.cloneNode(true));
       }
     </script>
   </body>

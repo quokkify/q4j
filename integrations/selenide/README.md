@@ -133,8 +133,11 @@ configured values to `Waiter` calls.
 
 The neutral DOM model uses typed column keys mapped to the text displayed by the DOM; its enum
 ordinal is never used as a column position. The additive `dev.quokkify.elements.table.model`
-contract consists of `TableModel<C>`, `TableRow<C>`, and `TableCell<C>`. `DomTableLayout.CLASSIC`,
-`DomTableLayout.FLEX`, and `DomTableLayout.HORIZONTAL` describe markup shape only.
+contract consists of `TableModel<C>`, `TableRow<C>`, and `TableCell<C>`. The public immutable
+`TableDomAdapter` describes markup through relative Selenium locators and a header strategy.
+`TableDomAdapters.classic()`, `flex()`, `horizontal()`, and `ariaGrid()` cover the built-in shapes;
+`TableDomAdapters.of(...)` supports custom markup such as div grids. `DomTableLayout` and its
+constructor remain as a compatibility bridge for legacy table components.
 `DisplayedHeaderResolver<C>` maps a typed key to its displayed header, and missing headers fail
 with `TableColumnNotFoundException` rather than silently selecting a neighbouring column.
 
@@ -145,6 +148,34 @@ row reports `TableRowNotFoundException` when the adapter's lookup policy expires
 cell lookups use `Optional` and do not throw for missing data.
 Required cells fail with `TableCellNotFoundException`; this is distinct from a missing table
 header (`TableColumnNotFoundException`).
+
+Adapter locators determine which headers and cells are addressable, so hidden columns can be
+excluded in both locators. Header-row, per-row-header, and headerless tables use
+`TableHeaderRowLocator`, `RowHeaderCellLocator`, and `NoTableHeaders.instance()` respectively.
+Repeated displayed headers remain ambiguous. Headerless typed lookup fails with
+`TableColumnNotFoundException`. A mounted empty cell is present with empty text, while a missing
+cell is `Optional.empty()`. Table, row, and cell locators are re-evaluated on each operation so
+previously returned rows remain usable after a DOM remount.
+
+Framework-specific markup stays outside the core API and is expressed through ordinary adapter
+recipes. For example, Material-like and AG-Grid-like DOM can be described without adding a
+dependency on either library:
+
+```java
+TableDomAdapter materialLike = TableDomAdapters.of(
+    By.cssSelector(".mat-mdc-row"),
+    By.cssSelector(":scope > .mat-mdc-cell"),
+    new TableHeaderRowLocator(
+        By.cssSelector(".mat-mdc-header-row"),
+        By.cssSelector(":scope > .mat-mdc-header-cell")));
+
+TableDomAdapter agGridLike = TableDomAdapters.of(
+    By.cssSelector(".ag-center-cols-container > .ag-row"),
+    By.cssSelector(":scope > .ag-cell"),
+    new TableHeaderRowLocator(
+        By.cssSelector(".ag-header-row"),
+        By.cssSelector(":scope > .ag-header-cell")));
+```
 
 This model intentionally contains no sorting, filtering, pagination, selection, editing,
 virtualization, or loading flags. Those capabilities must be separate components when added.
@@ -179,5 +210,5 @@ read, which keeps them usable after DOM remounts. `isRowExist(...)` and the neut
 `row(...)` remain non-waiting status checks and return absence through `false`/`Optional.empty()`.
 
 The following models are intentionally deferred until their DOM and behavior contracts
-are defined: ARIA grids, virtualized rows, pagination/infinite scrolling, and
-tree/master-detail tables. They are not implied by the current table abstractions.
+are defined: virtualized rows, pagination/infinite scrolling, and tree/master-detail tables.
+They are not implied by the current table abstractions.
