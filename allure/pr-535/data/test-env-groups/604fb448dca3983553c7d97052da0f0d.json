@@ -1,0 +1,1 @@
+{"id":"604fb448dca3983553c7d97052da0f0d","fullName":"dev.quokkify.test.TableQueryContractTest.composesConditionsAndPreservesOrder","name":"Conditions compose and preserve duplicate match DOM order","status":"passed","testResultsByEnv":{"integrations-selenide":"d3c20b795a0bfcb5840cf0d0f6805d0e"}}
