@@ -1,4 +1,4 @@
-_commit: v2.12.1
+_commit: v2.12.2
 _src_path: https://github.com/quokkify/project-toolkit.git
 allure_categories_file: tools/allure/categories.json
 allure_external_artifact_max_count: 50
@@ -16,7 +16,7 @@ release_please: false
 renovate: true
 renovate_config_repository: quokkify/renovate-presets
 renovate_presets:
-  - default
-  - github-actions
-  - java
-toolkit_version: v2.12.1
+- default
+- github-actions
+- java
+toolkit_version: v2.12.2
