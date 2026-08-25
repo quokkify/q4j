@@ -8,6 +8,7 @@ import dev.quokkify.elements.table.model.RowConditions;
 import dev.quokkify.elements.table.model.SelenideTableQuery;
 import dev.quokkify.elements.table.model.TableColumnNotFoundException;
 import dev.quokkify.elements.table.model.TableDomAdapters;
+import dev.quokkify.elements.table.model.TableQueryRow;
 import dev.quokkify.elements.table.model.TableRowAmbiguousException;
 import dev.quokkify.elements.table.model.TableRowNotFoundException;
 import dev.quokkify.elements.table.model.TypedTableCellRef;
@@ -96,8 +97,10 @@ public class TableQueryContractTest extends BaseTest {
 
     Assertions.assertThat(query.findRow(RowConditions.exact(Header.COMPANY, "Berglunds"))).isEmpty();
     Selenide.executeJavaScript("window.restoreDelayedQueryRow()");
-    Assertions.assertThat(query.requiredRow(RowConditions.exact(Header.COMPANY, "Berglunds"),
-        Duration.ofSeconds(2)).requiredCell(Header.COUNTRY).text()).isEqualTo("Germany");
+    TableQueryRow<Header> restored = query.requiredRow(
+        RowConditions.exact(Header.COMPANY, "Berglunds"), Duration.ofSeconds(2));
+    Assertions.assertThat(restored.index()).isEqualTo(1);
+    Assertions.assertThat(restored.requiredCell(Header.COUNTRY).text()).isEqualTo("Germany");
     Assertions.assertThatThrownBy(() -> query.uniqueRow(
             RowConditions.exact(Header.COUNTRY, "Austria")))
         .isInstanceOf(TableRowAmbiguousException.class)

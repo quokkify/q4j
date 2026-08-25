@@ -91,8 +91,8 @@ public final class SelenideTableQuery<C> {
   /** Returns a lazy typed logical column. */
   public TypedTableColumnRef<C> column(C column) {
     Objects.requireNonNull(column, "column");
-    int index = model.typedColumnIndex(column);
-    return new TypedColumnReference(column, index);
+    model.typedColumnIndex(column);
+    return new TypedColumnReference(column);
   }
 
   /** Finds the first currently mounted matching row. */
@@ -208,11 +208,9 @@ public final class SelenideTableQuery<C> {
 
   private final class TypedColumnReference implements TypedTableColumnRef<C> {
     private final C column;
-    private final int index;
 
-    private TypedColumnReference(C column, int index) {
+    private TypedColumnReference(C column) {
       this.column = column;
-      this.index = index;
     }
 
     @Override
@@ -222,7 +220,7 @@ public final class SelenideTableQuery<C> {
 
     @Override
     public int index() {
-      return index;
+      return model.typedColumnIndex(column);
     }
 
     @Override

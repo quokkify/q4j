@@ -220,7 +220,7 @@
 
       function restoreDelayedQueryRow() {
         const body = document.querySelector("#query-classic tbody");
-        window.setTimeout(() => body.appendChild(window.delayedQueryRow), 250);
+        window.setTimeout(() => body.insertBefore(window.delayedQueryRow, body.children[1]), 250);
       }
 
       function remountQueryClassic() {
