@@ -12,9 +12,37 @@ subprojects {
         systemProperties['allure.report.directory'] = "${project.layout.buildDirectory.dir("allure-report").get().asFile.absolutePath}"
 
         testLogging {
-            events "passed", "skipped", "failed"
+            events = []
             showExceptions = true
             exceptionFormat = 'full'
+        }
+
+        afterTest { descriptor, result ->
+            def status = [
+                SUCCESS: 'PASSED',
+                FAILURE: 'FAILED',
+                SKIPPED: 'SKIPPED'
+            ].get(result.resultType.toString())
+
+            if (status != null) {
+                def className = descriptor.className ?: descriptor.name
+                def simpleClassName = className.substring(className.lastIndexOf('.') + 1)
+                def groupName = descriptor
+                while (groupName != null && !['Concurrency', 'Sequential'].contains(groupName.name)) {
+                    groupName = groupName.parent
+                }
+                def projectName = project.path.substring(1).replace(':', '@')
+
+                logger.lifecycle(
+                    "${projectName} > ${groupName?.name ?: 'Tests'} > ${simpleClassName} > ${descriptor.name} ${status}"
+                )
+
+                if (status == 'FAILED') {
+                    result.exceptions.each { exception ->
+                        logger.error('Test failure details:', exception)
+                    }
+                }
+            }
         }
     }
 }
