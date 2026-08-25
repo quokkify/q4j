@@ -1,6 +1,6 @@
 # ☕ Q4J
 
-> Modular Java building blocks for test automation and quality engineering.
+Generated with `quokkify/project-toolkit` at `v2.12.3`. Run `copier update` to apply future template changes; Renovate updates workflow version references independently.
 
 - ✅ Pick only the modules your project needs
 - ✅ Keep test infrastructure under one `dev.quokkify` namespace
