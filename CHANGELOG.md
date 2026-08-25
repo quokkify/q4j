@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.6.0](https://github.com/quokkify/q4j/compare/v0.5.3...v0.6.0) (2026-08-25)
+
+
+### ✨ Features
+
+* **selenide:** add framework-independent table DOM model ([#522](https://github.com/quokkify/q4j/issues/522)) ([e448dd2](https://github.com/quokkify/q4j/commit/e448dd2a42b9994c0b68af33c10b059cb0b4e812))
+* **selenide:** add lazy table query API ([#529](https://github.com/quokkify/q4j/issues/529)) ([84c4830](https://github.com/quokkify/q4j/commit/84c4830f7f036010971b6df66e00372b0c1585ff))
+* **selenide:** add table assertions and action handles ([#530](https://github.com/quokkify/q4j/issues/530)) ([ebc46ab](https://github.com/quokkify/q4j/commit/ebc46abf78bf53c38c3e93ceba2708c545b01f73))
+* **selenide:** add table DOM adapter SPI ([#528](https://github.com/quokkify/q4j/issues/528)) ([2b4e206](https://github.com/quokkify/q4j/commit/2b4e2068218b8221e3c12f38ee61f093aee8e1cf))
+
+
+### 🐛 Bug Fixes
+
+* **deps:** update com.rabbitmq:amqp-client to v5.35.0 ([#519](https://github.com/quokkify/q4j/issues/519)) ([1acbdfe](https://github.com/quokkify/q4j/commit/1acbdfe2382ff4e946536138fd40cc4cda279d13))
+
+
+### 🧪 Tests
+
+* **selenide:** cover local table API variants ([#517](https://github.com/quokkify/q4j/issues/517)) ([50f89a3](https://github.com/quokkify/q4j/commit/50f89a3d723973c3b307f7bcb339842ef7544b6b))
+
+
+### 🧹 Chores
+
+* **testng:** simplify test log names ([#534](https://github.com/quokkify/q4j/issues/534)) ([a2cc282](https://github.com/quokkify/q4j/commit/a2cc2827d321c7d02e6fee850b18409931084594))
+
 ## [0.5.3](https://github.com/quokkify/q4j/compare/v0.5.2...v0.5.3) (2026-08-24)
 
 
