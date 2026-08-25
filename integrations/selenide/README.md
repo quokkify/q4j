@@ -180,6 +180,39 @@ TableDomAdapter agGridLike = TableDomAdapters.of(
 This model intentionally contains no sorting, filtering, pagination, selection, editing,
 virtualization, or loading flags. Those capabilities must be separate components when added.
 
+### Selenide table queries
+
+Legacy table page objects expose an additive query layer without changing the neutral model:
+
+```java
+SelenideTableQuery<Header> query = table.query(header -> header.displayedName());
+
+TableQueryRow<Header> row = query.requiredRow(
+    RowConditions.all(
+        RowConditions.exact(Header.COUNTRY, "Austria"),
+        RowConditions.greaterThan(Header.EMPLOYEES, 10)),
+    Duration.ofSeconds(2));
+
+String company = row.requiredCell(Header.COMPANY).text();
+List<? extends TypedTableCellRef<Header>> companies =
+    query.column(Header.COMPANY).cells();
+```
+
+`row(int)`, `cell(int, int)`, and `column(int)` use zero-based indexes. Typed access uses the
+caller-supplied `DisplayedHeaderResolver`; there is no implicit string-header overload. A table
+whose key type is `String` must opt in with an explicit identity resolver.
+
+`mountedRows()` includes hidden DOM rows, while `visibleRows()` filters them using Selenide's
+displayed state. `findRow(...)` returns the first match, `findRows(...)` returns all matches in DOM
+order, `requiredRow(...)` requires the first match, and `uniqueRow(...)` rejects both absence and
+duplicate matches. `row(...)` is the concise equivalent of `requiredRow(...)`. Exact, substring,
+regular-expression, numeric greater-than, and AND conditions are available from `RowConditions`.
+
+Indexed and typed row/cell/column references contain only indexes or keys. They resolve the current
+DOM when read, so they do not cache raw `WebElement` instances across a remount. Classic and flex
+columns contain their matching cells down the mounted rows. A horizontal table's logical column
+contains the single data cell beside that row's header.
+
 ---
 
 ## Run tests

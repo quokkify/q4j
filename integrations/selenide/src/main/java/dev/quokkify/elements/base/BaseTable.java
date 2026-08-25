@@ -9,6 +9,7 @@ import dev.quokkify.elements.table.classic.base.BaseRow;
 import dev.quokkify.elements.table.model.DisplayedHeaderResolver;
 import dev.quokkify.elements.table.model.DomTableLayout;
 import dev.quokkify.elements.table.model.SelenideDomTableModel;
+import dev.quokkify.elements.table.model.SelenideTableQuery;
 import dev.quokkify.elements.table.model.TableDomAdapter;
 import dev.quokkify.elements.table.model.TableModel;
 import dev.quokkify.html.model.HtmlTag;
@@ -53,6 +54,21 @@ public abstract class BaseTable<T extends Enum<T>> extends Component {
   public TableModel<T> asDomModel(TableDomAdapter adapter, Function<T, String> displayedHeader) {
     return new SelenideDomTableModel<>(getSelf(), adapter,
         DisplayedHeaderResolver.requiringNonNull(displayedHeader));
+  }
+
+  /** Creates the additive Selenide query layer for this legacy table. */
+  public SelenideTableQuery<T> query(Function<T, String> displayedHeader) {
+    SelenideDomTableModel<T> model = new SelenideDomTableModel<>(getSelf(), domTableLayout(),
+        DisplayedHeaderResolver.requiringNonNull(displayedHeader));
+    return new SelenideTableQuery<>(model);
+  }
+
+  /** Creates the additive Selenide query layer with a caller-supplied DOM adapter. */
+  public SelenideTableQuery<T> query(TableDomAdapter adapter,
+                                     Function<T, String> displayedHeader) {
+    SelenideDomTableModel<T> model = new SelenideDomTableModel<>(getSelf(), adapter,
+        DisplayedHeaderResolver.requiringNonNull(displayedHeader));
+    return new SelenideTableQuery<>(model);
   }
 
   /** DOM shape used by the neutral model bridge. */

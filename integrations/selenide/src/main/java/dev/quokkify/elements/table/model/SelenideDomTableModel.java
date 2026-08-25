@@ -5,6 +5,7 @@ import java.util.AbstractList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.function.BiPredicate;
 import java.util.function.Predicate;
 import java.util.function.Supplier;
 
@@ -89,6 +90,11 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
 
   @Override
   public TableRow<C> requiredRow(Predicate<TableRow<C>> predicate, String description, Duration timeout) {
+    return requiredIndexedRow((index, row) -> predicate.test(row), description, timeout);
+  }
+
+  TableRow<C> requiredIndexedRow(BiPredicate<Integer, TableRow<C>> predicate,
+                                 String description, Duration timeout) {
     try {
       table.shouldBe(new MatchingTableCondition(predicate, description), timeout);
       return new SelenideRow(() -> matchingDataRow(predicate));
@@ -104,10 +110,10 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
     return table.findAll(adapter.mountedDataRowLocator());
   }
 
-  private SelenideElement matchingDataRow(Predicate<TableRow<C>> predicate) {
+  private SelenideElement matchingDataRow(BiPredicate<Integer, TableRow<C>> predicate) {
     ElementsCollection currentRows = rowsElements();
     for (int index = 0; index < currentRows.size(); index++) {
-      if (predicate.test(rowAt(index))) {
+      if (predicate.test(index, rowAt(index))) {
         return rowsElements().get(index);
       }
     }
@@ -118,10 +124,24 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
     return new SelenideRow(() -> rowsElements().get(index));
   }
 
-  private final class MatchingTableCondition extends WebElementCondition {
-    private final Predicate<TableRow<C>> predicate;
+  int typedColumnIndex(C column) {
+    return columnIndex(column, resolver);
+  }
 
-    private MatchingTableCondition(Predicate<TableRow<C>> predicate, String description) {
+  boolean isHorizontal() {
+    return adapter.headerLocator() instanceof RowHeaderCellLocator;
+  }
+
+  boolean hasDataCell(int cellIndex) {
+    return rowsElements().stream()
+        .anyMatch(row -> row.findAll(adapter.dataCellLocator()).size() > cellIndex);
+  }
+
+  private final class MatchingTableCondition extends WebElementCondition {
+    private final BiPredicate<Integer, TableRow<C>> predicate;
+
+    private MatchingTableCondition(BiPredicate<Integer, TableRow<C>> predicate,
+                                   String description) {
       super(description);
       this.predicate = predicate;
     }
@@ -134,7 +154,7 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
           WebElement rowElement = rowElements.get(index);
           TableRow<C> candidate = new SelenideRow(
               () -> WebElementWrapper.wrap(driver, rowElement, "table row candidate"));
-          if (predicate.test(candidate)) {
+          if (predicate.test(index, candidate)) {
             return CheckResult.accepted("matched row");
           }
         }
@@ -145,7 +165,7 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
     }
   }
 
-  private final class SelenideRow implements TableRow<C> {
+  private final class SelenideRow implements IndexedTableRow<C> {
     private final Supplier<SelenideElement> row;
 
     private SelenideRow(Supplier<SelenideElement> row) {
@@ -157,13 +177,13 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
       int index;
       if (adapter.headerLocator() instanceof RowHeaderCellLocator headers) {
         String expected = resolver.displayedHeader(column);
-        columnIndex(column, resolver);
+        SelenideDomTableModel.this.columnIndex(column, resolver);
         if (!row.get().findAll(headers.headerCellLocator()).texts().contains(expected)) {
           return Optional.empty();
         }
         index = 0;
       } else {
-        index = columnIndex(column, resolver);
+        index = SelenideDomTableModel.this.columnIndex(column, resolver);
       }
       final int cellIndex = index;
       ElementsCollection cells = row.get().findAll(adapter.dataCellLocator());
@@ -173,6 +193,26 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
             return currentCells.get(cellIndex);
           }))
           : Optional.empty();
+    }
+
+    @Override
+    public Optional<String> cellText(int index) {
+      if (index < 0) {
+        throw new IndexOutOfBoundsException(index);
+      }
+      ElementsCollection cells = row.get().findAll(adapter.dataCellLocator());
+      return index < cells.size() ? Optional.of(cells.get(index).text()) : Optional.empty();
+    }
+
+    @Override
+    public int columnIndex(C column) {
+      return adapter.headerLocator() instanceof RowHeaderCellLocator ? 0
+          : SelenideDomTableModel.this.columnIndex(column, resolver);
+    }
+
+    @Override
+    public boolean isVisible() {
+      return row.get().isDisplayed();
     }
   }
 
