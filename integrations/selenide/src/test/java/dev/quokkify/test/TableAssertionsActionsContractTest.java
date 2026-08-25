@@ -97,11 +97,33 @@ public class TableAssertionsActionsContractTest extends BaseTest {
     table.row(0).requiredCell(CHECK).checkbox().setSelected(true);
     Assertions.assertThat(table.row(0).requiredCell(CHECK).checkbox().isSelected()).isTrue();
 
-    table.row(0).requiredCell(RADIO).radio().setSelected(true);
+    table.row(0).requiredCell(RADIO).radio().select();
     Assertions.assertThat(table.row(0).requiredCell(RADIO).radio().isSelected()).isTrue();
+    Assertions.assertThatThrownBy(() -> table.row(0).requiredCell(RADIO).radio().setSelected(false))
+        .isInstanceOf(UnsupportedTableEditException.class);
 
     table.row(0).requiredCell(SELECT).select().selectOption("Two");
     Assertions.assertThat(table.row(0).requiredCell(SELECT).select().selectedText()).isEqualTo("Two");
+  }
+
+  @Test(description = "Contenteditable uses inherited HTML semantics and text editing")
+  public void editsContenteditableCells() {
+    SelenideTableQuery<String> contenteditable = SelenideTableQuery.of(
+        Selenide.$("#contenteditable-table"), TableDomAdapters.classic(), header -> header);
+
+    Assertions.assertThat(contenteditable.row(0).requiredCell("Direct").editable().value())
+        .isEqualTo("Direct");
+    Assertions.assertThat(contenteditable.row(0).requiredCell("Inherited").editable().value())
+        .isEqualTo("Inherited");
+    Assertions.assertThat(contenteditable.row(0).requiredCell("Empty").editable().value())
+        .isEqualTo("Empty");
+    Assertions.assertThat(contenteditable.row(0).requiredCell("Plaintext").editable().value())
+        .isEqualTo("Plaintext");
+    contenteditable.row(0).requiredCell("Direct").editable().setValue("Changed");
+    Assertions.assertThat(contenteditable.row(0).requiredCell("Direct").editable().value())
+        .isEqualTo("Changed");
+    Assertions.assertThatThrownBy(() -> contenteditable.row(0).requiredCell("False").editable())
+        .isInstanceOf(UnsupportedTableEditException.class);
   }
 
   @Test(description = "Read-only cells reject the explicit edit capability")

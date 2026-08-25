@@ -42,7 +42,7 @@ public interface TableCellRef<C> {
   }
 
   /** Resolves a radio button embedded in this cell. */
-  default CheckableTableControl radio() {
+  default RadioTableControl radio() {
     throw elementBackedOperation("radio");
   }
 

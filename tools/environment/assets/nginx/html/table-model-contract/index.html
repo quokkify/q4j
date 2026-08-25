@@ -226,6 +226,26 @@
         </tr>
       </tbody>
     </table>
+    <table id="contenteditable-table" contenteditable="true">
+      <thead>
+        <tr>
+          <th>Direct</th>
+          <th>Inherited</th>
+          <th>Empty</th>
+          <th>Plaintext</th>
+          <th>False</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td contenteditable="TRUE">Direct</td>
+          <td>Inherited</td>
+          <td contenteditable>Empty</td>
+          <td contenteditable="plaintext-only">Plaintext</td>
+          <td contenteditable="false">False</td>
+        </tr>
+      </tbody>
+    </table>
     <output id="table-action-result"></output>
     <script>
       function prepareDelayedRow() {

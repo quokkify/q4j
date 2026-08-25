@@ -78,8 +78,8 @@ class ElementTableCellRef<C> implements TableCellRef<C> {
   }
 
   @Override
-  public CheckableTableControl radio() {
-    return new CheckableControl(() -> element.get().find(By.cssSelector("input[type=radio]")),
+  public RadioTableControl radio() {
+    return new RadioControl(() -> element.get().find(By.cssSelector("input[type=radio]")),
         description + " radio");
   }
 
@@ -97,8 +97,10 @@ class ElementTableCellRef<C> implements TableCellRef<C> {
   @Override
   public EditableTableControl editable() {
     SelenideElement cell = element.get();
-    if (Objects.equals(cell.getAttribute("contenteditable"), "true")) {
-      return new EditableControl(element, description + " contenteditable cell");
+    Boolean contentEditable = com.codeborne.selenide.Selenide.executeJavaScript(
+        "return arguments[0].isContentEditable === true;", cell);
+    if (Boolean.TRUE.equals(contentEditable)) {
+      return new ContentEditableControl(element, description + " contenteditable cell");
     }
     SelenideElement control = cell.find(By.cssSelector(EDITABLE_INPUT_SELECTOR));
     if (control.exists()) {
@@ -171,6 +173,44 @@ class ElementTableCellRef<C> implements TableCellRef<C> {
     @Override
     public CheckableTableControl setSelected(boolean selected) {
       element.get().setSelected(selected);
+      return this;
+    }
+
+    @Override
+    public boolean isSelected() {
+      return element.get().isSelected();
+    }
+  }
+
+  private static final class ContentEditableControl extends ElementControl
+      implements EditableTableControl {
+    private ContentEditableControl(Supplier<SelenideElement> element, String description) {
+      super(element, description);
+    }
+
+    @Override
+    public EditableTableControl setValue(String value) {
+      SelenideElement target = element.get();
+      target.click();
+      target.clear();
+      target.sendKeys(value);
+      return this;
+    }
+
+    @Override
+    public String value() {
+      return element.get().innerText();
+    }
+  }
+
+  private static final class RadioControl extends ElementControl implements RadioTableControl {
+    private RadioControl(Supplier<SelenideElement> element, String description) {
+      super(element, description);
+    }
+
+    @Override
+    public RadioTableControl select() {
+      element.get().click();
       return this;
     }
 
