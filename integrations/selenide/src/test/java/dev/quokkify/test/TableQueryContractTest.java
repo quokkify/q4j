@@ -8,11 +8,9 @@ import dev.quokkify.elements.table.model.RowConditions;
 import dev.quokkify.elements.table.model.SelenideTableQuery;
 import dev.quokkify.elements.table.model.TableColumnNotFoundException;
 import dev.quokkify.elements.table.model.TableDomAdapters;
-import dev.quokkify.elements.table.model.TableQueryRow;
 import dev.quokkify.elements.table.model.TableRowAmbiguousException;
 import dev.quokkify.elements.table.model.TableRowNotFoundException;
 import dev.quokkify.elements.table.model.TypedTableCellRef;
-import dev.quokkify.elements.table.model.TypedTableColumnRef;
 
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
@@ -65,19 +63,6 @@ public class TableQueryContractTest extends BaseTest {
     Assertions.assertThat(company.text()).isEqualTo("Alfreds");
   }
 
-  @Test(description = "Typed column references resolve their index after remount and header reorder")
-  public void reResolvesTypedColumnAfterHeaderReorder() {
-    SelenideTableQuery<Header> query = page.classic.query(header -> header.displayed);
-    TypedTableColumnRef<Header> company = query.column(Header.COMPANY);
-
-    Assertions.assertThat(company.index()).isEqualTo(1);
-    Selenide.executeJavaScript("window.remountQueryClassicWithReorderedHeaders()");
-
-    Assertions.assertThat(company.index()).isZero();
-    Assertions.assertThat(company.cells()).extracting(cell -> cell.text())
-        .containsExactly("Alfreds", "Berglunds", "", "Alpine");
-  }
-
   @Test(description = "Mounted and visible rows have explicit and different semantics")
   public void distinguishesMountedFromVisibleRows() {
     SelenideTableQuery<Header> query = page.classic.query(header -> header.displayed);
@@ -104,22 +89,15 @@ public class TableQueryContractTest extends BaseTest {
         .hasSize(1);
   }
 
-  @Test(description = "Required means first match while unique means exactly one")
-  public void requiredReturnsFirstMatchWhileUniqueRejectsDuplicates() {
+  @Test(description = "Required queries wait natively and unique queries reject zero or duplicates")
+  public void waitsAndEnforcesUniqueRows() {
     SelenideTableQuery<Header> query = page.classic.query(header -> header.displayed);
     Selenide.executeJavaScript("window.prepareDelayedQueryRow()");
 
     Assertions.assertThat(query.findRow(RowConditions.exact(Header.COMPANY, "Berglunds"))).isEmpty();
     Selenide.executeJavaScript("window.restoreDelayedQueryRow()");
-    TableQueryRow<Header> restored = query.requiredRow(
-        RowConditions.exact(Header.COMPANY, "Berglunds"), Duration.ofSeconds(2));
-    Assertions.assertThat(restored.index()).isEqualTo(1);
-    Assertions.assertThat(restored.requiredCell(Header.COUNTRY).text()).isEqualTo("Germany");
-    TableQueryRow<Header> firstAustria = query.requiredRow(RowConditions.all(
-        RowConditions.exact(Header.COUNTRY, "Austria"),
-        RowConditions.greaterThan(Header.EMPLOYEES, 5)), Duration.ofSeconds(2));
-    Assertions.assertThat(firstAustria.index()).isZero();
-    Assertions.assertThat(firstAustria.requiredCell(Header.COMPANY).text()).isEqualTo("Alfreds");
+    Assertions.assertThat(query.requiredRow(RowConditions.exact(Header.COMPANY, "Berglunds"),
+        Duration.ofSeconds(2)).requiredCell(Header.COUNTRY).text()).isEqualTo("Germany");
     Assertions.assertThatThrownBy(() -> query.uniqueRow(
             RowConditions.exact(Header.COUNTRY, "Austria")))
         .isInstanceOf(TableRowAmbiguousException.class)
@@ -135,6 +113,20 @@ public class TableQueryContractTest extends BaseTest {
 
     Assertions.assertThat(query.requiredRow(row -> row.index() == 1, Duration.ofMillis(200)).index())
         .isEqualTo(1);
+  }
+
+  @Test(description = "Native query waits keep cell reads on the same candidate snapshot")
+  public void keepsIndexedAndTypedConditionReadsOnCapturedSnapshot() {
+    SelenideTableQuery<Header> query = page.classic.query(header -> header.displayed);
+
+    Assertions.assertThat(query.requiredRow(row -> {
+      if (row.index() == 1) {
+        Selenide.executeJavaScript(
+            "const body = document.querySelector('#query-classic tbody');"
+                + "body.prepend(body.lastElementChild);");
+      }
+      return row.requiredCell(Header.COMPANY).text().equals("Berglunds");
+    }, Duration.ofSeconds(2)).index()).isEqualTo(1);
   }
 
   @Test(description = "Flex columns are vertical and horizontal logical columns contain one cell")

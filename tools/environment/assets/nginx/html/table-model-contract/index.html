@@ -176,6 +176,77 @@
         <td>12</td>
       </tr>
     </table>
+    <table id="assertion-actions">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Status</th>
+          <th>Action</th>
+          <th>Input</th>
+          <th>Check</th>
+          <th>Radio</th>
+          <th>Select</th>
+          <th>Read only</th>
+          <th>Link</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Alpha</td>
+          <td class="status">Ready</td>
+          <td>
+            <button type="button" onclick="markTableAction('button')">
+              Run
+            </button>
+          </td>
+          <td><input value="initial" /></td>
+          <td><input type="checkbox" /></td>
+          <td><input type="radio" name="choice" /></td>
+          <td>
+            <select>
+              <option>One</option>
+              <option>Two</option>
+            </select>
+          </td>
+          <td>fixed</td>
+          <td>
+            <a href="#table-link" onclick="markTableAction('link')">Details</a>
+          </td>
+        </tr>
+        <tr>
+          <td>Beta</td>
+          <td>Ready</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>fixed too</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+    <table id="contenteditable-table" contenteditable="true">
+      <thead>
+        <tr>
+          <th>Direct</th>
+          <th>Inherited</th>
+          <th>Empty</th>
+          <th>Plaintext</th>
+          <th>False</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td contenteditable="TRUE">Direct</td>
+          <td>Inherited</td>
+          <td contenteditable>Empty</td>
+          <td contenteditable="plaintext-only">Plaintext</td>
+          <td contenteditable="false">False</td>
+        </tr>
+      </tbody>
+    </table>
+    <output id="table-action-result"></output>
     <script>
       function prepareDelayedRow() {
         const table = document.getElementById("classic");
@@ -183,7 +254,7 @@
         row.remove();
         window.setTimeout(
           () => table.querySelector("tbody").appendChild(row),
-          1000,
+          250,
         );
       }
 
@@ -220,10 +291,7 @@
 
       function restoreDelayedQueryRow() {
         const body = document.querySelector("#query-classic tbody");
-        window.setTimeout(
-          () => body.insertBefore(window.delayedQueryRow, body.children[1]),
-          250,
-        );
+        window.setTimeout(() => body.appendChild(window.delayedQueryRow), 250);
       }
 
       function remountQueryClassic() {
@@ -231,14 +299,43 @@
         old.replaceWith(old.cloneNode(true));
       }
 
-      function remountQueryClassicWithReorderedHeaders() {
-        const old = document.getElementById("query-classic");
-        const replacement = old.cloneNode(true);
-        replacement.querySelectorAll("tr").forEach((row) => {
-          const cells = row.children;
-          row.insertBefore(cells[1], cells[0]);
-        });
-        old.replaceWith(replacement);
+      function redirectQueryClassicRoot() {
+        const captured = document.getElementById("query-classic");
+        const replacement = captured.cloneNode(true);
+        captured.id = "query-classic-captured";
+        replacement.querySelector("tbody td").textContent = "Changed";
+        replacement.id = "query-classic";
+        captured.after(replacement);
+      }
+
+      function remountAssertionTable() {
+        const old = document.getElementById("assertion-actions");
+        old.replaceWith(old.cloneNode(true));
+      }
+
+      function prepareDelayedAssertionHeader() {
+        const header = document.querySelector(
+          "#assertion-actions th:nth-child(2)",
+        );
+        header.textContent = "Loading";
+        window.setTimeout(() => (header.textContent = "Status"), 250);
+      }
+
+      function prepareDelayedAssertionRow() {
+        const body = document.querySelector("#assertion-actions tbody");
+        const row = body.children[1];
+        row.remove();
+        window.setTimeout(() => body.appendChild(row), 250);
+      }
+
+      function prepareDelayedAssertionCell() {
+        const cell = document.querySelector("#assertion-actions .status");
+        cell.textContent = "Pending";
+        window.setTimeout(() => (cell.textContent = "Ready"), 250);
+      }
+
+      function markTableAction(value) {
+        document.getElementById("table-action-result").textContent = value;
       }
     </script>
   </body>

@@ -6,8 +6,8 @@ import org.openqa.selenium.By;
 public final class TableDomAdapters {
 
   private static final TableDomAdapter CLASSIC = of(
-      By.xpath(".//tr[td]"),
-      By.xpath("./td | ./th[@scope='row']"),
+      By.xpath(".//tr[not(th)]"),
+      By.xpath("./td"),
       new TableHeaderRowLocator(By.xpath(".//tr[th]"), By.xpath("./th")));
   private static final TableDomAdapter FLEX = of(
       By.cssSelector(".flex-table-row ~ .flex-table-row"),

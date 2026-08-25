@@ -90,14 +90,15 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
 
   @Override
   public TableRow<C> requiredRow(Predicate<TableRow<C>> predicate, String description, Duration timeout) {
-    return requiredIndexedRow((index, row) -> predicate.test(row), description, timeout);
+    return rowAt(requiredRowIndex((index, row) -> predicate.test(row), description, timeout));
   }
 
-  TableRow<C> requiredIndexedRow(BiPredicate<Integer, TableRow<C>> predicate,
-                                 String description, Duration timeout) {
+  int requiredRowIndex(BiPredicate<Integer, TableRow<C>> predicate,
+                       String description, Duration timeout) {
+    MatchingTableCondition condition = new MatchingTableCondition(predicate, description);
     try {
-      table.shouldBe(new MatchingTableCondition(predicate, description), timeout);
-      return new SelenideRow(() -> matchingDataRow(predicate));
+      table.shouldBe(condition, timeout);
+      return condition.matchedIndex();
     } catch (UIAssertionError error) {
       TableRowNotFoundException failure = new TableRowNotFoundException(
           description + "; timeout=" + timeout);
@@ -108,16 +109,6 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
 
   private ElementsCollection rowsElements() {
     return table.findAll(adapter.mountedDataRowLocator());
-  }
-
-  private SelenideElement matchingDataRow(BiPredicate<Integer, TableRow<C>> predicate) {
-    ElementsCollection currentRows = rowsElements();
-    for (int index = 0; index < currentRows.size(); index++) {
-      if (predicate.test(index, rowAt(index))) {
-        return rowsElements().get(index);
-      }
-    }
-    throw new NoSuchElementException("table has no matching data row");
   }
 
   private SelenideRow rowAt(int index) {
@@ -137,8 +128,129 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
         .anyMatch(row -> row.findAll(adapter.dataCellLocator()).size() > cellIndex);
   }
 
+  DisplayedHeaderResolver<C> displayedHeaderResolver() {
+    return resolver;
+  }
+
+  SelenideElement rowElement(int rowIndex) {
+    return rowsElements().get(rowIndex);
+  }
+
+  SelenideElement cellElement(int rowIndex, int columnIndex) {
+    return rowElement(rowIndex).findAll(adapter.dataCellLocator()).get(columnIndex);
+  }
+
+  SelenideElement typedCellElement(int rowIndex, C column) {
+    int columnIndex = adapter.headerLocator() instanceof RowHeaderCellLocator ? 0
+        : typedColumnIndex(column);
+    return cellElement(rowIndex, columnIndex);
+  }
+
+  void assertTable(TableAssertion<C> assertion) {
+    table.shouldHave(new SnapshotTableCondition(assertion));
+  }
+
+  void assertTable(TableAssertion<C> assertion, Duration timeout) {
+    table.shouldHave(new SnapshotTableCondition(assertion), timeout);
+  }
+
+  void assertRow(int rowIndex, RowAssertion<C> assertion) {
+    assertTable(rowAssertion(rowIndex, assertion));
+  }
+
+  void assertRow(int rowIndex, RowAssertion<C> assertion, Duration timeout) {
+    assertTable(rowAssertion(rowIndex, assertion), timeout);
+  }
+
+  void assertColumn(int columnIndex, ColumnAssertion assertion) {
+    assertTable(columnAssertion("index=" + columnIndex, columnIndex, assertion));
+  }
+
+  void assertColumn(int columnIndex, ColumnAssertion assertion, Duration timeout) {
+    assertTable(columnAssertion("index=" + columnIndex, columnIndex, assertion), timeout);
+  }
+
+  void assertColumn(C column, ColumnAssertion assertion) {
+    assertTable(typedColumnAssertion(column, assertion));
+  }
+
+  void assertColumn(C column, ColumnAssertion assertion, Duration timeout) {
+    assertTable(typedColumnAssertion(column, assertion), timeout);
+  }
+
+  private TableAssertion<C> rowAssertion(int rowIndex, RowAssertion<C> assertion) {
+    RowAssertion<C> required = Objects.requireNonNull(assertion, "assertion");
+    return new TableAssertion<>() {
+      @Override
+      public String description() {
+        return "row index " + rowIndex + " " + required.description();
+      }
+
+      @Override
+      public boolean test(Driver driver, TableAssertionContext<C> context) {
+        return rowIndex >= 0 && rowIndex < context.rowCount()
+            && required.test(driver, context.row(rowIndex));
+      }
+    };
+  }
+
+  private TableAssertion<C> columnAssertion(String address, int columnIndex,
+                                             ColumnAssertion assertion) {
+    ColumnAssertion required = Objects.requireNonNull(assertion, "assertion");
+    return new TableAssertion<>() {
+      @Override
+      public String description() {
+        return "column " + address + " " + required.description();
+      }
+
+      @Override
+      public boolean test(Driver driver, TableAssertionContext<C> context) {
+        return required.test(context.columnValues(columnIndex));
+      }
+    };
+  }
+
+  private TableAssertion<C> typedColumnAssertion(C column, ColumnAssertion assertion) {
+    String displayed = resolver.displayedHeader(Objects.requireNonNull(column, "column"));
+    ColumnAssertion required = Objects.requireNonNull(assertion, "assertion");
+    return new TableAssertion<>() {
+      @Override
+      public String description() {
+        return "column key=" + column + ", header=" + displayed + " " + required.description();
+      }
+
+      @Override
+      public boolean test(Driver driver, TableAssertionContext<C> context) {
+        int index = context.columnIndex(column);
+        return index >= 0 && required.test(context.columnValues(index));
+      }
+    };
+  }
+
+  private final class SnapshotTableCondition extends WebElementCondition {
+    private final TableAssertion<C> assertion;
+
+    private SnapshotTableCondition(TableAssertion<C> assertion) {
+      super(Objects.requireNonNull(assertion, "assertion").description() + " on " + table);
+      this.assertion = assertion;
+    }
+
+    @Override
+    public CheckResult check(Driver driver, WebElement tableElement) {
+      try {
+        TableAssertionContext<C> context = new TableAssertionContext<>(tableElement, adapter, resolver);
+        return assertion.test(driver, context)
+            ? CheckResult.accepted(context.diagnostics())
+            : CheckResult.rejected(assertion.description(), context.diagnostics());
+      } catch (NoSuchElementException | StaleElementReferenceException | IndexOutOfBoundsException error) {
+        return CheckResult.rejected(error.toString(), "table changed while checking assertion");
+      }
+    }
+  }
+
   private final class MatchingTableCondition extends WebElementCondition {
     private final BiPredicate<Integer, TableRow<C>> predicate;
+    private int matchedIndex = -1;
 
     private MatchingTableCondition(BiPredicate<Integer, TableRow<C>> predicate,
                                    String description) {
@@ -149,12 +261,14 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
     @Override
     public CheckResult check(Driver driver, WebElement tableElement) {
       try {
+        matchedIndex = -1;
         List<WebElement> rowElements = tableElement.findElements(adapter.mountedDataRowLocator());
         for (int index = 0; index < rowElements.size(); index++) {
           WebElement rowElement = rowElements.get(index);
           TableRow<C> candidate = new SelenideRow(
               () -> WebElementWrapper.wrap(driver, rowElement, "table row candidate"));
           if (predicate.test(index, candidate)) {
+            matchedIndex = index;
             return CheckResult.accepted("matched row");
           }
         }
@@ -162,6 +276,13 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
       } catch (NoSuchElementException | StaleElementReferenceException error) {
         return CheckResult.rejected(error.toString(), "table changed while checking rows");
       }
+    }
+
+    private int matchedIndex() {
+      if (matchedIndex < 0) {
+        throw new NoSuchElementException("table has no matching data row");
+      }
+      return matchedIndex;
     }
   }
 
@@ -202,6 +323,11 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
       }
       ElementsCollection cells = row.get().findAll(adapter.dataCellLocator());
       return index < cells.size() ? Optional.of(cells.get(index).text()) : Optional.empty();
+    }
+
+    @Override
+    public SelenideElement cellElement(int index) {
+      return row.get().findAll(adapter.dataCellLocator()).get(index);
     }
 
     @Override
