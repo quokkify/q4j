@@ -1,1 +1,1 @@
-{"id":"93ececbe04a9f31f3a92a20a77eb29f2","fullName":"dev.quokkify.tyrus.client.WsClientIntegrationTest.multipleMessages_verifiedInOrder","name":"multipleMessages_verifiedInOrder","status":"passed","testResultsByEnv":{"integrations-tyrus":"962bac3dcc4cdc7978d0b0f1c9c14b38"}}
+{"id":"93ececbe04a9f31f3a92a20a77eb29f2","fullName":"dev.quokkify.tyrus.client.WsClientIntegrationTest.multipleMessages_verifiedInOrder","name":"multipleMessages_verifiedInOrder","status":"passed","testResultsByEnv":{"integrations-tyrus":"939acf4129a1b3ecaf6d2f27d472711d"}}
