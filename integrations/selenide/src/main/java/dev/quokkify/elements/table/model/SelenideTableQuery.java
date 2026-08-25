@@ -101,7 +101,7 @@ public final class SelenideTableQuery<C> {
   }
 
   /** Composes the opt-in filtering capability around this query. */
-  public FilterableTable<C> filterable(TableFilteringSpec<C> spec) {
+  public <F> FilterableTable<C, F> filterable(TableFilteringSpec<F> spec) {
     return new SelenideFilterableTable<>(this, spec);
   }
 

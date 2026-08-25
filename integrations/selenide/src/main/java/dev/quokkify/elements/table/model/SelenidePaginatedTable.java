@@ -4,6 +4,9 @@ import java.time.Duration;
 import java.util.Objects;
 import java.util.Optional;
 
+import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.SelenideElement;
+
 public final class SelenidePaginatedTable<C> implements PaginatedTable<C> {
 
   private final SelenideTableQuery<C> query;
@@ -64,17 +67,22 @@ public final class SelenidePaginatedTable<C> implements PaginatedTable<C> {
 
     @Override
     public boolean canNext() {
-      return spec.canNext().getAsBoolean();
+      return isEnabled(spec.nextControl().get());
     }
 
     @Override
     public boolean canPrevious() {
-      return spec.canPrevious().getAsBoolean();
+      return isEnabled(spec.previousControl().get());
     }
 
     @Override
     public Optional<TablePageMetadata> metadata() {
       return spec.metadata().get();
+    }
+
+    private boolean isEnabled(SelenideElement control) {
+      String ariaDisabled = control.getAttribute("aria-disabled");
+      return !control.is(Condition.disabled) && !"true".equalsIgnoreCase(ariaDisabled);
     }
   }
 }

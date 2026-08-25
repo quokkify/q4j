@@ -41,12 +41,16 @@ public final class SelenideSortableTable<C> implements SortableTable<C> {
     public SortableTable<C> sortBy(C column, TableSortDirection direction, Duration timeout) {
       C requiredColumn = Objects.requireNonNull(column, "column");
       Objects.requireNonNull(direction, "direction");
+      Optional<TableSortDirection> current = currentDirection(requiredColumn);
+      if (current.isPresent() && Objects.equals(current.get(), direction)) {
+        return SelenideSortableTable.this;
+      }
       TableCapabilityStateWaiter.perform(
           "sorting by " + requiredColumn + " " + direction,
           spec.stateToken(),
           () -> spec.control().apply(requiredColumn).click(),
           timeout);
-      Optional<TableSortDirection> current = currentDirection(requiredColumn);
+      current = currentDirection(requiredColumn);
       if (current.isPresent() && !Objects.equals(current.get(), direction)) {
         TableCapabilityStateWaiter.perform(
             "sorting by " + requiredColumn + " " + direction,

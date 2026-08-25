@@ -1,9 +1,9 @@
 package dev.quokkify.elements.table.model;
 
 /** Opt-in filtering capability composed around a table query. */
-public interface FilterableTable<C> {
+public interface FilterableTable<C, F> {
 
   SelenideTableQuery<C> query();
 
-  TableFiltering<C> filtering();
+  TableFiltering<F> filtering();
 }

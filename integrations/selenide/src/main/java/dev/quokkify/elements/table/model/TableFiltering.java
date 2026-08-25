@@ -3,13 +3,15 @@ package dev.quokkify.elements.table.model;
 import java.time.Duration;
 
 /** Filtering actions for an opt-in table capability. */
-public interface TableFiltering<C> {
+public interface TableFiltering<F> {
 
-  FilterableTable<C> set(C column, String value);
+  FilterableTable<?, F> set(F filter, String value);
 
-  FilterableTable<C> set(C column, String value, Duration timeout);
+  FilterableTable<?, F> set(F filter, String value, Duration timeout);
 
-  FilterableTable<C> clear(C column);
+  FilterableTable<?, F> clear(F filter);
 
-  FilterableTable<C> clear(C column, Duration timeout);
+  FilterableTable<?, F> clear(F filter, Duration timeout);
+
+  java.util.Optional<String> currentValue(F filter);
 }

@@ -180,6 +180,33 @@ TableDomAdapter agGridLike = TableDomAdapters.of(
 This model intentionally contains no sorting, filtering, pagination, selection, editing,
 virtualization, or loading flags. Those capabilities must be separate components when added.
 
+### Opt-in table capabilities
+
+Capabilities compose around `SelenideTableQuery` and do not change `TableModel`:
+
+```java
+TableStateToken state = () -> table.getAttribute("data-version");
+SortableTable<Header> sorted = query.sortable(new TableSortingSpec<>(
+    header -> table.find(By.cssSelector("[data-sort='" + header.displayedName() + "']")),
+    header -> Optional.ofNullable(table.getAttribute("data-sort-direction"))
+        .map(TableSortDirection::valueOf), state));
+
+FilterableTable<Header, Filter> filtered = query.filterable(new TableFilteringSpec<>(
+    filter -> filters.get(filter), filter -> Optional.ofNullable(filters.get(filter).value()), state));
+PaginatedTable<Header> paged = query.paginated(new TablePaginationSpec(
+    () -> table.find(".next"), () -> table.find(".previous"),
+    () -> Optional.of(new TablePageMetadata(2, 4)), state));
+```
+
+`TableStateToken` must read a dedicated observable freshness marker such as a page label,
+`data-version`, `aria-sort`, or applied-filter chip. A click or unchanged visible row text is not
+evidence of a state transition; operations wait for the token to change and re-resolve controls.
+Sorting is a deterministic no-op when the requested direction is already applied. Filtering uses a
+separate generic filter key `F` and exposes `currentValue(F)`. Pagination reads actual control state:
+`canNext()` and `canPrevious()` honor native `disabled` and `aria-disabled="true"` semantics, and
+`TablePageMetadata` rejects invalid page ranges. Infinite scrolling and virtualization are not
+pagination capabilities; dynamic capability discovery is intentionally unsupported.
+
 ### Selenide table queries
 
 Legacy table page objects expose an additive query layer without changing the neutral model:

@@ -28,8 +28,14 @@ final class TableCapabilityStateWaiter {
     Runnable requiredAction = Objects.requireNonNull(action, "action");
     Duration requiredTimeout = Objects.requireNonNull(timeout, "timeout");
     String before = requiredToken.current();
+    if (before == null) {
+      throw new IllegalStateException("Table state token returned null before " + description);
+    }
     requiredAction.run();
-    Waiter.awaitCondition(() -> !Objects.equals(requiredToken.current(), before),
+    Waiter.awaitCondition(() -> {
+      String current = requiredToken.current();
+      return current != null && !Objects.equals(current, before);
+    },
         "Table state token did not change after " + description,
         requiredTimeout, defaultPollingInterval());
   }
