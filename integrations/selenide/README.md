@@ -210,5 +210,5 @@ read, which keeps them usable after DOM remounts. `isRowExist(...)` and the neut
 `row(...)` remain non-waiting status checks and return absence through `false`/`Optional.empty()`.
 
 The following models are intentionally deferred until their DOM and behavior contracts
-are defined: ARIA grids, virtualized rows, pagination/infinite scrolling, and
-tree/master-detail tables. They are not implied by the current table abstractions.
+are defined: virtualized rows, pagination/infinite scrolling, and tree/master-detail tables.
+They are not implied by the current table abstractions.

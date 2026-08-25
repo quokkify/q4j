@@ -229,6 +229,7 @@ public class TableModelContractTest extends BaseTest {
         DisplayedHeaderResolver.requiringNonNull(header -> header.displayed));
 
     Assertions.assertThat(model.displayedHeaders()).containsExactly("Country", "Company");
+    Assertions.assertThat(model.rows()).hasSize(1);
     Assertions.assertThat(model.rows().get(0).requiredCell(Header.COMPANY).text())
         .isEqualTo("Alfreds");
   }
