@@ -104,8 +104,8 @@ public class TableQueryContractTest extends BaseTest {
         .hasSize(1);
   }
 
-  @Test(description = "Required queries wait natively and unique queries reject zero or duplicates")
-  public void waitsAndEnforcesUniqueRows() {
+  @Test(description = "Required means first match while unique means exactly one")
+  public void requiredReturnsFirstMatchWhileUniqueRejectsDuplicates() {
     SelenideTableQuery<Header> query = page.classic.query(header -> header.displayed);
     Selenide.executeJavaScript("window.prepareDelayedQueryRow()");
 
@@ -115,6 +115,11 @@ public class TableQueryContractTest extends BaseTest {
         RowConditions.exact(Header.COMPANY, "Berglunds"), Duration.ofSeconds(2));
     Assertions.assertThat(restored.index()).isEqualTo(1);
     Assertions.assertThat(restored.requiredCell(Header.COUNTRY).text()).isEqualTo("Germany");
+    TableQueryRow<Header> firstAustria = query.requiredRow(RowConditions.all(
+        RowConditions.exact(Header.COUNTRY, "Austria"),
+        RowConditions.greaterThan(Header.EMPLOYEES, 5)), Duration.ofSeconds(2));
+    Assertions.assertThat(firstAustria.index()).isZero();
+    Assertions.assertThat(firstAustria.requiredCell(Header.COMPANY).text()).isEqualTo("Alfreds");
     Assertions.assertThatThrownBy(() -> query.uniqueRow(
             RowConditions.exact(Header.COUNTRY, "Austria")))
         .isInstanceOf(TableRowAmbiguousException.class)
