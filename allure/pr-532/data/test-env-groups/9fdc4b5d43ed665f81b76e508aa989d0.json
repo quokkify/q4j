@@ -1,1 +1,1 @@
-{"id":"9fdc4b5d43ed665f81b76e508aa989d0","fullName":"dev.quokkify.test.SqlConverterTest.checkConvertingWhenFetchOne","name":"Check sql converting when 'fetchOne'","status":"passed","testResultsByEnv":{"data-utils-sql":"53af24ab7ea95eecb0d9df089a120c36"}}
+{"id":"9fdc4b5d43ed665f81b76e508aa989d0","fullName":"dev.quokkify.test.SqlConverterTest.checkConvertingWhenFetchOne","name":"Check sql converting when 'fetchOne'","status":"passed","testResultsByEnv":{"data-utils-sql":"a97f6f153374b11917883d5c69ed177f"}}
