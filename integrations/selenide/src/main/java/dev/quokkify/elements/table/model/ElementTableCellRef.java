@@ -4,6 +4,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 
 import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.SetValueOptions;
 import com.codeborne.selenide.WebElementCondition;
 import org.openqa.selenium.By;
 
@@ -97,9 +98,7 @@ class ElementTableCellRef<C> implements TableCellRef<C> {
   @Override
   public EditableTableControl editable() {
     SelenideElement cell = element.get();
-    Boolean contentEditable = com.codeborne.selenide.Selenide.executeJavaScript(
-        "return arguments[0].isContentEditable === true;", cell);
-    if (Boolean.TRUE.equals(contentEditable)) {
+    if (Boolean.parseBoolean(cell.getDomProperty("isContentEditable"))) {
       return new ContentEditableControl(element, description + " contenteditable cell");
     }
     SelenideElement control = cell.find(By.cssSelector(EDITABLE_INPUT_SELECTOR));
@@ -191,9 +190,7 @@ class ElementTableCellRef<C> implements TableCellRef<C> {
     @Override
     public EditableTableControl setValue(String value) {
       SelenideElement target = element.get();
-      target.click();
-      target.clear();
-      target.sendKeys(value);
+      target.setValue(SetValueOptions.withText(value));
       return this;
     }
 
@@ -210,7 +207,7 @@ class ElementTableCellRef<C> implements TableCellRef<C> {
 
     @Override
     public RadioTableControl select() {
-      element.get().click();
+      element.get().setSelected(true);
       return this;
     }
 

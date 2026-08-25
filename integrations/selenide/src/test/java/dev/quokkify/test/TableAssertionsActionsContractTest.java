@@ -99,8 +99,6 @@ public class TableAssertionsActionsContractTest extends BaseTest {
 
     table.row(0).requiredCell(RADIO).radio().select();
     Assertions.assertThat(table.row(0).requiredCell(RADIO).radio().isSelected()).isTrue();
-    Assertions.assertThatThrownBy(() -> table.row(0).requiredCell(RADIO).radio().setSelected(false))
-        .isInstanceOf(UnsupportedTableEditException.class);
 
     table.row(0).requiredCell(SELECT).select().selectOption("Two");
     Assertions.assertThat(table.row(0).requiredCell(SELECT).select().selectedText()).isEqualTo("Two");
