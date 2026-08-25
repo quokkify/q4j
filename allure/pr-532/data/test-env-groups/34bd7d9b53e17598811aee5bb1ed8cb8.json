@@ -1,0 +1,1 @@
+{"id":"34bd7d9b53e17598811aee5bb1ed8cb8","fullName":"dev.quokkify.test.TableQueryContractTest.requiredReturnsFirstMatchWhileUniqueRejectsDuplicates","name":"Required means first match while unique means exactly one","status":"passed","testResultsByEnv":{"integrations-selenide":"9dc5c0145f5eb1b60c2981989e99c79c"}}
