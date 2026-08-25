@@ -26,7 +26,7 @@ subprojects {
                 def className = descriptor.className ?: descriptor.name
                 def simpleClassName = className.substring(className.lastIndexOf('.') + 1)
                 def groupName = descriptor
-                while (groupName != null && !['Concurrency', 'Single thread tests'].contains(groupName.name)) {
+                while (groupName != null && !['Concurrency', 'Sequential'].contains(groupName.name)) {
                     groupName = groupName.parent
                 }
                 def projectName = project.path.substring(1).replace(':', '@')

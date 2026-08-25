@@ -111,7 +111,7 @@ public class SuiteListener implements IAlterSuiteListener {
     multiThreadTest.setParallel(getTestParallelMode());
     multiThreadTest.setThreadCount(getTestThreadCount());
     XmlTest singleThreadTest = generateGroupXmlTest(newSuite, tests, ThreadGroup.SINGLE_THREAD);
-    singleThreadTest.setName("Single thread tests");
+    singleThreadTest.setName("Sequential");
     singleThreadTest.setParallel(XmlSuite.ParallelMode.NONE);
     singleThreadTest.setThreadCount(SINGLE_THREAD_COUNT);
     return newSuite;
