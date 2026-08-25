@@ -16,6 +16,5 @@ subprojects {
             showExceptions = true
             exceptionFormat = 'full'
         }
-
     }
 }
