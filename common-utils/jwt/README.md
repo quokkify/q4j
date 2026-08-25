@@ -6,7 +6,7 @@ Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.qu
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-jwt:0.5.1")
+    testImplementation("dev.quokkify:q4j-jwt:0.6.0")
 }
 ```
 
