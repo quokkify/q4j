@@ -1,0 +1,1 @@
+{"id":"d3c4772c9618dae05a3dda55a9251dea","fullName":"dev.quokkify.test.TableModelContractTest.handlesHeaderlessAndRepeatedHeaders","name":"Headerless and repeated headers preserve typed lookup failures","status":"passed","testResultsByEnv":{"integrations-selenide":"24a381e99a459d2fe5b29fc1caf73447"}}

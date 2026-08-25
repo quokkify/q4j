@@ -1,0 +1,1 @@
+{"id":"ce9422be06f46f7b79e8ebfe648f04f4","fullName":"dev.quokkify.converter.XmlConverterModuleDiscoveryTest.shouldSerializeWithoutTypeFieldWhenCustomModuleNotRegistered","name":"Verify XML serialization does not contain type discriminator when module discovery is disabled","status":"passed","testResultsByEnv":{"common-utils-jackson-xml":"1e18aa35f1b274e5052189d729cd7361"}}

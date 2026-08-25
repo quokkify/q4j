@@ -1,0 +1,1 @@
+{"id":"4c27101fd303a6ef5b419092aa442bc1","fullName":"dev.quokkify.kafka.test.KafkaTest.testKafkaPublishMessage","name":"Verify the publication of Kafka message","status":"passed","testResultsByEnv":{"integrations-kafka":"d65696db4a3857cf93ac37a6bc5c8e07"}}
