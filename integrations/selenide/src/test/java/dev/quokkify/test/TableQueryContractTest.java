@@ -12,6 +12,7 @@ import dev.quokkify.elements.table.model.TableQueryRow;
 import dev.quokkify.elements.table.model.TableRowAmbiguousException;
 import dev.quokkify.elements.table.model.TableRowNotFoundException;
 import dev.quokkify.elements.table.model.TypedTableCellRef;
+import dev.quokkify.elements.table.model.TypedTableColumnRef;
 
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
@@ -62,6 +63,19 @@ public class TableQueryContractTest extends BaseTest {
 
     Selenide.executeJavaScript("window.remountQueryClassic()");
     Assertions.assertThat(company.text()).isEqualTo("Alfreds");
+  }
+
+  @Test(description = "Typed column references resolve their index after remount and header reorder")
+  public void reResolvesTypedColumnAfterHeaderReorder() {
+    SelenideTableQuery<Header> query = page.classic.query(header -> header.displayed);
+    TypedTableColumnRef<Header> company = query.column(Header.COMPANY);
+
+    Assertions.assertThat(company.index()).isEqualTo(1);
+    Selenide.executeJavaScript("window.remountQueryClassicWithReorderedHeaders()");
+
+    Assertions.assertThat(company.index()).isZero();
+    Assertions.assertThat(company.cells()).extracting(cell -> cell.text())
+        .containsExactly("Alfreds", "Berglunds", "", "Alpine");
   }
 
   @Test(description = "Mounted and visible rows have explicit and different semantics")
