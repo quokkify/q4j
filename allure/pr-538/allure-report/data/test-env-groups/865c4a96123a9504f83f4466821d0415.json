@@ -1,0 +1,1 @@
+{"id":"865c4a96123a9504f83f4466821d0415","fullName":"dev.quokkify.test.TableModelContractTest.waitsForAndSurvivesRemount","name":"Required lookup waits through Selenide and survives a DOM remount","status":"failed","testResultsByEnv":{"integrations-selenide":"d395508a11f7eab08f8d827c8d6f9d3d"}}

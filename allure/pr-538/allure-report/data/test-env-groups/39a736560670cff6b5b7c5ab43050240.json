@@ -1,0 +1,1 @@
+{"id":"39a736560670cff6b5b7c5ab43050240","fullName":"dev.quokkify.test.SqlConverterTest.checkEscapingSingleQuote","name":"Escaping: single quote in string parameter should be doubled in Executable SQL","status":"passed","testResultsByEnv":{"data-utils-sql":"91ac5ad50c279f21f27a6ecc990be1c6"}}
