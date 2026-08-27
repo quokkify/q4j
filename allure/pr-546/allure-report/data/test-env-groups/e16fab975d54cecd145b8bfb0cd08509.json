@@ -1,0 +1,1 @@
+{"id":"e16fab975d54cecd145b8bfb0cd08509","fullName":"dev.quokkify.test.CustomExternalServiceLogFilterTest.filter_alwaysReturnsResponseFromContext","name":"Filter always returns the response from context.next regardless of status","status":"passed","testResultsByEnv":{"integrations-rest-assured":"a27056dfca62d2e8b3ed00ea3ce79ff3"}}

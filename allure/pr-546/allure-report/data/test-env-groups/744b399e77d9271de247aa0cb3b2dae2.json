@@ -1,0 +1,1 @@
+{"id":"744b399e77d9271de247aa0cb3b2dae2","fullName":"dev.quokkify.model.JsonPojoTest.testAsJsonArrayWrapsSinglePojo","name":"Verify instance json array serialization wraps underlying json","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"c13df77b2c18a991f6bb7234f80e8e8e"}}
