@@ -6,7 +6,7 @@ import org.openqa.selenium.By;
 public final class TableDomAdapters {
 
   private static final TableDomAdapter CLASSIC = of(
-      By.xpath(".//tr[td and not(ancestor::table[2])]"),
+      By.xpath("./tbody/tr[td or th[@scope='row']] | ./tr[td or th[@scope='row']]"),
       By.xpath("./td | ./th[@scope='row']"),
       new TableHeaderRowLocator(By.xpath(".//tr[th]"), By.xpath("./th")));
   private static final TableDomAdapter FLEX = of(
