@@ -1,6 +1,6 @@
 # ☕ Q4J
 
-Generated with `quokkify/project-toolkit` at `v2.12.3`. Run `copier update` to apply future template changes; Renovate updates workflow version references independently.
+Generated with `quokkify/project-toolkit` at `v2.12.4`. Run `copier update` to apply future template changes; Renovate updates workflow version references independently.
 
 - ✅ Pick only the modules your project needs
 - ✅ Keep test infrastructure under one `dev.quokkify` namespace
