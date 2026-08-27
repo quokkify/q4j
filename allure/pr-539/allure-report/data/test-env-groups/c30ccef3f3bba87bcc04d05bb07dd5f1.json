@@ -1,0 +1,1 @@
+{"id":"c30ccef3f3bba87bcc04d05bb07dd5f1","fullName":"dev.quokkify.converter.CsvConverterModuleDiscoveryTest.shouldSerializeWithoutCustomFormattingWhenModuleNotRegistered","name":"Verify CSV serialization keeps default enum format when module discovery is disabled","status":"passed","testResultsByEnv":{"common-utils-jackson-csv":"a3aa461fe0009ba19ff67101a9ebea39"}}
