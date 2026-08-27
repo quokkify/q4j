@@ -114,7 +114,7 @@
           <th>Company</th>
         </tr>
         <tr>
-          <td>Austria</td>
+          <th scope="row">Austria</th>
           <td>Alfreds</td>
         </tr>
       </tbody>
@@ -297,6 +297,16 @@
       function remountQueryClassic() {
         const old = document.getElementById("query-classic");
         old.replaceWith(old.cloneNode(true));
+      }
+
+      function remountQueryClassicWithReorderedHeaders() {
+        const old = document.getElementById("query-classic");
+        const replacement = old.cloneNode(true);
+        replacement.querySelectorAll("tr").forEach((row) => {
+          const cells = row.children;
+          row.insertBefore(cells[1], cells[0]);
+        });
+        old.replaceWith(replacement);
       }
 
       function redirectQueryClassicRoot() {
