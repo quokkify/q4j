@@ -165,7 +165,7 @@ jobs:
           config-file: tools/allure/allurerc.mjs
           categories-file: "tools/allure/categories.json"
           source-run-id: ${{ github.event.workflow_run.id }}
-          pages-url: "https://quokkify.github.io/q4j"
+          pages-url: "https://quokkify.github.io/q4j/allure/pr-${{ needs.resolve.outputs.pr-number }}/"
           fork-pr: ${{ needs.resolve.outputs.fork-pr }}
           comment-marker: "<!-- project-toolkit-allure-report -->"
       - name: Upload generated Allure HTML
