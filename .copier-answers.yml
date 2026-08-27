@@ -1,4 +1,4 @@
-_commit: v2.12.3-2-g48c1b15
+_commit: v2.12.4
 _src_path: https://github.com/quokkify/project-toolkit.git
 allure_categories_file: tools/allure/categories.json
 allure_external_artifact_max_count: 50
