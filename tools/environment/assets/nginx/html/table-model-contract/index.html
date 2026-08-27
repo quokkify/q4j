@@ -119,6 +119,27 @@
         </tr>
       </tbody>
     </table>
+    <table id="nested-classic">
+      <thead>
+        <tr>
+          <th>Country</th>
+          <th>Company</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Austria</td>
+          <td>
+            Outer
+            <table>
+              <tbody>
+                <tr><td>Nested</td><td>Leak</td></tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
     <table id="query-classic">
       <thead>
         <tr>

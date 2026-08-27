@@ -229,10 +229,23 @@ public class TableModelContractTest extends BaseTest {
         DisplayedHeaderResolver.requiringNonNull(header -> header.displayed));
 
     Assertions.assertThat(model.displayedHeaders()).containsExactly("Country", "Company");
+    Assertions.assertThat(model.rows()).hasSize(1);
     Assertions.assertThat(model.rows().get(0).requiredCell(Header.COMPANY).text())
         .isEqualTo("Alfreds");
     Assertions.assertThat(model.rows().get(0).requiredCell(Header.COUNTRY).text())
         .isEqualTo("Austria");
+  }
+
+  @Test(description = "Classic adapter excludes rows belonging to a nested table")
+  public void excludesNestedTableRows() {
+    openFixture();
+    TableModel<Header> model = SelenideDomTableModel.of(
+        Selenide.$("#nested-classic"), TableDomAdapters.classic(),
+        DisplayedHeaderResolver.requiringNonNull(header -> header.displayed));
+
+    Assertions.assertThat(model.rows()).hasSize(1);
+    Assertions.assertThat(model.rows().get(0).requiredCell(Header.COMPANY).text())
+        .contains("Outer");
   }
 
   @Test(description = "Generic ARIA adapter addresses role-based grids and survives root remount")
