@@ -53,7 +53,7 @@ ext {
     kafka          = "4.3.1"
     rabbitmq = "5.35.0"
     h2 = "2.4.240"
-    classgraph = "4.8.193"
+    classgraph = "4.8.194"
     mockito = "5.23.0"
 }
 
