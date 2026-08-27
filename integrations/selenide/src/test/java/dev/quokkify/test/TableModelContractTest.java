@@ -231,6 +231,8 @@ public class TableModelContractTest extends BaseTest {
     Assertions.assertThat(model.displayedHeaders()).containsExactly("Country", "Company");
     Assertions.assertThat(model.rows().get(0).requiredCell(Header.COMPANY).text())
         .isEqualTo("Alfreds");
+    Assertions.assertThat(model.rows().get(0).requiredCell(Header.COUNTRY).text())
+        .isEqualTo("Austria");
   }
 
   @Test(description = "Generic ARIA adapter addresses role-based grids and survives root remount")
