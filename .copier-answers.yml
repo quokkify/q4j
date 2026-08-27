@@ -12,7 +12,7 @@ allure_report: true
 components: []
 docker: false
 project_name: Q4J
-release_please: false
+release_please: true
 renovate: true
 renovate_config_repository: quokkify/renovate-presets
 renovate_presets:
