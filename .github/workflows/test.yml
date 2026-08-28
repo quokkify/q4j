@@ -528,6 +528,11 @@ jobs:
 
       - name: 🚀 Run table model stability tests
         run: |
+          if [[ -f tools/environment/.selenium-grid.env ]]; then
+            set -a
+            source tools/environment/.selenium-grid.env
+            set +a
+          fi
           set -a
           source tools/environment/.nginx.env
           set +a
