@@ -23,7 +23,9 @@ import dev.quokkify.elements.table.model.TableModel;
 import dev.quokkify.elements.table.model.TableRow;
 import dev.quokkify.model.ConstantFormat;
 
+import com.codeborne.selenide.CollectionCondition;
 import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.logevents.SelenideLogger;
 import org.assertj.core.api.Assertions;
 import org.openqa.selenium.By;
 import org.openqa.selenium.support.FindBy;
@@ -116,19 +118,29 @@ public class TableModelContractTest extends BaseTest {
         .requiredCell(DynamicHorizontalHeader.COUNTRY).text()).isEqualTo("Austria");
   }
 
-  @Test(description = "Required lookup waits through Selenide and survives a DOM remount")
-  public void waitsForAndSurvivesRemount() {
+  @Test(description = "Required lookup waits for a row restored asynchronously")
+  public void waitsForDelayedRow() {
     openFixture();
     FixturePage page = Selenide.page(FixturePage.class);
     TableModel<Header> model = page.classic.asDomModel(h -> h.displayed);
     Selenide.executeJavaScript("window.prepareDelayedRow()");
-    Assertions.assertThat(model.row(candidate -> candidate.cell(Header.COMPANY)
-        .map(cell -> cell.text().equals("Alfreds")).orElse(false))).isEmpty();
+    Selenide.$$("#classic tbody tr").shouldHave(CollectionCondition.empty);
+    Selenide.executeJavaScript("window.restoreDelayedRow()");
     TableRow<Header> row = model.requiredRow(candidate -> candidate.cell(Header.COMPANY)
         .map(cell -> cell.text().equals("Alfreds")).orElse(false), "company", Duration.ofSeconds(2));
-
-    Selenide.executeJavaScript("window.remount()");
     Assertions.assertThat(row.requiredCell(Header.COUNTRY).text()).isEqualTo("Austria");
+  }
+
+  @Test(description = "A row reference resolves again after a deterministic DOM remount")
+  public void rowReferenceSurvivesRemount() {
+    openFixture();
+    FixturePage page = Selenide.page(FixturePage.class);
+    TableModel<Header> model = page.classic.asDomModel(h -> h.displayed);
+    TableRow<Header> row = model.requiredRow(candidate -> candidate.cell(Header.COMPANY)
+        .map(cell -> cell.text().equals("Alfreds")).orElse(false), "company", Duration.ofSeconds(2));
+    Selenide.executeJavaScript("window.remount()");
+    SelenideLogger.step("Verify remounted row country", () ->
+        Assertions.assertThat(row.requiredCell(Header.COUNTRY).text()).isEqualTo("Austria"));
   }
 
   @Test(description = "Required row handles skip CLASSIC and FLEX header rows")

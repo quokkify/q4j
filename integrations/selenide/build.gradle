@@ -16,3 +16,14 @@ dependencies {
 
     api "org.assertj:assertj-core"
 }
+
+tasks.register("tableModelContractStability", Test) {
+    description = "Runs the two timing-sensitive table model scenarios 50 times each"
+    group = "verification"
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    useTestNG()
+    filter {
+        includeTestsMatching("dev.quokkify.test.TableModelContractStabilityTest.*")
+    }
+}

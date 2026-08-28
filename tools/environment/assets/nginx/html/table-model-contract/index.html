@@ -281,11 +281,13 @@
       function prepareDelayedRow() {
         const table = document.getElementById("classic");
         const row = table.querySelector("tbody tr");
+        window.delayedRow = row;
         row.remove();
-        window.setTimeout(
-          () => table.querySelector("tbody").appendChild(row),
-          250,
-        );
+      }
+
+      function restoreDelayedRow() {
+        const table = document.getElementById("classic");
+        window.setTimeout(() => table.querySelector("tbody").appendChild(window.delayedRow), 250);
       }
 
       function prepareMissingCell() {

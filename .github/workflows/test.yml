@@ -294,6 +294,13 @@ jobs:
           ./gradlew ${{ matrix.module }}:test --no-daemon --console=plain --stacktrace
         shell: bash
 
+      - name: 🧪 Run Selenide table model stability gate (100 cases)
+        if: ${{ matrix.module == ':integrations:selenide' }}
+        run: |
+          source tools/environment/.nginx.env
+          ./gradlew :integrations:selenide:tableModelContractStability --no-daemon --console=plain --stacktrace
+        shell: bash
+
       - name: 🧾 Allure CI env fragment
         if: always()
         env:
@@ -439,6 +446,13 @@ jobs:
           fi
 
           ./gradlew ${{ matrix.module }}:test --no-daemon --console=plain --stacktrace
+        shell: bash
+
+      - name: 🧪 Run Selenide table model stability gate (100 cases)
+        if: ${{ matrix.module == ':integrations:selenide' }}
+        run: |
+          source tools/environment/.nginx.env
+          ./gradlew :integrations:selenide:tableModelContractStability --no-daemon --console=plain --stacktrace
         shell: bash
 
       - name: 🧾 Allure CI env fragment
