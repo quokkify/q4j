@@ -1,0 +1,1 @@
+{"id":"65b2f44a1cdf9dddb26d37716f44a079","fullName":"dev.quokkify.test.TableModelContractTest.rowReferenceSurvivesRemount","name":"A row reference resolves again after a deterministic DOM remount","status":"broken","testResultsByEnv":{"integrations-selenide":"b009b6cc82ea2ae12a5b24d346da6e63"}}
