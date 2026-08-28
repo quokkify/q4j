@@ -274,7 +274,7 @@ public class TableModelContractTest extends BaseTest {
 
     Assertions.assertThat(model.displayedHeaders()).containsExactly("Country", "Company");
     Assertions.assertThat(model.rows()).hasSize(2);
-    Assertions.assertThat(model.rows().get(0).requiredCell(Header.COMPANY).text()).isEmpty();
+    Assertions.assertThat(model.rows().get(0).requiredCell(Header.COMPANY).text()).contains("Outer");
     Assertions.assertThat(model.rows().get(1).cell(Header.COMPANY)).isEmpty();
     Assertions.assertThat(nested.rows()).hasSize(1);
     Assertions.assertThat(nested.rows().get(0).requiredCell(Header.COMPANY).text()).isEqualTo("Leak");
