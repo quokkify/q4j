@@ -114,8 +114,38 @@
           <th>Company</th>
         </tr>
         <tr>
-          <td>Austria</td>
+          <th scope="row">Austria</th>
           <td>Alfreds</td>
+        </tr>
+      </tbody>
+    </table>
+    <table id="nested-classic">
+      <thead>
+        <tr>
+          <th>Country</th>
+          <th>Company</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Austria</td>
+          <td>
+            Outer
+            <table>
+              <thead>
+                <tr>
+                  <th>Country</th>
+                  <th>Company</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Nested</td>
+                  <td>Leak</td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
         </tr>
       </tbody>
     </table>
@@ -297,6 +327,16 @@
       function remountQueryClassic() {
         const old = document.getElementById("query-classic");
         old.replaceWith(old.cloneNode(true));
+      }
+
+      function remountQueryClassicWithReorderedHeaders() {
+        const old = document.getElementById("query-classic");
+        const replacement = old.cloneNode(true);
+        replacement.querySelectorAll("tr").forEach((row) => {
+          const cells = row.children;
+          row.insertBefore(cells[1], cells[0]);
+        });
+        old.replaceWith(replacement);
       }
 
       function redirectQueryClassicRoot() {

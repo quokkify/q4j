@@ -30,14 +30,11 @@ jobs:
           fetch-depth: 0
           ref: ${{ github.event.release.tag_name || inputs.release_tag }}
 
-      - name: Set up JDK 21
-        uses: actions/setup-java@b6effb05e454b25005698d916606bdc6ffcbf961 # v5
+      - name: Set up Java and Gradle
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@204b0f332c03d8ea8ceed920e3dc7487a13bb224 # v2.12.4
         with:
-          distribution: temurin
           java-version: "21"
-
-      - name: Set up Gradle
-        uses: gradle/actions/setup-gradle@9c971963bec38e04b3d30dcc455b5382be2fdbfb # v6
+          distribution: temurin
 
       - name: Verify release identity
         id: release
