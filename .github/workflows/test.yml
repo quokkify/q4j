@@ -563,8 +563,8 @@ jobs:
         if: always()
         run: |
           rm -rf allure-artifact
-          mkdir -p allure-artifact/integrations/selenide/build
-          cp -a integrations/selenide/build/allure-results allure-artifact/integrations/selenide/build/
+          mkdir -p allure-artifact/stability-tests/build
+          cp -a integrations/selenide/build/allure-results allure-artifact/stability-tests/build/
         shell: bash
 
       - name: 🛑 Stop Infra

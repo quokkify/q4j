@@ -66,6 +66,8 @@ jobs:
                   raise SystemExit("Test jobs must upload only their own Allure results directory")
               if "allure-artifact" not in test_workflow:
                   raise SystemExit("Test jobs must stage Allure results with their module path preserved")
+              if "allure-artifact/stability-tests/build" not in test_workflow:
+                  raise SystemExit("Stability Allure results must use a distinct source path")
               if "results_path" not in test_workflow or "results_path" not in Path(".github/workflows/reusable-module-matrices.yml").read_text():
                   raise SystemExit("Test matrix must provide a dedicated Allure results path")
           components = answers.get("components")
