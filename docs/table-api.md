@@ -47,10 +47,10 @@ root, so nested tables are not accidentally included when the row selector is sc
 
 ```java
 TableDomAdapter grid = TableDomAdapters.of(
-    By.cssSelector(".data-row"),
+    By.cssSelector(":scope > .data-row"),
     By.cssSelector(":scope > .cell:not([hidden])"),
     new TableHeaderRowLocator(
-        By.cssSelector(".header-row"),
+        By.cssSelector(":scope > .header-row"),
         By.cssSelector(":scope > .cell:not([hidden])")));
 TableModel<Column> customDom = SelenideDomTableModel.of(
     Selenide.$("#project-grid"), grid,
@@ -61,21 +61,38 @@ A fully custom backend does not need Selenide or Selenium. Implement the three s
 interfaces and keep any lookup, remount, or transport policy in that implementation:
 
 ```java
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
+import dev.quokkify.elements.table.model.TableCell;
+import dev.quokkify.elements.table.model.TableModel;
+import dev.quokkify.elements.table.model.TableRow;
+
+enum Column { COUNTRY, COMPANY }
+
 final class ApiModel implements TableModel<Column> {
-  private final List<ApiRow> rows;
-  public List<String> displayedHeaders() { return List.of("Country", "Company"); }
-  public List<ApiRow> rows() { return rows; }
+  private final List<ApiRow> dataRows = List.of(new ApiRow(Map.of(
+      Column.COUNTRY, "Austria", Column.COMPANY, "Alfreds")));
+
+  @Override public List<String> displayedHeaders() { return List.of("Country", "Company"); }
+  @Override public List<ApiRow> rows() { return dataRows; }
 }
+
 final class ApiRow implements TableRow<Column> {
-  public Optional<ApiCell> cell(Column key) { /* map API fields */ }
+  private final Map<Column, String> values;
+  ApiRow(Map<Column, String> values) { this.values = Map.copyOf(values); }
+  @Override public Optional<ApiCell> cell(Column key) {
+    return Optional.ofNullable(values.get(key)).map(value -> new ApiCell(key, value));
+  }
 }
+
 record ApiCell(Column column, String text) implements TableCell<Column> {}
 ```
 
-The contract test uses a deliberately non-standard in-memory backend, including a header-only
-row exclusion policy and a nested value that remains data belonging to the parent row rather than a
-second row. This proves that `TableModel`, `TableRow`, and `TableCell` are usable independently of
-browser types.
+This backend-neutral example proves only the structural model contract. Header exclusion, nested
+DOM isolation, remount behavior, and timeout policy belong to the concrete backend and are not
+claims of this example. The compiling equivalent is exercised by
+`TableModelContractTest.supportsFullyCustomBackendContract`.
 
 ## Semantics and compatibility
 
@@ -88,8 +105,12 @@ browser types.
   uses one Selenide condition loop and one caller-provided timeout across root and row discovery.
 - A missing row is `TableRowNotFoundException`; a missing displayed header is
   `TableColumnNotFoundException`; a repeated displayed header is `TableColumnAmbiguousException`;
-  a missing required cell is `TableCellNotFoundException`. Required row diagnostics include the
-  caller description and timeout. Optional lookups return `Optional.empty()` for absence.
+  a missing required cell is `TableCellNotFoundException`. `uniqueRow` throws
+  `TableRowAmbiguousException` when more than one row matches and includes the observed match
+  count. Required-row diagnostics include the caller description and timeout; column-not-found
+  diagnostics include the requested key, its displayed name, and available headers. Optional row
+  and cell lookups return `Optional.empty()` for absence, while required variants throw the typed
+  not-found exception.
 - A mounted empty cell is present and has empty text. A missing cell is absent.
 - `findRow`/`requiredRow` select the first match; `findRows` preserves all matches in DOM order;
   `uniqueRow` rejects both zero and multiple matches.
@@ -122,19 +143,19 @@ adapter must not change these existing FQCNs.
 
 ## Weakness and evidence matrix
 
-| Weakness or ambiguity                                                 | Affected API                            | Consumer impact                                      | Compatibility risk                      | Evidence                                                                         | Action                                                             |
-| --------------------------------------------------------------------- | --------------------------------------- | ---------------------------------------------------- | --------------------------------------- | -------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| Header lookup by display text can be ambiguous                        | `TableModel.columnIndex`                | A duplicate heading cannot be addressed safely       | Low; exception is additive behavior     | Contract test covers repeated `Company`                                          | Keep; clarify                                                      |
-| Headerless typed lookup has no implicit position                      | `TableHeaderLocator`, `TableModel`      | Consumers must provide a different key strategy      | Low                                     | Headerless adapter test expects typed lookup failure                             | Clarify                                                            |
-| Sealed header strategy limits third-party header strategies           | `TableHeaderLocator`                    | Custom DOM uses the existing three shapes only       | High if unsealed/changed after 0.6.0    | Source audit; `of(...)` supports custom row/cell locators without a new strategy | Defer to future major; use `TableModel` for a fully custom backend |
-| Adapter output can be non-rectangular                                 | `TableDomAdapter`, `TableRow.cell`      | Missing cells must be distinguished from empty cells | Low                                     | Custom fixture has an empty cell and a short row                                 | Keep; clarify                                                      |
-| Nested rows can leak if selectors are broad                           | `TableDomAdapter.mountedDataRowLocator` | Outer queries may count inner rows                   | Low                                     | Nested classic fixture verifies isolation and separate nested root               | Keep; clarify selector scope                                       |
-| DOM root/remount can stale cached elements                            | Selenide model and handles              | Previously returned handles could fail after refresh | Medium                                  | Delayed-root and remount contract tests; implementation stores lazy locators     | Keep; clarify guarantee                                            |
-| Timeout could be spent once per nested wait                           | `requiredRow(..., Duration)`            | Slow or surprising failure timing                    | Medium                                  | Late-root/late-row test asserts one 450 ms budget                                | Keep; clarify                                                      |
-| Legacy and neutral APIs duplicate some table traversal                | Legacy table classes vs neutral model   | Package discovery is harder                          | Medium; removal breaks released callers | README and bridge tests enumerate both surfaces                                  | Clarify; no removal                                                |
-| Selenide-specific handles could be mistaken for neutral API           | Query/assertion/action types            | Non-browser consumers may choose the wrong boundary  | Low                                     | Type/dependency map and compile-only custom model example                        | Clarify                                                            |
-| Sorting/filtering/pagination/virtualization/pinned columns are absent | Structural model                        | Consumers need separate capabilities                 | High to add semantics prematurely       | No production API or tests claim these behaviors                                 | Reject for this issue; defer                                       |
-| Appium implementation is absent                                       | Selenide adapter layer                  | Appium users need an implementation outside q4j      | Low                                     | No Appium dependency or runtime code by design                                   | Future; reserved seam                                              |
+| Weakness or ambiguity                                                 | Affected API                            | Consumer impact                                      | Compatibility risk                      | Evidence                                                                                                                                         | Action                                                             |
+| --------------------------------------------------------------------- | --------------------------------------- | ---------------------------------------------------- | --------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------ |
+| Header lookup by display text can be ambiguous                        | `TableModel.columnIndex`                | A duplicate heading cannot be addressed safely       | Low; exception is additive behavior     | Contract test covers repeated `Company`                                                                                                          | Keep; clarify                                                      |
+| Headerless typed lookup has no implicit position                      | `TableHeaderLocator`, `TableModel`      | Consumers must provide a different key strategy      | Low                                     | Headerless adapter test expects typed lookup failure                                                                                             | Clarify                                                            |
+| Sealed header strategy limits third-party header strategies           | `TableHeaderLocator`                    | Custom DOM uses the existing three shapes only       | High if unsealed/changed after 0.6.0    | Source audit; `of(...)` supports custom row/cell locators without a new strategy                                                                 | Defer to future major; use `TableModel` for a fully custom backend |
+| Adapter output can be non-rectangular                                 | `TableDomAdapter`, `TableRow.cell`      | Missing cells must be distinguished from empty cells | Low                                     | Custom fixture has an empty cell and a short row                                                                                                 | Keep; clarify                                                      |
+| Nested rows can leak if selectors are broad                           | `TableDomAdapter.mountedDataRowLocator` | Outer queries may count inner rows                   | Low                                     | `TableModelContractTest.supportsCustomDivAdapter` and `customGridAdapter()` use direct-child selectors with nested fixture `#nested-custom-grid` | Keep; clarify selector scope                                       |
+| DOM root/remount can stale cached elements                            | Selenide model and handles              | Previously returned handles could fail after refresh | Medium                                  | `TableModelContractTest.customAdapterWaitsAndSurvivesRemount` and `remountCustomGrid()`                                                          | Keep; clarify guarantee                                            |
+| Timeout could be spent once per nested wait                           | `requiredRow(..., Duration)`            | Slow or surprising failure timing                    | Medium                                  | `TableModelContractTest.customAdapterWaitsAndSurvivesRemount` and `prepareCustomDelayed()`                                                       | Keep; clarify                                                      |
+| Legacy and neutral APIs duplicate some table traversal                | Legacy table classes vs neutral model   | Package discovery is harder                          | Medium; removal breaks released callers | README and bridge tests enumerate both surfaces                                                                                                  | Clarify; no removal                                                |
+| Selenide-specific handles could be mistaken for neutral API           | Query/assertion/action types            | Non-browser consumers may choose the wrong boundary  | Low                                     | Type/dependency map and compile-only custom model example                                                                                        | Clarify                                                            |
+| Sorting/filtering/pagination/virtualization/pinned columns are absent | Structural model                        | Consumers need separate capabilities                 | High to add semantics prematurely       | No production API or tests claim these behaviors                                                                                                 | Reject for this issue; defer                                       |
+| Appium implementation is absent                                       | Selenide adapter layer                  | Appium users need an implementation outside q4j      | Low                                     | No Appium dependency or runtime code by design                                                                                                   | Future; reserved seam                                              |
 
 ## Non-goals and deferred shapes
 
@@ -146,7 +167,7 @@ separate contracts before a compatible API can be designed.
 ## Verification map
 
 `TableModelContractTest` is hermetic and exercises ordinary `<td>` rows, semantic row headers,
-header-only exclusion, a custom div-grid adapter, hidden and empty cells, a non-rectangular row,
-nested-table isolation, delayed rendering, root remount, duplicate/headerless failures, and a
-fully custom backend. `TableQueryContractTest` and `TableAssertionsActionsContractTest` cover the
+header-only exclusion, a direct-child custom div-grid adapter, hidden and empty cells, a
+non-rectangular row, nested custom-grid isolation, delayed custom rendering, custom root remount,
+duplicate/headerless failures, and a fully custom backend. `TableQueryContractTest` and `TableAssertionsActionsContractTest` cover the
 Selenide-specific navigation and handles. No external site or Appium runtime is required.

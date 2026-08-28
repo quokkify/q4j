@@ -69,11 +69,22 @@
       <div class="data-row">
         <span class="cell">Austria</span>
         <span class="cell" hidden>42</span>
-        <span class="cell"></span>
+        <span class="cell">
+          Outer
+          <div id="nested-custom-grid" class="custom-grid">
+            <div class="header-row"><span class="cell">Country</span><span class="cell">Company</span></div>
+            <div class="data-row"><span class="cell">Nested</span><span class="cell">Leak</span></div>
+          </div>
+        </span>
       </div>
       <div class="data-row">
         <span class="cell">Germany</span>
       </div>
+    </div>
+    <div id="custom-repeated-grid">
+      <div class="header-row"><span class="cell">Country</span><span class="cell">Company</span><span class="cell">Company</span><span class="cell">Company</span></div>
+      <div class="data-row"><span class="cell">Austria</span><span class="cell">Alfreds</span><span class="cell">Duplicate</span><span class="cell">Third</span></div>
+      <div class="data-row"><span class="cell">Germany</span><span class="cell">Berglunds</span><span class="cell">Duplicate</span><span class="cell">Third</span></div>
     </div>
     <div id="aria-grid" role="grid">
       <div role="row">
@@ -315,6 +326,20 @@
 
       function remountAriaGrid() {
         const old = document.getElementById("aria-grid");
+        old.replaceWith(old.cloneNode(true));
+      }
+
+      function prepareCustomDelayed() {
+        const grid = document.getElementById("custom-grid");
+        const row = grid.querySelector(":scope > .data-row");
+        row.remove();
+        grid.remove();
+        window.setTimeout(() => document.body.prepend(grid), 250);
+        window.setTimeout(() => grid.appendChild(row), 450);
+      }
+
+      function remountCustomGrid() {
+        const old = document.getElementById("custom-grid");
         old.replaceWith(old.cloneNode(true));
       }
 
