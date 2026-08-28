@@ -28,6 +28,6 @@ init_compose_files
 echo "[infra] docker compose up: ${PROFILES_ARGS[*]}"
 source ./tools/environment/scripts/infra/before_compose.sh "${TOKENS[@]}"
 
-compose_cmd "${PROFILES_ARGS[@]}" up -d
+compose_cmd "${PROFILES_ARGS[@]}" up -d --quiet-pull
 
 source ./tools/environment/scripts/infra/after_health.sh "${TOKENS[@]}"

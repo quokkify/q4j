@@ -71,19 +71,19 @@ if [[ -n "$GRID_IMAGE_TAG" ]]; then
   if [[ -n "$GRID_IMAGE_DIGEST" ]]; then
     GRID_IMAGE="${GRID_IMAGE_TAG%@*}@${GRID_IMAGE_DIGEST}"
     echo "[selenium-grid] pulling grid image: ${GRID_IMAGE}"
-    docker pull "$GRID_IMAGE"
+    docker pull --quiet "$GRID_IMAGE"
   else
     if [[ ! "$GRID_IMAGE_TAG" =~ @sha256:[a-f0-9]{64}$ ]]; then
       echo "[selenium-grid] browser image must stay digest-pinned: ${GRID_IMAGE_TAG}" >&2
       exit 1
     fi
     echo "[selenium-grid] pulling grid image: ${GRID_IMAGE_TAG}"
-    docker pull "$GRID_IMAGE_TAG"
+    docker pull --quiet "$GRID_IMAGE_TAG"
   fi
 fi
 
 echo "[selenium-grid] starting selenium hub + node"
-compose_cmd up -d selenium-hub selenium-node-docker
+compose_cmd up -d --quiet-pull selenium-hub selenium-node-docker
 
 get_hub_url() {
   local host="${1:-localhost}"
