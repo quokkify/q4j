@@ -2,6 +2,7 @@ package dev.quokkify.test;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
@@ -100,6 +101,33 @@ public class TableModelContractTest extends BaseTest {
     };
 
     Assertions.assertThat(row.requiredCell(Header.COUNTRY).text()).isEqualTo("Austria");
+  }
+
+  @Test(description = "The structural table contract supports a backend without browser types")
+  public void supportsFullyCustomBackendContract() {
+    TableModel<Header> backend = new TableModel<>() {
+      private final List<BackendRow> dataRows = List.of(
+          new BackendRow(Map.of(Header.COUNTRY, "Austria", Header.COMPANY, "Outer (nested: Leak)")));
+
+      @Override
+      public List<String> displayedHeaders() {
+        return List.of("Country", "Company");
+      }
+
+      @Override
+      public List<BackendRow> rows() {
+        return dataRows;
+      }
+    };
+
+    TableRow<Header> row = backend.requiredRow(candidate -> candidate
+        .requiredCell(Header.COMPANY).text().startsWith("Outer"), "custom backend row");
+
+    Assertions.assertThat(backend.rows()).hasSize(1);
+    Assertions.assertThat(row.requiredCell(Header.COUNTRY).text()).isEqualTo("Austria");
+    Assertions.assertThat(row.requiredCell(Header.COMPANY).text())
+        .isEqualTo("Outer (nested: Leak)");
+    Assertions.assertThat(row.cell(Header.COMPANY)).isPresent();
   }
 
   @Test(description = "Every legacy table variant exposes the neutral model and typed cells")
@@ -382,5 +410,15 @@ public class TableModelContractTest extends BaseTest {
         return List.of();
       }
     };
+  }
+
+  private record BackendRow(Map<Header, String> values) implements TableRow<Header> {
+    @Override
+    public Optional<BackendCell> cell(Header column) {
+      return Optional.ofNullable(values.get(column)).map(value -> new BackendCell(column, value));
+    }
+  }
+
+  private record BackendCell(Header column, String text) implements TableCell<Header> {
   }
 }
