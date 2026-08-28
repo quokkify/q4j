@@ -53,6 +53,14 @@ jobs:
           )
           if answers.get("allure_report") and any(not path.is_file() for path in allure_paths):
               raise SystemExit("allure_report=true requires its generated workflow, config, and bounded extractor")
+          if answers.get("allure_report"):
+              allure_workflow = Path(".github/workflows/allure-report.yml").read_text()
+              if ".github/allure/safe_extract.py" in allure_workflow:
+                  raise SystemExit("Allure workflow must invoke tools/allure/safe_extract.py")
+              if ".github/allure/allurerc.mjs" in allure_workflow:
+                  raise SystemExit("Allure workflow must use tools/allure/allurerc.mjs")
+              if "MATERIALIZE_ROOT: ${{ github.workspace }}/.allure-input/results" in allure_workflow:
+                  raise SystemExit("Allure extractor must materialize source artifacts outside the results directory")
           components = answers.get("components")
           if answers.get("allure_report") and not components:
               source_path = Path(str(answers.get("allure_external_workflow_path", "")))
