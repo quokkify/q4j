@@ -131,6 +131,10 @@ configured values to `Waiter` calls.
 
 ## Table DOM model
 
+The complete API record, compatibility boundary, weakness matrix, and upstream-evaluation prompt are
+in [`docs/table-api.md`](../../docs/table-api.md) and
+[`docs/selenide-upstream-evaluation-prompt.md`](../../docs/selenide-upstream-evaluation-prompt.md).
+
 The neutral DOM model uses typed column keys mapped to the text displayed by the DOM; its enum
 ordinal is never used as a column position. The additive `dev.quokkify.elements.table.model`
 contract consists of `TableModel<C>`, `TableRow<C>`, and `TableCell<C>`. The public immutable
