@@ -64,7 +64,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/project-toolkit/actions/setup-java-gradle@204b0f332c03d8ea8ceed920e3dc7487a13bb224 # v2.12.4
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@d6f8b429dc5823309b946c0dcfae295081174729 # v2.13.0
 
       - name: 🧱 Build (check, no tests)
         run: |
@@ -94,7 +94,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/project-toolkit/actions/setup-java-gradle@204b0f332c03d8ea8ceed920e3dc7487a13bb224 # v2.12.4
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@d6f8b429dc5823309b946c0dcfae295081174729 # v2.13.0
 
       - name: 🧱 Build (check, no tests)
         run: |
@@ -124,7 +124,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/project-toolkit/actions/setup-java-gradle@204b0f332c03d8ea8ceed920e3dc7487a13bb224 # v2.12.4
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@d6f8b429dc5823309b946c0dcfae295081174729 # v2.13.0
 
       - name: 🧱 Build (check, no tests)
         run: |
@@ -156,7 +156,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/project-toolkit/actions/setup-java-gradle@204b0f332c03d8ea8ceed920e3dc7487a13bb224 # v2.12.4
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@d6f8b429dc5823309b946c0dcfae295081174729 # v2.13.0
 
       - name: 🚀 Run tests
         run: ./gradlew ${{ matrix.module }}:test --no-daemon --console=plain --stacktrace
@@ -222,7 +222,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/project-toolkit/actions/setup-java-gradle@204b0f332c03d8ea8ceed920e3dc7487a13bb224 # v2.12.4
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@d6f8b429dc5823309b946c0dcfae295081174729 # v2.13.0
 
       - name: 🟢 Start Infra with health lifecycle
         if: ${{ matrix.profile != 'none' }}
@@ -369,7 +369,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/project-toolkit/actions/setup-java-gradle@204b0f332c03d8ea8ceed920e3dc7487a13bb224 # v2.12.4
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@d6f8b429dc5823309b946c0dcfae295081174729 # v2.13.0
 
       - name: 🟢 Start Infra with health lifecycle
         if: ${{ matrix.profile != 'none' }}
