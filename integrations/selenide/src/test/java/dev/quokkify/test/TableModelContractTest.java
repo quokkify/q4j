@@ -3,6 +3,7 @@ package dev.quokkify.test;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 import dev.quokkify.elements.table.classic.DynamicTable;
 import dev.quokkify.elements.table.classic.FlexTable;
@@ -30,9 +31,12 @@ import org.assertj.core.api.Assertions;
 import org.openqa.selenium.By;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class TableModelContractTest extends BaseTest {
+
+  private static final String REPETITIONS_PROPERTY = "tableModel.contract.repetitions";
 
   private enum Header {
     COMPANY("Company"),
@@ -118,8 +122,17 @@ public class TableModelContractTest extends BaseTest {
         .requiredCell(DynamicHorizontalHeader.COUNTRY).text()).isEqualTo("Austria");
   }
 
-  @Test(description = "Required lookup waits for a row restored asynchronously")
-  public void waitsForDelayedRow() {
+  @DataProvider(name = "tableModelContractIterations", parallel = false)
+  public Object[][] tableModelContractIterations() {
+    int repetitions = Integer.parseInt(System.getProperty(REPETITIONS_PROPERTY, "1"));
+    return IntStream.rangeClosed(1, repetitions)
+        .mapToObj(iteration -> new Object[] {"iteration-%02d".formatted(iteration)})
+        .toArray(Object[][]::new);
+  }
+
+  @Test(dataProvider = "tableModelContractIterations",
+      description = "Required lookup waits for a row restored asynchronously")
+  public void waitsForDelayedRow(String iteration) {
     openFixture();
     FixturePage page = Selenide.page(FixturePage.class);
     TableModel<Header> model = page.classic.asDomModel(h -> h.displayed);
@@ -131,8 +144,9 @@ public class TableModelContractTest extends BaseTest {
     Assertions.assertThat(row.requiredCell(Header.COUNTRY).text()).isEqualTo("Austria");
   }
 
-  @Test(description = "A row reference resolves again after a deterministic DOM remount")
-  public void rowReferenceSurvivesRemount() {
+  @Test(dataProvider = "tableModelContractIterations",
+      description = "A row reference resolves again after a deterministic DOM remount")
+  public void rowReferenceSurvivesRemount(String iteration) {
     openFixture();
     FixturePage page = Selenide.page(FixturePage.class);
     TableModel<Header> model = page.classic.asDomModel(h -> h.displayed);

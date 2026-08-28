@@ -1,5 +1,14 @@
 description = "Wrapper around Selenide for user interface testing"
 
+import org.gradle.api.services.BuildService
+import org.gradle.api.services.BuildServiceParameters
+
+abstract class SelenideBrowserTestLock implements BuildService<BuildServiceParameters.None> {}
+
+def selenideBrowserTestLock = gradle.sharedServices.registerIfAbsent("selenideBrowserTestLock", SelenideBrowserTestLock) {
+    maxParallelUsages = 1
+}
+
 dependencies {
     implementation project(":common-utils:config")
     implementation project(":common-utils:core")
@@ -17,13 +26,20 @@ dependencies {
     api "org.assertj:assertj-core"
 }
 
+tasks.named("test", Test) {
+    usesService(selenideBrowserTestLock)
+}
+
 tasks.register("tableModelContractStability", Test) {
     description = "Runs the two timing-sensitive table model scenarios 50 times each"
     group = "verification"
     testClassesDirs = sourceSets.test.output.classesDirs
     classpath = sourceSets.test.runtimeClasspath
-    useTestNG()
+    usesService(selenideBrowserTestLock)
+    maxParallelForks = 1
+    systemProperty("tableModel.contract.repetitions", "50")
     filter {
-        includeTestsMatching("dev.quokkify.test.TableModelContractStabilityTest.*")
+        includeTestsMatching("dev.quokkify.test.TableModelContractTest.waitsForDelayedRow")
+        includeTestsMatching("dev.quokkify.test.TableModelContractTest.rowReferenceSurvivesRemount")
     }
 }
