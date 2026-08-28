@@ -1,5 +1,35 @@
 # Changelog
 
+## [0.6.1](https://github.com/quokkify/q4j/compare/v0.6.0...v0.6.1) (2026-08-28)
+
+
+### 🐛 Bug Fixes
+
+* **ci:** include report directory in Allure URL ([#545](https://github.com/quokkify/q4j/issues/545)) ([fd8321e](https://github.com/quokkify/q4j/commit/fd8321e2d91edb95c83f637a4b8f292e38b57959))
+* **ci:** point Allure comment to PR report ([#540](https://github.com/quokkify/q4j/issues/540)) ([cf77fa3](https://github.com/quokkify/q4j/commit/cf77fa3de351a4ef492b2a24ca630ee1ce03a74e))
+* **ci:** reuse project-toolkit Java setup action ([#546](https://github.com/quokkify/q4j/issues/546)) ([b031c7c](https://github.com/quokkify/q4j/commit/b031c7c82b9d214fcd1e8a6e21a414f1bc6641f1))
+* **config:** enable Release Please metadata ([#541](https://github.com/quokkify/q4j/issues/541)) ([c1314e6](https://github.com/quokkify/q4j/commit/c1314e6d78e904a516bcee694b43b681dff48c72))
+* **deps:** update io.github.classgraph:classgraph to v4.8.194 ([#544](https://github.com/quokkify/q4j/issues/544)) ([081c1ab](https://github.com/quokkify/q4j/commit/081c1ab98406e0c5715396d323cb4164ddf2d3ce))
+* **selenide:** restore table remount and row semantics ([#543](https://github.com/quokkify/q4j/issues/543)) ([41c5a86](https://github.com/quokkify/q4j/commit/41c5a863a41998b7c307f75d5325c185ab07142d))
+
+
+### 🧪 Tests
+
+* **selenide:** stabilize table model timing coverage ([#549](https://github.com/quokkify/q4j/issues/549)) ([2e92d1f](https://github.com/quokkify/q4j/commit/2e92d1fe8d2b33450d525e5fc56732c8a7a4c580))
+
+
+### 🧹 Chores
+
+* **ci:** silence Docker image pulls ([#552](https://github.com/quokkify/q4j/issues/552)) ([deffec6](https://github.com/quokkify/q4j/commit/deffec6af82891a27af0d5baaac876c8c4ea8faf))
+* **ci:** update project-toolkit to v2.12.2 ([#537](https://github.com/quokkify/q4j/issues/537)) ([736effe](https://github.com/quokkify/q4j/commit/736effeb26e1388c334421df72aaf97a9bc1f26d))
+* **deps:** update actions/download-artifact action to v8 ([#538](https://github.com/quokkify/q4j/issues/538)) ([0015014](https://github.com/quokkify/q4j/commit/001501476ebb17dd345020ae077fe54fa0caa3b8))
+* **deps:** update myoung34/github-runner docker tag to v2.337.0 ([#553](https://github.com/quokkify/q4j/issues/553)) ([a78a4c1](https://github.com/quokkify/q4j/commit/a78a4c1b2b8e4943c1b70893793ab7cb3b755129))
+* **deps:** update nginx docker tag to v1.31.4 ([#550](https://github.com/quokkify/q4j/issues/550)) ([b9aa3df](https://github.com/quokkify/q4j/commit/b9aa3df88a700c01a7b9f5a1c7ba0c7f07779dad))
+* **deps:** update q4j module documentation to v0.6.0 ([#535](https://github.com/quokkify/q4j/issues/535)) ([0e9811b](https://github.com/quokkify/q4j/commit/0e9811b3f6b7b2cd5b8804063f0ecc42a0214069))
+* **deps:** update traefik docker tag to v3.7.12 ([#551](https://github.com/quokkify/q4j/issues/551)) ([7f809f1](https://github.com/quokkify/q4j/commit/7f809f1a8364f88a2824a87706058d24052a8bf4))
+* **deps:** update zookeeper:3.9 docker digest to f258365 ([#532](https://github.com/quokkify/q4j/issues/532)) ([3eef666](https://github.com/quokkify/q4j/commit/3eef66635a6d3907403754ea103190e4313596b8))
+* **project-toolkit:** update to v2.12.4 ([#539](https://github.com/quokkify/q4j/issues/539)) ([7aa4aa2](https://github.com/quokkify/q4j/commit/7aa4aa2bf3ef3f39b8652e64f85ed542c62e7f61))
+
 ## [0.6.0](https://github.com/quokkify/q4j/compare/v0.5.3...v0.6.0) (2026-08-25)
 
 
