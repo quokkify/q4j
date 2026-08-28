@@ -493,8 +493,8 @@ jobs:
             **/build/reports
             **/build/test-results
 
-  table-model-stability:
-    name: Table model stability
+  stability-tests:
+    name: Stability tests
     needs: [detect-runner, build-integrations, test-common]
     runs-on: ${{ fromJson(needs.detect-runner.outputs.runs_on) }}
     if: ${{ github.event_name != 'pull_request_target' }}
@@ -502,9 +502,10 @@ jobs:
       contents: read
     env:
       CI: "true"
-      COMPOSE_PROJECT_NAME: ci-${{ github.run_id }}-table-model-stability
+      COMPOSE_PROJECT_NAME: ci-${{ github.run_id }}-stability-tests
       EXECUTION_MODE: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' && 'DIND' || 'CI' }}
       GRID_CDP_ENABLE: "true"
+      SUITE_NAME: integration@selenide > stability-tests
 
     steps:
       - name: 🔨Checkout
@@ -549,11 +550,11 @@ jobs:
           found=false
           while IFS= read -r dir; do
             found=true
-            bash tools/scripts/ci/write-allure-ci-env-fragment.sh "Table model stability" "$dir"
+            bash tools/scripts/ci/write-allure-ci-env-fragment.sh "integration@selenide > stability-tests" "$dir"
           done < <(find . -type d -path '*/build/allure-results' | sort)
           if [[ "$found" == "false" ]]; then
             mkdir -p integrations/selenide/build/allure-results
-            bash tools/scripts/ci/write-allure-ci-env-fragment.sh "Table model stability" integrations/selenide/build/allure-results
+            bash tools/scripts/ci/write-allure-ci-env-fragment.sh "integration@selenide > stability-tests" integrations/selenide/build/allure-results
           fi
         shell: bash
 
@@ -566,7 +567,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
-          name: allure-results-table-model-stability
+          name: allure-results-stability-tests
           retention-days: 3
           if-no-files-found: error
           path: "**/build/allure-results"
@@ -575,7 +576,7 @@ jobs:
         if: always()
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         with:
-          name: docker-logs-table-model-stability
+          name: docker-logs-stability-tests
           retention-days: 3
           path: logs
 
@@ -583,7 +584,7 @@ jobs:
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
         with:
-          name: test-report-table-model-stability
+          name: test-report-stability-tests
           retention-days: 3
           path: |
             **/build/reports
@@ -591,7 +592,7 @@ jobs:
 
   tests-complete:
     name: Tests pipeline complete
-    needs: [test-data, test-integrations, table-model-stability]
+    needs: [test-data, test-integrations, stability-tests]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     permissions:
@@ -600,7 +601,7 @@ jobs:
       - name: Validate stage results
         shell: bash
         run: |
-          if [[ "${{ needs.test-data.result }}" != "success" || "${{ needs.test-integrations.result }}" != "success" || "${{ needs.table-model-stability.result }}" != "success" ]]; then
+          if [[ "${{ needs.test-data.result }}" != "success" || "${{ needs.test-integrations.result }}" != "success" || "${{ needs.stability-tests.result }}" != "success" ]]; then
             echo "Test stages are not successful."
             exit 1
           fi
