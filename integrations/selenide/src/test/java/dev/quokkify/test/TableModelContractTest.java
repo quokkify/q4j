@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
+import dev.quokkify.annotation.SingleThread;
 import dev.quokkify.elements.table.classic.DynamicTable;
 import dev.quokkify.elements.table.classic.FlexTable;
 import dev.quokkify.elements.table.classic.Table;
@@ -132,6 +133,7 @@ public class TableModelContractTest extends BaseTest {
 
   @Test(dataProvider = "tableModelContractIterations",
       description = "Required lookup waits for a row restored asynchronously")
+  @SingleThread
   public void waitsForDelayedRow(String iteration) {
     openFixture();
     FixturePage page = Selenide.page(FixturePage.class);
@@ -146,6 +148,7 @@ public class TableModelContractTest extends BaseTest {
 
   @Test(dataProvider = "tableModelContractIterations",
       description = "A row reference resolves again after a deterministic DOM remount")
+  @SingleThread
   public void rowReferenceSurvivesRemount(String iteration) {
     openFixture();
     FixturePage page = Selenide.page(FixturePage.class);

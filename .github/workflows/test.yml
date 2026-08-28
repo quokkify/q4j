@@ -443,8 +443,12 @@ jobs:
 
       - name: 🧪 Run Selenide table model stability gate (100 cases)
         if: ${{ matrix.module == ':integrations:selenide' }}
+        env:
+          SUITE_NAME: Table model contract stability
         run: |
+          set -a
           source tools/environment/.nginx.env
+          set +a
           ./gradlew :integrations:selenide:tableModelContractStability --no-daemon --console=plain --stacktrace
         shell: bash
 
