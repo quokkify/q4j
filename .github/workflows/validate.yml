@@ -33,6 +33,7 @@ jobs:
           python -m pip install PyYAML==6.0.3
           python - <<'PY'
           import json
+          import re
           from pathlib import Path
           import yaml
 
@@ -81,8 +82,24 @@ jobs:
                       if reference != answers["toolkit_version"] and not pinned_release:
                           raise SystemExit(f"{path} uses toolkit {reference}, expected {answers['toolkit_version']}")
 
+          publish_workflow = Path(".github/workflows/publish-maven-central.yml")
+          if publish_workflow.is_file():
+              publish_text = publish_workflow.read_text()
+              if "uses: actions/setup-java@" in publish_text:
+                  raise SystemExit("Maven Central publishing must use project-toolkit/actions/setup-java-gradle")
+              setup_java_gradle = re.search(
+                  r"(?m)^\s+uses: quokkify/project-toolkit/actions/setup-java-gradle@(?P<reference>[^ #]+)(?:\s+#\s*(?P<comment>\S+))?$",
+                  publish_text,
+              )
+              if not setup_java_gradle:
+                  raise SystemExit("Maven Central publishing must use project-toolkit/actions/setup-java-gradle")
+              reference = setup_java_gradle.group("reference")
+              comment = setup_java_gradle.group("comment")
+              pinned_release = len(reference) == 40 and all(char in "0123456789abcdef" for char in reference)
+              if (reference != answers["toolkit_version"] and not pinned_release) or (pinned_release and comment != answers["toolkit_version"]):
+                  raise SystemExit("Maven Central publishing toolkit action must match toolkit_version")
+
           selenium_grid = Path("tools/environment/assets/selenium-grid/config.toml").read_text()
-          import re
           marker = re.search(
               r'(?m)^# renovate: depName=selenium/standalone-chromium currentValue=(?P<currentValue>\d+\.\d+(?:\.\d+)?-\d+) currentDigest=(?P<currentDigest>sha256:[a-f0-9]{64})$',
               selenium_grid,
