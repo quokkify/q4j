@@ -41,7 +41,9 @@ if [[ "${CI:-}" == "true" ]]; then
   export SELENIUM_GRID_MOUNT
 else
   export SELENIUM_GRID_MOUNT="$(pwd)/tools/environment/assets/selenium-grid"
-  render_config "$CONFIG_PATH" "${SELENIUM_GRID_MOUNT}/config.toml"
+  tmp_config="$(mktemp)"
+  render_config "$CONFIG_PATH" "$tmp_config"
+  mv "$tmp_config" "${SELENIUM_GRID_MOUNT}/config.toml"
 fi
 
 extract_grid_image_tag() {
