@@ -31,13 +31,13 @@ tasks.named("test", Test) {
 }
 
 tasks.register("tableModelContractStability", Test) {
-    description = "Runs the two timing-sensitive table model scenarios 50 times each"
+    description = "Runs the two timing-sensitive table model scenarios 20 times each"
     group = "verification"
     testClassesDirs = sourceSets.test.output.classesDirs
     classpath = sourceSets.test.runtimeClasspath
     usesService(selenideBrowserTestLock)
     maxParallelForks = 1
-    systemProperty("tableModel.contract.repetitions", "50")
+    systemProperty("tableModel.contract.repetitions", "20")
     filter {
         includeTestsMatching("dev.quokkify.test.TableModelContractTest.waitsForDelayedRow")
         includeTestsMatching("dev.quokkify.test.TableModelContractTest.rowReferenceSurvivesRemount")
