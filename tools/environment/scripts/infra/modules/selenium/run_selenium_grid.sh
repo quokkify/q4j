@@ -34,7 +34,8 @@ if [[ "${CI:-}" == "true" ]]; then
   docker volume create "${SELENIUM_GRID_MOUNT}" >/dev/null
   tmp_config="$(mktemp)"
   render_config "$CONFIG_PATH" "$tmp_config"
-  cat "$tmp_config" | docker run --rm -i -v "${SELENIUM_GRID_MOUNT}":/opt/selenium/config.d busybox \
+  # renovate: datasource=docker depName=busybox
+  cat "$tmp_config" | docker run --rm -i -v "${SELENIUM_GRID_MOUNT}":/opt/selenium/config.d busybox:1.38.0@sha256:dc2d74b28e4cf8984fa52af1f39bc7c3d9c73760b41a74d629f5d11b1ab28616 \
     sh -c "mkdir -p /opt/selenium/config.d && cat > /opt/selenium/config.d/config.toml"
   rm -f "$tmp_config"
   export SELENIUM_GRID_MOUNT
@@ -117,7 +118,7 @@ while [ $SECONDS -lt $end_time ]; do
   if [[ "${CI:-}" == "true" ]]; then
     hub_container="$(compose_cmd ps -q selenium-hub | head -n1 || true)"
     if [[ -n "$hub_container" ]]; then
-      response="$(docker run --rm --network "container:${hub_container}" curlimages/curl:8.5.0 -sL "$CI_CONTAINER_STATUS_URL" || true)"
+      response="$(docker run --rm --network "container:${hub_container}" curlimages/curl:8.21.0@sha256:7c12af72ceb38b7432ab85e1a265cff6ae58e06f95539d539b654f2cfa64bb13 -sL "$CI_CONTAINER_STATUS_URL" || true)"
     else
       response=""
     fi
@@ -158,7 +159,7 @@ if [[ "${CI:-}" == "true" ]]; then
     if [[ -n "$nginx_container" ]]; then
       echo "[selenium-grid] waiting for nginx to respond..."
       for i in $(seq 1 30); do
-        if docker run --rm --network "container:${nginx_container}" curlimages/curl:8.5.0 -sSf http://localhost/table/ >/dev/null 2>&1; then
+        if docker run --rm --network "container:${nginx_container}" curlimages/curl:8.21.0@sha256:7c12af72ceb38b7432ab85e1a265cff6ae58e06f95539d539b654f2cfa64bb13 -sSf http://localhost/table/ >/dev/null 2>&1; then
           echo "[selenium-grid] nginx is ready"
           break
         fi

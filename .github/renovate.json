@@ -32,6 +32,30 @@
       "datasourceTemplate": "docker",
       "packageNameTemplate": "selenium/standalone-chromium",
       "versioningTemplate": "regex:^(?<major>\\d+)\\.(?<minor>\\d+)(?:\\.(?<patch>\\d+))?-(?<build>\\d+)$"
+    },
+    {
+      "customType": "regex",
+      "description": "Keep the BusyBox CI helper image current",
+      "managerFilePatterns": [
+        "/^tools\\/environment\\/scripts\\/infra\\/modules\\/selenium\\/run_selenium_grid\\.sh$/"
+      ],
+      "matchStrings": [
+        "# renovate: datasource=docker depName=busybox[\\s\\S]*?busybox:(?<currentValue>\\d+\\.\\d+\\.\\d+)@(?<currentDigest>sha256:[a-f0-9]{64})"
+      ],
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "busybox"
+    },
+    {
+      "customType": "regex",
+      "description": "Keep curl CI helper images current",
+      "managerFilePatterns": [
+        "/^tools\\/environment\\/scripts\\/infra\\/modules\\/(?:mock\\/(?:run_mock_server|upload_expectations)|selenium\\/run_selenium_grid)\\.sh$/"
+      ],
+      "matchStrings": [
+        "curlimages/curl:(?<currentValue>\\d+\\.\\d+\\.\\d+)@(?<currentDigest>sha256:[a-f0-9]{64})"
+      ],
+      "datasourceTemplate": "docker",
+      "packageNameTemplate": "curlimages/curl"
     }
   ],
   "packageRules": [
