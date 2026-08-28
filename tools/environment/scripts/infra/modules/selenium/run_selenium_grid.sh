@@ -29,7 +29,7 @@ render_config() {
 }
 
 if [[ "${CI:-}" == "true" ]]; then
-  SELENIUM_GRID_MOUNT="selenium-grid-config"
+  SELENIUM_GRID_MOUNT="selenium-grid-config-${project_name}"
   echo "[selenium-grid] preparing volume ${SELENIUM_GRID_MOUNT}"
   docker volume create "${SELENIUM_GRID_MOUNT}" >/dev/null
   tmp_config="$(mktemp)"

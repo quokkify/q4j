@@ -281,9 +281,14 @@
       function prepareDelayedRow() {
         const table = document.getElementById("classic");
         const row = table.querySelector("tbody tr");
+        window.delayedRow = row;
         row.remove();
+      }
+
+      function restoreDelayedRow() {
+        const table = document.getElementById("classic");
         window.setTimeout(
-          () => table.querySelector("tbody").appendChild(row),
+          () => table.querySelector("tbody").appendChild(window.delayedRow),
           250,
         );
       }

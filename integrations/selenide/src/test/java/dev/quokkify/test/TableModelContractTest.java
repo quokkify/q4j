@@ -3,7 +3,9 @@ package dev.quokkify.test;
 import java.time.Duration;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
+import dev.quokkify.annotation.SingleThread;
 import dev.quokkify.elements.table.classic.DynamicTable;
 import dev.quokkify.elements.table.classic.FlexTable;
 import dev.quokkify.elements.table.classic.Table;
@@ -23,14 +25,19 @@ import dev.quokkify.elements.table.model.TableModel;
 import dev.quokkify.elements.table.model.TableRow;
 import dev.quokkify.model.ConstantFormat;
 
+import com.codeborne.selenide.CollectionCondition;
 import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.logevents.SelenideLogger;
 import org.assertj.core.api.Assertions;
 import org.openqa.selenium.By;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class TableModelContractTest extends BaseTest {
+
+  private static final String REPETITIONS_PROPERTY = "tableModel.contract.repetitions";
 
   private enum Header {
     COMPANY("Company"),
@@ -116,19 +123,41 @@ public class TableModelContractTest extends BaseTest {
         .requiredCell(DynamicHorizontalHeader.COUNTRY).text()).isEqualTo("Austria");
   }
 
-  @Test(description = "Required lookup waits through Selenide and survives a DOM remount")
-  public void waitsForAndSurvivesRemount() {
+  @DataProvider(name = "tableModelContractIterations", parallel = false)
+  public Object[][] tableModelContractIterations() {
+    int repetitions = Integer.parseInt(System.getProperty(REPETITIONS_PROPERTY, "1"));
+    return IntStream.rangeClosed(1, repetitions)
+        .mapToObj(iteration -> new Object[] {"iteration-%02d".formatted(iteration)})
+        .toArray(Object[][]::new);
+  }
+
+  @Test(dataProvider = "tableModelContractIterations",
+      description = "Required lookup waits for a row restored asynchronously")
+  @SingleThread
+  public void waitsForDelayedRow(String iteration) {
     openFixture();
     FixturePage page = Selenide.page(FixturePage.class);
     TableModel<Header> model = page.classic.asDomModel(h -> h.displayed);
     Selenide.executeJavaScript("window.prepareDelayedRow()");
-    Assertions.assertThat(model.row(candidate -> candidate.cell(Header.COMPANY)
-        .map(cell -> cell.text().equals("Alfreds")).orElse(false))).isEmpty();
+    Selenide.$$("#classic tbody tr").shouldHave(CollectionCondition.empty);
+    Selenide.executeJavaScript("window.restoreDelayedRow()");
     TableRow<Header> row = model.requiredRow(candidate -> candidate.cell(Header.COMPANY)
         .map(cell -> cell.text().equals("Alfreds")).orElse(false), "company", Duration.ofSeconds(2));
-
-    Selenide.executeJavaScript("window.remount()");
     Assertions.assertThat(row.requiredCell(Header.COUNTRY).text()).isEqualTo("Austria");
+  }
+
+  @Test(dataProvider = "tableModelContractIterations",
+      description = "A row reference resolves again after a deterministic DOM remount")
+  @SingleThread
+  public void rowReferenceSurvivesRemount(String iteration) {
+    openFixture();
+    FixturePage page = Selenide.page(FixturePage.class);
+    TableModel<Header> model = page.classic.asDomModel(h -> h.displayed);
+    TableRow<Header> row = model.requiredRow(candidate -> candidate.cell(Header.COMPANY)
+        .map(cell -> cell.text().equals("Alfreds")).orElse(false), "company", Duration.ofSeconds(2));
+    Selenide.executeJavaScript("window.remount()");
+    SelenideLogger.step("Verify remounted row country", () ->
+        Assertions.assertThat(row.requiredCell(Header.COUNTRY).text()).isEqualTo("Austria"));
   }
 
   @Test(description = "Required row handles skip CLASSIC and FLEX header rows")

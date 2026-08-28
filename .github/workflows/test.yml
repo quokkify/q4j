@@ -493,9 +493,111 @@ jobs:
             **/build/reports
             **/build/test-results
 
+  stability-tests:
+    name: Stability tests
+    needs: [detect-runner, build-integrations, test-common]
+    runs-on: ${{ fromJson(needs.detect-runner.outputs.runs_on) }}
+    if: ${{ github.event_name != 'pull_request_target' }}
+    permissions:
+      contents: read
+    env:
+      CI: "true"
+      COMPOSE_PROJECT_NAME: ci-${{ github.run_id }}-stability-tests
+      EXECUTION_MODE: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' && 'DIND' || 'CI' }}
+      GRID_CDP_ENABLE: "true"
+      SUITE_NAME: integration@selenide > stability-tests
+
+    steps:
+      - name: 🔨Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: 🔨Prepare Java/Gradle
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@d6f8b429dc5823309b946c0dcfae295081174729 # v2.13.0
+
+      - name: 🟢 Start Infra with health lifecycle
+        uses: quokkify/project-toolkit/actions/compose-up@d6f8b429dc5823309b946c0dcfae295081174729 # v2.13.0
+        with:
+          compose-files: |
+            tools/environment/docker/docker-compose.yml
+            tools/environment/docker/docker-compose.ci.yml
+          profiles: web
+          additional-compose-args: --quiet-pull
+          before-compose-hook: tools/environment/scripts/infra/before_compose.sh
+          after-health-hook: tools/environment/scripts/infra/after_health.sh
+          timeout-seconds: "120"
+
+      - name: 🚀 Run table model stability tests
+        run: |
+          if [[ -f tools/environment/.selenium-grid.env ]]; then
+            set -a
+            source tools/environment/.selenium-grid.env
+            set +a
+          fi
+          set -a
+          source tools/environment/.nginx.env
+          set +a
+          if [[ -n "${NGINX_BASE_URL:-}" ]]; then
+            export BASE_URL="${NGINX_BASE_URL}"
+          else
+            echo "NGINX_BASE_URL is not set for web profile" >&2
+            exit 1
+          fi
+
+          ./gradlew :integrations:selenide:tableModelContractStability --no-daemon --console=plain --stacktrace
+        shell: bash
+
+      - name: 🧾 Allure CI env fragment
+        if: always()
+        env:
+          MODULE_PATH: ":integrations:selenide"
+          QUOKKIFY_TEST_PROFILE: web
+        run: |
+          found=false
+          while IFS= read -r dir; do
+            found=true
+            bash tools/scripts/ci/write-allure-ci-env-fragment.sh "integration@selenide > stability-tests" "$dir"
+          done < <(find . -type d -path '*/build/allure-results' | sort)
+          if [[ "$found" == "false" ]]; then
+            mkdir -p integrations/selenide/build/allure-results
+            bash tools/scripts/ci/write-allure-ci-env-fragment.sh "integration@selenide > stability-tests" integrations/selenide/build/allure-results
+          fi
+        shell: bash
+
+      - name: 🛑 Stop Infra
+        if: always()
+        run: ./tools/environment/scripts/infra/stop_app.sh
+        shell: bash
+
+      - name: 📊 Upload dedicated Allure results
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: allure-results-stability-tests
+          retention-days: 3
+          if-no-files-found: error
+          path: "**/build/allure-results"
+
+      - name: 📦 Pack docker compose logs as artifact
+        if: always()
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: docker-logs-stability-tests
+          retention-days: 3
+          path: logs
+
+      - name: 📦 Pack test results as artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: test-report-stability-tests
+          retention-days: 3
+          path: |
+            **/build/reports
+            **/build/test-results
+
   tests-complete:
     name: Tests pipeline complete
-    needs: [test-data, test-integrations]
+    needs: [test-data, test-integrations, stability-tests]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     permissions:
@@ -504,7 +606,7 @@ jobs:
       - name: Validate stage results
         shell: bash
         run: |
-          if [[ "${{ needs.test-data.result }}" != "success" || "${{ needs.test-integrations.result }}" != "success" ]]; then
+          if [[ "${{ needs.test-data.result }}" != "success" || "${{ needs.test-integrations.result }}" != "success" || "${{ needs.stability-tests.result }}" != "success" ]]; then
             echo "Test stages are not successful."
             exit 1
           fi
