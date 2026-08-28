@@ -115,8 +115,13 @@ jobs:
               // { name: 'q4j-reportportal-testrail', module: ':integrations:reportportal:testrail', slug: 'integrations-reportportal-testrail', profile: 'none' },
             ];
 
-            core.setOutput('common_modules', JSON.stringify(commonModules));
-            core.setOutput('data_build_modules', JSON.stringify(dataBuildModules));
-            core.setOutput('integrations_build_modules', JSON.stringify(integrationsBuildModules));
-            core.setOutput('data_test_modules', JSON.stringify(dataTestModules));
-            core.setOutput('integrations_test_modules', JSON.stringify(integrationsTestModules));
+            const withResultsPath = (modules) => modules.map((module) => ({
+              ...module,
+              results_path: module.module.slice(1).replaceAll(':', '/'),
+            }));
+
+            core.setOutput('common_modules', JSON.stringify(withResultsPath(commonModules)));
+            core.setOutput('data_build_modules', JSON.stringify(withResultsPath(dataBuildModules)));
+            core.setOutput('integrations_build_modules', JSON.stringify(withResultsPath(integrationsBuildModules)));
+            core.setOutput('data_test_modules', JSON.stringify(withResultsPath(dataTestModules)));
+            core.setOutput('integrations_test_modules', JSON.stringify(withResultsPath(integrationsTestModules)));

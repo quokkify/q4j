@@ -167,18 +167,11 @@ jobs:
         env:
           MODULE_PATH: ${{ matrix.module }}
         run: |
-          found=false
-          while IFS= read -r dir; do
-            found=true
-            bash tools/scripts/ci/write-allure-ci-env-fragment.sh "Common ${{ matrix.name }}" "$dir"
-          done < <(find . -type d -path '*/build/allure-results' | sort)
-          if [[ "$found" == "false" ]]; then
-            module_dir="${MODULE_PATH#:}"
-            module_dir="${module_dir//:/\/}"
-            module_dir="${module_dir:-.}"
-            mkdir -p "$module_dir/build/allure-results"
-            bash tools/scripts/ci/write-allure-ci-env-fragment.sh "Common ${{ matrix.name }}" "$module_dir/build/allure-results"
-          fi
+          module_dir="${MODULE_PATH#:}"
+          module_dir="${module_dir//:/\/}"
+          module_dir="${module_dir:-.}"
+          mkdir -p "$module_dir/build/allure-results"
+          bash tools/scripts/ci/write-allure-ci-env-fragment.sh "Common ${{ matrix.name }}" "$module_dir/build/allure-results"
         shell: bash
 
       - name: 📊 Upload dedicated Allure results
@@ -188,7 +181,7 @@ jobs:
           name: allure-results-common-${{ matrix.slug }}
           retention-days: 3
           if-no-files-found: error
-          path: "**/build/allure-results"
+          path: "${{ matrix.results_path }}/build/allure-results"
 
       - name: 📦 Pack test results as artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -300,18 +293,11 @@ jobs:
           MODULE_PATH: ${{ matrix.module }}
           QUOKKIFY_TEST_PROFILE: ${{ matrix.profile }}
         run: |
-          found=false
-          while IFS= read -r dir; do
-            found=true
-            bash tools/scripts/ci/write-allure-ci-env-fragment.sh "Data ${{ matrix.name }}" "$dir"
-          done < <(find . -type d -path '*/build/allure-results' | sort)
-          if [[ "$found" == "false" ]]; then
-            module_dir="${MODULE_PATH#:}"
-            module_dir="${module_dir//:/\/}"
-            module_dir="${module_dir:-.}"
-            mkdir -p "$module_dir/build/allure-results"
-            bash tools/scripts/ci/write-allure-ci-env-fragment.sh "Data ${{ matrix.name }}" "$module_dir/build/allure-results"
-          fi
+          module_dir="${MODULE_PATH#:}"
+          module_dir="${module_dir//:/\/}"
+          module_dir="${module_dir:-.}"
+          mkdir -p "$module_dir/build/allure-results"
+          bash tools/scripts/ci/write-allure-ci-env-fragment.sh "Data ${{ matrix.name }}" "$module_dir/build/allure-results"
         shell: bash
 
       - name: 🛑 Stop Infra
@@ -326,7 +312,7 @@ jobs:
           name: allure-results-data-${{ matrix.slug }}
           retention-days: 3
           if-no-files-found: error
-          path: "**/build/allure-results"
+          path: "${{ matrix.results_path }}/build/allure-results"
 
       - name: 📦 Pack docker compose logs as artifact
         if: ${{ matrix.profile != 'none' && always() }}
@@ -447,18 +433,11 @@ jobs:
           MODULE_PATH: ${{ matrix.module }}
           QUOKKIFY_TEST_PROFILE: ${{ matrix.profile }}
         run: |
-          found=false
-          while IFS= read -r dir; do
-            found=true
-            bash tools/scripts/ci/write-allure-ci-env-fragment.sh "Integrations ${{ matrix.name }}" "$dir"
-          done < <(find . -type d -path '*/build/allure-results' | sort)
-          if [[ "$found" == "false" ]]; then
-            module_dir="${MODULE_PATH#:}"
-            module_dir="${module_dir//:/\/}"
-            module_dir="${module_dir:-.}"
-            mkdir -p "$module_dir/build/allure-results"
-            bash tools/scripts/ci/write-allure-ci-env-fragment.sh "Integrations ${{ matrix.name }}" "$module_dir/build/allure-results"
-          fi
+          module_dir="${MODULE_PATH#:}"
+          module_dir="${module_dir//:/\/}"
+          module_dir="${module_dir:-.}"
+          mkdir -p "$module_dir/build/allure-results"
+          bash tools/scripts/ci/write-allure-ci-env-fragment.sh "Integrations ${{ matrix.name }}" "$module_dir/build/allure-results"
         shell: bash
 
       - name: 🛑 Stop Infra
@@ -473,7 +452,7 @@ jobs:
           name: allure-results-integrations-${{ matrix.slug }}
           retention-days: 3
           if-no-files-found: error
-          path: "**/build/allure-results"
+          path: "${{ matrix.results_path }}/build/allure-results"
 
       - name: 📦 Pack docker compose logs as artifact
         if: ${{ matrix.profile != 'none' && always() }}
@@ -552,15 +531,8 @@ jobs:
           MODULE_PATH: ":integrations:selenide"
           QUOKKIFY_TEST_PROFILE: web
         run: |
-          found=false
-          while IFS= read -r dir; do
-            found=true
-            bash tools/scripts/ci/write-allure-ci-env-fragment.sh "integration@selenide > stability-tests" "$dir"
-          done < <(find . -type d -path '*/build/allure-results' | sort)
-          if [[ "$found" == "false" ]]; then
-            mkdir -p integrations/selenide/build/allure-results
-            bash tools/scripts/ci/write-allure-ci-env-fragment.sh "integration@selenide > stability-tests" integrations/selenide/build/allure-results
-          fi
+          mkdir -p integrations/selenide/build/allure-results
+          bash tools/scripts/ci/write-allure-ci-env-fragment.sh "integration@selenide > stability-tests" integrations/selenide/build/allure-results
         shell: bash
 
       - name: 🛑 Stop Infra
@@ -575,7 +547,7 @@ jobs:
           name: allure-results-stability-tests
           retention-days: 3
           if-no-files-found: error
-          path: "**/build/allure-results"
+          path: "integrations/selenide/build/allure-results"
 
       - name: 📦 Pack docker compose logs as artifact
         if: always()
