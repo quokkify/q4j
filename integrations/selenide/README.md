@@ -145,6 +145,16 @@ constructor remain as a compatibility bridge for legacy table components.
 `DisplayedHeaderResolver<C>` maps a typed key to its displayed header, and missing headers fail
 with `TableColumnNotFoundException` rather than silently selecting a neighbouring column.
 
+These structural types are the extension contract. The current Selenide browser integration is one
+backend adapter/plugin implementation; its `TableDomAdapter`, query, assertion, and action APIs
+remain Selenide/Selenium-specific. A future separately published external Appium plugin/module may
+depend on the structural contract and provide its own backend integration, but q4j core and this
+Selenide module do not depend on or discover Appium. Appium has no implementation in this task, and
+this PR introduces no runtime plugin loading.
+The contracts currently ship in this `q4j-selenide` artifact alongside its Selenide dependency, so a
+future plugin may pull Selenide transitively. Moving them to a neutral artifact/package is deferred
+to a future major release to preserve the released 0.6.0 FQCNs.
+
 Rows and cells are allowed to be lazy: a concrete Selenide adapter may resolve the current DOM
 element on each operation. `TableModel.rows()` represents rows currently available; adapters that
 wait for asynchronous rows expose that policy through their existing timeout overloads. A required

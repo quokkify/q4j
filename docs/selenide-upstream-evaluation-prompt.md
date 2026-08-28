@@ -23,6 +23,13 @@ Selenide APIs, issues, and pull requests before proposing anything. For every ca
 as exactly one of: `keep in q4j`, `clarify/document`, `improve compatibly`, `future major`,
 `propose RFC`, or `reject`.
 
+Treat Appium only as a future separately published external plugin/module boundary. The structural
+contracts (`TableModel`, `TableRow`, `TableCell`) are the extension contract; the current Selenide
+adapter and its query/assertion/action APIs remain Selenide/Selenium-specific. Do not propose or
+implement an Appium type, dependency, driver setup, fixture, runtime code, or plugin discovery in
+q4j. Record that these contracts currently ship in `q4j-selenide` with Selenide dependencies, so
+neutral-artifact extraction is a future-major compatibility decision because 0.6.0 FQCNs cannot move.
+
 Require concrete cross-domain use cases for any upstream candidate. Prefer a maintainer
 brainstorm/RFC before implementation. Do not create a fork or implementation MR until Selenide
 maintainers explicitly agree on scope. Do not assume that a full table model belongs in Selenide;
@@ -38,4 +45,5 @@ whether each required issue evaluation/classification step was completed.
 ```
 
 The prompt is deliberately procedural: it does not claim that an upstream contribution is wanted,
-and it prevents implementation work before maintainer agreement.
+it keeps Appium at a future external plugin/module boundary with no implementation in this task, and
+it prevents implementation work before maintainer agreement.

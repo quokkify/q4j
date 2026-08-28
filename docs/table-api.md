@@ -124,45 +124,59 @@ claims of this example. The compiling equivalent is exercised by
 Released `0.6.0` FQCNs and signatures are preserved. New consumers should prefer the structural
 interfaces and `TableDomAdapters.of(...)`; no existing legacy type is renamed or removed.
 
-## Compatibility boundary and Appium seam
+## Compatibility boundary and future backend plugins
 
-The structural interfaces (`TableModel<C>`, `TableRow<C>`, and `TableCell<C>`) are the
-backend-neutral extension boundary. A future Appium implementation could be shaped as:
+The public structural contracts (`TableModel<C>`, `TableRow<C>`, and `TableCell<C>`) are the
+extension contract. The current Selenide browser integration is one backend adapter/plugin
+implementation: `TableDomAdapter`, `SelenideDomTableModel`, `SelenideTableQuery`, and all
+query/assertion/action APIs remain Selenide/Selenium-specific. `By`, `SelenideElement`, and
+Selenide's driver and wait policies are not framework-neutral contracts.
 
-```java
-abstract class AppiumTableModel<C> implements TableModel<C> {
-  // Appium locator/driver policy stays in this implementation.
-}
+The intended future shape is a separately published external Appium plugin/module. It may depend
+on the structural contracts and provide its own backend implementation, queries, actions, and
+driver integration; it is not part of q4j or this change. The dependency direction is:
+
+```text
+future external Appium plugin/module ──depends on──▶ structural contracts
+current Selenide backend adapter       ──depends on──▶ structural contracts
+q4j core/Selenide implementation       ──must not depend on or discover──▶ Appium
 ```
 
-This is an architecture sketch only and is intentionally abstract. q4j currently provides no Appium dependency, type, driver
-setup, fixture, or runtime implementation. `TableDomAdapter`, `SelenideDomTableModel`,
-`SelenideTableQuery`, and all assertion/action handles are browser/Selenium/Selenide-specific;
-Selenium `By` and Selenide `SelenideElement` must not be described as framework-neutral. An Appium
-adapter must not change these existing FQCNs.
+No Appium dependency, type, driver setup, fixture, runtime implementation, plugin loading, or
+`ServiceLoader` mechanism is introduced by this PR. Existing 0.6.0 FQCNs and q4j table consumers
+remain unchanged.
+
+At present, the structural contracts are packaged in the `q4j-selenide` artifact and package,
+which also depends on Selenide. Consequently, a future external plugin may be forced to pull
+Selenide transitively; the boundary is structurally neutral but the published artifact is not yet
+dependency-neutral. Extracting the contracts to a neutral artifact/package is a future-major
+compatibility action because moving the 0.6.0 FQCNs now would break released callers.
 
 ## Weakness and evidence matrix
 
-| Weakness or ambiguity                                                 | Affected API                            | Consumer impact                                      | Compatibility risk                      | Evidence                                                                                                                                             | Action                                                             |
-| --------------------------------------------------------------------- | --------------------------------------- | ---------------------------------------------------- | --------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| Header lookup by display text can be ambiguous                        | `TableModel.columnIndex`                | A duplicate heading cannot be addressed safely       | Low; exception is additive behavior     | Contract test covers repeated `Company`                                                                                                              | Keep; clarify                                                      |
-| Headerless typed lookup has no implicit position                      | `TableHeaderLocator`, `TableModel`      | Consumers must provide a different key strategy      | Low                                     | Headerless adapter test expects typed lookup failure                                                                                                 | Clarify                                                            |
-| Sealed header strategy limits third-party header strategies           | `TableHeaderLocator`                    | Custom DOM uses the existing three shapes only       | High if unsealed/changed after 0.6.0    | Source audit; `of(...)` supports custom row/cell locators without a new strategy                                                                     | Defer to future major; use `TableModel` for a fully custom backend |
-| Adapter output can be non-rectangular                                 | `TableDomAdapter`, `TableRow.cell`      | Missing cells must be distinguished from empty cells | Low                                     | `TableModelContractTest.supportsCustomDivAdapter` asserts a mounted empty cell is present with empty text and a short-row cell is `Optional.empty()` | Keep; clarify                                                      |
-| Nested rows can leak if selectors are broad                           | `TableDomAdapter.mountedDataRowLocator` | Outer queries may count inner rows                   | Low                                     | `TableModelContractTest.supportsCustomDivAdapter` and `customGridAdapter()` use direct-child selectors with nested fixture `#nested-custom-grid`     | Keep; clarify selector scope                                       |
-| DOM root/remount can stale cached elements                            | Selenide model and handles              | Previously returned handles could fail after refresh | Medium                                  | `TableModelContractTest.customAdapterWaitsAndSurvivesRemount` and `remountCustomGrid()`                                                              | Keep; clarify guarantee                                            |
-| Timeout could be spent once per nested wait                           | `requiredRow(..., Duration)`            | Slow or surprising failure timing                    | Medium                                  | `TableModelContractTest.customAdapterWaitsAndSurvivesRemount` and `prepareCustomDelayed()`                                                           | Keep; clarify                                                      |
-| Legacy and neutral APIs duplicate some table traversal                | Legacy table classes vs neutral model   | Package discovery is harder                          | Medium; removal breaks released callers | README and bridge tests enumerate both surfaces                                                                                                      | Clarify; no removal                                                |
-| Selenide-specific handles could be mistaken for neutral API           | Query/assertion/action types            | Non-browser consumers may choose the wrong boundary  | Low                                     | Type/dependency map and compile-only custom model example                                                                                            | Clarify                                                            |
-| Sorting/filtering/pagination/virtualization/pinned columns are absent | Structural model                        | Consumers need separate capabilities                 | High to add semantics prematurely       | No production API or tests claim these behaviors                                                                                                     | Reject for this issue; defer                                       |
-| Appium implementation is absent                                       | Selenide adapter layer                  | Appium users need an implementation outside q4j      | Low                                     | No Appium dependency or runtime code by design                                                                                                       | Future; reserved seam                                              |
+| Weakness or ambiguity                                                 | Affected API                            | Consumer impact                                                | Compatibility risk                                   | Evidence                                                                                                                                             | Action                                                             |
+| --------------------------------------------------------------------- | --------------------------------------- | -------------------------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| Header lookup by display text can be ambiguous                        | `TableModel.columnIndex`                | A duplicate heading cannot be addressed safely                 | Low; exception is additive behavior                  | Contract test covers repeated `Company`                                                                                                              | Keep; clarify                                                      |
+| Headerless typed lookup has no implicit position                      | `TableHeaderLocator`, `TableModel`      | Consumers must provide a different key strategy                | Low                                                  | Headerless adapter test expects typed lookup failure                                                                                                 | Clarify                                                            |
+| Sealed header strategy limits third-party header strategies           | `TableHeaderLocator`                    | Custom DOM uses the existing three shapes only                 | High if unsealed/changed after 0.6.0                 | Source audit; `of(...)` supports custom row/cell locators without a new strategy                                                                     | Defer to future major; use `TableModel` for a fully custom backend |
+| Adapter output can be non-rectangular                                 | `TableDomAdapter`, `TableRow.cell`      | Missing cells must be distinguished from empty cells           | Low                                                  | `TableModelContractTest.supportsCustomDivAdapter` asserts a mounted empty cell is present with empty text and a short-row cell is `Optional.empty()` | Keep; clarify                                                      |
+| Nested rows can leak if selectors are broad                           | `TableDomAdapter.mountedDataRowLocator` | Outer queries may count inner rows                             | Low                                                  | `TableModelContractTest.supportsCustomDivAdapter` and `customGridAdapter()` use direct-child selectors with nested fixture `#nested-custom-grid`     | Keep; clarify selector scope                                       |
+| DOM root/remount can stale cached elements                            | Selenide model and handles              | Previously returned handles could fail after refresh           | Medium                                               | `TableModelContractTest.customAdapterWaitsAndSurvivesRemount` and `remountCustomGrid()`                                                              | Keep; clarify guarantee                                            |
+| Timeout could be spent once per nested wait                           | `requiredRow(..., Duration)`            | Slow or surprising failure timing                              | Medium                                               | `TableModelContractTest.customAdapterWaitsAndSurvivesRemount` and `prepareCustomDelayed()`                                                           | Keep; clarify                                                      |
+| Legacy and neutral APIs duplicate some table traversal                | Legacy table classes vs neutral model   | Package discovery is harder                                    | Medium; removal breaks released callers              | README and bridge tests enumerate both surfaces                                                                                                      | Clarify; no removal                                                |
+| Selenide-specific handles could be mistaken for neutral API           | Query/assertion/action types            | Non-browser consumers may choose the wrong boundary            | Low                                                  | Type/dependency map and compile-only custom model example                                                                                            | Clarify                                                            |
+| Sorting/filtering/pagination/virtualization/pinned columns are absent | Structural model                        | Consumers need separate capabilities                           | High to add semantics prematurely                    | No production API or tests claim these behaviors                                                                                                     | Reject for this issue; defer                                       |
+| Structural contracts share the `q4j-selenide` artifact with Selenide  | `TableModel`, `TableRow`, `TableCell`   | A future external Appium plugin may pull Selenide transitively | High for an immediate move; 0.6.0 FQCNs are released | `integrations/selenide/build.gradle` publishes these contracts with Selenide integration dependencies                                                | Future-major extraction to a neutral artifact/package; no move now |
+| Appium backend is outside current scope                               | Structural extension contract           | Appium users need a separately published plugin/module         | Low; no q4j runtime dependency or discovery          | Architecture boundary above; no Appium implementation in this PR                                                                                     | Future external plugin/module only; no implementation in this task |
 
 ## Non-goals and deferred shapes
 
 This issue does not add sorting, filtering, pagination, selection, editing, virtualization, infinite
 scrolling, pinned/frozen columns, merged cells, or expandable/tree/master-detail rows. Nested tables
 are supported only as isolated model roots; there is no nested-table expansion API. These shapes need
-separate contracts before a compatible API can be designed.
+separate contracts before a compatible API can be designed. It also does not implement or package
+an Appium backend: any Appium integration is a future external plugin/module boundary only, with no
+q4j runtime discovery mechanism.
 
 ## Verification map
 
@@ -171,4 +185,4 @@ header-only exclusion, a direct-child custom div-grid adapter, hidden cells, a m
 and an omitted short-row cell,
 non-rectangular row, nested custom-grid isolation, delayed custom rendering, custom root remount,
 duplicate/headerless failures, and a fully custom backend. `TableQueryContractTest` and `TableAssertionsActionsContractTest` cover the
-Selenide-specific navigation and handles. No external site or Appium runtime is required.
+Selenide-specific navigation and handles. No external site or Appium implementation is required.
