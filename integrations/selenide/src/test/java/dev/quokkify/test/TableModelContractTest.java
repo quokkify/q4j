@@ -273,9 +273,11 @@ public class TableModelContractTest extends BaseTest {
         DisplayedHeaderResolver.requiringNonNull(header -> header.displayed));
 
     Assertions.assertThat(model.displayedHeaders()).containsExactly("Country", "Company");
-    Assertions.assertThat(model.rows()).hasSize(2);
+    Assertions.assertThat(model.rows()).hasSize(3);
     Assertions.assertThat(model.rows().get(0).requiredCell(Header.COMPANY).text()).contains("Outer");
-    Assertions.assertThat(model.rows().get(1).cell(Header.COMPANY)).isEmpty();
+    Assertions.assertThat(model.rows().get(1).cell(Header.COMPANY)).isPresent()
+        .get().extracting(TableCell::text).isEqualTo("");
+    Assertions.assertThat(model.rows().get(2).cell(Header.COMPANY)).isEmpty();
     Assertions.assertThat(nested.rows()).hasSize(1);
     Assertions.assertThat(nested.rows().get(0).requiredCell(Header.COMPANY).text()).isEqualTo("Leak");
   }
@@ -376,7 +378,7 @@ public class TableModelContractTest extends BaseTest {
             Selenide.$("#custom-repeated-grid"), customGridAdapter(), header -> header.displayed)
         .uniqueRow(candidate -> true))
         .isInstanceOf(dev.quokkify.elements.table.model.TableRowAmbiguousException.class)
-        .hasMessageContaining("found 2");
+        .hasMessageContaining("found 3");
   }
 
   private static TableDomAdapter customGridAdapter() {
