@@ -1,1 +1,1 @@
-{"id":"df65c91441a2b5ad56cd14315bc7d2d6","fullName":"dev.quokkify.model.JsonPojoTest.testFromPojo","name":"Verify creation from typed pojo","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"7ec0f6b0b4edbccff3e1cb43fc54e988"}}
+{"id":"df65c91441a2b5ad56cd14315bc7d2d6","fullName":"dev.quokkify.model.JsonPojoTest.testFromPojo","name":"Verify creation from typed pojo","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"0007c03c9cdf7a6ae734b709368e9555"}}
