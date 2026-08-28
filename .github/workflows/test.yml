@@ -226,12 +226,13 @@ jobs:
 
       - name: 🟢 Start Infra with health lifecycle
         if: ${{ matrix.profile != 'none' }}
-        uses: quokkify/project-toolkit/actions/compose-up@204b0f332c03d8ea8ceed920e3dc7487a13bb224 # v2.12.4
+        uses: quokkify/project-toolkit/actions/compose-up@d6f8b429dc5823309b946c0dcfae295081174729 # v2.13.0
         with:
           compose-files: |
             tools/environment/docker/docker-compose.yml
             tools/environment/docker/docker-compose.ci.yml
           profiles: ${{ matrix.profile }}
+          additional-compose-args: --quiet-pull
           before-compose-hook: tools/environment/scripts/infra/before_compose.sh
           after-health-hook: tools/environment/scripts/infra/after_health.sh
           timeout-seconds: "120"
@@ -372,12 +373,13 @@ jobs:
 
       - name: 🟢 Start Infra with health lifecycle
         if: ${{ matrix.profile != 'none' }}
-        uses: quokkify/project-toolkit/actions/compose-up@204b0f332c03d8ea8ceed920e3dc7487a13bb224 # v2.12.4
+        uses: quokkify/project-toolkit/actions/compose-up@d6f8b429dc5823309b946c0dcfae295081174729 # v2.13.0
         with:
           compose-files: |
             tools/environment/docker/docker-compose.yml
             tools/environment/docker/docker-compose.ci.yml
           profiles: ${{ matrix.profile }}
+          additional-compose-args: --quiet-pull
           before-compose-hook: tools/environment/scripts/infra/before_compose.sh
           after-health-hook: tools/environment/scripts/infra/after_health.sh
           timeout-seconds: "120"
