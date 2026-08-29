@@ -403,8 +403,7 @@
 
       function duplicateQueryHorizontalHeader() {
         const table = document.getElementById("query-horizontal");
-        const duplicate = table.rows[1].cloneNode(true);
-        table.tBodies[0].appendChild(duplicate);
+        table.rows[0].querySelector("th").textContent = "Company";
       }
 
       function redirectQueryClassicRoot() {
