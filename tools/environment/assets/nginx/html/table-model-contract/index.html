@@ -394,8 +394,9 @@
         window.delayedQueryHorizontalRow = table.rows[1];
         window.delayedQueryHorizontalRow.remove();
         window.setTimeout(
-          () => table.tBodies[0]?.appendChild(window.delayedQueryHorizontalRow)
-            || table.appendChild(window.delayedQueryHorizontalRow),
+          () =>
+            table.tBodies[0]?.appendChild(window.delayedQueryHorizontalRow) ||
+            table.appendChild(window.delayedQueryHorizontalRow),
           250,
         );
       }
