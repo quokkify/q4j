@@ -25,7 +25,7 @@ SelenideDomTableModel.this.columnIndex(column, resolver);   // result discarded
 purely for its validation side effect. `TableModel.columnIndex(...)` (TableModel.java:21-31)
 throws `TableColumnNotFoundException` — `extends RuntimeException`, **not**
 `NoSuchElementException` — when the column header is absent from `displayedHeaders()`. For a
-horizontal adapter, `displayedHeaders()` is the per-row header cells of *currently mounted* rows,
+horizontal adapter, `displayedHeaders()` is the per-row header cells of _currently mounted_ rows,
 so it is empty/partial while rows load asynchronously.
 
 `MatchingTableCondition.check` (SelenideDomTableModel.java) catches only
