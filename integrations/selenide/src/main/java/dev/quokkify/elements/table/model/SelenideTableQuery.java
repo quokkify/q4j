@@ -149,13 +149,17 @@ public final class SelenideTableQuery<C> {
   public TableQueryRow<C> uniqueRow(RowCondition<C> condition) {
     Objects.requireNonNull(condition, "condition");
     Optional<TableQueryRow<C>> first = Optional.empty();
+    int matchCount = 0;
     for (TableQueryRow<C> candidate : mountedRows()) {
       if (condition.test(candidate)) {
-        if (first.isPresent()) {
-          throw new TableRowAmbiguousException("query condition", 2);
+        matchCount++;
+        if (first.isEmpty()) {
+          first = Optional.of(candidate);
         }
-        first = Optional.of(candidate);
       }
+    }
+    if (matchCount > 1) {
+      throw new TableRowAmbiguousException("query condition", matchCount);
     }
     return first.orElseThrow(() -> new TableRowNotFoundException("unique query condition"));
   }

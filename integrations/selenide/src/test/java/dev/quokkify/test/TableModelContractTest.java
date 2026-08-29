@@ -2,6 +2,7 @@ package dev.quokkify.test;
 
 import java.time.Duration;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.stream.IntStream;
 
@@ -14,6 +15,7 @@ import dev.quokkify.elements.table.horizontal.HorizontalTable;
 import dev.quokkify.elements.table.model.DisplayedHeaderResolver;
 import dev.quokkify.elements.table.model.NoTableHeaders;
 import dev.quokkify.elements.table.model.SelenideDomTableModel;
+import dev.quokkify.elements.table.model.SelenideTableQuery;
 import dev.quokkify.elements.table.model.TableCell;
 import dev.quokkify.elements.table.model.TableCellNotFoundException;
 import dev.quokkify.elements.table.model.TableColumnAmbiguousException;
@@ -100,6 +102,33 @@ public class TableModelContractTest extends BaseTest {
     };
 
     Assertions.assertThat(row.requiredCell(Header.COUNTRY).text()).isEqualTo("Austria");
+  }
+
+  @Test(description = "The structural table contract supports a backend without browser types")
+  public void supportsFullyCustomBackendContract() {
+    TableModel<Header> backend = new TableModel<>() {
+      private final List<BackendRow> dataRows = List.of(
+          new BackendRow(Map.of(Header.COUNTRY, "Austria", Header.COMPANY, "Outer (nested: Leak)")));
+
+      @Override
+      public List<String> displayedHeaders() {
+        return List.of("Country", "Company");
+      }
+
+      @Override
+      public List<BackendRow> rows() {
+        return dataRows;
+      }
+    };
+
+    TableRow<Header> row = backend.requiredRow(candidate -> candidate
+        .requiredCell(Header.COMPANY).text().startsWith("Outer"), "custom backend row");
+
+    Assertions.assertThat(backend.rows()).hasSize(1);
+    Assertions.assertThat(row.requiredCell(Header.COUNTRY).text()).isEqualTo("Austria");
+    Assertions.assertThat(row.requiredCell(Header.COMPANY).text())
+        .isEqualTo("Outer (nested: Leak)");
+    Assertions.assertThat(row.cell(Header.COMPANY)).isPresent();
   }
 
   @Test(description = "Every legacy table variant exposes the neutral model and typed cells")
@@ -232,22 +261,44 @@ public class TableModelContractTest extends BaseTest {
         .hasMessageContaining("PT0.45S");
   }
 
-  @Test(description = "Public adapters support custom div grids, hidden columns, and empty cells")
+  @Test(description = "Public custom adapter isolates nested grids and preserves logical cells")
   public void supportsCustomDivAdapter() {
     openFixture();
-    TableDomAdapter adapter = TableDomAdapters.of(
-        By.cssSelector(".data-row"),
-        By.cssSelector(":scope > .cell:not([hidden])"),
-        new TableHeaderRowLocator(
-            By.cssSelector(".header-row"),
-            By.cssSelector(":scope > .cell:not([hidden])")));
+    TableDomAdapter adapter = customGridAdapter();
     TableModel<Header> model = SelenideDomTableModel.of(
         Selenide.$("#custom-grid"), adapter,
         DisplayedHeaderResolver.requiringNonNull(header -> header.displayed));
+    TableModel<Header> nested = SelenideDomTableModel.of(
+        Selenide.$("#nested-custom-grid"), adapter,
+        DisplayedHeaderResolver.requiringNonNull(header -> header.displayed));
 
     Assertions.assertThat(model.displayedHeaders()).containsExactly("Country", "Company");
-    Assertions.assertThat(model.rows().get(0).requiredCell(Header.COMPANY).text()).isEmpty();
-    Assertions.assertThat(model.rows().get(1).cell(Header.COMPANY)).isEmpty();
+    Assertions.assertThat(model.rows()).hasSize(3);
+    Assertions.assertThat(model.rows().get(0).requiredCell(Header.COMPANY).text()).contains("Outer");
+    Assertions.assertThat(model.rows().get(1).cell(Header.COMPANY)).isPresent()
+        .get().extracting(TableCell::text).isEqualTo("");
+    Assertions.assertThat(model.rows().get(2).cell(Header.COMPANY)).isEmpty();
+    Assertions.assertThat(nested.rows()).hasSize(1);
+    Assertions.assertThat(nested.rows().get(0).requiredCell(Header.COMPANY).text()).isEqualTo("Leak");
+  }
+
+  @Test(description = "Custom adapter waits once for a late root and row, then remount-safe handles resolve")
+  @SingleThread
+  public void customAdapterWaitsAndSurvivesRemount() {
+    openFixture();
+    TableDomAdapter adapter = customGridAdapter();
+    TableModel<Header> model = SelenideDomTableModel.of(
+        Selenide.$("#custom-grid"), adapter,
+        DisplayedHeaderResolver.requiringNonNull(header -> header.displayed));
+    TableRow<Header> row = model.rows().get(0);
+    Selenide.executeJavaScript("window.remountCustomGrid()");
+    Assertions.assertThat(row.requiredCell(Header.COUNTRY).text()).isEqualTo("Austria");
+
+    Selenide.executeJavaScript("window.prepareCustomDelayed()");
+    TableRow<Header> delayed = model.requiredRow(candidate -> candidate
+        .cell(Header.COUNTRY).map(cell -> cell.text().equals("Austria")).orElse(false),
+        "custom late row", Duration.ofSeconds(2));
+    Assertions.assertThat(delayed.requiredCell(Header.COUNTRY).text()).isEqualTo("Austria");
   }
 
   @Test(description = "Classic adapter preserves tables whose header row is inside tbody")
@@ -309,13 +360,13 @@ public class TableModelContractTest extends BaseTest {
   public void handlesHeaderlessAndRepeatedHeaders() {
     openFixture();
     TableDomAdapter headerlessAdapter = TableDomAdapters.of(
-        By.cssSelector(".data-row"), By.cssSelector(":scope > .cell"),
+        By.cssSelector(":scope > .data-row"), By.cssSelector(":scope > .cell"),
         NoTableHeaders.instance());
     TableModel<Header> headerless = SelenideDomTableModel.of(
         Selenide.$("#headerless-grid"), headerlessAdapter,
         DisplayedHeaderResolver.requiringNonNull(header -> header.displayed));
     TableModel<Header> repeated = SelenideDomTableModel.of(
-        Selenide.$("#repeated-table"), TableDomAdapters.classic(),
+        Selenide.$("#custom-repeated-grid"), customGridAdapter(),
         DisplayedHeaderResolver.requiringNonNull(header -> header.displayed));
 
     Assertions.assertThat(headerless.displayedHeaders()).isEmpty();
@@ -323,6 +374,20 @@ public class TableModelContractTest extends BaseTest {
         .isInstanceOf(TableColumnNotFoundException.class);
     Assertions.assertThatThrownBy(() -> repeated.rows().get(0).cell(Header.COMPANY))
         .isInstanceOf(TableColumnAmbiguousException.class);
+    Assertions.assertThatThrownBy(() -> SelenideTableQuery.<Header>of(
+            Selenide.$("#custom-repeated-grid"), customGridAdapter(), header -> header.displayed)
+        .uniqueRow(candidate -> true))
+        .isInstanceOf(dev.quokkify.elements.table.model.TableRowAmbiguousException.class)
+        .hasMessageContaining("found 3");
+  }
+
+  private static TableDomAdapter customGridAdapter() {
+    return TableDomAdapters.of(
+        By.cssSelector(":scope > .data-row"),
+        By.cssSelector(":scope > .cell:not([hidden])"),
+        new TableHeaderRowLocator(
+            By.cssSelector(":scope > .header-row"),
+            By.cssSelector(":scope > .cell:not([hidden])")));
   }
 
   private static void openFixture() {
@@ -382,5 +447,15 @@ public class TableModelContractTest extends BaseTest {
         return List.of();
       }
     };
+  }
+
+  private record BackendRow(Map<Header, String> values) implements TableRow<Header> {
+    @Override
+    public Optional<BackendCell> cell(Header column) {
+      return Optional.ofNullable(values.get(column)).map(value -> new BackendCell(column, value));
+    }
+  }
+
+  private record BackendCell(Header column, String text) implements TableCell<Header> {
   }
 }
