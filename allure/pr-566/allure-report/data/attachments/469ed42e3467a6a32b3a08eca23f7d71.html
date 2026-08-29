@@ -1,0 +1,445 @@
+<html><head></head><body>
+    <table id="classic">
+      <thead>
+        <tr>
+          <th>Country</th>
+          <th>Company</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Austria</td>
+          <td>Alfreds</td>
+        </tr>
+      </tbody>
+    </table>
+    <table id="dynamic">
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th>Country</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Alfreds</td>
+          <td>Austria</td>
+        </tr>
+      </tbody>
+    </table>
+    <div id="flex" class="flex-table">
+      <div data-flex-preamble="">Not a row</div>
+      <div class="flex-table-row">
+        <div>Country</div>
+        <div>Company</div>
+      </div>
+      <div class="flex-table-row">
+        <div>Austria</div>
+        <div>Alfreds</div>
+      </div>
+    </div>
+    <table id="horizontal">
+      <tbody><tr>
+        <th>Country</th>
+        <td>Austria</td>
+      </tr>
+      <tr>
+        <th>Company</th>
+        <td>Alfreds</td>
+      </tr>
+    </tbody></table>
+    <table id="dynamic-horizontal">
+      <tbody><tr>
+        <th>Company</th>
+        <td>Alfreds</td>
+      </tr>
+      <tr>
+        <th>Country</th>
+        <td>Austria</td>
+      </tr>
+    </tbody></table>
+    <div id="custom-grid">
+      <div class="header-row">
+        <span class="cell">Country</span>
+        <span class="cell" hidden="">Internal ID</span>
+        <span class="cell">Company</span>
+      </div>
+      <div class="data-row">
+        <span class="cell">Austria</span>
+        <span class="cell" hidden="">42</span>
+        <span class="cell">
+          Outer
+          <div id="nested-custom-grid" class="custom-grid">
+            <div class="header-row">
+              <span class="cell">Country</span><span class="cell">Company</span>
+            </div>
+            <div class="data-row">
+              <span class="cell">Nested</span><span class="cell">Leak</span>
+            </div>
+          </div>
+        </span>
+      </div>
+      <div class="data-row">
+        <span class="cell">Switzerland</span><span class="cell"></span>
+      </div>
+      <div class="data-row">
+        <span class="cell">Germany</span>
+      </div>
+    </div>
+    <div id="custom-repeated-grid">
+      <div class="header-row">
+        <span class="cell">Country</span><span class="cell">Company</span><span class="cell">Company</span><span class="cell">Company</span>
+      </div>
+      <div class="data-row">
+        <span class="cell">Austria</span><span class="cell">Alfreds</span><span class="cell">Duplicate</span><span class="cell">Third</span>
+      </div>
+      <div class="data-row">
+        <span class="cell">Germany</span><span class="cell">Berglunds</span><span class="cell">Duplicate</span><span class="cell">Third</span>
+      </div>
+      <div class="data-row">
+        <span class="cell">France</span><span class="cell">Dupont</span><span class="cell">Duplicate</span><span class="cell">Third</span>
+      </div>
+    </div>
+    <div id="aria-grid" role="grid">
+      <div role="row">
+        <span role="columnheader">Country</span>
+        <span role="columnheader">Company</span>
+      </div>
+      <div role="row">
+        <span role="gridcell">Austria</span>
+        <span role="gridcell">Alfreds</span>
+      </div>
+    </div>
+    <div id="headerless-grid">
+      <div class="data-row">
+        <span class="cell">Austria</span>
+        <span class="cell">Alfreds</span>
+      </div>
+    </div>
+    <table id="repeated-table">
+      <thead>
+        <tr>
+          <th>Country</th>
+          <th>Company</th>
+          <th>Company</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Austria</td>
+          <td>Alfreds</td>
+          <td>Duplicate</td>
+        </tr>
+      </tbody>
+    </table>
+    <table id="body-only-classic">
+      <tbody>
+        <tr>
+          <th>Country</th>
+          <th>Company</th>
+        </tr>
+        <tr>
+          <th scope="row">Austria</th>
+          <td>Alfreds</td>
+        </tr>
+      </tbody>
+    </table>
+    <table id="nested-classic">
+      <thead>
+        <tr>
+          <th>Country</th>
+          <th>Company</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Austria</td>
+          <td>
+            Outer
+            <table>
+              <thead>
+                <tr>
+                  <th>Country</th>
+                  <th>Company</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Nested</td>
+                  <td>Leak</td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <table id="query-classic">
+      <thead>
+        <tr>
+          <th>Country</th>
+          <th>Company</th>
+          <th>Employees</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Austria</td>
+          <td>Alfreds</td>
+          <td>12</td>
+        </tr>
+        <tr>
+          <td>Germany</td>
+          <td>Berglunds</td>
+          <td>20</td>
+        </tr>
+        <tr style="display: none">
+          <td>France</td>
+          <td>Hidden Co</td>
+          <td>30</td>
+        </tr>
+        <tr>
+          <td>Austria</td>
+          <td>Alpine</td>
+          <td>8</td>
+        </tr>
+      </tbody>
+    </table>
+    <div id="query-flex" class="flex-table">
+      <div class="flex-table-row">
+        <div>Country</div>
+        <div>Company</div>
+        <div>Employees</div>
+      </div>
+      <div class="flex-table-row">
+        <div>Poland</div>
+        <div>Quokkify</div>
+        <div>42</div>
+      </div>
+    </div>
+    <table id="query-horizontal">
+      <tbody><tr>
+        <th>Country</th>
+        <td>Austria</td>
+      </tr>
+      <tr>
+        <th>Company</th>
+        <td>Alfreds</td>
+      </tr>
+      <tr>
+        <th>Employees</th>
+        <td>12</td>
+      </tr>
+    </tbody></table>
+    <table id="assertion-actions">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Status</th>
+          <th>Action</th>
+          <th>Input</th>
+          <th>Check</th>
+          <th>Radio</th>
+          <th>Select</th>
+          <th>Read only</th>
+          <th>Link</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Alpha</td>
+          <td class="status">Ready</td>
+          <td>
+            <button type="button" onclick="markTableAction('button')">
+              Run
+            </button>
+          </td>
+          <td><input value="initial"></td>
+          <td><input type="checkbox"></td>
+          <td><input type="radio" name="choice"></td>
+          <td>
+            <select>
+              <option>One</option>
+              <option>Two</option>
+            </select>
+          </td>
+          <td>fixed</td>
+          <td>
+            <a href="#table-link" onclick="markTableAction('link')">Details</a>
+          </td>
+        </tr>
+        <tr>
+          <td>Beta</td>
+          <td>Ready</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>fixed too</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+    <table id="contenteditable-table" contenteditable="true">
+      <thead>
+        <tr>
+          <th>Direct</th>
+          <th>Inherited</th>
+          <th>Empty</th>
+          <th>Plaintext</th>
+          <th>False</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td contenteditable="TRUE">Direct</td>
+          <td>Inherited</td>
+          <td contenteditable="">Empty</td>
+          <td contenteditable="plaintext-only">Plaintext</td>
+          <td contenteditable="false">False</td>
+        </tr>
+      </tbody>
+    </table>
+    <output id="table-action-result"></output>
+    <script>
+      function prepareDelayedRow() {
+        const table = document.getElementById("classic");
+        const row = table.querySelector("tbody tr");
+        window.delayedRow = row;
+        row.remove();
+      }
+
+      function restoreDelayedRow() {
+        const table = document.getElementById("classic");
+        window.setTimeout(
+          () => table.querySelector("tbody").appendChild(window.delayedRow),
+          250,
+        );
+      }
+
+      function prepareMissingCell() {
+        document.getElementById("classic").querySelector("tbody tr").innerHTML =
+          "<td>Austria</td>";
+      }
+
+      function prepareLateMount() {
+        const table = document.getElementById("classic");
+        const replacement = table.cloneNode(true);
+        table.remove();
+        window.setTimeout(() => document.body.prepend(replacement), 250);
+      }
+
+      function remount() {
+        ["classic", "flex"].forEach((id) => {
+          const old = document.getElementById(id);
+          const replacement = old.cloneNode(true);
+          old.replaceWith(replacement);
+        });
+      }
+
+      function remountAriaGrid() {
+        const old = document.getElementById("aria-grid");
+        old.replaceWith(old.cloneNode(true));
+      }
+
+      function prepareCustomDelayed() {
+        const grid = document.getElementById("custom-grid");
+        const row = grid.querySelector(":scope > .data-row");
+        row.remove();
+        grid.remove();
+        window.setTimeout(() => document.body.prepend(grid), 250);
+        window.setTimeout(() => grid.appendChild(row), 450);
+      }
+
+      function remountCustomGrid() {
+        const old = document.getElementById("custom-grid");
+        old.replaceWith(old.cloneNode(true));
+      }
+
+      function prepareDelayedQueryRow() {
+        const body = document.querySelector("#query-classic tbody");
+        window.delayedQueryRow = body.children[1];
+        window.delayedQueryRow.remove();
+      }
+
+      function restoreDelayedQueryRow() {
+        const body = document.querySelector("#query-classic tbody");
+        window.setTimeout(() => body.appendChild(window.delayedQueryRow), 250);
+      }
+
+      function remountQueryClassic() {
+        const old = document.getElementById("query-classic");
+        old.replaceWith(old.cloneNode(true));
+      }
+
+      function remountQueryClassicWithReorderedHeaders() {
+        const old = document.getElementById("query-classic");
+        const replacement = old.cloneNode(true);
+        replacement.querySelectorAll("tr").forEach((row) => {
+          const cells = row.children;
+          row.insertBefore(cells[1], cells[0]);
+        });
+        old.replaceWith(replacement);
+      }
+
+      function prepareDelayedQueryHorizontalRow() {
+        const table = document.getElementById("query-horizontal");
+        window.delayedQueryHorizontalRow = table.rows[1];
+        window.delayedQueryHorizontalRow.remove();
+        window.setTimeout(
+          () =>
+            table.tBodies[0]?.appendChild(window.delayedQueryHorizontalRow) ||
+            table.appendChild(window.delayedQueryHorizontalRow),
+          250,
+        );
+      }
+
+      function duplicateQueryHorizontalHeader() {
+        const table = document.getElementById("query-horizontal");
+        const duplicate = table.rows[1].cloneNode(true);
+        table.appendChild(duplicate);
+      }
+
+      function redirectQueryClassicRoot() {
+        const captured = document.getElementById("query-classic");
+        const replacement = captured.cloneNode(true);
+        captured.id = "query-classic-captured";
+        replacement.querySelector("tbody td").textContent = "Changed";
+        replacement.id = "query-classic";
+        captured.after(replacement);
+      }
+
+      function remountAssertionTable() {
+        const old = document.getElementById("assertion-actions");
+        old.replaceWith(old.cloneNode(true));
+      }
+
+      function prepareDelayedAssertionHeader() {
+        const header = document.querySelector(
+          "#assertion-actions th:nth-child(2)",
+        );
+        header.textContent = "Loading";
+        window.setTimeout(() => (header.textContent = "Status"), 250);
+      }
+
+      function prepareDelayedAssertionRow() {
+        const body = document.querySelector("#assertion-actions tbody");
+        const row = body.children[1];
+        row.remove();
+        window.setTimeout(() => body.appendChild(row), 250);
+      }
+
+      function prepareDelayedAssertionCell() {
+        const cell = document.querySelector("#assertion-actions .status");
+        cell.textContent = "Pending";
+        window.setTimeout(() => (cell.textContent = "Ready"), 250);
+      }
+
+      function markTableAction(value) {
+        document.getElementById("table-action-result").textContent = value;
+      }
+    </script>
+  
+
+</body></html>
