@@ -46,6 +46,6 @@ rm -f "$generated"
 
 # Verify cleanup also runs when rendering exits before the move.
 failure_tmp="$(mktemp "${tmp_dir}/failure.XXXXXX")"
-(failure_tmp="$failure_tmp"; trap 'rm -f "$failure_tmp"' EXIT; exit 1) || true
+(trap 'rm -f "$failure_tmp"' EXIT; exit 1) || true
 [[ ! -e "$failure_tmp" ]]
 printf '%s\n' 'selenium grid config permission/cleanup checks passed'
