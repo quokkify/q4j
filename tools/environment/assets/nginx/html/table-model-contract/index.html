@@ -404,7 +404,7 @@
       function duplicateQueryHorizontalHeader() {
         const table = document.getElementById("query-horizontal");
         const duplicate = table.rows[1].cloneNode(true);
-        table.appendChild(duplicate);
+        table.tBodies[0].appendChild(duplicate);
       }
 
       function redirectQueryClassicRoot() {
