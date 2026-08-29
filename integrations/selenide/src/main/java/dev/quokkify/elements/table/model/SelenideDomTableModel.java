@@ -298,7 +298,6 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
       int index;
       if (adapter.headerLocator() instanceof RowHeaderCellLocator headers) {
         String expected = resolver.displayedHeader(column);
-        SelenideDomTableModel.this.columnIndex(column, resolver);
         if (!row.get().findAll(headers.headerCellLocator()).texts().contains(expected)) {
           return Optional.empty();
         }
