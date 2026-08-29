@@ -8,6 +8,7 @@ import dev.quokkify.elements.table.model.TableDomAdapters;
 import dev.quokkify.elements.table.model.TableQueryRow;
 
 import com.codeborne.selenide.Selenide;
+import org.assertj.core.api.Assertions;
 import org.testng.annotations.Test;
 
 public class ReproHorizontalAsyncTest extends BaseTest {
@@ -23,8 +24,7 @@ public class ReproHorizontalAsyncTest extends BaseTest {
 
   @Test(description = "FIXED: requiredRow waits for a delayed HORIZONTAL column row (N1)")
   public void requiredRowWaitsForDelayedHorizontalRow() {
-    String baseUrl = System.getenv().getOrDefault("NGINX_BASE_URL", "http://localhost");
-    Selenide.open(baseUrl + "/table/delayed-table.html");
+    Selenide.open(APP_CONFIG.baseUrl() + "/table/delayed-table.html");
 
     SelenideTableQuery<Dh> query = SelenideTableQuery.of(
         Selenide.$("#horizontal-customers"), TableDomAdapters.horizontal(), key -> key.displayed);
@@ -33,6 +33,6 @@ public class ReproHorizontalAsyncTest extends BaseTest {
     TableQueryRow<Dh> row = query.requiredRow(
         RowConditions.exact(Dh.TELEPHONE_2, "555 77 855"), Duration.ofSeconds(5));
 
-    row.requiredCell(Dh.TELEPHONE_2).text().equals("555 77 855");
+    Assertions.assertThat(row.requiredCell(Dh.TELEPHONE_2).text()).isEqualTo("555 77 855");
   }
 }

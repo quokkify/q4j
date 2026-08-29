@@ -10,6 +10,7 @@ import java.util.stream.IntStream;
 
 import dev.quokkify.elements.base.BaseTable;
 import dev.quokkify.elements.table.model.DomTableLayout;
+import dev.quokkify.elements.table.model.TableRowNotFoundException;
 import dev.quokkify.ex.TableRowException;
 import dev.quokkify.html.model.HtmlTag;
 import dev.quokkify.model.ConstantFormat;
@@ -120,7 +121,7 @@ public abstract class BaseHorizontalTable<T extends Enum<T> & ConstantFormat> ex
   public HorizontalRow<T> getFirstRow() {
     return getAllRows().stream()
         .findFirst()
-        .orElseThrow(() -> new RuntimeException("No horizontal rows found"));
+        .orElseThrow(() -> new TableRowNotFoundException("first horizontal row"));
   }
 
   /**

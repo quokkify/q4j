@@ -40,7 +40,8 @@ if [[ "${CI:-}" == "true" ]]; then
   rm -f "$tmp_config"
   export SELENIUM_GRID_MOUNT
 else
-  export SELENIUM_GRID_MOUNT="$(pwd)/tools/environment/assets/selenium-grid"
+  export SELENIUM_GRID_MOUNT="$(pwd)/tools/environment/assets/selenium-grid/generated"
+  mkdir -p "$SELENIUM_GRID_MOUNT"
   tmp_config="$(mktemp)"
   render_config "$CONFIG_PATH" "$tmp_config"
   mv "$tmp_config" "${SELENIUM_GRID_MOUNT}/config.toml"

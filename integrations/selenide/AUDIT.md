@@ -100,11 +100,10 @@ assertions are robust to slow CI runners.
 
 ### F8 — Local runs dirty the git tree (Low-Med)
 
-Running the grid locally overwrites `tools/environment/assets/selenium-grid/config.toml`
-(resolved network name is written in place) and the node writes per-session artifacts under
-`tools/environment/assets/selenium-grid/assets/` which are **not gitignored**. Recommend:
-keep `config.toml` as the `__NETWORK__` template, render to a gitignored generated file, and add
-`assets/selenium-grid/assets/**` to `.gitignore`.
+Local rendering now keeps `tools/environment/assets/selenium-grid/config.toml` as the
+`__NETWORK__` template and writes the resolved file under the gitignored
+`tools/environment/assets/selenium-grid/generated/` directory. Per-session artifacts under
+`tools/environment/assets/selenium-grid/assets/` are also gitignored.
 
 ## Test-coverage gaps
 
@@ -112,3 +111,16 @@ keep `config.toml` as the `__NETWORK__` template, render to a gitignored generat
   (N1 is therefore unexercised). Legacy horizontal delay is covered in `TableRowWaitTest`.
 - `tableModelContractStability` repeats only 2 classic scenarios 20×; the flaky assertions in F7
   are not part of that soak.
+
+## Disposition
+
+| Finding | Status | Evidence / contract |
+| --- | --- | --- |
+| N1 | Fixed | Horizontal row lookup returns empty until the row header is mounted; `ReproHorizontalAsyncTest` uses a real assertion. Duplicate displayed headers still raise `TableColumnAmbiguousException` through `TableModel.columnIndex`. |
+| N2 | Fixed | Indexed `TableQueryRow.cell(int)` now validates only the index sign; bounds and text are resolved when the reference is read. |
+| N3 | Fixed | `SelenideDomTableModel.rows()` captures one row-count snapshot per returned view while row handles remain lazy/remount-safe. |
+| N4 | Fixed | Timed `uniqueRow` uses one native polling condition that counts matches and returns the matching index from that same poll. |
+| N5 | Fixed | Empty legacy helpers throw typed `TableRowNotFoundException` in common, classic, and horizontal paths. |
+| N6 | Documented | `greaterThan` intentionally retains compatibility: strict `BigDecimal` parsing makes decorated/non-numeric text a non-match. This behavior is documented in `RowConditions` Javadoc; no breaking predicate exception was introduced. |
+| F7 | Deferred | Existing timing-sensitive browser tests remain bounded and are not masked by sleeps. Full browser/grid stability remains a CI gate. |
+| F8 | Fixed | Local config renders to gitignored `generated/`; session assets are gitignored; the tracked template remains unchanged. |

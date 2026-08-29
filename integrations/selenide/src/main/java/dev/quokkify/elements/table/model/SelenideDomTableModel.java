@@ -72,6 +72,9 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
     if (!table.exists()) {
       return List.of();
     }
+    // Keep the collection shape stable for this returned view. Row references still resolve
+    // their element lazily, so remount-safe handles are not sacrificed for this snapshot.
+    int rowCount = rowsElements().size();
     return new AbstractList<>() {
       @Override
       public TableRow<C> get(int index) {
@@ -83,7 +86,7 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
 
       @Override
       public int size() {
-        return rowsElements().size();
+        return rowCount;
       }
     };
   }
@@ -96,6 +99,20 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
   int requiredRowIndex(BiPredicate<Integer, TableRow<C>> predicate,
                        String description, Duration timeout) {
     MatchingTableCondition condition = new MatchingTableCondition(predicate, description);
+    try {
+      table.shouldBe(condition, timeout);
+      return condition.matchedIndex();
+    } catch (UIAssertionError error) {
+      TableRowNotFoundException failure = new TableRowNotFoundException(
+          description + "; timeout=" + timeout);
+      failure.initCause(error);
+      throw failure;
+    }
+  }
+
+  int requiredUniqueRowIndex(BiPredicate<Integer, TableRow<C>> predicate,
+                             String description, Duration timeout) {
+    UniqueTableCondition condition = new UniqueTableCondition(predicate, description);
     try {
       table.shouldBe(condition, timeout);
       return condition.matchedIndex();
@@ -281,6 +298,48 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
     private int matchedIndex() {
       if (matchedIndex < 0) {
         throw new NoSuchElementException("table has no matching data row");
+      }
+      return matchedIndex;
+    }
+  }
+
+  private final class UniqueTableCondition extends WebElementCondition {
+    private final BiPredicate<Integer, TableRow<C>> predicate;
+    private int matchedIndex = -1;
+
+    private UniqueTableCondition(BiPredicate<Integer, TableRow<C>> predicate, String description) {
+      super(description);
+      this.predicate = predicate;
+    }
+
+    @Override
+    public CheckResult check(Driver driver, WebElement tableElement) {
+      try {
+        matchedIndex = -1;
+        int matchCount = 0;
+        List<WebElement> rowElements = tableElement.findElements(adapter.mountedDataRowLocator());
+        for (int index = 0; index < rowElements.size(); index++) {
+          WebElement rowElement = rowElements.get(index);
+          TableRow<C> candidate = new SelenideRow(
+              () -> WebElementWrapper.wrap(driver, rowElement, "table row candidate"));
+          if (predicate.test(index, candidate)) {
+            matchCount++;
+            matchedIndex = index;
+          }
+        }
+        if (matchCount == 1) {
+          return CheckResult.accepted("matched exactly one row");
+        }
+        return CheckResult.rejected("expected one row, found " + matchCount,
+            "table is not uniquely matched yet");
+      } catch (NoSuchElementException | StaleElementReferenceException error) {
+        return CheckResult.rejected(error.toString(), "table changed while checking rows");
+      }
+    }
+
+    private int matchedIndex() {
+      if (matchedIndex < 0) {
+        throw new NoSuchElementException("table has no unique matching data row");
       }
       return matchedIndex;
     }

@@ -112,6 +112,8 @@ public class TableQueryContractTest extends BaseTest {
     Selenide.executeJavaScript("window.restoreDelayedQueryRow()");
     Assertions.assertThat(query.requiredRow(RowConditions.exact(Header.COMPANY, "Berglunds"),
         Duration.ofSeconds(2)).requiredCell(Header.COUNTRY).text()).isEqualTo("Germany");
+    Assertions.assertThat(query.uniqueRow(RowConditions.exact(Header.COMPANY, "Berglunds"),
+        Duration.ofSeconds(2)).index()).isEqualTo(1);
     Assertions.assertThatThrownBy(() -> query.uniqueRow(
             RowConditions.exact(Header.COUNTRY, "Austria")))
         .isInstanceOf(TableRowAmbiguousException.class)

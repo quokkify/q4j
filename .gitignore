@@ -23,6 +23,7 @@ statics/bin
 **/allure-results/
 **/generated/
 **/generated_tests/
+tools/environment/assets/selenium-grid/assets/**
 .aider*
 
 # MemPalace per-project files (issue #185)

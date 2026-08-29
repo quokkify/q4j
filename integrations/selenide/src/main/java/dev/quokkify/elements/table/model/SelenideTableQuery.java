@@ -166,8 +166,12 @@ public final class SelenideTableQuery<C> {
 
   /** Waits for a match and then requires exactly one currently mounted matching row. */
   public TableQueryRow<C> uniqueRow(RowCondition<C> condition, Duration timeout) {
-    requiredRow(condition, timeout);
-    return uniqueRow(condition);
+    Objects.requireNonNull(condition, "condition");
+    Objects.requireNonNull(timeout, "timeout");
+    int matchedIndex = model.requiredUniqueRowIndex(
+        (index, candidate) -> condition.test(conditionRow(index, candidate)),
+        "unique query condition", timeout);
+    return rowReference(matchedIndex);
   }
 
   private TableQueryRow<C> rowReference(int index) {

@@ -12,6 +12,7 @@ import dev.quokkify.elements.table.model.SelenideDomTableModel;
 import dev.quokkify.elements.table.model.SelenideTableQuery;
 import dev.quokkify.elements.table.model.TableDomAdapter;
 import dev.quokkify.elements.table.model.TableModel;
+import dev.quokkify.elements.table.model.TableRowNotFoundException;
 import dev.quokkify.html.model.HtmlTag;
 
 import com.codeborne.selenide.Driver;
@@ -97,6 +98,9 @@ public abstract class BaseTable<T extends Enum<T>> extends Component {
    */
   public BaseRow getAnyRow() {
     List<? extends BaseRow> rows = getAllRows();
+    if (rows.isEmpty()) {
+      throw new TableRowNotFoundException("any row");
+    }
     return rows.get(random.nextInt(rows.size()));
   }
 

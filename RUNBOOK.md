@@ -93,5 +93,6 @@ Re-run the failing test alone to distinguish a real failure from contention:
 
 - Selenium hub/node images are **amd64-only** → Rosetta emulation on Apple Silicon (slow,
   timing-flaky). Multi-arch images would help.
-- Local runs dirty the tree (`config.toml` rendered in place, `assets/selenium-grid/assets/**`
-  session artifacts) — see `integrations/selenide/AUDIT.md` F8.
+- Local runs keep the tracked `config.toml` template unchanged. Generated config and
+  `assets/selenium-grid/assets/**` session artifacts are gitignored — see
+  `integrations/selenide/AUDIT.md` F8.
