@@ -147,7 +147,7 @@ public class TableQueryContractTest extends BaseTest {
         Duration.ofSeconds(2)).requiredCell(Header.COMPANY).text()).isEqualTo("Alfreds");
 
     Selenide.executeJavaScript("window.duplicateQueryHorizontalHeader()");
-    Assertions.assertThatThrownBy(() -> query.row(row -> row.cell(Header.COMPANY).isPresent()))
+    Assertions.assertThatThrownBy(() -> query.column(Header.COMPANY).cells())
         .isInstanceOf(dev.quokkify.elements.table.model.TableColumnAmbiguousException.class)
         .hasMessageContaining("Company");
   }
