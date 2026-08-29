@@ -1,1 +1,1 @@
-{"id":"b91cb340139650e856e37e8d22aa3c8d","fullName":"dev.quokkify.tyrus.client.WsClientTest.clearMessages_emptiesQueue","name":"clearMessages_emptiesQueue","status":"passed","testResultsByEnv":{"integrations-tyrus":"b855e52f86730e7b7605bbee1222aed8"}}
+{"id":"b91cb340139650e856e37e8d22aa3c8d","fullName":"dev.quokkify.tyrus.client.WsClientTest.clearMessages_emptiesQueue","name":"clearMessages_emptiesQueue","status":"passed","testResultsByEnv":{"integrations-tyrus":"8ec2a7c771c8acafeae5c345c9256eb7"}}

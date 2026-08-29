@@ -1,1 +1,1 @@
-{"id":"7f84c7957188830ffa8e7fa0c3c7ab14","fullName":"dev.quokkify.test.TableModelContractTest.excludesNestedTableRows","name":"Classic adapter excludes rows belonging to a nested table","status":"passed","testResultsByEnv":{"integrations-selenide":"7f29ae344c3dd76b4ecfbd8a374ae263"}}
+{"id":"7f84c7957188830ffa8e7fa0c3c7ab14","fullName":"dev.quokkify.test.TableModelContractTest.excludesNestedTableRows","name":"Classic adapter excludes rows belonging to a nested table","status":"passed","testResultsByEnv":{"integrations-selenide":"215b200d5d9110b9c59bb20057ef81bc"}}
