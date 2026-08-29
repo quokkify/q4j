@@ -123,6 +123,35 @@ public class TableQueryContractTest extends BaseTest {
         .isInstanceOf(TableRowNotFoundException.class);
   }
 
+  @Test(description = "Timed unique lookup preserves the last observed zero, one, or multiple count")
+  public void timedUniqueRowsReportObservedCardinality() {
+    SelenideTableQuery<Header> query = page.classic.query(header -> header.displayed);
+
+    Assertions.assertThat(query.uniqueRow(RowConditions.exact(Header.COMPANY, "Alfreds"),
+        Duration.ofMillis(100)).requiredCell(Header.COUNTRY).text()).isEqualTo("Austria");
+    Assertions.assertThatThrownBy(() -> query.uniqueRow(
+            RowConditions.exact(Header.COMPANY, "Absent"), Duration.ofMillis(100)))
+        .isInstanceOf(TableRowNotFoundException.class);
+    Assertions.assertThatThrownBy(() -> query.uniqueRow(
+            RowConditions.exact(Header.COUNTRY, "Austria"), Duration.ofMillis(100)))
+        .isInstanceOf(TableRowAmbiguousException.class)
+        .hasMessageContaining("2");
+  }
+
+  @Test(description = "Horizontal typed lookup waits for a delayed row and rejects duplicate headers")
+  public void horizontalTypedLookupWaitsAndRejectsDuplicates() {
+    SelenideTableQuery<Header> query = SelenideTableQuery.of(
+        page.horizontal, TableDomAdapters.horizontal(), header -> header.displayed);
+    Selenide.executeJavaScript("window.prepareDelayedQueryHorizontalRow()");
+    Assertions.assertThat(query.requiredRow(row -> row.cell(Header.COMPANY).isPresent(),
+        Duration.ofSeconds(2)).requiredCell(Header.COMPANY).text()).isEqualTo("Alfreds");
+
+    Selenide.executeJavaScript("window.duplicateQueryHorizontalHeader()");
+    Assertions.assertThatThrownBy(() -> query.row(row -> row.cell(Header.COMPANY).isPresent()))
+        .isInstanceOf(dev.quokkify.elements.table.model.TableColumnAmbiguousException.class)
+        .hasMessageContaining("Company");
+  }
+
   @Test(description = "Timeout lookup evaluates conditions with the actual mounted-row index")
   public void preservesRowIndexInsideNativeWait() {
     SelenideTableQuery<Header> query = page.classic.query(header -> header.displayed);

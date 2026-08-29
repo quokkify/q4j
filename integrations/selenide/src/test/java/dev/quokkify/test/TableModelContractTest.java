@@ -14,6 +14,7 @@ import dev.quokkify.elements.table.horizontal.DynamicHorizontalTable;
 import dev.quokkify.elements.table.horizontal.HorizontalTable;
 import dev.quokkify.elements.table.model.DisplayedHeaderResolver;
 import dev.quokkify.elements.table.model.NoTableHeaders;
+import dev.quokkify.elements.table.model.RowConditions;
 import dev.quokkify.elements.table.model.SelenideDomTableModel;
 import dev.quokkify.elements.table.model.SelenideTableQuery;
 import dev.quokkify.elements.table.model.TableCell;
@@ -24,13 +25,16 @@ import dev.quokkify.elements.table.model.TableDomAdapter;
 import dev.quokkify.elements.table.model.TableDomAdapters;
 import dev.quokkify.elements.table.model.TableHeaderRowLocator;
 import dev.quokkify.elements.table.model.TableModel;
+import dev.quokkify.elements.table.model.TableQueryRow;
 import dev.quokkify.elements.table.model.TableRow;
+import dev.quokkify.elements.table.model.TypedTableCellRef;
 import dev.quokkify.model.ConstantFormat;
 
 import com.codeborne.selenide.CollectionCondition;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.logevents.SelenideLogger;
 import org.assertj.core.api.Assertions;
+import org.mockito.Mockito;
 import org.openqa.selenium.By;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
@@ -379,6 +383,31 @@ public class TableModelContractTest extends BaseTest {
         .uniqueRow(candidate -> true))
         .isInstanceOf(dev.quokkify.elements.table.model.TableRowAmbiguousException.class)
         .hasMessageContaining("found 3");
+  }
+
+  @Test(description = "greaterThan accepts canonical BigDecimal text and rejects decorated or malformed text")
+  public void greaterThanUsesStrictNumericContract() {
+    String[] accepted = {"11", "10.01", "+11", "1e2"};
+    for (String value : accepted) {
+      Assertions.assertThat(RowConditions.greaterThan(Header.COMPANY, 10)
+          .test(numericRow(value)))
+          .as(value).isTrue();
+    }
+    String[] rejected = {"$100", "10%", "1,000", "", "ten"};
+    for (String value : rejected) {
+      Assertions.assertThat(RowConditions.greaterThan(Header.COMPANY, 10)
+          .test(numericRow(value)))
+          .as(value).isFalse();
+    }
+  }
+
+  @SuppressWarnings("unchecked")
+  private static TableQueryRow<Header> numericRow(String value) {
+    TableQueryRow<Header> row = Mockito.mock(TableQueryRow.class);
+    TypedTableCellRef<Header> cell = Mockito.mock(TypedTableCellRef.class);
+    Mockito.when(cell.text()).thenReturn(value);
+    Mockito.doReturn(Optional.of(cell)).when(row).cell(Header.COMPANY);
+    return row;
   }
 
   private static TableDomAdapter customGridAdapter() {

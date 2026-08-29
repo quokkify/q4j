@@ -107,20 +107,20 @@ Local rendering now keeps `tools/environment/assets/selenium-grid/config.toml` a
 
 ## Test-coverage gaps
 
-- No async/delayed **horizontal** table scenario in the `SelenideTableQuery`/neutral-model layer
-  (N1 is therefore unexercised). Legacy horizontal delay is covered in `TableRowWaitTest`.
-- `tableModelContractStability` repeats only 2 classic scenarios 20×; the flaky assertions in F7
-  are not part of that soak.
+- The neutral-model layer now covers delayed horizontal lookup and repeated horizontal headers in
+  `TableQueryContractTest.horizontalTypedLookupWaitsAndRejectsDuplicates`.
+- `tableModelContractStability` repeats both timing-sensitive methods identified in F7, in addition
+  to the existing delayed-row and remount scenarios.
 
 ## Disposition
 
 | Finding | Status     | Evidence / contract                                                                                                                                                                                                                  |
 | ------- | ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| N1      | Fixed      | Horizontal row lookup returns empty until the row header is mounted; `ReproHorizontalAsyncTest` uses a real assertion. Duplicate displayed headers still raise `TableColumnAmbiguousException` through `TableModel.columnIndex`.     |
+| N1      | Fixed      | Horizontal row lookup returns empty until the row header is mounted and table-wide duplicate headers raise `TableColumnAmbiguousException`; `TableQueryContractTest` covers both paths. |
 | N2      | Fixed      | Indexed `TableQueryRow.cell(int)` now validates only the index sign; bounds and text are resolved when the reference is read.                                                                                                        |
 | N3      | Fixed      | `SelenideDomTableModel.rows()` captures one row-count snapshot per returned view while row handles remain lazy/remount-safe.                                                                                                         |
 | N4      | Fixed      | Timed `uniqueRow` uses one native polling condition that counts matches and returns the matching index from that same poll.                                                                                                          |
 | N5      | Fixed      | Empty legacy helpers throw typed `TableRowNotFoundException` in common, classic, and horizontal paths.                                                                                                                               |
-| N6      | Documented | `greaterThan` intentionally retains compatibility: strict `BigDecimal` parsing makes decorated/non-numeric text a non-match. This behavior is documented in `RowConditions` Javadoc; no breaking predicate exception was introduced. |
-| F7      | Deferred   | Existing timing-sensitive browser tests remain bounded and are not masked by sleeps. Full browser/grid stability remains a CI gate.                                                                                                  |
+| N6      | Tested     | `greaterThan` intentionally retains compatibility: strict `BigDecimal` parsing makes decorated/non-numeric text a non-match. `RowConditionsContractTest` covers canonical and rejected forms; no breaking predicate exception was introduced. |
+| F7      | Fixed      | Existing timing-sensitive browser tests remain bounded and are repeated 20× by `tableModelContractStability`; no sleeps were added. Full browser/grid stability remains a CI gate. |
 | F8      | Fixed      | Local config renders to gitignored `generated/`; session assets are gitignored; the tracked template remains unchanged.                                                                                                              |

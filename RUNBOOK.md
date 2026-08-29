@@ -29,7 +29,9 @@ env -u CI ./tools/environment/scripts/infra/run_app.sh web
 This:
 
 - starts `nginx` (host port `80`) + Selenium Grid (`selenium-hub` ports `4442-4444`);
-- renders `tools/environment/assets/selenium-grid/config.toml` (substitutes `__NETWORK__`);
+- renders the gitignored `tools/environment/assets/selenium-grid/generated/config.toml` from the
+  immutable tracked `tools/environment/assets/selenium-grid/config.toml` template (substitutes
+  `__NETWORK__`);
 - waits for grid readiness and writes `.nginx.env` / `.selenium-grid.env` (gitignored, see F8).
 
 Check readiness:

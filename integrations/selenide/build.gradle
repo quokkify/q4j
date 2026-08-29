@@ -41,5 +41,7 @@ tasks.register("tableModelContractStability", Test) {
     filter {
         includeTestsMatching("dev.quokkify.test.TableModelContractTest.waitsForDelayedRow")
         includeTestsMatching("dev.quokkify.test.TableModelContractTest.rowReferenceSurvivesRemount")
+        includeTestsMatching("dev.quokkify.test.TableRowWaitTest.testDynamicHorizontalTableRowAppearingWithDelayIsFound")
+        includeTestsMatching("dev.quokkify.test.TableQueryContractTest.addressesClassicTableByIndexAndTypedKey")
     }
 }

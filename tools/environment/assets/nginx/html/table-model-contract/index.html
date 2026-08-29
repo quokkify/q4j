@@ -389,6 +389,23 @@
         old.replaceWith(replacement);
       }
 
+      function prepareDelayedQueryHorizontalRow() {
+        const table = document.getElementById("query-horizontal");
+        window.delayedQueryHorizontalRow = table.rows[1];
+        window.delayedQueryHorizontalRow.remove();
+        window.setTimeout(
+          () => table.tBodies[0]?.appendChild(window.delayedQueryHorizontalRow)
+            || table.appendChild(window.delayedQueryHorizontalRow),
+          250,
+        );
+      }
+
+      function duplicateQueryHorizontalHeader() {
+        const table = document.getElementById("query-horizontal");
+        const duplicate = table.rows[1].cloneNode(true);
+        table.appendChild(duplicate);
+      }
+
       function redirectQueryClassicRoot() {
         const captured = document.getElementById("query-classic");
         const replacement = captured.cloneNode(true);
