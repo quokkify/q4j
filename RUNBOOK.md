@@ -105,6 +105,7 @@ BROWSER_REMOTE_URL=http://localhost:4444/wd/hub \
 - Local runs keep the tracked `config.toml` template unchanged. Generated config and
   `assets/selenium-grid/assets/**` session artifacts are gitignored — see
   `integrations/selenide/AUDIT.md` F8.
-- The generated local `config.toml` is mode `0644`: the node image's UID 1200 can read it through
-  Compose's read-only mount, while the generated file remains host-owned and is not writable by
-  that container user. The temporary renderer file is removed on exit.
+- The generated local `config.toml` is mode `0644`, and its generated directory is mode `0755`:
+  the node image's UID 1200 can traverse and read it through Compose's read-only mount, while the
+  generated file and directory remain host-owned and are not writable by that container user. The
+  temporary renderer file is removed after the move and by the exit trap on interrupted runs.

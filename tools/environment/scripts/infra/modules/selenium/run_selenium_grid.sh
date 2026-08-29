@@ -42,7 +42,8 @@ if [[ "${CI:-}" == "true" ]]; then
 else
   repo_root="$(pwd)" || exit 1
   export SELENIUM_GRID_MOUNT="${repo_root}/tools/environment/assets/selenium-grid/generated"
-  mkdir -p "$SELENIUM_GRID_MOUNT"
+  install -d -m 0755 "$SELENIUM_GRID_MOUNT"
+  chmod 0755 "$SELENIUM_GRID_MOUNT"
   tmp_config="$(mktemp)"
   trap 'rm -f "$tmp_config"' EXIT
   render_config "$CONFIG_PATH" "$tmp_config"
