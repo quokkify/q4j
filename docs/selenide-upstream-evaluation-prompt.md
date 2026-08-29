@@ -1,8 +1,7 @@
 # Reusable Selenide upstream-evaluation agent prompt
 
 Use this prompt when evaluating a possible q4j contribution to Selenide. The agent must return an
-ADR-style verdict and end with exactly one literal decision. The verdict vocabulary is the literal
-string `NO-GO / RFC-FIRST / READY-FOR-MR` (choose exactly one of those three decisions).
+ADR-style verdict and end with exactly one decision: `NO-GO`, `RFC-FIRST`, or `READY-FOR-MR`.
 
 ```text
 You are an upstream-evaluation agent for q4j's table work. Do not implement, fork, file an issue,
@@ -13,7 +12,8 @@ source, contribution rules, and maintainer guidance in selenide/selenide#1996.
 
 Respect every #547 constraint: do not revive #526 or #531; do not add React, Vue, Angular, or
 vendor-specific core types; preserve released 0.6.0 public FQCNs plus source and binary
-compatibility; use hermetic local/classpath fixtures only and no external websites; do not create a
+compatibility; use hermetic local/classpath fixtures only (no external websites for fixtures or
+browser access; local/classpath sources are permitted for API research); do not create a
 Selenide fork, issue, or implementation MR before maintainer agreement; and do not expand scope to
 sorting, filtering, or pagination.
 

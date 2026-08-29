@@ -88,7 +88,14 @@ that flake under load and under amd64-on-arm64 emulation (fail in a full run, pa
 Re-run the failing test alone to distinguish a real failure from contention:
 
 ```bash
-# repeat the gradle command, but with a single --tests filter for the failing method
+FAILED_TEST='dev.quokkify.test.<TestClass>.<testMethod>'
+CI= \
+BASE_URL=http://host.docker.internal:80 \
+NGINX_BASE_URL=http://host.docker.internal:80 \
+BROWSER_REMOTE_URL=http://localhost:4444/wd/hub \
+./gradlew :integrations:selenide:test \
+  --tests "$FAILED_TEST" \
+  --no-daemon --console=plain
 ```
 
 ## Known gaps / follow-ups
@@ -98,3 +105,6 @@ Re-run the failing test alone to distinguish a real failure from contention:
 - Local runs keep the tracked `config.toml` template unchanged. Generated config and
   `assets/selenium-grid/assets/**` session artifacts are gitignored — see
   `integrations/selenide/AUDIT.md` F8.
+- The generated local `config.toml` is mode `0644`: the node image's UID 1200 can read it through
+  Compose's read-only mount, while the generated file remains host-owned and is not writable by
+  that container user. The temporary renderer file is removed on exit.

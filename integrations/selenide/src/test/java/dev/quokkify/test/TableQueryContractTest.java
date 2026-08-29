@@ -1,6 +1,7 @@
 package dev.quokkify.test;
 
 import java.time.Duration;
+import java.util.stream.IntStream;
 
 import dev.quokkify.elements.table.classic.FlexTable;
 import dev.quokkify.elements.table.classic.Table;
@@ -19,6 +20,7 @@ import org.assertj.core.api.Assertions;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class TableQueryContractTest extends BaseTest {
@@ -38,6 +40,14 @@ public class TableQueryContractTest extends BaseTest {
 
   private FixturePage page;
 
+  @DataProvider(name = "tableModelContractIterations", parallel = false)
+  public Object[][] tableModelContractIterations() {
+    int repetitions = Integer.parseInt(System.getProperty("tableModel.contract.repetitions", "1"));
+    return IntStream.rangeClosed(1, repetitions)
+        .mapToObj(iteration -> new Object[] {"iteration-%02d".formatted(iteration)})
+        .toArray(Object[][]::new);
+  }
+
   @BeforeMethod
   public void openFixture() {
     String baseUrl = System.getenv().getOrDefault("NGINX_BASE_URL", "http://localhost");
@@ -45,8 +55,9 @@ public class TableQueryContractTest extends BaseTest {
     page = Selenide.page(FixturePage.class);
   }
 
-  @Test(description = "Zero-based rows, cells, and vertical columns expose lazy references")
-  public void addressesClassicTableByIndexAndTypedKey() {
+  @Test(dataProvider = "tableModelContractIterations",
+      description = "Zero-based rows, cells, and vertical columns expose lazy references")
+  public void addressesClassicTableByIndexAndTypedKey(String iteration) {
     SelenideTableQuery<Header> query = page.classic.query(header -> header.displayed);
     TypedTableCellRef<Header> company = query.row(0).requiredCell(Header.COMPANY);
 
@@ -147,7 +158,8 @@ public class TableQueryContractTest extends BaseTest {
         Duration.ofSeconds(2)).requiredCell(Header.COMPANY).text()).isEqualTo("Alfreds");
 
     Selenide.executeJavaScript("window.duplicateQueryHorizontalHeader()");
-    Assertions.assertThatThrownBy(() -> query.column(Header.COMPANY).cells())
+    Assertions.assertThatThrownBy(() -> query.requiredRow(
+            row -> row.cell(Header.COMPANY).isPresent(), Duration.ofMillis(200)))
         .isInstanceOf(dev.quokkify.elements.table.model.TableColumnAmbiguousException.class)
         .hasMessageContaining("Company");
   }

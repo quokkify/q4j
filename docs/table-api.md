@@ -96,7 +96,8 @@ claims of this example. The compiling equivalent is exercised by
 
 ## Semantics and compatibility
 
-- Typed keys are resolved by displayed header text; enum ordinal is never a column position.
+- In the neutral typed-key model, keys are resolved by displayed header text; enum ordinal is never a
+  column position.
 - `displayedHeaders()` and `rows()` reflect the model's current view. A row or cell may be lazy.
 - Selenide-backed rows, columns, and cells retain locators/indexes, not raw `WebElement` objects;
   each operation re-resolves the current root. Handles therefore remain usable after a root

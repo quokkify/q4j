@@ -6,11 +6,13 @@ where, and a recommended change. Severity is relative to the module's stated con
 
 ## Verified runtime behavior
 
-- Local `web` infra brought up (nginx + Selenium Grid + Chrome 151). 64 table tests executed;
-  62 passed, 2 failed on a full run. Both failures were **timing-sensitive and passed in
-  isolation** → load/emulation flakiness, not deterministic bugs (see F7).
-- Table tests require `BASE_URL`/`NGINX_BASE_URL` reachable **from the containerized browser**
-  (`http://host.docker.internal:80`), not `localhost` — see RUNBOOK.
+- Local `web` infra run: `http://host.docker.internal:80` over HTTP from the containerized browser;
+  64 table tests executed, 62 passed and 2 failed on the full run. Both failures were
+  **timing-sensitive and passed in isolation** (see F7); this run supports the browser findings.
+- Separate verification run: `http://localhost:80` over HTTPS was stopped by
+  `ERR_SSL_PROTOCOL_ERROR` before reaching the fixture, so it provides no test evidence and does
+  not support the findings. Table tests require `BASE_URL`/`NGINX_BASE_URL` reachable from the
+  containerized browser; see RUNBOOK.
 
 ## Findings
 
@@ -109,8 +111,10 @@ Local rendering now keeps `tools/environment/assets/selenium-grid/config.toml` a
 
 - The neutral-model layer now covers delayed horizontal lookup and repeated horizontal headers in
   `TableQueryContractTest.horizontalTypedLookupWaitsAndRejectsDuplicates`.
-- `tableModelContractStability` repeats both timing-sensitive methods identified in F7, in addition
-  to the existing delayed-row and remount scenarios.
+- `tableModelContractStability` repeats all four bounded stability selections 20 times each,
+  including the exact F7 methods `TableRowWaitTest.testDynamicHorizontalTableRowAppearingWithDelayIsFound`
+  and `TableQueryContractTest.addressesClassicTableByIndexAndTypedKey`, in addition to delayed-row
+  and remount scenarios.
 
 ## Disposition
 
@@ -122,5 +126,5 @@ Local rendering now keeps `tools/environment/assets/selenium-grid/config.toml` a
 | N4      | Fixed  | Timed `uniqueRow` uses one native polling condition that counts matches and returns the matching index from that same poll.                                                                                                                   |
 | N5      | Fixed  | Empty legacy helpers throw typed `TableRowNotFoundException` in common, classic, and horizontal paths.                                                                                                                                        |
 | N6      | Tested | `greaterThan` intentionally retains compatibility: strict `BigDecimal` parsing makes decorated/non-numeric text a non-match. `RowConditionsContractTest` covers canonical and rejected forms; no breaking predicate exception was introduced. |
-| F7      | Fixed  | Existing timing-sensitive browser tests remain bounded and are repeated 20× by `tableModelContractStability`; no sleeps were added. Full browser/grid stability remains a CI gate.                                                            |
+| F7      | Fixed  | All four selected stability methods, including both exact F7 methods, are data-provider repetitions (20× each) in `tableModelContractStability`; no sleeps were added. Full browser/grid stability remains a CI gate. |
 | F8      | Fixed  | Local config renders to gitignored `generated/`; session assets are gitignored; the tracked template remains unchanged.                                                                                                                       |
