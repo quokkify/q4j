@@ -113,7 +113,7 @@ public class TableQueryContractTest extends BaseTest {
     Assertions.assertThat(query.requiredRow(RowConditions.exact(Header.COMPANY, "Berglunds"),
         Duration.ofSeconds(2)).requiredCell(Header.COUNTRY).text()).isEqualTo("Germany");
     Assertions.assertThat(query.uniqueRow(RowConditions.exact(Header.COMPANY, "Berglunds"),
-        Duration.ofSeconds(2)).index()).isEqualTo(1);
+        Duration.ofSeconds(2)).requiredCell(Header.COMPANY).text()).isEqualTo("Berglunds");
     Assertions.assertThatThrownBy(() -> query.uniqueRow(
             RowConditions.exact(Header.COUNTRY, "Austria")))
         .isInstanceOf(TableRowAmbiguousException.class)
@@ -164,7 +164,8 @@ public class TableQueryContractTest extends BaseTest {
     SelenideTableQuery<Header> query = page.classic.query(header -> header.displayed);
 
     Assertions.assertThatThrownBy(() -> query.row(4)).isInstanceOf(IndexOutOfBoundsException.class);
-    Assertions.assertThatThrownBy(() -> query.cell(0, 3)).isInstanceOf(IndexOutOfBoundsException.class);
+    Assertions.assertThatThrownBy(() -> query.cell(0, 3).text())
+        .isInstanceOf(IndexOutOfBoundsException.class);
     Assertions.assertThatThrownBy(() -> query.column(3)).isInstanceOf(IndexOutOfBoundsException.class);
     Assertions.assertThatThrownBy(() -> query.column(Header.MISSING))
         .isInstanceOf(TableColumnNotFoundException.class);
