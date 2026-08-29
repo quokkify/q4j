@@ -1,1 +1,1 @@
-{"id":"87622623035242029e16c9b35f7ec97a","fullName":"dev.quokkify.test.TableModelContractTest.requiredRowsSkipHeaders","name":"Required row handles skip CLASSIC and FLEX header rows","status":"passed","testResultsByEnv":{"integrations-selenide":"8ef194a333cde7db81857344598ae4f2"}}
+{"id":"87622623035242029e16c9b35f7ec97a","fullName":"dev.quokkify.test.TableModelContractTest.requiredRowsSkipHeaders","name":"Required row handles skip CLASSIC and FLEX header rows","status":"passed","testResultsByEnv":{"integrations-selenide":"d3d790efa0f23674ddff23ef6aea2ded"}}
