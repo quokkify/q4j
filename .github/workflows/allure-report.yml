@@ -96,6 +96,10 @@ jobs:
             );
             const actualNames = allureArtifacts.map((artifact) => artifact.name).sort();
 
+            if (actualNames.length === 0) {
+              skip(`No ${artifactPrefix} artifacts were produced by the source run; skipping Allure report.`);
+              return;
+            }
             if (actualNames.length < minimumArtifacts || actualNames.length > maximumArtifacts ||
                 new Set(actualNames).size !== actualNames.length) {
               core.setFailed(`External Allure artifact contract mismatch. Expected ${minimumArtifacts}-${maximumArtifacts} unique artifacts with prefix ${artifactPrefix}; received ${actualNames.length}.`);
@@ -165,7 +169,7 @@ jobs:
           config-file: tools/allure/allurerc.mjs
           categories-file: "tools/allure/categories.json"
           source-run-id: ${{ github.event.workflow_run.id }}
-          pages-url: "https://quokkify.github.io/q4j"
+          pages-url: "https://quokkify.github.io/q4j/allure/pr-${{ needs.resolve.outputs.pr-number }}"
           fork-pr: ${{ needs.resolve.outputs.fork-pr }}
           comment-marker: "<!-- project-toolkit-allure-report -->"
       - name: Upload generated Allure HTML

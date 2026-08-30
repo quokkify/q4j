@@ -68,6 +68,10 @@ jobs:
                   raise SystemExit("Test jobs must stage Allure results with their module path preserved")
               if "results_path" not in test_workflow or "results_path" not in Path(".github/workflows/reusable-module-matrices.yml").read_text():
                   raise SystemExit("Test matrix must provide a dedicated Allure results path")
+              if 'No ${artifactPrefix} artifacts were produced by the source run; skipping Allure report.' not in allure_workflow:
+                  raise SystemExit("Allure workflow must skip safely when the source run has no result artifacts")
+              if 'pages-url: "https://quokkify.github.io/q4j/allure/pr-${{ needs.resolve.outputs.pr-number }}"' not in allure_workflow:
+                  raise SystemExit("Allure comments must link to the PR-specific Pages subdirectory")
           components = answers.get("components")
           if answers.get("allure_report") and not components:
               source_path = Path(str(answers.get("allure_external_workflow_path", "")))
