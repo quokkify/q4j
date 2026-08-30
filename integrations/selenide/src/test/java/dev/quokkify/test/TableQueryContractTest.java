@@ -124,6 +124,7 @@ public class TableQueryContractTest extends BaseTest {
 
     Assertions.assertThat(query.findRow(RowConditions.exact(Header.COMPANY, "Berglunds"))).isEmpty();
     Selenide.executeJavaScript("window.restoreDelayedQueryRow()");
+    Selenide.$("#query-classic").shouldHave(Condition.text("Berglunds"), Duration.ofSeconds(2));
     Assertions.assertThat(query.requiredRow(RowConditions.exact(Header.COMPANY, "Berglunds"),
         Duration.ofSeconds(2)).requiredCell(Header.COUNTRY).text()).isEqualTo("Germany");
     Assertions.assertThat(query.uniqueRow(RowConditions.exact(Header.COMPANY, "Berglunds"),

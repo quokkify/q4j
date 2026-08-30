@@ -23,6 +23,7 @@ public class TableRowWaitTest extends BaseTest {
   private static final String LATE_MOUNTING_TABLE_FIXTURE_PATH = "/table/late-mounting-table.html";
   private static final Duration TIMEOUT = Duration.ofSeconds(5);
   private static final Duration SHORT_TIMEOUT = Duration.ofMillis(600);
+  private static final Duration NON_WAITING_TIMEOUT = Duration.ofSeconds(1);
 
   @DataProvider(name = "tableModelContractIterations", parallel = false)
   public Object[][] tableModelContractIterations() {
@@ -152,7 +153,7 @@ public class TableRowWaitTest extends BaseTest {
     Assertions.assertThat(rowExists).as("Row should not be visible yet").isFalse();
     Assertions.assertThat(Duration.between(start, Instant.now()))
         .as("isRowExist must not wait for an unmounted table")
-        .isLessThan(SHORT_TIMEOUT);
+        .isLessThan(NON_WAITING_TIMEOUT);
   }
 
   @TmsLink("UI_ID_18")
@@ -208,7 +209,7 @@ public class TableRowWaitTest extends BaseTest {
 
     Assertions.assertThat(page.isLateTableRowExist(LateMountingTablePage.Header.COMPANY, "Ernst Handel"))
         .isFalse();
-    Assertions.assertThat(Duration.between(start, Instant.now())).isLessThan(SHORT_TIMEOUT);
+    Assertions.assertThat(Duration.between(start, Instant.now())).isLessThan(NON_WAITING_TIMEOUT);
   }
 
   @Test(description = "Verify a returned TABLE row resolves itself again after the table root is replaced")
