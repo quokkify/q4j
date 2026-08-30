@@ -3,49 +3,80 @@ set -euo pipefail
 
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 script="${script_dir}/run_selenium_grid.sh"
-umask 077
+
 grep -Fq 'repo_root="$(pwd)" || exit 1' "$script"
-grep -Fq 'install -d -m 0755 "$SELENIUM_GRID_MOUNT"' "$script"
-grep -Fq 'chmod 0755 "$SELENIUM_GRID_MOUNT"' "$script"
+grep -Fq 'export SELENIUM_GRID_MOUNT="${repo_root}/tools/environment/assets/selenium-grid/generated"' "$script"
 grep -Fq 'chmod 0644 "$tmp_config"' "$script"
 grep -Fq 'trap '\''rm -f "$tmp_config"'\'' EXIT' "$script"
 
-# Keep the temporary root traversable so the mode assertions model an unrelated
-# UID such as the pinned Selenium node user (1200).
-tmp_dir="$(mktemp -d)"
-chmod 0755 "$tmp_dir"
+tmp_root="$(mktemp -d)"
+tmp_bin="${tmp_root}/bin"
+tmp_tmp="${tmp_root}/tmp"
 cleanup() {
-  rm -f "${tmp_config:-}" "${failure_tmp:-}"
-  rm -rf "$tmp_dir"
+  rm -rf "$tmp_root"
 }
 trap cleanup EXIT INT TERM
+install -d -m 0755 "$tmp_bin" "$tmp_tmp"
 
-mount="${tmp_dir}/parent/generated"
-install -d -m 0755 "$mount"
-chmod 0755 "$mount"
-tmp_config="$(mktemp "${tmp_dir}/config.XXXXXX")"
-printf '%s\n' 'generated config' > "$tmp_config"
-chmod 0644 "$tmp_config"
-generated="${mount}/config.toml"
-mv "$tmp_config" "$generated"
+# Run the production script in a minimal isolated repository tree. The mocks only
+# satisfy Docker/Grid readiness; config rendering and filesystem operations are real.
+install -d -m 0755 \
+  "${tmp_root}/tools/environment/scripts/infra/modules/selenium" \
+  "${tmp_root}/tools/environment/scripts/infra" \
+  "${tmp_root}/tools/environment/assets/selenium-grid"
+cp "$script" "${tmp_root}/tools/environment/scripts/infra/modules/selenium/run_selenium_grid.sh"
+cp "${script_dir}/../../compose_utils.sh" "${tmp_root}/tools/environment/scripts/infra/compose_utils.sh"
+cp "${script_dir}/../../../../assets/selenium-grid/config.toml" \
+  "${tmp_root}/tools/environment/assets/selenium-grid/config.toml"
 
-# UID 1200 is unrelated to the host owner. Prove its access contract from
-# mode bits for every path component rather than relying on test -r as owner.
-for component in "$tmp_dir" "${tmp_dir}/parent" "$mount"; do
-  mode=$((8#$(stat -c '%a' "$component")))
-  (( mode & 001 )) || { echo "UID 1200 cannot traverse $component" >&2; exit 1; }
-  (( mode & 002 )) && { echo "UID 1200 can write $component" >&2; exit 1; }
-done
-mode=$((8#$(stat -c '%a' "$generated")))
-(( mode & 004 )) || { echo "UID 1200 cannot read $generated" >&2; exit 1; }
-(( mode & 002 )) && { echo "UID 1200 can write $generated" >&2; exit 1; }
-[[ "$(< "$generated")" == 'generated config' ]]
-rm -f "$generated"
-[[ ! -e "$generated" ]]
-[[ ! -e "$tmp_config" ]]
+cat > "${tmp_bin}/docker" <<'MOCK'
+#!/bin/bash
+if [[ "${1:-}" == compose ]]; then
+  for arg in "$@"; do
+    if [[ "$arg" == port ]]; then
+      printf '%s\n' '0.0.0.0:4444'
+      exit 0
+    fi
+  done
+fi
+exit 0
+MOCK
+cat > "${tmp_bin}/curl" <<'MOCK'
+#!/bin/bash
+printf '%s\n' '{"value":{"ready":true}}'
+MOCK
+chmod 0755 "${tmp_bin}/docker" "${tmp_bin}/curl"
 
-# Verify cleanup also runs when rendering exits before the move.
-failure_tmp="$(mktemp "${tmp_dir}/failure.XXXXXX")"
-(trap 'rm -f "$failure_tmp"' EXIT; exit 1) || true
-[[ ! -e "$failure_tmp" ]]
-printf '%s\n' 'selenium grid config permission/cleanup checks passed'
+run_env=(PATH="${tmp_bin}:$PATH" TMPDIR="$tmp_tmp" COMPOSE_PROJECT_NAME=isolated-grid)
+(
+  cd "$tmp_root"
+  env -u CI "${run_env[@]}" ./tools/environment/scripts/infra/modules/selenium/run_selenium_grid.sh
+)
+
+generated="${tmp_root}/tools/environment/assets/selenium-grid/generated/config.toml"
+[[ -f "$generated" ]]
+[[ "$(< "$generated")" == *'isolated-grid_default'* ]]
+[[ "$(stat -c '%a' "$generated")" == 644 ]]
+[[ "$(stat -c '%a' "${generated%/*}")" == 755 ]]
+[[ "$(< "${tmp_root}/tools/environment/.selenium-grid.env")" == 'BROWSER_REMOTE_URL=http://localhost:4444/wd/hub' ]]
+
+# Force render_config to fail and prove the production trap removes its temp file.
+fail_bin="${tmp_root}/fail-bin"
+install -d -m 0755 "$fail_bin"
+cat > "${fail_bin}/sed" <<'MOCK'
+#!/bin/bash
+exit 1
+MOCK
+chmod 0755 "${fail_bin}/sed"
+if (
+  cd "$tmp_root"
+  env -u CI PATH="$fail_bin:${tmp_bin}:$PATH" TMPDIR="$tmp_tmp" \
+    ./tools/environment/scripts/infra/modules/selenium/run_selenium_grid.sh
+); then
+  echo 'render failure unexpectedly succeeded' >&2
+  exit 1
+fi
+shopt -s nullglob
+leftovers=("${tmp_tmp}"/*)
+[[ "${#leftovers[@]}" -eq 0 ]]
+printf '%s\n' 'production Selenium Grid script checks passed'

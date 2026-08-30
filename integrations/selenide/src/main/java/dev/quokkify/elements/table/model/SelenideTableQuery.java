@@ -137,7 +137,9 @@ public final class SelenideTableQuery<C> {
     return requiredRow(condition, timeout);
   }
 
-  /** Requires the first currently mounted matching row. */
+  /**
+   * Requires the first matching row, waiting up to the global Selenide {@code Configuration.timeout}.
+   */
   public TableQueryRow<C> requiredRow(RowCondition<C> condition) {
     return requiredRow(condition, Duration.ofMillis(timeout));
   }
