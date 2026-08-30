@@ -50,7 +50,7 @@
         var l,
           m = [];
         function n(a) {
-          for (var b; a && (!a.getAttribute || !(b = a.getAttribute("eid")));)
+          for (var b; a && (!a.getAttribute || !(b = a.getAttribute("eid"))); )
             a = a.parentNode;
           return b || l;
         }
@@ -335,7 +335,7 @@
             if (k.height < h.height || k.width < h.width) a = e;
           }
           if (!d) {
-            for (c = a; c && c.id !== "center_col" && c.id !== "rhs";)
+            for (c = a; c && c.id !== "center_col" && c.id !== "rhs"; )
               c = c.parentElement;
             d = c;
             c = !d;
@@ -790,7 +790,7 @@
       }).call(this);
       (function () {
         function b() {
-          for (var a = google.drc.shift(); a;) (a(), (a = google.drc.shift()));
+          for (var a = google.drc.shift(); a; ) (a(), (a = google.drc.shift()));
         }
         google.drc = [
           function () {
@@ -1000,7 +1000,7 @@
               this.B = a;
               this.v = new Date().getTime() - 17040672e5;
               this.g = {};
-              for (var b = /[?&]([^&=]+)=([^&]*)/g; (a = b.exec(c));)
+              for (var b = /[?&]([^&=]+)=([^&]*)/g; (a = b.exec(c)); )
                 this.g[a[1]] = a[2];
             },
             m = function (a, c) {
@@ -3522,7 +3522,8 @@
                           spellcheck="false"
                           data-ved="0ahUKEwiy5MvRpMCRAxVKCBAIHSH4PFAQ39UDCA0"
                         >
-test</textarea>
+test</textarea
+                        >
                       </div>
                       <div class="fM33ce dRYYxd">
                         <div
@@ -17723,7 +17724,7 @@ test</textarea>
                       b.setAttribute("href", a[0] + c + "#" + a[1])));
               }
               d = document.querySelectorAll("[ping]");
-              for (e = 0; (b = d[e++]);)
+              for (e = 0; (b = d[e++]); )
                 ((a = b.getAttribute("ping")),
                   a.indexOf("cshid=") === -1 && b.setAttribute("ping", a + c));
             }
@@ -22787,7 +22788,7 @@ test</textarea>
         (function () {
           "use strict";
           let a;
-          for (; (a = google.adl) == null ? 0 : a.length;) google.adl.pop()();
+          for (; (a = google.adl) == null ? 0 : a.length; ) google.adl.pop()();
           google.adl = {
             push: (b) => {
               b();
