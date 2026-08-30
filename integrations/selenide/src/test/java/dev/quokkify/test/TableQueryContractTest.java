@@ -54,8 +54,7 @@ public class TableQueryContractTest extends BaseTest {
 
   @BeforeMethod
   public void openFixture() {
-    String baseUrl = System.getenv().getOrDefault("NGINX_BASE_URL", "http://localhost");
-    Selenide.open(baseUrl + "/table-model-contract/");
+    openQueriesFixture();
     page = Selenide.page(FixturePage.class);
   }
 

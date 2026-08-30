@@ -137,7 +137,7 @@ public class TableModelContractTest extends BaseTest {
 
   @Test(description = "Every legacy table variant exposes the neutral model and typed cells")
   public void bridgesAllLegacyVariants() {
-    openFixture();
+    openClassicVariantsFixture();
     FixturePage page = Selenide.page(FixturePage.class);
 
     Assertions.assertThat(page.classic.asDomModel(h -> h.displayed).rows().get(0)
@@ -168,7 +168,7 @@ public class TableModelContractTest extends BaseTest {
       description = "Required lookup waits for a row restored asynchronously")
   @SingleThread
   public void waitsForDelayedRow(String iteration) {
-    openFixture();
+    openClassicVariantsFixture();
     FixturePage page = Selenide.page(FixturePage.class);
     TableModel<Header> model = page.classic.asDomModel(h -> h.displayed);
     Selenide.executeJavaScript("window.prepareDelayedRow()");
@@ -183,7 +183,7 @@ public class TableModelContractTest extends BaseTest {
       description = "A row reference resolves again after a deterministic DOM remount")
   @SingleThread
   public void rowReferenceSurvivesRemount(String iteration) {
-    openFixture();
+    openClassicVariantsFixture();
     FixturePage page = Selenide.page(FixturePage.class);
     TableModel<Header> model = page.classic.asDomModel(h -> h.displayed);
     TableRow<Header> row = model.requiredRow(candidate -> candidate.cell(Header.COMPANY)
@@ -195,7 +195,7 @@ public class TableModelContractTest extends BaseTest {
 
   @Test(description = "Required row handles skip CLASSIC and FLEX header rows")
   public void requiredRowsSkipHeaders() {
-    openFixture();
+    openClassicVariantsFixture();
     FixturePage page = Selenide.page(FixturePage.class);
 
     TableRow<Header> classicRow = page.classic.asDomModel(h -> h.displayed)
@@ -212,7 +212,7 @@ public class TableModelContractTest extends BaseTest {
 
   @Test(description = "Optional and required lookups distinguish missing rows and cells")
   public void reportsMissingRowsAndCellsConsistently() {
-    openFixture();
+    openClassicVariantsFixture();
     FixturePage page = Selenide.page(FixturePage.class);
     TableModel<Header> model = page.classic.asDomModel(h -> h.displayed);
     TableRow<Header> row = model.rows().get(0);
@@ -230,7 +230,7 @@ public class TableModelContractTest extends BaseTest {
 
   @Test(description = "Required lookup waits for a table root mounted after the initial DOM")
   public void waitsForLateRootMount() {
-    openFixture();
+    openClassicVariantsFixture();
     FixturePage page = Selenide.page(FixturePage.class);
     TableModel<Header> model = page.classic.asDomModel(h -> h.displayed);
 
@@ -244,7 +244,7 @@ public class TableModelContractTest extends BaseTest {
 
   @Test(description = "Required lookup applies one timeout across late root and row discovery")
   public void timesOutAcrossLateRootAndRowDiscovery() {
-    openFixture();
+    openClassicVariantsFixture();
     FixturePage page = Selenide.page(FixturePage.class);
     TableModel<Header> model = page.classic.asDomModel(h -> h.displayed);
 
@@ -267,7 +267,7 @@ public class TableModelContractTest extends BaseTest {
 
   @Test(description = "Public custom adapter isolates nested grids and preserves logical cells")
   public void supportsCustomDivAdapter() {
-    openFixture();
+    openCustomGridsFixture();
     TableDomAdapter adapter = customGridAdapter();
     TableModel<Header> model = SelenideDomTableModel.of(
         Selenide.$("#custom-grid"), adapter,
@@ -289,7 +289,7 @@ public class TableModelContractTest extends BaseTest {
   @Test(description = "Custom adapter waits once for a late root and row, then remount-safe handles resolve")
   @SingleThread
   public void customAdapterWaitsAndSurvivesRemount() {
-    openFixture();
+    openCustomGridsFixture();
     TableDomAdapter adapter = customGridAdapter();
     TableModel<Header> model = SelenideDomTableModel.of(
         Selenide.$("#custom-grid"), adapter,
@@ -307,7 +307,7 @@ public class TableModelContractTest extends BaseTest {
 
   @Test(description = "Classic adapter preserves tables whose header row is inside tbody")
   public void supportsBodyOnlyClassicTable() {
-    openFixture();
+    openEdgeCasesFixture();
     TableModel<Header> model = SelenideDomTableModel.of(
         Selenide.$("#body-only-classic"), TableDomAdapters.classic(),
         DisplayedHeaderResolver.requiringNonNull(header -> header.displayed));
@@ -322,7 +322,7 @@ public class TableModelContractTest extends BaseTest {
 
   @Test(description = "Classic adapter excludes rows belonging to a nested table")
   public void excludesNestedTableRows() {
-    openFixture();
+    openEdgeCasesFixture();
     TableModel<Header> model = SelenideDomTableModel.of(
         Selenide.$("#nested-classic"), TableDomAdapters.classic(),
         DisplayedHeaderResolver.requiringNonNull(header -> header.displayed));
@@ -334,7 +334,7 @@ public class TableModelContractTest extends BaseTest {
 
   @Test(description = "Classic adapter can select a nested table as its own model root")
   public void supportsNestedClassicRoot() {
-    openFixture();
+    openEdgeCasesFixture();
     TableModel<Header> model = SelenideDomTableModel.of(
         Selenide.$("#nested-classic table"), TableDomAdapters.classic(),
         DisplayedHeaderResolver.requiringNonNull(header -> header.displayed));
@@ -348,7 +348,7 @@ public class TableModelContractTest extends BaseTest {
 
   @Test(description = "Generic ARIA adapter addresses role-based grids and survives root remount")
   public void supportsAriaGridAndRemount() {
-    openFixture();
+    openCustomGridsFixture();
     TableModel<Header> model = SelenideDomTableModel.of(
         Selenide.$("#aria-grid"), TableDomAdapters.ariaGrid(),
         DisplayedHeaderResolver.requiringNonNull(header -> header.displayed));
@@ -362,7 +362,7 @@ public class TableModelContractTest extends BaseTest {
 
   @Test(description = "Headerless and repeated headers preserve typed lookup failures")
   public void handlesHeaderlessAndRepeatedHeaders() {
-    openFixture();
+    openCustomGridsFixture();
     TableDomAdapter headerlessAdapter = TableDomAdapters.of(
         By.cssSelector(":scope > .data-row"), By.cssSelector(":scope > .cell"),
         NoTableHeaders.instance());
@@ -417,11 +417,6 @@ public class TableModelContractTest extends BaseTest {
         new TableHeaderRowLocator(
             By.cssSelector(":scope > .header-row"),
             By.cssSelector(":scope > .cell:not([hidden])")));
-  }
-
-  private static void openFixture() {
-    String baseUrl = System.getenv().getOrDefault("NGINX_BASE_URL", "http://localhost");
-    Selenide.open(baseUrl + "/table-model-contract/");
   }
 
   private static final class FixturePage {

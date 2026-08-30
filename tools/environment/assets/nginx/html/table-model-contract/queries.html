@@ -1,0 +1,172 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Table queries</title>
+    <style>
+      body {
+        font-family: arial, sans-serif;
+        margin: 2rem auto;
+        max-width: 70rem;
+        padding: 0 1rem;
+      }
+      h1 {
+        font-size: 1.6rem;
+        margin-bottom: 0.25rem;
+      }
+      p.overview {
+        color: #555;
+        margin-top: 0;
+        max-width: 60rem;
+      }
+      table,
+      .flex-table {
+        border-collapse: collapse;
+        margin: 1rem 0 2rem;
+        width: 100%;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      th {
+        background: #f4f4f4;
+      }
+      .flex-table-row {
+        display: flex;
+      }
+      .flex-table-row > div {
+        flex: 1 1 0;
+        border: 1px solid #ddd;
+        padding: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Table queries</h1>
+    <p class="overview">
+      Verifies <code>SelenideTableQuery</code> over the query fixtures: a
+      <code>query-classic</code> table (with a hidden row, duplicates, and
+      numeric columns), a <code>query-flex</code> div grid, and a
+      <code>query-horizontal</code> table. Covers zero-based indexing,
+      mounted/visible-row distinction, condition composition, unique-row
+      cardinality, async row waits, header reorder, and string-first lookups.
+    </p>
+
+    <table id="query-classic">
+      <thead>
+        <tr>
+          <th>Country</th>
+          <th>Company</th>
+          <th>Employees</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Austria</td>
+          <td>Alfreds</td>
+          <td>12</td>
+        </tr>
+        <tr>
+          <td>Germany</td>
+          <td>Berglunds</td>
+          <td>20</td>
+        </tr>
+        <tr style="display: none">
+          <td>France</td>
+          <td>Hidden Co</td>
+          <td>30</td>
+        </tr>
+        <tr>
+          <td>Austria</td>
+          <td>Alpine</td>
+          <td>8</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div id="query-flex" class="flex-table">
+      <div class="flex-table-row">
+        <div>Country</div>
+        <div>Company</div>
+        <div>Employees</div>
+      </div>
+      <div class="flex-table-row">
+        <div>Poland</div>
+        <div>Quokkify</div>
+        <div>42</div>
+      </div>
+    </div>
+
+    <table id="query-horizontal">
+      <tr>
+        <th>Country</th>
+        <td>Austria</td>
+      </tr>
+      <tr>
+        <th>Company</th>
+        <td>Alfreds</td>
+      </tr>
+      <tr>
+        <th>Employees</th>
+        <td>12</td>
+      </tr>
+    </table>
+
+    <script>
+      function prepareDelayedQueryRow() {
+        const body = document.querySelector("#query-classic tbody");
+        window.delayedQueryRow = body.children[1];
+        window.delayedQueryRow.remove();
+      }
+
+      function restoreDelayedQueryRow() {
+        const body = document.querySelector("#query-classic tbody");
+        window.setTimeout(() => body.appendChild(window.delayedQueryRow), 250);
+      }
+
+      function remountQueryClassic() {
+        const old = document.getElementById("query-classic");
+        old.replaceWith(old.cloneNode(true));
+      }
+
+      function remountQueryClassicWithReorderedHeaders() {
+        const old = document.getElementById("query-classic");
+        const replacement = old.cloneNode(true);
+        replacement.querySelectorAll("tr").forEach((row) => {
+          const cells = row.children;
+          row.insertBefore(cells[1], cells[0]);
+        });
+        old.replaceWith(replacement);
+      }
+
+      function prepareDelayedQueryHorizontalRow() {
+        const table = document.getElementById("query-horizontal");
+        window.delayedQueryHorizontalRow = table.rows[1];
+        window.delayedQueryHorizontalRow.remove();
+        window.setTimeout(
+          () =>
+            table.tBodies[0]?.appendChild(window.delayedQueryHorizontalRow) ||
+            table.appendChild(window.delayedQueryHorizontalRow),
+          250,
+        );
+      }
+
+      function duplicateQueryHorizontalHeader() {
+        const table = document.getElementById("query-horizontal");
+        table.rows[0].querySelector("th").textContent = "Company";
+      }
+
+      function redirectQueryClassicRoot() {
+        const captured = document.getElementById("query-classic");
+        const replacement = captured.cloneNode(true);
+        captured.id = "query-classic-captured";
+        replacement.querySelector("tbody td").textContent = "Changed";
+        replacement.id = "query-classic";
+        captured.after(replacement);
+      }
+    </script>
+  </body>
+</html>
