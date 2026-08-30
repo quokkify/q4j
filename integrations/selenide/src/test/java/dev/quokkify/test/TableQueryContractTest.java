@@ -229,6 +229,10 @@ public class TableQueryContractTest extends BaseTest {
   public void supportsFindByStringFirstComponent() {
     SelenideDataTable customers = page.customers;
 
+    Assertions.assertThat(SelenideTableQuery.byHeaderText(
+        customers.getSelf(), TableDomAdapters.classic()).column("Company").cells())
+        .extracting(cell -> cell.text())
+        .containsExactly("Alfreds", "Berglunds", "Hidden Co", "Alpine");
     Assertions.assertThat(customers.query().column("Company").cells())
         .extracting(cell -> cell.text())
         .containsExactly("Alfreds", "Berglunds", "Hidden Co", "Alpine");
