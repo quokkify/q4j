@@ -1,5 +1,28 @@
 # Changelog
 
+## [0.6.2](https://github.com/quokkify/q4j/compare/v0.6.1...v0.6.2) (2026-08-30)
+
+
+### 🐛 Bug Fixes
+
+* **ci:** isolate Allure artifacts per module ([#560](https://github.com/quokkify/q4j/issues/560)) ([3d70203](https://github.com/quokkify/q4j/commit/3d7020342820a759519a3e4c082ba0a75bba4ed5))
+* **ci:** preserve module paths in Allure artifacts ([#562](https://github.com/quokkify/q4j/issues/562)) ([61cc29c](https://github.com/quokkify/q4j/commit/61cc29cd74e2a80d321da16e23b916c6131089b0))
+* **ci:** restore Allure extractor paths ([#558](https://github.com/quokkify/q4j/issues/558)) ([cce7f21](https://github.com/quokkify/q4j/commit/cce7f21d3b8f02654d31b240737e1bf7b6c7e3cc))
+* **ci:** separate stability Allure source path ([#565](https://github.com/quokkify/q4j/issues/565)) ([00574e2](https://github.com/quokkify/q4j/commit/00574e2943fb8b84a3c3babe9d3901410ed504a7))
+* **deps:** update selenide to v7.18.1 ([#569](https://github.com/quokkify/q4j/issues/569)) ([be139a4](https://github.com/quokkify/q4j/commit/be139a4537718dbdd613ed99886ac351321070d8))
+* **selenide:** harden and audit table API ([#566](https://github.com/quokkify/q4j/issues/566)) ([c6a581c](https://github.com/quokkify/q4j/commit/c6a581cfd4a0cc03fa0d7c899e85adb236d8c5b2))
+
+
+### 🧹 Chores
+
+* **ci:** temporarily disable Stability tests ([#568](https://github.com/quokkify/q4j/issues/568)) ([cdf6975](https://github.com/quokkify/q4j/commit/cdf6975d314517d7e8e617fab92a72e65e5ad121))
+* **deps:** pin quokkify/project-toolkit action to aa4efad ([#561](https://github.com/quokkify/q4j/issues/561)) ([def0b06](https://github.com/quokkify/q4j/commit/def0b0698ca4576bb7b08cc0f4cb413a9eccf3db))
+* **deps:** update github/codeql-action digest to cdf488f ([#559](https://github.com/quokkify/q4j/issues/559)) ([66f1372](https://github.com/quokkify/q4j/commit/66f1372864e9cdc3bd1c3aee03742f73fc849e0b))
+* **deps:** update q4j module documentation to v0.6.1 ([#557](https://github.com/quokkify/q4j/issues/557)) ([0206da8](https://github.com/quokkify/q4j/commit/0206da8826eb73bf24de55217fa990e5fbc58d78))
+* **deps:** update redis:8.10.1 docker digest to 298e5b3 ([#564](https://github.com/quokkify/q4j/issues/564)) ([c6ac3f3](https://github.com/quokkify/q4j/commit/c6ac3f31e08062530df18dcd068bf14390890734))
+* **renovate:** pin helper Docker images ([#555](https://github.com/quokkify/q4j/issues/555)) ([dd950e2](https://github.com/quokkify/q4j/commit/dd950e266fab0692ec61a1f4f99e2c1867dc434a))
+* **template:** update shared project template ([#554](https://github.com/quokkify/q4j/issues/554)) ([b2687b8](https://github.com/quokkify/q4j/commit/b2687b88de483081a35dcc1de9ea9420f5e46c03))
+
 ## [0.6.1](https://github.com/quokkify/q4j/compare/v0.6.0...v0.6.1) (2026-08-28)
 
 
