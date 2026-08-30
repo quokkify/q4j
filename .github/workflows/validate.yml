@@ -54,7 +54,54 @@ jobs:
           if answers.get("allure_report") and any(not path.is_file() for path in allure_paths):
               raise SystemExit("allure_report=true requires its generated workflow, config, and bounded extractor")
           if answers.get("allure_report"):
-              allure_workflow = Path(".github/workflows/allure-report.yml").read_text()
+              allure_path = Path(".github/workflows/allure-report.yml")
+              allure_workflow = allure_path.read_text()
+              allure_document = yaml.safe_load(allure_workflow)
+              resolve_steps = allure_document["jobs"]["resolve"]["steps"]
+              resolve_script = next(
+                  step["with"]["script"] for step in resolve_steps
+                  if step.get("id") == "resolve"
+              )
+              # Check the executable resolve guard, not comments or warning text.
+              zero_guard = re.search(
+                  r"if\s*\(\s*actualNames\.length\s*===\s*0\s*\)\s*\{(?P<body>.*?)\n\s*\}",
+                  resolve_script,
+                  re.DOTALL,
+              )
+              if not zero_guard or "skip(`No ${artifactPrefix} artifacts" not in zero_guard.group("body") or "return;" not in zero_guard.group("body"):
+                  raise SystemExit("Allure resolver must skip exactly zero matching artifacts")
+              contract_guard = re.search(
+                  r"if\s*\(\s*(?P<condition>actualNames\.length\s*<.*?new Set\(actualNames\)\.size\s*!==\s*actualNames\.length.*?)\)\s*\{(?P<body>.*?)\n\s*\}",
+                  resolve_script,
+                  re.DOTALL,
+              )
+              if not contract_guard:
+                  raise SystemExit("Allure resolver must reject invalid nonzero artifact sets")
+              contract_condition = contract_guard.group("condition")
+              required_terms = (
+                  "actualNames.length < minimumArtifacts",
+                  "actualNames.length > maximumArtifacts",
+                  "new Set(actualNames).size !== actualNames.length",
+              )
+              if any(term not in contract_condition for term in required_terms) or "core.setFailed(" not in contract_guard.group("body") or "return;" not in contract_guard.group("body"):
+                  raise SystemExit("Allure resolver must reject partial, overflow, and duplicate artifact sets")
+              generate_steps = allure_document["jobs"]["generate"]["steps"]
+              report_action = next(
+                  step for step in generate_steps
+                  if str(step.get("uses", "")).startswith("quokkify/project-toolkit/actions/allure-report@")
+              )
+              pages_url = report_action["with"]["pages-url"]
+              pages_expression = "${" + "{ needs.resolve.outputs.pr-number }}"
+              if pages_url != f"https://quokkify.github.io/q4j/allure/pr-{pages_expression}":
+                  raise SystemExit("Allure comments must use the exact resolved PR number in the Pages URL")
+              publish_steps = allure_document["jobs"]["pages"]["steps"]
+              pages_action = next(
+                  step for step in publish_steps
+                  if str(step.get("uses", "")).startswith("quokkify/project-toolkit/actions/deploy-gh-pages-subdir@")
+              )
+              destination_dir = pages_action["with"]["destination-dir"]
+              if destination_dir != f"allure/pr-{pages_expression}":
+                  raise SystemExit("Allure Pages destination must use the same exact resolved PR number")
               if ".github/allure/safe_extract.py" in allure_workflow:
                   raise SystemExit("Allure workflow must invoke tools/allure/safe_extract.py")
               if ".github/allure/allurerc.mjs" in allure_workflow:
@@ -68,10 +115,7 @@ jobs:
                   raise SystemExit("Test jobs must stage Allure results with their module path preserved")
               if "results_path" not in test_workflow or "results_path" not in Path(".github/workflows/reusable-module-matrices.yml").read_text():
                   raise SystemExit("Test matrix must provide a dedicated Allure results path")
-              if 'No ${artifactPrefix} artifacts were produced by the source run; skipping Allure report.' not in allure_workflow:
-                  raise SystemExit("Allure workflow must skip safely when the source run has no result artifacts")
-              if 'pages-url: "https://quokkify.github.io/q4j/allure/pr-' not in allure_workflow:
-                  raise SystemExit("Allure comments must link to the PR-specific Pages subdirectory")
+
           components = answers.get("components")
           if answers.get("allure_report") and not components:
               source_path = Path(str(answers.get("allure_external_workflow_path", "")))
