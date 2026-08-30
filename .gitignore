@@ -13,6 +13,8 @@ out
 classes
 
 # Ignore all binary files
+**/bin/
+**/.factorypath
 modules/*/bin
 statics/bin
 
