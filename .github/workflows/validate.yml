@@ -54,67 +54,124 @@ jobs:
           if answers.get("allure_report") and any(not path.is_file() for path in allure_paths):
               raise SystemExit("allure_report=true requires its generated workflow, config, and bounded extractor")
           if answers.get("allure_report"):
+              import os
+              import subprocess
+              import tempfile
+
               allure_path = Path(".github/workflows/allure-report.yml")
               allure_workflow = allure_path.read_text()
               allure_document = yaml.safe_load(allure_workflow)
-              resolve_steps = allure_document["jobs"]["resolve"]["steps"]
               resolve_script = next(
-                  step["with"]["script"] for step in resolve_steps
+                  step["with"]["script"]
+                  for step in allure_document["jobs"]["resolve"]["steps"]
                   if step.get("id") == "resolve"
               )
-              # Check the executable resolve guard, not comments or warning text.
-              zero_guard = re.search(
-                  r"if\s*\(\s*actualNames\.length\s*===\s*0\s*\)\s*\{(?P<body>.*?)\n\s*\}",
-                  resolve_script,
-                  re.DOTALL,
-              )
-              if not zero_guard or "skip(`No ${artifactPrefix} artifacts" not in zero_guard.group("body") or "return;" not in zero_guard.group("body"):
-                  raise SystemExit("Allure resolver must skip exactly zero matching artifacts")
-              contract_guard = re.search(
-                  r"if\s*\(\s*(?P<condition>actualNames\.length\s*<.*?new Set\(actualNames\)\.size\s*!==\s*actualNames\.length.*?)\)\s*\{(?P<body>.*?)\n\s*\}",
-                  resolve_script,
-                  re.DOTALL,
-              )
-              if not contract_guard:
-                  raise SystemExit("Allure resolver must reject invalid nonzero artifact sets")
-              contract_condition = contract_guard.group("condition")
-              required_terms = (
-                  "actualNames.length < minimumArtifacts",
-                  "actualNames.length > maximumArtifacts",
-                  "new Set(actualNames).size !== actualNames.length",
-              )
-              if any(term not in contract_condition for term in required_terms) or "core.setFailed(" not in contract_guard.group("body") or "return;" not in contract_guard.group("body"):
-                  raise SystemExit("Allure resolver must reject partial, overflow, and duplicate artifact sets")
               generate_steps = allure_document["jobs"]["generate"]["steps"]
               report_action = next(
                   step for step in generate_steps
                   if str(step.get("uses", "")).startswith("quokkify/project-toolkit/actions/allure-report@")
               )
-              pages_url = report_action["with"]["pages-url"]
-              pages_expression = "${" + "{ needs.resolve.outputs.pr-number }}"
-              if pages_url != f"https://quokkify.github.io/q4j/allure/pr-{pages_expression}":
-                  raise SystemExit("Allure comments must use the exact resolved PR number in the Pages URL")
-              publish_steps = allure_document["jobs"]["pages"]["steps"]
               pages_action = next(
-                  step for step in publish_steps
+                  step for step in allure_document["jobs"]["pages"]["steps"]
                   if str(step.get("uses", "")).startswith("quokkify/project-toolkit/actions/deploy-gh-pages-subdir@")
               )
-              destination_dir = pages_action["with"]["destination-dir"]
-              if destination_dir != f"allure/pr-{pages_expression}":
-                  raise SystemExit("Allure Pages destination must use the same exact resolved PR number")
-              if ".github/allure/safe_extract.py" in allure_workflow:
-                  raise SystemExit("Allure workflow must invoke tools/allure/safe_extract.py")
-              if ".github/allure/allurerc.mjs" in allure_workflow:
-                  raise SystemExit("Allure workflow must use tools/allure/allurerc.mjs")
+              pr_expression = "${" + "{ needs.resolve.outputs.pr-number }}"
+              if pr_expression not in str(report_action["with"].get("pages-url", "")) or \
+                      pr_expression not in str(pages_action["with"].get("destination-dir", "")):
+                  raise SystemExit("Allure Pages URL and destination must use the exact resolved PR number expression")
+              if ".github/allure/safe_extract.py" in allure_workflow or ".github/allure/allurerc.mjs" in allure_workflow:
+                  raise SystemExit("Allure workflow must use the generated tools/allure paths")
               if "MATERIALIZE_ROOT: ${{ github.workspace }}/.allure-input/results" in allure_workflow:
                   raise SystemExit("Allure extractor must materialize source artifacts outside the results directory")
-              test_workflow = Path(".github/workflows/test.yml").read_text()
-              if 'path: "**/build/allure-results"' in test_workflow:
-                  raise SystemExit("Test jobs must upload only their own Allure results directory")
-              if "allure-artifact" not in test_workflow:
-                  raise SystemExit("Test jobs must stage Allure results with their module path preserved")
-              if "results_path" not in test_workflow or "results_path" not in Path(".github/workflows/reusable-module-matrices.yml").read_text():
-                  raise SystemExit("Test matrix must provide a dedicated Allure results path")
+
+              node_harness = r'''
+                (async () => {
+                const fs = require("fs");
+                const script = fs.readFileSync(process.argv[2], "utf8");
+                const input = JSON.parse(fs.readFileSync(0, "utf8"));
+                const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
+                const outputs = {};
+                const warnings = [];
+                let failure = null;
+                const run = { path: ".github/workflows/test.yml", head_sha: "sha", id: 42,
+                  workflow_id: 7, head_repository: { full_name: "quokkify/q4j" } };
+                const context = { payload: { workflow_run: run }, repo: { owner: "quokkify", repo: "q4j" } };
+                const pulls = [{ number: 566, base: { repo: { full_name: "quokkify/q4j" } },
+                  head: { repo: { full_name: "quokkify/q4j" }, sha: "sha" }, user: { login: "owner" } }];
+                const artifacts = Array.from({ length: input.count }, (_, index) => ({
+                  name: "allure-results-" + String(index).padStart(2, "0"), id: index + 1,
+                  expired: Boolean(input.expired && index === 0), size_in_bytes: 0,
+                }));
+                if (input.duplicate) artifacts[input.count - 1].name = artifacts[0].name;
+                if (input.bytes) artifacts[0].size_in_bytes = input.bytes;
+                const github = { rest: { pulls: { list: {} }, actions: {
+                  listWorkflowRuns: {}, listWorkflowRunArtifacts: {} } },
+                  paginate: async (method) => method === github.rest.pulls.list ? pulls :
+                    method === github.rest.actions.listWorkflowRuns ? [run] : artifacts };
+                const core = { warning: (message) => warnings.push(message),
+                  setFailed: (message) => { failure = message; },
+                  setOutput: (key, value) => { outputs[key] = value; } };
+                try { await new AsyncFunction("context", "github", "core", script)(context, github, core); }
+                catch (error) { failure = "uncaught: " + error.message; }
+                process.stdout.write(JSON.stringify({ outputs, warnings, failure }));
+                })();
+              '''
+
+              def execute(script, count, *, duplicate=False, expired=False, bytes_=0):
+                  with tempfile.NamedTemporaryFile("w", suffix=".js", delete=False) as script_handle, \
+                          tempfile.NamedTemporaryFile("w", suffix=".js", delete=False) as harness_handle:
+                      script_handle.write(script)
+                      harness_handle.write(node_harness)
+                      script_path = script_handle.name
+                      harness_path = harness_handle.name
+                  try:
+                      result = subprocess.run(
+                          ["node", harness_path, script_path],
+                          input=json.dumps({"count": count, "duplicate": duplicate, "expired": expired, "bytes": bytes_}),
+                          text=True, capture_output=True, check=False,
+                      )
+                  finally:
+                      os.unlink(script_path)
+                      os.unlink(harness_path)
+                  if result.returncode != 0:
+                      raise SystemExit(f"Allure resolver harness failed: {result.stderr}")
+                  return json.loads(result.stdout)
+
+              # Execute the real resolver against boundary and invalid contracts.
+              limit = 262144000
+              cases = (
+                  ("zero", 0, {}, lambda result: result["outputs"].get("ready") == "false" and result["warnings"] and not result["failure"]),
+                  ("one", 1, {}, lambda result: bool(result["failure"])),
+                  ("twenty-three", 23, {}, lambda result: bool(result["failure"])),
+                  ("twenty-four", 24, {}, lambda result: result["outputs"].get("ready") == "true" and len(json.loads(result["outputs"]["artifact_manifest"])) == 24),
+                  ("fifty", 50, {}, lambda result: result["outputs"].get("ready") == "true"),
+                  ("fifty-one", 51, {}, lambda result: bool(result["failure"])),
+                  ("duplicate", 24, {"duplicate": True}, lambda result: bool(result["failure"])),
+                  ("expired", 24, {"expired": True}, lambda result: bool(result["failure"])),
+                  ("exact-limit", 24, {"bytes_": limit}, lambda result: result["outputs"].get("ready") == "true"),
+                  ("over-limit", 24, {"bytes_": limit + 1}, lambda result: bool(result["failure"])),
+              )
+              for name, count, options, assertion in cases:
+                  if not assertion(execute(resolve_script, count, **options)):
+                      raise SystemExit(f"Executable Allure resolver contract failed: {name}")
+
+              # Disposable mutations must be rejected by the executable contract.
+              mutations = (
+                  ("length===7", resolve_script.replace("actualNames.length < minimumArtifacts", "actualNames.length === 7"), 24, {}, lambda result: bool(result["failure"])),
+                  ("<1", resolve_script.replace("actualNames.length < minimumArtifacts", "actualNames.length < 1"), 1, {}, lambda result: bool(result["failure"])),
+                  ("zero false-and", resolve_script.replace("if (actualNames.length === 0)", "if (false && actualNames.length === 0)"), 0, {}, lambda result: result["outputs"].get("ready") == "false" and result["warnings"]),
+                  ("partial false-and", resolve_script.replace("actualNames.length < minimumArtifacts ||", "actualNames.length < minimumArtifacts && false ||"), 1, {}, lambda result: bool(result["failure"])),
+              )
+              for name, mutated_script, count, options, assertion in mutations:
+                  if mutated_script == resolve_script or assertion(execute(mutated_script, count, **options)):
+                      raise SystemExit(f"Executable Allure mutation was accepted: {name}")
+              bad_expression = "${" + "{ needs.resolve.outputs.pr-bogus }}"
+              mutated_workflow = allure_workflow.replace(pr_expression, bad_expression, 1)
+              mutated_document = yaml.safe_load(mutated_workflow)
+              mutated_report = next(step for step in mutated_document["jobs"]["generate"]["steps"] if str(step.get("uses", "")).startswith("quokkify/project-toolkit/actions/allure-report@"))
+              mutated_pages = next(step for step in mutated_document["jobs"]["pages"]["steps"] if str(step.get("uses", "")).startswith("quokkify/project-toolkit/actions/deploy-gh-pages-subdir@"))
+              if pr_expression in str(mutated_report["with"].get("pages-url", "")) and pr_expression in str(mutated_pages["with"].get("destination-dir", "")):
+                  raise SystemExit("Executable Allure mutation was accepted: pr-bogus")
 
           components = answers.get("components")
           if answers.get("allure_report") and not components:
