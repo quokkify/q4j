@@ -1,0 +1,1 @@
+{"id":"a8e22aef6ef8df6dbafbb7ffacb42d27","fullName":"dev.quokkify.parser.YamlParserModuleDiscoveryIntegrationTest.shouldConvertYamlToJavaTimeTypeUsingDiscoveredModule","name":"Verify YamlParser + JsonConverter path supports Java Time via discovered modules","status":"passed","testResultsByEnv":{"common-utils-jackson-yaml":"3b64a78b1fbc768ba0d5f312bc32783e"}}
