@@ -1,18 +1,18 @@
-## ✅ Allure Report — passed
+## ❌ Allure Report — failures detected
 
-337 / 337 tests passed · 100% pass rate
+340 / 341 tests passed · 99.7% pass rate · 1 failed
 
 | Tests | Passed | Failed | Broken | Skipped | Report |
 | ---: | ---: | ---: | ---: | ---: | :--- |
-| 337 | 337 | 0 | 0 | 0 | [View report ↗](https://quokkify.github.io/q4j?run=33296283250) |
+| 341 | 340 | 1 | 0 | 0 | [View report ↗](https://quokkify.github.io/q4j?run=33301487511) |
 
 <details>
 <summary><strong>Tests by layer</strong></summary>
 
 | Layer | Tests | Passed | Failed | Broken | Skipped |
 | --- | ---: | ---: | ---: | ---: | ---: |
-| No epic assigned | 337 | 337 | 0 | 0 | 0 |
-| All layers | 337 | 337 | 0 | 0 | 0 |
+| No epic assigned | 341 | 340 | 1 | 0 | 0 |
+| All layers | 341 | 340 | 1 | 0 | 0 |
 
 </details>
 
