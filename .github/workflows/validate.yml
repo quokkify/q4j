@@ -180,7 +180,7 @@ jobs:
               mutated_report = next(step for step in mutated_document["jobs"]["generate"]["steps"] if str(step.get("uses", "")).startswith("quokkify/project-toolkit/actions/allure-report@"))
               mutated_pages = next(step for step in mutated_document["jobs"]["pages"]["steps"] if str(step.get("uses", "")).startswith("quokkify/project-toolkit/actions/deploy-gh-pages-subdir@"))
               if pr_expression in str(mutated_report["with"].get("pages-url", "")) and pr_expression in str(mutated_pages["with"].get("destination-dir", "")):
-                  raise SystemExit("Executable Allure mutation was accepted: pr-bogus")daf9cf17fb608d9bfd2dc26510399c8f11
+                  raise SystemExit("Executable Allure mutation was accepted: pr-bogus")
           components = answers.get("components")
           if answers.get("allure_report") and not components:
               source_path = Path(str(answers.get("allure_external_workflow_path", "")))
