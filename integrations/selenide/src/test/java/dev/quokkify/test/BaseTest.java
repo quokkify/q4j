@@ -20,10 +20,40 @@ public class BaseTest {
 
   private static final String ALLURE_LISTENER = "AllureSelenide";
 
+  private static final String TABLE_MODEL_CONTRACT_ROOT = "/table-model-contract/";
+
   protected static final Configuration APP_CONFIG = ConfigRegistry.get(Configuration.class);
   protected static final BrowserConfiguration BROWSER_CONFIGURATION = ConfigRegistry.get(BrowserConfiguration.class);
 
   protected GoogleNavigationSteps googleNavigationSteps = new GoogleNavigationSteps(APP_CONFIG.baseUrl());
+
+  protected static String nginxBaseUrl() {
+    return System.getenv().getOrDefault("NGINX_BASE_URL", "http://localhost");
+  }
+
+  protected static void openTableModelContract(String page) {
+    Selenide.open(nginxBaseUrl() + TABLE_MODEL_CONTRACT_ROOT + page);
+  }
+
+  protected static void openClassicVariantsFixture() {
+    openTableModelContract("classic.html");
+  }
+
+  protected static void openCustomGridsFixture() {
+    openTableModelContract("custom-grids.html");
+  }
+
+  protected static void openEdgeCasesFixture() {
+    openTableModelContract("edge-cases.html");
+  }
+
+  protected static void openQueriesFixture() {
+    openTableModelContract("queries.html");
+  }
+
+  protected static void openAssertionsFixture() {
+    openTableModelContract("assertions.html");
+  }
 
   @BeforeSuite(alwaysRun = true)
   protected void beforeSuite() {

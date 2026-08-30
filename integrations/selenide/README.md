@@ -131,6 +131,10 @@ configured values to `Waiter` calls.
 
 ## Table DOM model
 
+The complete API record, compatibility boundary, weakness matrix, and upstream-evaluation prompt are
+in [`docs/table-api.md`](../../docs/table-api.md) and
+[`docs/selenide-upstream-evaluation-prompt.md`](../../docs/selenide-upstream-evaluation-prompt.md).
+
 The neutral DOM model uses typed column keys mapped to the text displayed by the DOM; its enum
 ordinal is never used as a column position. The additive `dev.quokkify.elements.table.model`
 contract consists of `TableModel<C>`, `TableRow<C>`, and `TableCell<C>`. The public immutable
@@ -140,6 +144,16 @@ contract consists of `TableModel<C>`, `TableRow<C>`, and `TableCell<C>`. The pub
 constructor remain as a compatibility bridge for legacy table components.
 `DisplayedHeaderResolver<C>` maps a typed key to its displayed header, and missing headers fail
 with `TableColumnNotFoundException` rather than silently selecting a neighbouring column.
+
+These structural types are the extension contract. The current Selenide browser integration is one
+backend adapter/plugin implementation; its `TableDomAdapter`, query, assertion, and action APIs
+remain Selenide/Selenium-specific. A future separately published external Appium plugin/module may
+depend on the structural contract and provide its own backend integration, but q4j core and this
+Selenide module do not depend on or discover Appium. Appium has no implementation in this task, and
+this PR introduces no runtime plugin loading.
+The contracts currently ship in this `q4j-selenide` artifact alongside its Selenide dependency, so a
+future plugin may pull Selenide transitively. Moving them to a neutral artifact/package is deferred
+to a future major release to preserve the released 0.6.0 FQCNs.
 
 Rows and cells are allowed to be lazy: a concrete Selenide adapter may resolve the current DOM
 element on each operation. `TableModel.rows()` represents rows currently available; adapters that
@@ -199,8 +213,23 @@ List<? extends TypedTableCellRef<Header>> companies =
 ```
 
 `row(int)`, `cell(int, int)`, and `column(int)` use zero-based indexes. Typed access uses the
-caller-supplied `DisplayedHeaderResolver`; there is no implicit string-header overload. A table
-whose key type is `String` must opt in with an explicit identity resolver.
+caller-supplied `DisplayedHeaderResolver`. For the common String-first Page Object path, use the
+public `SelenideDataTable` component directly:
+
+```java
+@FindBy(id = "customers")
+private SelenideDataTable customers;
+
+customers.requiredRow(RowConditions.exact("Company", "Alfreds"))
+    .requiredCell("Country")
+    .shouldHave(Condition.exactText("Austria"));
+
+customers.shouldHaveRow(Map.of("Company", "Alfreds", "Country", "Austria"));
+```
+
+`SelenideTableQuery.byHeaderText(element, adapter)` is the explicit factory for String identities;
+`TableDomAdapters.of(...)` remains available for custom markup. Typed keys and the released enum
+table API remain compatible and are optional.
 
 `mountedRows()` includes hidden DOM rows, while `visibleRows()` filters them using Selenide's
 displayed state. `findRow(...)` returns the first match, `findRows(...)` returns all matches in DOM

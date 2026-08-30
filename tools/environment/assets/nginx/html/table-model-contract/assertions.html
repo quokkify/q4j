@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Table assertions and embedded controls</title>
+    <style>
+      body {
+        font-family: arial, sans-serif;
+        margin: 2rem auto;
+        max-width: 70rem;
+        padding: 0 1rem;
+      }
+      h1 {
+        font-size: 1.6rem;
+        margin-bottom: 0.25rem;
+      }
+      p.overview {
+        color: #555;
+        margin-top: 0;
+        max-width: 60rem;
+      }
+      table {
+        border-collapse: collapse;
+        margin: 1rem 0 2rem;
+        width: 100%;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      th {
+        background: #f4f4f4;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Table assertions and embedded controls</h1>
+    <p class="overview">
+      Verifies the assertions/actions contract on an
+      <code>assertion-actions</code> table whose cells embed a button, link,
+      input, checkbox, radio, select, and a read-only cell, plus an
+      <code>output</code> showing action results. A separate
+      <code>contenteditable-table</code> covers inherited versus explicit
+      <code>contenteditable</code> semantics. Drives native waits for async
+      headers, rows, and cell state, and remount resilience.
+    </p>
+
+    <table id="assertion-actions">
+      <thead>
+        <tr>
+          <th>Name</th>
+          <th>Status</th>
+          <th>Action</th>
+          <th>Input</th>
+          <th>Check</th>
+          <th>Radio</th>
+          <th>Select</th>
+          <th>Read only</th>
+          <th>Link</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Alpha</td>
+          <td class="status">Ready</td>
+          <td>
+            <button type="button" onclick="markTableAction('button')">
+              Run
+            </button>
+          </td>
+          <td><input value="initial" /></td>
+          <td><input type="checkbox" /></td>
+          <td><input type="radio" name="choice" /></td>
+          <td>
+            <select>
+              <option>One</option>
+              <option>Two</option>
+            </select>
+          </td>
+          <td>fixed</td>
+          <td>
+            <a href="#table-link" onclick="markTableAction('link')">Details</a>
+          </td>
+        </tr>
+        <tr>
+          <td>Beta</td>
+          <td>Ready</td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td></td>
+          <td>fixed too</td>
+          <td></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table id="contenteditable-table" contenteditable="true">
+      <thead>
+        <tr>
+          <th>Direct</th>
+          <th>Inherited</th>
+          <th>Empty</th>
+          <th>Plaintext</th>
+          <th>False</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td contenteditable="TRUE">Direct</td>
+          <td>Inherited</td>
+          <td contenteditable>Empty</td>
+          <td contenteditable="plaintext-only">Plaintext</td>
+          <td contenteditable="false">False</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <output id="table-action-result"></output>
+
+    <script>
+      function remountAssertionTable() {
+        const old = document.getElementById("assertion-actions");
+        old.replaceWith(old.cloneNode(true));
+      }
+
+      function prepareDelayedAssertionHeader() {
+        const header = document.querySelector(
+          "#assertion-actions th:nth-child(2)",
+        );
+        header.textContent = "Loading";
+        window.setTimeout(() => (header.textContent = "Status"), 250);
+      }
+
+      function prepareDelayedAssertionRow() {
+        const body = document.querySelector("#assertion-actions tbody");
+        const row = body.children[1];
+        row.remove();
+        window.setTimeout(() => body.appendChild(row), 250);
+      }
+
+      function prepareDelayedAssertionCell() {
+        const cell = document.querySelector("#assertion-actions .status");
+        cell.textContent = "Pending";
+        window.setTimeout(() => (cell.textContent = "Ready"), 250);
+      }
+
+      function markTableAction(value) {
+        document.getElementById("table-action-result").textContent = value;
+      }
+    </script>
+  </body>
+</html>

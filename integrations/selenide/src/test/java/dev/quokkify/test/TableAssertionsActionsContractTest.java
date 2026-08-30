@@ -37,8 +37,7 @@ public class TableAssertionsActionsContractTest extends BaseTest {
 
   @BeforeMethod
   public void openFixture() {
-    String baseUrl = System.getenv().getOrDefault("NGINX_BASE_URL", "http://localhost");
-    Selenide.open(baseUrl + "/table-model-contract/");
+    openAssertionsFixture();
     table = SelenideTableQuery.of(Selenide.$("#assertion-actions"),
         TableDomAdapters.classic(), Column::header);
   }
@@ -150,6 +149,7 @@ public class TableAssertionsActionsContractTest extends BaseTest {
 
   @Test(description = "Condition cell text stays on its captured row snapshot")
   public void keepsIndexedAndTypedConditionReadsOnCapturedSnapshot() {
+    openQueriesFixture();
     AtomicBoolean redirected = new AtomicBoolean();
     AtomicReference<String> indexedText = new AtomicReference<>();
     AtomicReference<String> typedText = new AtomicReference<>();
