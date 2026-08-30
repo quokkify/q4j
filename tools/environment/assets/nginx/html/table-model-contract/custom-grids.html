@@ -1,0 +1,155 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Custom and styled grid adapters</title>
+    <style>
+      body {
+        font-family: arial, sans-serif;
+        margin: 2rem auto;
+        max-width: 70rem;
+        padding: 0 1rem;
+      }
+      h1 {
+        font-size: 1.6rem;
+        margin-bottom: 0.25rem;
+      }
+      p.overview {
+        color: #555;
+        margin-top: 0;
+        max-width: 60rem;
+      }
+      .custom-grid,
+      .aria-grid,
+      .headerless-grid {
+        margin: 1rem 0 2rem;
+        border: 1px solid #ddd;
+        border-radius: 6px;
+        overflow: hidden;
+      }
+      .header-row,
+      .data-row {
+        display: flex;
+      }
+      .header-row .cell,
+      .data-row > .cell {
+        flex: 1 1 0;
+        border-right: 1px solid #eee;
+        padding: 8px;
+      }
+      .header-row {
+        background: #f4f4f4;
+        font-weight: bold;
+      }
+      [hidden] {
+        display: none;
+      }
+      [role="row"] {
+        display: flex;
+      }
+      [role="row"] > span {
+        flex: 1 1 0;
+        border: 1px solid #ddd;
+        padding: 8px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Custom and styled grid adapters</h1>
+    <p class="overview">
+      Verifies DOM adapters for non-<code>&lt;table&gt;</code> layouts: a
+      <code>custom-grid</code> of div rows/columns (including a nested grid that
+      must stay isolated), a <code>custom-repeated-grid</code> with duplicate
+      headers, an <code>aria-grid</code> using ARIA roles, and a
+      <code>headerless-grid</code> with no header row. Also covers remount
+      resilience and async row restoration for custom grids.
+    </p>
+
+    <div id="custom-grid">
+      <div class="header-row">
+        <span class="cell">Country</span>
+        <span class="cell" hidden>Internal ID</span>
+        <span class="cell">Company</span>
+      </div>
+      <div class="data-row">
+        <span class="cell">Austria</span>
+        <span class="cell" hidden>42</span>
+        <span class="cell">
+          Outer
+          <div id="nested-custom-grid" class="custom-grid">
+            <div class="header-row">
+              <span class="cell">Country</span><span class="cell">Company</span>
+            </div>
+            <div class="data-row">
+              <span class="cell">Nested</span><span class="cell">Leak</span>
+            </div>
+          </div>
+        </span>
+      </div>
+      <div class="data-row">
+        <span class="cell">Switzerland</span><span class="cell"></span>
+      </div>
+      <div class="data-row">
+        <span class="cell">Germany</span>
+      </div>
+    </div>
+
+    <div id="custom-repeated-grid">
+      <div class="header-row">
+        <span class="cell">Country</span><span class="cell">Company</span
+        ><span class="cell">Company</span><span class="cell">Company</span>
+      </div>
+      <div class="data-row">
+        <span class="cell">Austria</span><span class="cell">Alfreds</span
+        ><span class="cell">Duplicate</span><span class="cell">Third</span>
+      </div>
+      <div class="data-row">
+        <span class="cell">Germany</span><span class="cell">Berglunds</span
+        ><span class="cell">Duplicate</span><span class="cell">Third</span>
+      </div>
+      <div class="data-row">
+        <span class="cell">France</span><span class="cell">Dupont</span
+        ><span class="cell">Duplicate</span><span class="cell">Third</span>
+      </div>
+    </div>
+
+    <div id="aria-grid" role="grid">
+      <div role="row">
+        <span role="columnheader">Country</span>
+        <span role="columnheader">Company</span>
+      </div>
+      <div role="row">
+        <span role="gridcell">Austria</span>
+        <span role="gridcell">Alfreds</span>
+      </div>
+    </div>
+
+    <div id="headerless-grid">
+      <div class="data-row">
+        <span class="cell">Austria</span>
+        <span class="cell">Alfreds</span>
+      </div>
+    </div>
+
+    <script>
+      function remountAriaGrid() {
+        const old = document.getElementById("aria-grid");
+        old.replaceWith(old.cloneNode(true));
+      }
+
+      function prepareCustomDelayed() {
+        const grid = document.getElementById("custom-grid");
+        const row = grid.querySelector(":scope > .data-row");
+        row.remove();
+        grid.remove();
+        window.setTimeout(() => document.body.prepend(grid), 250);
+        window.setTimeout(() => grid.appendChild(row), 450);
+      }
+
+      function remountCustomGrid() {
+        const old = document.getElementById("custom-grid");
+        old.replaceWith(old.cloneNode(true));
+      }
+    </script>
+  </body>
+</html>

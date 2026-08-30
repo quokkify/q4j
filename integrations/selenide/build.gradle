@@ -31,7 +31,7 @@ tasks.named("test", Test) {
 }
 
 tasks.register("tableModelContractStability", Test) {
-    description = "Runs the two timing-sensitive table model scenarios 20 times each"
+    description = "Runs the four timing-sensitive table model scenarios 20 times each"
     group = "verification"
     testClassesDirs = sourceSets.test.output.classesDirs
     classpath = sourceSets.test.runtimeClasspath
@@ -41,5 +41,7 @@ tasks.register("tableModelContractStability", Test) {
     filter {
         includeTestsMatching("dev.quokkify.test.TableModelContractTest.waitsForDelayedRow")
         includeTestsMatching("dev.quokkify.test.TableModelContractTest.rowReferenceSurvivesRemount")
+        includeTestsMatching("dev.quokkify.test.TableRowWaitTest.testDynamicHorizontalTableRowAppearingWithDelayIsFound")
+        includeTestsMatching("dev.quokkify.test.TableQueryContractTest.addressesClassicTableByIndexAndTypedKey")
     }
 }

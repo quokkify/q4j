@@ -5,7 +5,7 @@ import java.util.Arrays;
 import java.util.Objects;
 import java.util.regex.Pattern;
 
-/** Built-in typed row conditions. */
+/** Built-in typed row conditions. Numeric comparisons use strict {@link BigDecimal} syntax. */
 public final class RowConditions {
 
   private RowConditions() {
@@ -31,6 +31,7 @@ public final class RowConditions {
   }
 
   public static <C> RowCondition<C> greaterThan(C column, Number expected) {
+    // Preserve predicate compatibility: invalid cell text is a non-match, not an exception.
     BigDecimal threshold = new BigDecimal(Objects.requireNonNull(expected, "expected").toString());
     return row -> row.cell(column).map(TableCell::text).map(String::trim)
         .filter(value -> !value.isEmpty())

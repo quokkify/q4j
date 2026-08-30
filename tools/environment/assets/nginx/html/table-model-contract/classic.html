@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Classic table variants</title>
+    <style>
+      body {
+        font-family: arial, sans-serif;
+        margin: 2rem auto;
+        max-width: 70rem;
+        padding: 0 1rem;
+      }
+      h1 {
+        font-size: 1.6rem;
+        margin-bottom: 0.25rem;
+      }
+      p.overview {
+        color: #555;
+        margin-top: 0;
+        max-width: 60rem;
+      }
+      table {
+        border-collapse: collapse;
+        margin: 1rem 0 2rem;
+        width: 100%;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      th {
+        background: #f4f4f4;
+      }
+      .flex-table-row {
+        display: flex;
+      }
+      .flex-table-row > div {
+        flex: 1 1 0;
+        border: 1px solid #ddd;
+        padding: 8px;
+      }
+      [data-flex-preamble] {
+        color: #999;
+        font-style: italic;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Classic table variants</h1>
+    <p class="overview">
+      Verifies the neutral table model and typed cells over every legacy table
+      layout: a plain <code>classic</code> table, a re-ordered
+      <code>dynamic</code> table, a <code>flex</code> div grid, a
+      <code>horizontal</code> table (headers as row labels), and a
+      <code>dynamic-horizontal</code> variant. Also exercises delayed-row
+      restoration, root remount, header-row skipping, and missing-cell handling
+      on the <code>classic</code> table.
+    </p>
+
+    <table id="classic">
+      <thead>
+        <tr>
+          <th>Country</th>
+          <th>Company</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Austria</td>
+          <td>Alfreds</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table id="dynamic">
+      <thead>
+        <tr>
+          <th>Company</th>
+          <th>Country</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Alfreds</td>
+          <td>Austria</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div id="flex" class="flex-table">
+      <div data-flex-preamble>Not a row</div>
+      <div class="flex-table-row">
+        <div>Country</div>
+        <div>Company</div>
+      </div>
+      <div class="flex-table-row">
+        <div>Austria</div>
+        <div>Alfreds</div>
+      </div>
+    </div>
+
+    <table id="horizontal">
+      <tr>
+        <th>Country</th>
+        <td>Austria</td>
+      </tr>
+      <tr>
+        <th>Company</th>
+        <td>Alfreds</td>
+      </tr>
+    </table>
+
+    <table id="dynamic-horizontal">
+      <tr>
+        <th>Company</th>
+        <td>Alfreds</td>
+      </tr>
+      <tr>
+        <th>Country</th>
+        <td>Austria</td>
+      </tr>
+    </table>
+
+    <script>
+      function prepareDelayedRow() {
+        const table = document.getElementById("classic");
+        const row = table.querySelector("tbody tr");
+        window.delayedRow = row;
+        row.remove();
+      }
+
+      function restoreDelayedRow() {
+        const table = document.getElementById("classic");
+        window.setTimeout(
+          () => table.querySelector("tbody").appendChild(window.delayedRow),
+          250,
+        );
+      }
+
+      function prepareMissingCell() {
+        document.getElementById("classic").querySelector("tbody tr").innerHTML =
+          "<td>Austria</td>";
+      }
+
+      function prepareLateMount() {
+        const table = document.getElementById("classic");
+        const replacement = table.cloneNode(true);
+        table.remove();
+        window.setTimeout(() => document.body.prepend(replacement), 250);
+      }
+
+      function remount() {
+        ["classic", "flex"].forEach((id) => {
+          const old = document.getElementById(id);
+          const replacement = old.cloneNode(true);
+          old.replaceWith(replacement);
+        });
+      }
+    </script>
+  </body>
+</html>

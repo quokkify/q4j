@@ -10,6 +10,8 @@ import java.util.function.Function;
 
 import com.codeborne.selenide.SelenideElement;
 
+import static com.codeborne.selenide.Configuration.timeout;
+
 /**
  * Additive Selenide query layer over the framework-neutral table model.
  *
@@ -31,6 +33,11 @@ public final class SelenideTableQuery<C> {
     SelenideDomTableModel<C> model = SelenideDomTableModel.of(table, adapter,
         DisplayedHeaderResolver.requiringNonNull(displayedHeader));
     return new SelenideTableQuery<>(model);
+  }
+
+  /** Creates a String-keyed query whose keys are the exact displayed header text. */
+  public static SelenideTableQuery<String> byHeaderText(SelenideElement table, TableDomAdapter adapter) {
+    return of(table, adapter, Function.identity());
   }
 
   /** Returns every currently mounted row, including rows hidden by CSS. */
@@ -130,9 +137,11 @@ public final class SelenideTableQuery<C> {
     return requiredRow(condition, timeout);
   }
 
-  /** Requires the first currently mounted matching row. */
+  /**
+   * Requires the first matching row, waiting up to the global Selenide {@code Configuration.timeout}.
+   */
   public TableQueryRow<C> requiredRow(RowCondition<C> condition) {
-    return findRow(condition).orElseThrow(() -> new TableRowNotFoundException("query condition"));
+    return requiredRow(condition, Duration.ofMillis(timeout));
   }
 
   /** Requires the first matching row using the model's native Selenide wait. */
@@ -149,21 +158,29 @@ public final class SelenideTableQuery<C> {
   public TableQueryRow<C> uniqueRow(RowCondition<C> condition) {
     Objects.requireNonNull(condition, "condition");
     Optional<TableQueryRow<C>> first = Optional.empty();
+    int matchCount = 0;
     for (TableQueryRow<C> candidate : mountedRows()) {
       if (condition.test(candidate)) {
-        if (first.isPresent()) {
-          throw new TableRowAmbiguousException("query condition", 2);
+        matchCount++;
+        if (first.isEmpty()) {
+          first = Optional.of(candidate);
         }
-        first = Optional.of(candidate);
       }
+    }
+    if (matchCount > 1) {
+      throw new TableRowAmbiguousException("query condition", matchCount);
     }
     return first.orElseThrow(() -> new TableRowNotFoundException("unique query condition"));
   }
 
   /** Waits for a match and then requires exactly one currently mounted matching row. */
   public TableQueryRow<C> uniqueRow(RowCondition<C> condition, Duration timeout) {
-    requiredRow(condition, timeout);
-    return uniqueRow(condition);
+    Objects.requireNonNull(condition, "condition");
+    Objects.requireNonNull(timeout, "timeout");
+    int matchedIndex = model.requiredUniqueRowIndex(
+        (index, candidate) -> condition.test(conditionRow(index, candidate)),
+        "unique query condition", timeout);
+    return rowReference(matchedIndex);
   }
 
   private TableQueryRow<C> rowReference(int index) {

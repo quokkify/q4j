@@ -24,8 +24,7 @@ public class SelenideRowConditionSnapshotTest extends BaseTest {
 
   @Test(description = "Native row waits keep cell reads bound to the current candidate snapshot")
   public void keepsRowConditionCellReadsInsideOneSnapshot() {
-    String baseUrl = System.getenv().getOrDefault("NGINX_BASE_URL", "http://localhost");
-    Selenide.open(baseUrl + "/table-model-contract/");
+    openQueriesFixture();
 
     SelenideDomTableModel<Header> model = SelenideDomTableModel.of(
         Selenide.$("#query-classic"), TableDomAdapters.classic(), header -> header.displayed);

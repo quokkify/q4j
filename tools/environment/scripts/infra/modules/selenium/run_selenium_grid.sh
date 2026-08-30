@@ -40,8 +40,15 @@ if [[ "${CI:-}" == "true" ]]; then
   rm -f "$tmp_config"
   export SELENIUM_GRID_MOUNT
 else
-  export SELENIUM_GRID_MOUNT="$(pwd)/tools/environment/assets/selenium-grid"
-  render_config "$CONFIG_PATH" "${SELENIUM_GRID_MOUNT}/config.toml"
+  repo_root="$(pwd)" || exit 1
+  export SELENIUM_GRID_MOUNT="${repo_root}/tools/environment/assets/selenium-grid/generated"
+  install -d -m 0755 "$SELENIUM_GRID_MOUNT"
+  chmod 0755 "$SELENIUM_GRID_MOUNT"
+  tmp_config="$(mktemp)"
+  trap 'rm -f "$tmp_config"' EXIT
+  render_config "$CONFIG_PATH" "$tmp_config"
+  chmod 0644 "$tmp_config"
+  mv "$tmp_config" "${SELENIUM_GRID_MOUNT}/config.toml"
 fi
 
 extract_grid_image_tag() {

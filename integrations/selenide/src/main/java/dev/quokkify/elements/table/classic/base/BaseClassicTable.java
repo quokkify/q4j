@@ -11,6 +11,7 @@ import java.util.stream.Collectors;
 
 import dev.quokkify.elements.base.BaseTable;
 import dev.quokkify.elements.table.classic.Row;
+import dev.quokkify.elements.table.model.TableRowNotFoundException;
 import dev.quokkify.ex.TableRowException;
 import dev.quokkify.html.model.HtmlTag;
 
@@ -297,7 +298,7 @@ public abstract class BaseClassicTable<T extends Enum<T>> extends BaseTable<T> {
   public Row<T> getFirstRow() {
     return getAllRows().stream()
         .findFirst()
-        .orElseThrow(() -> new RuntimeException("No rows found"));
+        .orElseThrow(() -> new TableRowNotFoundException("first row"));
   }
 
   /**
