@@ -213,8 +213,23 @@ List<? extends TypedTableCellRef<Header>> companies =
 ```
 
 `row(int)`, `cell(int, int)`, and `column(int)` use zero-based indexes. Typed access uses the
-caller-supplied `DisplayedHeaderResolver`; there is no implicit string-header overload. A table
-whose key type is `String` must opt in with an explicit identity resolver.
+caller-supplied `DisplayedHeaderResolver`. For the common String-first Page Object path, use the
+public `SelenideDataTable` component directly:
+
+```java
+@FindBy(id = "customers")
+private SelenideDataTable customers;
+
+customers.requiredRow(RowConditions.exact("Company", "Alfreds"))
+    .requiredCell("Country")
+    .shouldHave(Condition.exactText("Austria"));
+
+customers.shouldHaveRow(Map.of("Company", "Alfreds", "Country", "Austria"));
+```
+
+`SelenideTableQuery.byHeaderText(element, adapter)` is the explicit factory for String identities;
+`TableDomAdapters.of(...)` remains available for custom markup. Typed keys and the released enum
+table API remain compatible and are optional.
 
 `mountedRows()` includes hidden DOM rows, while `visibleRows()` filters them using Selenide's
 displayed state. `findRow(...)` returns the first match, `findRows(...)` returns all matches in DOM

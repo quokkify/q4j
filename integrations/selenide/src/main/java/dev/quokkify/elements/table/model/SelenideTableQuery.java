@@ -10,6 +10,8 @@ import java.util.function.Function;
 
 import com.codeborne.selenide.SelenideElement;
 
+import static com.codeborne.selenide.Configuration.timeout;
+
 /**
  * Additive Selenide query layer over the framework-neutral table model.
  *
@@ -31,6 +33,11 @@ public final class SelenideTableQuery<C> {
     SelenideDomTableModel<C> model = SelenideDomTableModel.of(table, adapter,
         DisplayedHeaderResolver.requiringNonNull(displayedHeader));
     return new SelenideTableQuery<>(model);
+  }
+
+  /** Creates a String-keyed query whose keys are the exact displayed header text. */
+  public static SelenideTableQuery<String> byHeaderText(SelenideElement table, TableDomAdapter adapter) {
+    return of(table, adapter, Function.identity());
   }
 
   /** Returns every currently mounted row, including rows hidden by CSS. */
@@ -132,7 +139,7 @@ public final class SelenideTableQuery<C> {
 
   /** Requires the first currently mounted matching row. */
   public TableQueryRow<C> requiredRow(RowCondition<C> condition) {
-    return findRow(condition).orElseThrow(() -> new TableRowNotFoundException("query condition"));
+    return requiredRow(condition, Duration.ofMillis(timeout));
   }
 
   /** Requires the first matching row using the model's native Selenide wait. */
