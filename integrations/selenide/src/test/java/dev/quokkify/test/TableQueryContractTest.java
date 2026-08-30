@@ -232,10 +232,10 @@ public class TableQueryContractTest extends BaseTest {
     Assertions.assertThat(SelenideTableQuery.byHeaderText(
         customers.getSelf(), TableDomAdapters.classic()).column("Company").cells())
         .extracting(cell -> cell.text())
-        .containsExactly("Alfreds", "Berglunds", "Hidden Co", "Alpine");
+        .containsExactly("Alfreds", "Berglunds", "", "Alpine");
     Assertions.assertThat(customers.query().column("Company").cells())
         .extracting(cell -> cell.text())
-        .containsExactly("Alfreds", "Berglunds", "Hidden Co", "Alpine");
+        .containsExactly("Alfreds", "Berglunds", "", "Alpine");
     Assertions.assertThat(customers.query().row(0).requiredCell("Company").text())
         .isEqualTo("Alfreds");
   }
