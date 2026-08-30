@@ -1,10 +1,13 @@
 package dev.quokkify.test;
 
 import java.time.Duration;
+import java.util.Map;
 import java.util.stream.IntStream;
 
 import dev.quokkify.elements.table.classic.FlexTable;
+import dev.quokkify.elements.table.classic.SelenideDataTable;
 import dev.quokkify.elements.table.classic.Table;
+import dev.quokkify.elements.table.model.TableColumnAmbiguousException;
 import dev.quokkify.elements.table.model.RowConditions;
 import dev.quokkify.elements.table.model.SelenideTableQuery;
 import dev.quokkify.elements.table.model.TableColumnNotFoundException;
@@ -15,6 +18,7 @@ import dev.quokkify.elements.table.model.TypedTableCellRef;
 import dev.quokkify.elements.table.model.TypedTableColumnRef;
 
 import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.SelenideElement;
 import org.assertj.core.api.Assertions;
 import org.openqa.selenium.support.FindBy;
@@ -221,6 +225,61 @@ public class TableQueryContractTest extends BaseTest {
         .containsExactly("Alfreds", "Berglunds", "", "Alpine");
   }
 
+  @Test(description = "String-first data table is injected by Selenide and resolves exact displayed headers")
+  public void supportsFindByStringFirstComponent() {
+    SelenideDataTable customers = page.customers;
+
+    Assertions.assertThat(customers.query().column("Company").cells())
+        .extracting(cell -> cell.text())
+        .containsExactly("Alfreds", "Berglunds", "Hidden Co", "Alpine");
+    Assertions.assertThat(customers.query().row(0).requiredCell("Company").text())
+        .isEqualTo("Alfreds");
+  }
+
+  @Test(description = "String-first table supports map shortcuts and composed native cell assertions")
+  public void supportsMapShortcutsAndRowConditions() {
+    SelenideDataTable customers = page.customers;
+
+    Assertions.assertThat(customers.requiredRow(Map.of("Company", "Berglunds", "Country", "Germany"))
+        .requiredCell("Employees").text()).isEqualTo("20");
+    customers.shouldHave(Map.of("Company", "Alfreds", "Country", "Austria"));
+    customers.query().requiredRow(RowConditions.exact("Company", "Alfreds"))
+        .shouldHave(SelenideDataTable.rowConditions(Map.of(
+            "Company", Condition.exactTextCaseSensitive("Alfreds"),
+            "Country", Condition.exactTextCaseSensitive("Austria"))));
+  }
+
+  @Test(description = "String-first row lookup waits for delayed rendering and survives table remount")
+  public void waitsForDelayedRowsAndResolvesRemountedRoot() {
+    SelenideDataTable customers = page.customers;
+    Selenide.executeJavaScript("window.prepareDelayedQueryRow()");
+    Selenide.executeJavaScript("window.restoreDelayedQueryRow()");
+
+    var company = customers.requiredRow(Map.of("Company", "Berglunds"))
+        .requiredCell("Company");
+    Selenide.executeJavaScript("window.remountQueryClassic()");
+
+    Assertions.assertThat(company.text()).isEqualTo("Berglunds");
+  }
+
+  @Test(description = "String-first headers fail deterministically for missing and duplicate displayed names")
+  public void reportsMissingDuplicateAndNullHeaders() {
+    SelenideDataTable customers = page.customers;
+
+    Assertions.assertThatThrownBy(() -> customers.query().column("Missing"))
+        .isInstanceOf(TableColumnNotFoundException.class)
+        .hasMessageContaining("Missing")
+        .hasMessageContaining("[Country, Company, Employees]");
+    Selenide.executeJavaScript("document.querySelector('#query-classic thead th').textContent = 'Company'");
+    Assertions.assertThatThrownBy(() -> customers.query().column("Company"))
+        .isInstanceOf(TableColumnAmbiguousException.class)
+        .hasMessageContaining("Company")
+        .hasMessageContaining("[Company, Company, Employees]");
+    Assertions.assertThatThrownBy(() -> customers.query().column((String) null))
+        .isInstanceOf(NullPointerException.class)
+        .hasMessageContaining("column");
+  }
+
   private static final class FixturePage {
     @FindBy(how = How.ID, using = "query-classic")
     private Table<Header> classic;
@@ -228,5 +287,7 @@ public class TableQueryContractTest extends BaseTest {
     private FlexTable<Header> flex;
     @FindBy(how = How.ID, using = "query-horizontal")
     private SelenideElement horizontal;
+    @FindBy(how = How.ID, using = "query-classic")
+    private SelenideDataTable customers;
   }
 }
