@@ -8,3 +8,5 @@ dependencies {
     api "org.apache.logging.log4j:log4j-core"
     api "org.apache.logging.log4j:log4j-slf4j2-impl"
 }
+
+apply from: 'gradle/codegen.gradle'

@@ -30,7 +30,9 @@ public final class TableQueryRow<C> {
 
   /** Returns a required cell addressed by its zero-based index. */
   public TableCellRef<C> cell(int columnIndex) {
-    indexedRow().cellText(columnIndex).orElseThrow(() -> new IndexOutOfBoundsException(columnIndex));
+    if (columnIndex < 0) {
+      throw new IndexOutOfBoundsException(columnIndex);
+    }
     return new IndexedCellReference(columnIndex);
   }
 

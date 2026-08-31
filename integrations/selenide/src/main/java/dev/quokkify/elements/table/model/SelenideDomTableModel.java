@@ -72,6 +72,9 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
     if (!table.exists()) {
       return List.of();
     }
+    // Keep the collection shape stable for this returned view. Row references still resolve
+    // their element lazily, so remount-safe handles are not sacrificed for this snapshot.
+    int rowCount = rowsElements().size();
     return new AbstractList<>() {
       @Override
       public TableRow<C> get(int index) {
@@ -83,7 +86,7 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
 
       @Override
       public int size() {
-        return rowsElements().size();
+        return rowCount;
       }
     };
   }
@@ -102,6 +105,21 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
     } catch (UIAssertionError error) {
       TableRowNotFoundException failure = new TableRowNotFoundException(
           description + "; timeout=" + timeout);
+      failure.initCause(error);
+      throw failure;
+    }
+  }
+
+  int requiredUniqueRowIndex(BiPredicate<Integer, TableRow<C>> predicate,
+                             String description, Duration timeout) {
+    UniqueTableCondition condition = new UniqueTableCondition(predicate, description);
+    try {
+      table.shouldBe(condition, timeout);
+      return condition.matchedIndex();
+    } catch (UIAssertionError error) {
+      RuntimeException failure = condition.matchCount() > 1
+          ? new TableRowAmbiguousException(description, condition.matchCount())
+          : new TableRowNotFoundException(description + "; timeout=" + timeout);
       failure.initCause(error);
       throw failure;
     }
@@ -286,6 +304,53 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
     }
   }
 
+  private final class UniqueTableCondition extends WebElementCondition {
+    private final BiPredicate<Integer, TableRow<C>> predicate;
+    private int matchedIndex = -1;
+    private int matchCount;
+
+    private UniqueTableCondition(BiPredicate<Integer, TableRow<C>> predicate, String description) {
+      super(description);
+      this.predicate = predicate;
+    }
+
+    @Override
+    public CheckResult check(Driver driver, WebElement tableElement) {
+      try {
+        matchedIndex = -1;
+        matchCount = 0;
+        List<WebElement> rowElements = tableElement.findElements(adapter.mountedDataRowLocator());
+        for (int index = 0; index < rowElements.size(); index++) {
+          WebElement rowElement = rowElements.get(index);
+          TableRow<C> candidate = new SelenideRow(
+              () -> WebElementWrapper.wrap(driver, rowElement, "table row candidate"));
+          if (predicate.test(index, candidate)) {
+            matchCount++;
+            matchedIndex = index;
+          }
+        }
+        if (matchCount == 1) {
+          return CheckResult.accepted("matched exactly one row");
+        }
+        return CheckResult.rejected("expected one row, found " + matchCount,
+            "table is not uniquely matched yet");
+      } catch (NoSuchElementException | StaleElementReferenceException error) {
+        return CheckResult.rejected(error.toString(), "table changed while checking rows");
+      }
+    }
+
+    private int matchedIndex() {
+      if (matchedIndex < 0) {
+        throw new NoSuchElementException("table has no unique matching data row");
+      }
+      return matchedIndex;
+    }
+
+    private int matchCount() {
+      return matchCount;
+    }
+  }
+
   private final class SelenideRow implements IndexedTableRow<C> {
     private final Supplier<SelenideElement> row;
 
@@ -298,7 +363,13 @@ public final class SelenideDomTableModel<C> implements TableModel<C> {
       int index;
       if (adapter.headerLocator() instanceof RowHeaderCellLocator headers) {
         String expected = resolver.displayedHeader(column);
-        SelenideDomTableModel.this.columnIndex(column, resolver);
+        try {
+          // Resolve table-wide so duplicate horizontal headers remain ambiguous. A missing
+          // header is normal while asynchronously-mounted rows are still loading.
+          SelenideDomTableModel.this.columnIndex(column, resolver);
+        } catch (TableColumnNotFoundException ignored) {
+          return Optional.empty();
+        }
         if (!row.get().findAll(headers.headerCellLocator()).texts().contains(expected)) {
           return Optional.empty();
         }

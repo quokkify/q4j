@@ -27,6 +27,7 @@ subprojects {
             api rootProject.libs.awaitility
             api rootProject.libs.testng
             api rootProject.libs.allure.testng
+            api rootProject.libs.commons.io
             api rootProject.libs.commons.lang3
             api rootProject.libs.commons.text
             api rootProject.libs.mockito.core

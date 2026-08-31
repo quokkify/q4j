@@ -14,6 +14,7 @@ import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.ex.UIAssertionError;
 import io.qameta.allure.TmsLink;
 import org.assertj.core.api.Assertions;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 public class TableRowWaitTest extends BaseTest {
@@ -22,6 +23,15 @@ public class TableRowWaitTest extends BaseTest {
   private static final String LATE_MOUNTING_TABLE_FIXTURE_PATH = "/table/late-mounting-table.html";
   private static final Duration TIMEOUT = Duration.ofSeconds(5);
   private static final Duration SHORT_TIMEOUT = Duration.ofMillis(600);
+  private static final Duration NON_WAITING_TIMEOUT = Duration.ofSeconds(1);
+
+  @DataProvider(name = "tableModelContractIterations", parallel = false)
+  public Object[][] tableModelContractIterations() {
+    int repetitions = Integer.parseInt(System.getProperty("tableModel.contract.repetitions", "1"));
+    return java.util.stream.IntStream.rangeClosed(1, repetitions)
+        .mapToObj(iteration -> new Object[] {"iteration-%02d".formatted(iteration)})
+        .toArray(Object[][]::new);
+  }
 
   @TmsLink("UI_ID_7")
   @Test(description = "Verify 'TABLE' row search waits for a row appearing with a delay")
@@ -63,9 +73,10 @@ public class TableRowWaitTest extends BaseTest {
   }
 
   @TmsLink("UI_ID_10")
-  @Test(description = "Verify 'DYNAMIC HORIZONTAL TABLE' row search waits for a row appearing with a delay "
+  @Test(dataProvider = "tableModelContractIterations",
+      description = "Verify 'DYNAMIC HORIZONTAL TABLE' row search waits for a row appearing with a delay "
       + "(regression for the column-index lookup throwing before the header renders)")
-  public void testDynamicHorizontalTableRowAppearingWithDelayIsFound() {
+  public void testDynamicHorizontalTableRowAppearingWithDelayIsFound(String iteration) {
     DelayedTablePage page = openDelayedTablePage();
 
     page.getDynamicHorizontalTableRow(DelayedTablePage.DynamicHorizontalHeader.TELEPHONE_2, TIMEOUT)
@@ -142,7 +153,7 @@ public class TableRowWaitTest extends BaseTest {
     Assertions.assertThat(rowExists).as("Row should not be visible yet").isFalse();
     Assertions.assertThat(Duration.between(start, Instant.now()))
         .as("isRowExist must not wait for an unmounted table")
-        .isLessThan(SHORT_TIMEOUT);
+        .isLessThan(NON_WAITING_TIMEOUT);
   }
 
   @TmsLink("UI_ID_18")
@@ -198,7 +209,7 @@ public class TableRowWaitTest extends BaseTest {
 
     Assertions.assertThat(page.isLateTableRowExist(LateMountingTablePage.Header.COMPANY, "Ernst Handel"))
         .isFalse();
-    Assertions.assertThat(Duration.between(start, Instant.now())).isLessThan(SHORT_TIMEOUT);
+    Assertions.assertThat(Duration.between(start, Instant.now())).isLessThan(NON_WAITING_TIMEOUT);
   }
 
   @Test(description = "Verify a returned TABLE row resolves itself again after the table root is replaced")

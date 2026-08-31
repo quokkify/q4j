@@ -1,0 +1,110 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Classic table edge cases</title>
+    <style>
+      body {
+        font-family: arial, sans-serif;
+        margin: 2rem auto;
+        max-width: 70rem;
+        padding: 0 1rem;
+      }
+      h1 {
+        font-size: 1.6rem;
+        margin-bottom: 0.25rem;
+      }
+      p.overview {
+        color: #555;
+        margin-top: 0;
+        max-width: 60rem;
+      }
+      table {
+        border-collapse: collapse;
+        margin: 1rem 0 2rem;
+        width: 100%;
+      }
+      th,
+      td {
+        border: 1px solid #ddd;
+        padding: 8px;
+        text-align: left;
+      }
+      th {
+        background: #f4f4f4;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Classic table edge cases</h1>
+    <p class="overview">
+      Verifies classic-format tables with structural quirks: a
+      <code>repeated-table</code> with a duplicate column header (ambiguous
+      header), a <code>body-only-classic</code> table whose header row lives
+      inside <code>&lt;tbody&gt;</code>, and a <code>nested-classic</code>
+      table embedding a child table whose rows the adapter must not leak into
+      the outer model.
+    </p>
+
+    <table id="repeated-table">
+      <thead>
+        <tr>
+          <th>Country</th>
+          <th>Company</th>
+          <th>Company</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Austria</td>
+          <td>Alfreds</td>
+          <td>Duplicate</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table id="body-only-classic">
+      <tbody>
+        <tr>
+          <th>Country</th>
+          <th>Company</th>
+        </tr>
+        <tr>
+          <th scope="row">Austria</th>
+          <td>Alfreds</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <table id="nested-classic">
+      <thead>
+        <tr>
+          <th>Country</th>
+          <th>Company</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Austria</td>
+          <td>
+            Outer
+            <table>
+              <thead>
+                <tr>
+                  <th>Country</th>
+                  <th>Company</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Nested</td>
+                  <td>Leak</td>
+                </tr>
+              </tbody>
+            </table>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </body>
+</html>
