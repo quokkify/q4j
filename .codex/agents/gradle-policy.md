@@ -13,22 +13,22 @@ Use this policy with every Q4J Gradle specialist. It is based on the repository 
 
 ## Guardrails
 
-1. Read `git status --short --branch`, the relevant build files, `settings.gradle`, and the applicable workflow before editing or judging.
+1. Read `git status --short --branch`, relevant build files, `settings.gradle`, and the applicable workflow before editing or judging.
 2. Keep changes minimal. Do not alter library behavior for an agent demonstration.
 3. For catalog work, parse TOML, confirm every `libs.*` accessor maps to an existing alias, and compare every migrated dependency coordinate and version. Check bundles, constraints, annotation processors, and non-default configurations.
-4. Search for stale implicit property lookups (`${property}`, bare `property`, and `ext {}` definitions) in the touched Gradle surface. Do not remove a property still used elsewhere.
+4. Search for stale implicit property lookups in the touched Gradle surface. Do not remove a property still used elsewhere.
 5. Preserve generated code semantics: verify code-generation scripts, source sets, task dependencies, and generated-source inclusion.
-6. Validate in stages: `./gradlew projects`; the smallest affected `:module:compileJava` or `:module:check`; then the relevant test/check tasks. Use `--no-daemon --console=plain --stacktrace` for reproducible evidence.
-7. Use `./gradlew check` only when scope and environment permit. Report skipped tests explicitly; never call a service outage a passing check.
-8. Always run `git diff --check`. For review, record local HEAD and (when remote access exists) the PR head SHA separately. GitHub checks, review comments, and unresolved threads are separate evidence sources.
-9. Stop on missing credentials, destructive requests, unexplained dependency/version drift, or an external service failure that prevents a meaningful conclusion. Escalate instead of guessing.
+6. Validate in stages: `./gradlew projects`; the smallest affected compile/check; then relevant test/check tasks. Use `--no-daemon --console=plain --stacktrace` for reproducible evidence.
+7. Report skipped tests explicitly; never call a service outage a passing check.
+8. Always run `git diff --check`. Record local and remote/exact-head identity separately.
+9. Stop on missing credentials, destructive requests, unexplained version drift, or an external service failure that prevents a meaningful conclusion.
 
 ## Failure classification
 
-- Configuration/accessor/TOML/parser error: code defect; fix or report exact file and message.
-- Compilation/static-analysis/test assertion failure: code defect unless independently shown to be environmental.
-- Connection refused, authentication failure, timeout, or unavailable Kafka/Redis/etc.: external prerequisite; preserve the failure and identify the service.
-- CI status for a different commit: stale evidence; do not use it for the current head.
+- Configuration/accessor/TOML/parser error: code defect.
+- Compilation/static-analysis/test assertion failure: code defect unless independently shown environmental.
+- Connection refusal, authentication failure, timeout, or unavailable Kafka/Redis/etc.: external prerequisite.
+- CI status for a different commit: stale evidence.
 
 ## Handoff schema
 
