@@ -3,12 +3,12 @@ description = "Extensions for TestNG"
 dependencies {
     implementation project(":common-utils:core")
     implementation project(":common-utils:config")
-    api "io.qameta.allure:allure-testng:${allure}"
-    api "org.testng:testng:${testng}"
+    api libs.allure.testng
+    api libs.testng
     api "org.apache.logging.log4j:log4j-slf4j2-impl"
     api "org.slf4j:jcl-over-slf4j"
     api "org.slf4j:slf4j-api"
 
-    implementation "org.assertj:assertj-core:${assertj}"
-    implementation "org.hamcrest:hamcrest:${hamcrest}"
+    implementation libs.assertj.core
+    implementation libs.hamcrest
 }

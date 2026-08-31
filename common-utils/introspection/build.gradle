@@ -1,4 +1,4 @@
 dependencies {
-    implementation "org.reflections:reflections:${reflections}"
-    implementation "io.github.classgraph:classgraph:${classgraph}"
+    implementation libs.reflections
+    implementation libs.classgraph
 }

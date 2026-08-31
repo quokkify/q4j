@@ -7,5 +7,5 @@ dependencies {
     implementation project(":testng-extensions")
     api "org.apache.commons:commons-lang3"
 
-    implementation "io.qameta.allure:allure-testng:${allure}"
+    implementation libs.allure.testng
 }

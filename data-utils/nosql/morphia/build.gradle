@@ -3,7 +3,7 @@ dependencies {
     implementation project(":common-utils:awaitility")
     implementation project(":testng-extensions")
 
-    api "io.qameta.allure:allure-java-commons:${allure}"
-    api "dev.morphia.morphia:morphia-core:${morphia}"
-    api "org.mongodb:mongodb-driver-sync:${mongodb_driver}"
+    api libs.allure.java.commons
+    api libs.morphia.core
+    api libs.mongodb.driver.sync
 }

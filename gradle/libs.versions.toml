@@ -1,0 +1,144 @@
+[versions]
+fasterxml-jackson = "2.22.2"
+aeonbits = "1.0.12"
+slf4j = "2.0.18"
+log4j = "2.26.1"
+assertj = "3.27.7"
+hamcrest = "3.0"
+awaitility = "4.3.0"
+testng = "7.12.0"
+allure = "2.35.4"
+commons-io = "2.22.0"
+commons-lang3 = "3.20.0"
+commons-text = "1.15.0"
+mockito = "5.23.0"
+jetbrains-annotations = "26.1.0"
+spotbugs-annotations = "4.10.4"
+modelmapper = "3.2.6"
+faker = "2.7.0"
+jcabi-ssh = "1.9.0"
+htmlcleaner = "2.29"
+guava = "33.7.1-jre"
+reflections = "0.10.2"
+classgraph = "4.8.194"
+jjwt = "0.13.0"
+bouncy-castle = "1.85.2"
+morphia = "2.5.3"
+mongodb-driver = "5.10.0"
+redisson = "4.7.0"
+hibernate = "7.4.6.Final"
+hibernate-type = "3.15.5"
+jakarta-persistence-api = "3.2.0"
+querydsl = "5.1.0"
+h2 = "2.4.240"
+jira-rest-client = "7.0.2"
+fugue = "6.1.5"
+kafka = "4.3.1"
+rabbitmq = "5.35.0"
+reportportal = "5.4.3"
+jjschema = "1.16"
+rest-assured = "6.0.1"
+selenide = "7.18.0"
+feign = "13.14"
+tyrus = "2.2.2"
+
+[libraries]
+# Jackson BOM
+jackson-bom = { module = "com.fasterxml.jackson:jackson-bom", version.ref = "fasterxml-jackson" }
+# Aeonbits Owner
+owner = { module = "org.aeonbits.owner:owner", version.ref = "aeonbits" }
+# SLF4J
+slf4j-api = { module = "org.slf4j:slf4j-api", version.ref = "slf4j" }
+slf4j-jcl = { module = "org.slf4j:jcl-over-slf4j", version.ref = "slf4j" }
+# Log4j 2
+log4j-api = { module = "org.apache.logging.log4j:log4j-api", version.ref = "log4j" }
+log4j-core = { module = "org.apache.logging.log4j:log4j-core", version.ref = "log4j" }
+log4j-slf4j2-impl = { module = "org.apache.logging.log4j:log4j-slf4j2-impl", version.ref = "log4j" }
+# AssertJ
+assertj-core = { module = "org.assertj:assertj-core", version.ref = "assertj" }
+# Hamcrest
+hamcrest = { module = "org.hamcrest:hamcrest", version.ref = "hamcrest" }
+# Awaitility
+awaitility = { module = "org.awaitility:awaitility", version.ref = "awaitility" }
+# TestNG
+testng = { module = "org.testng:testng", version.ref = "testng" }
+# Allure
+allure-testng = { module = "io.qameta.allure:allure-testng", version.ref = "allure" }
+allure-selenide = { module = "io.qameta.allure:allure-selenide", version.ref = "allure" }
+allure-rest-assured = { module = "io.qameta.allure:allure-rest-assured", version.ref = "allure" }
+allure-java-commons = { module = "io.qameta.allure:allure-java-commons", version.ref = "allure" }
+# Commons
+commons-io = { module = "commons-io:commons-io", version.ref = "commons-io" }
+commons-lang3 = { module = "org.apache.commons:commons-lang3", version.ref = "commons-lang3" }
+commons-text = { module = "org.apache.commons:commons-text", version.ref = "commons-text" }
+# Mockito
+mockito-core = { module = "org.mockito:mockito-core", version.ref = "mockito" }
+# JetBrains annotations
+jetbrains-annotations = { module = "org.jetbrains:annotations", version.ref = "jetbrains-annotations" }
+# SpotBugs annotations
+spotbugs-annotations = { module = "com.github.spotbugs:spotbugs-annotations", version.ref = "spotbugs-annotations" }
+# ModelMapper
+modelmapper = { module = "org.modelmapper:modelmapper", version.ref = "modelmapper" }
+# Faker
+faker = { module = "net.datafaker:datafaker", version.ref = "faker" }
+# JCabi SSH
+jcabi-ssh = { module = "com.jcabi:jcabi-ssh", version.ref = "jcabi-ssh" }
+# HtmlCleaner
+htmlcleaner = { module = "net.sourceforge.htmlcleaner:htmlcleaner", version.ref = "htmlcleaner" }
+# Guava
+guava = { module = "com.google.guava:guava", version.ref = "guava" }
+# Reflections
+reflections = { module = "org.reflections:reflections", version.ref = "reflections" }
+# ClassGraph
+classgraph = { module = "io.github.classgraph:classgraph", version.ref = "classgraph" }
+# JJWT
+jjwt-api = { module = "io.jsonwebtoken:jjwt-api", version.ref = "jjwt" }
+jjwt-impl = { module = "io.jsonwebtoken:jjwt-impl", version.ref = "jjwt" }
+jjwt-jackson = { module = "io.jsonwebtoken:jjwt-jackson", version.ref = "jjwt" }
+# Bouncy Castle
+bouncy-castle = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bouncy-castle" }
+# Morphia
+morphia-core = { module = "dev.morphia.morphia:morphia-core", version.ref = "morphia" }
+# MongoDB Driver
+mongodb-driver-sync = { module = "org.mongodb:mongodb-driver-sync", version.ref = "mongodb-driver" }
+# Redisson
+redisson = { module = "org.redisson:redisson", version.ref = "redisson" }
+# Hibernate
+hibernate-core = { module = "org.hibernate.orm:hibernate-core", version.ref = "hibernate" }
+hibernate-c3p0 = { module = "org.hibernate.orm:hibernate-c3p0", version.ref = "hibernate" }
+# Hibernate Type
+hibernate-type = { module = "io.hypersistence:hypersistence-utils-hibernate-73", version.ref = "hibernate-type" }
+# Jakarta Persistence API
+jakarta-persistence-api = { module = "jakarta.persistence:jakarta.persistence-api", version.ref = "jakarta-persistence-api" }
+# QueryDSL
+querydsl-jpa = { module = "com.querydsl:querydsl-jpa", version.ref = "querydsl" }
+querydsl-apt = { module = "com.querydsl:querydsl-apt", version.ref = "querydsl" }
+# H2
+h2 = { module = "com.h2database:h2", version.ref = "h2" }
+# Jira REST Client
+jira-rest-client-core = { module = "com.atlassian.jira:jira-rest-java-client-core", version.ref = "jira-rest-client" }
+jira-rest-client-api = { module = "com.atlassian.jira:jira-rest-java-client-api", version.ref = "jira-rest-client" }
+# Fugue
+fugue = { module = "io.atlassian.fugue:fugue", version.ref = "fugue" }
+# Kafka
+kafka-clients = { module = "org.apache.kafka:kafka-clients", version.ref = "kafka" }
+# RabbitMQ
+rabbitmq = { module = "com.rabbitmq:amqp-client", version.ref = "rabbitmq" }
+# ReportPortal
+reportportal = { module = "com.epam.reportportal:agent-java-testng", version.ref = "reportportal" }
+# JJSchema
+jjschema = { module = "com.github.reinert:jjschema", version.ref = "jjschema" }
+# Rest Assured
+rest-assured = { module = "io.rest-assured:rest-assured", version.ref = "rest-assured" }
+json-schema-validator = { module = "io.rest-assured:json-schema-validator", version.ref = "rest-assured" }
+# Selenide
+selenide = { module = "com.codeborne:selenide", version.ref = "selenide" }
+selenide-grid = { module = "com.codeborne:selenide-grid", version.ref = "selenide" }
+selenide-proxy = { module = "com.codeborne:selenide-proxy", version.ref = "selenide" }
+# OpenFeign
+feign-core = { module = "io.github.openfeign:feign-core", version.ref = "feign" }
+feign-jackson = { module = "io.github.openfeign:feign-jackson", version.ref = "feign" }
+feign-okhttp = { module = "io.github.openfeign:feign-okhttp", version.ref = "feign" }
+# Tyrus
+tyrus-standalone-client = { module = "org.glassfish.tyrus.bundles:tyrus-standalone-client", version.ref = "tyrus" }
+tyrus-container-grizzly-server = { module = "org.glassfish.tyrus:tyrus-container-grizzly-server", version.ref = "tyrus" }

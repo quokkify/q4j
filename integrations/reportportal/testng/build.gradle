@@ -6,10 +6,10 @@ dependencies {
     implementation project(":common-utils:config")
     implementation project(":testng-extensions")
 
-    implementation "com.epam.reportportal:agent-java-testng:${reportportal}"
-    implementation "io.qameta.allure:allure-testng:${allure}"
+    implementation libs.reportportal
+    implementation libs.allure.testng
     api "org.apache.commons:commons-lang3"
 
     testImplementation project(":integrations:rest-assured")
-    testImplementation "org.mockito:mockito-core"
+    testImplementation libs.mockito.core
 }

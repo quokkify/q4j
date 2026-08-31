@@ -9,6 +9,6 @@ dependencies {
     implementation project(":common-utils:introspection")
     implementation project(":testng-extensions")
 
-    implementation "org.apache.kafka:kafka-clients:${kafka}"
+    implementation libs.kafka.clients
     api "org.apache.commons:commons-lang3"
 }

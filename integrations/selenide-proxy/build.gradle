@@ -5,9 +5,9 @@ dependencies {
     implementation project(":common-utils:config")
     compileOnly project(":testng-extensions")
 
-    api "com.codeborne:selenide-proxy:${selenide}"
+    api libs.selenide.proxy
     testImplementation project(":testng-extensions")
-    testImplementation "io.qameta.allure:allure-testng:${allure}"
+    testImplementation libs.allure.testng
 
     api "org.assertj:assertj-core"
 }
