@@ -1,0 +1,1 @@
+{"id":"afd0b837d43e69cd47395a6b68560842","fullName":"dev.quokkify.reportportal.test.ReportPortalConnectionTest.shouldSendTextLogToReportPortal","name":"Verify text log can be sent to ReportPortal and returns log entry ID","status":"passed","testResultsByEnv":{"integrations-reportportal-testng":"27efc44048372ca0552ec19810b78ca2"}}

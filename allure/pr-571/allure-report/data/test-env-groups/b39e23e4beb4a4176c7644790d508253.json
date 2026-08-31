@@ -1,0 +1,1 @@
+{"id":"b39e23e4beb4a4176c7644790d508253","fullName":"dev.quokkify.test.AllureFailureDemoTest.demonstrateAllureSelenideFailureAttachments","name":"INTENTIONAL FAILURE DEMO: show Selenide screenshot and page-source attachments","status":"failed","testResultsByEnv":{"integrations-selenide":"1e9b70829007b5c693eda118d2ce441f"}}
