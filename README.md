@@ -271,3 +271,5 @@ Issues and pull requests are welcome. Keep changes focused on one module or shar
 ## 📄 License
 
 Q4J is available under the [MIT License](LICENSE).
+
+<!-- Allure report pipeline canary -->
