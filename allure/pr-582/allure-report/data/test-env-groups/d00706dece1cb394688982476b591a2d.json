@@ -1,0 +1,1 @@
+{"id":"d00706dece1cb394688982476b591a2d","fullName":"dev.quokkify.model.JsonPojoTest.testSetEachAtThrowsWhenNotArray","name":"Verify set value in each array element rejects non array node","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"d71e31913ae1492d0348b0ff06405384"}}

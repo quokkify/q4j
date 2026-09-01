@@ -1,0 +1,1 @@
+{"id":"a45edf452c8e2b02aca3f50894603467","fullName":"dev.quokkify.model.JsonPojoTest.testFindFirstObjectByFieldValueWithNullValue","name":"Verify find first object by null field value returns empty without exception","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"cd8a47bcc63e82c0a5af96c5151e4f25"}}
