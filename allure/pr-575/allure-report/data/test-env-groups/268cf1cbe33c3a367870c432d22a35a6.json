@@ -1,0 +1,1 @@
+{"id":"268cf1cbe33c3a367870c432d22a35a6","fullName":"dev.quokkify.test.DropdownBehaviorTest.testTwoWidgetIsolation","name":"Verify selectPartial keeps widget selection isolated between two dropdown instances","status":"passed","testResultsByEnv":{"integrations-selenide":"1d23aa93cccd36b233d5de5defa1706d"}}
