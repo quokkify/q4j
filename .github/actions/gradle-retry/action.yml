@@ -1,9 +1,9 @@
 name: Gradle run with Maven Central 429 retry
 description: >
-  Runs a Gradle command and retries it only when the failure output matches a
-  transient Maven Central / repository resolution error (HTTP 429, "Could not
-  GET"/"Could not resolve"). Any other failure (compilation error, failing
-  test, etc.) is not retried and fails immediately.
+  Runs a Gradle command and retries it only when the failure output shows an
+  HTTP 429 (Too Many Requests) response from a repository. Any other failure
+  (404, DNS/connection error, compilation error, failing test, etc.) is not
+  retried and fails immediately.
 
 inputs:
   args:

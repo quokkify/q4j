@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Runs ./gradlew with the given task names/flags and retries only when the
-# failure output matches a transient Maven Central resolution error (HTTP 429,
-# "Could not GET"/"Could not resolve"). Any other failure (compilation error,
-# failing test, etc.) is not retried and fails immediately.
+# failure output shows an HTTP 429 (Too Many Requests) response from a
+# repository. Any other failure (404, DNS/connection error, compilation
+# error, failing test, etc.) is not retried and fails immediately.
 # Usage: gradle-retry.sh <gradle task/flags...>
 # Env: GRADLE_RETRY_MAX_ATTEMPTS (default 3), GRADLE_RETRY_INITIAL_DELAY_SECONDS (default 30)
 set -uo pipefail
@@ -27,7 +27,7 @@ while true; do
     exit "$status"
   fi
 
-  if ! grep -qE '429 |Too Many Requests|Could not GET |Could not resolve ' "$output"; then
+  if ! grep -qE 'status code 429|429 Too Many Requests|Too Many Requests' "$output"; then
     rm -f "$output"
     exit "$status"
   fi
