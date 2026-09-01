@@ -1,1 +1,1 @@
-{"id":"01b48a8ac6d073b40bb8556922136e89","fullName":"dev.quokkify.test.UiHorizontalTableTest.testTable","name":"Verify local HORIZONTAL TABLE and DYNAMIC HORIZONTAL TABLE rows","status":"passed","testResultsByEnv":{"integrations-selenide":"a3f69de0c4e6eb3212e9a78aa143437e"}}
+{"id":"01b48a8ac6d073b40bb8556922136e89","fullName":"dev.quokkify.test.UiHorizontalTableTest.testTable","name":"Verify local HORIZONTAL TABLE and DYNAMIC HORIZONTAL TABLE rows","status":"passed","testResultsByEnv":{"integrations-selenide":"3270a595a7b915853e0f9dc6d2226da0"}}
