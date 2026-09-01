@@ -1,0 +1,1 @@
+{"id":"7ed912eba6eeced299d5856e8dc5319b","fullName":"dev.quokkify.test.TableModelContractTest.waitsForLateRootMount","name":"Required lookup waits for a table root mounted after the initial DOM","status":"passed","testResultsByEnv":{"integrations-selenide":"cbe5bd9a29ce52797a2bc589a3262859"}}
