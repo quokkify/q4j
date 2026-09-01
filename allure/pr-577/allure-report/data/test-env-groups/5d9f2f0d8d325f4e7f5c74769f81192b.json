@@ -1,0 +1,1 @@
+{"id":"5d9f2f0d8d325f4e7f5c74769f81192b","fullName":"dev.quokkify.test.TableModelContractTest.supportsNestedClassicRoot","name":"Classic adapter can select a nested table as its own model root","status":"passed","testResultsByEnv":{"integrations-selenide":"bf826048b4cabd72b4db5f28b1b9c34a"}}
