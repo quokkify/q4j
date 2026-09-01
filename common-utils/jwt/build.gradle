@@ -1,13 +1,13 @@
 dependencies {
-    implementation platform("com.fasterxml.jackson:jackson-bom:${fasterxml_jackson}")
+    implementation platform(libs.jackson.bom)
     implementation project(":common-utils:core")
     implementation project(":common-utils:jackson:json")
     implementation project(":common-utils:signature")
     implementation project(":common-utils:config")
     testImplementation project(":testng-extensions")
-    implementation "io.jsonwebtoken:jjwt-api:${jjwt}"
-    runtimeOnly "io.jsonwebtoken:jjwt-impl:${jjwt}"
-    runtimeOnly "io.jsonwebtoken:jjwt-jackson:${jjwt}"
+    implementation libs.jjwt.api
+    runtimeOnly libs.jjwt.impl
+    runtimeOnly libs.jjwt.jackson
     api "net.datafaker:datafaker"
     api "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
     api "com.fasterxml.jackson.datatype:jackson-datatype-jdk8"

@@ -7,7 +7,7 @@ dependencies {
     implementation project(":common-utils:jackson:json")
     implementation project(":testng-extensions")
 
-    implementation "org.glassfish.tyrus.bundles:tyrus-standalone-client:${tyrus}"
+    implementation libs.tyrus.standalone.client
 
-    testImplementation "org.glassfish.tyrus:tyrus-container-grizzly-server:${tyrus}"
+    testImplementation libs.tyrus.container.grizzly.server
 }

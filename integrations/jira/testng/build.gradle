@@ -6,6 +6,6 @@ dependencies {
     implementation project(":common-utils:config")
     implementation project(":testng-extensions")
 
-    implementation "io.qameta.allure:allure-testng:${allure}"
+    implementation libs.allure.testng
     api "org.apache.commons:commons-lang3"
 }

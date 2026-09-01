@@ -4,17 +4,17 @@ dependencies {
     implementation project(":common-utils:config")
     api project(":common-utils:jackson:json")
     implementation project(":testng-extensions")
-    implementation "com.github.reinert:jjschema:${jjschema}"
+    implementation libs.jjschema
 
-    implementation "org.aeonbits.owner:owner:${aeonbits}"
-    api "io.rest-assured:rest-assured:${rest_assured}"
-    api "io.rest-assured:json-schema-validator:${rest_assured}"
-    api "io.qameta.allure:allure-rest-assured:${allure}"
+    implementation libs.owner
+    api libs.rest.assured
+    api libs.json.schema.validator
+    api libs.allure.rest.assured
 
-    testImplementation "io.qameta.allure:allure-testng:${allure}"
-    testImplementation "org.mockito:mockito-core"
+    testImplementation libs.allure.testng
+    testImplementation libs.mockito.core
 
-    implementation platform("com.fasterxml.jackson:jackson-bom:${fasterxml_jackson}")
+    implementation platform(libs.jackson.bom)
     api "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
     api "com.fasterxml.jackson.datatype:jackson-datatype-jsr310"
     api "org.assertj:assertj-core"

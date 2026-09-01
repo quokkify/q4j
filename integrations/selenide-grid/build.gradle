@@ -3,8 +3,8 @@ description = "Selenide Selenium Grid integration for remote WebDriver execution
 dependencies {
     implementation project(":integrations:selenide")
 
-    implementation "com.codeborne:selenide-grid:${selenide}"
-    testImplementation "io.qameta.allure:allure-testng:${allure}"
+    implementation libs.selenide.grid
+    testImplementation libs.allure.testng
 
     api "org.assertj:assertj-core"
 }

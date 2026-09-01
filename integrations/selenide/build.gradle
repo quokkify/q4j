@@ -16,12 +16,12 @@ dependencies {
     implementation project(":common-utils:awaitility")
     compileOnly project(":testng-extensions")
 
-    implementation "com.codeborne:selenide:${selenide}"
+    implementation libs.selenide
     testImplementation project(":testng-extensions")
     testImplementation project(":integrations:selenide-proxy")
-    testImplementation "io.qameta.allure:allure-selenide:${allure}"
-    testImplementation "io.qameta.allure:allure-testng:${allure}"
-    testImplementation "org.mockito:mockito-core"
+    testImplementation libs.allure.selenide
+    testImplementation libs.allure.testng
+    testImplementation libs.mockito.core
 
     api "org.assertj:assertj-core"
 }

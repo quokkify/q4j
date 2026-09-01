@@ -1,62 +1,3 @@
-ext {
-    aeonbits = "1.0.12"
-    assertj = "3.27.7"
-    jetbrains_annotations = "26.1.0"
-    hamcrest = "3.0"
-    testng = "7.12.0"
-    faker = "2.7.0"
-    selenide = "7.18.1"
-    aeonbits = "1.0.12"
-    log4j = "2.26.1"
-    slf4j = "2.0.18"
-    allure = "2.35.4"
-    httpcore5 = "5.4"
-    feign = "13.14"
-    restAssured = "5.5.1"
-    awaitility = "4.3.0"
-    spotbugs_annotations = "4.10.4"
-    bouncy_castle = "1.85.2"
-    snakeyaml = "2.2"
-    gson = "2.13.0"
-    htmlcleaner = "2.29"
-    guava = "33.7.1-jre"
-    googleauth = "1.5.0"
-    json = "20250107"
-    jira_rest_client_core = "7.0.2"
-    fugue = "6.1.5"
-    opencsv = "5.10"
-    commons_io = "2.22.0"
-    jcabi_ssh = "1.9.0"
-    modelmapper = "3.2.6"
-    aspectj = "1.9.24"
-    reflections = "0.10.2"
-    fasterxml_jackson = "2.22.2"
-    jakarta_xml = "4.0.2"
-    jakarta_activation = "2.1.3"
-    jaxb = "4.0.5"
-    guice = "7.0.0"
-    jjwt = "0.13.0"
-    rest_assured = "6.0.1"
-    jjschema = "1.16"
-    report_portal_rest_assured = "5.3.4"
-    report_portal_client_java = "5.2.15"
-    hibernate = "7.4.6.Final"
-    hibernate_type = "3.15.5"
-    jakarta_persistence_api = "3.2.0"
-    querydsl = "5.1.0"
-    jedis = "5.2.0"
-    redisson = "4.7.0"
-    morphia = "2.5.3"
-    mongodb_driver = "5.11.0"
-    reportportal = "5.4.3"
-    tyrus          = "2.2.2"
-    kafka          = "4.3.1"
-    rabbitmq = "5.35.0"
-    h2 = "2.4.240"
-    classgraph = "4.8.194"
-    mockito = "5.23.0"
-}
-
 subprojects {
     repositories {
         mavenCentral()
@@ -74,28 +15,28 @@ subprojects {
 
     dependencies {
         constraints {
-            api "com.fasterxml.jackson:jackson-bom:${fasterxml_jackson}"
-            api "org.aeonbits.owner:owner:${aeonbits}"
-            api "org.slf4j:slf4j-api:${slf4j}"
-            api "org.slf4j:jcl-over-slf4j:${slf4j}"
-            api "org.apache.logging.log4j:log4j-api:${log4j}"
-            api "org.apache.logging.log4j:log4j-core:${log4j}"
-            api "org.apache.logging.log4j:log4j-slf4j2-impl:${log4j}"
-            api "org.assertj:assertj-core:${assertj}"
-            api "org.hamcrest:hamcrest:${hamcrest}"
-            api "org.awaitility:awaitility:${awaitility}"
-            api "org.testng:testng:${testng}"
-            api "io.qameta.allure:allure-testng:${allure}"
-            api "commons-io:commons-io:${commons_io}"
-            api "org.apache.commons:commons-lang3:3.20.0"
-            api "org.apache.commons:commons-text:1.15.0"
-            api "org.mockito:mockito-core:${mockito}"
+            api rootProject.libs.jackson.bom
+            api rootProject.libs.owner
+            api rootProject.libs.slf4j.api
+            api rootProject.libs.slf4j.jcl
+            api rootProject.libs.log4j.api
+            api rootProject.libs.log4j.core
+            api rootProject.libs.log4j.slf4j2.impl
+            api rootProject.libs.assertj.core
+            api rootProject.libs.hamcrest
+            api rootProject.libs.awaitility
+            api rootProject.libs.testng
+            api rootProject.libs.allure.testng
+            api rootProject.libs.commons.io
+            api rootProject.libs.commons.lang3
+            api rootProject.libs.commons.text
+            api rootProject.libs.mockito.core
         }
 
-        compileOnly "org.jetbrains:annotations:${jetbrains_annotations}"
-        annotationProcessor "org.jetbrains:annotations:${jetbrains_annotations}"
-        testCompileOnly "org.jetbrains:annotations:${jetbrains_annotations}"
-        testAnnotationProcessor "org.jetbrains:annotations:${jetbrains_annotations}"
+        compileOnly rootProject.libs.jetbrains.annotations
+        annotationProcessor rootProject.libs.jetbrains.annotations
+        testCompileOnly rootProject.libs.jetbrains.annotations
+        testAnnotationProcessor rootProject.libs.jetbrains.annotations
 
         if (project.path != ":testng-extensions") {
             testImplementation project(":testng-extensions")
@@ -104,7 +45,7 @@ subprojects {
         testImplementation "org.apache.logging.log4j:log4j-core"
         testImplementation "org.apache.logging.log4j:log4j-slf4j2-impl"
 
-        compileOnly "com.github.spotbugs:spotbugs-annotations:${spotbugs_annotations}"
-        testCompileOnly "com.github.spotbugs:spotbugs-annotations:${spotbugs_annotations}"
+        compileOnly rootProject.libs.spotbugs.annotations
+        testCompileOnly rootProject.libs.spotbugs.annotations
     }
 }

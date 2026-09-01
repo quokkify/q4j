@@ -6,6 +6,6 @@ dependencies {
     implementation project(":common-utils:awaitility")
     implementation project(":testng-extensions")
 
-    implementation "com.rabbitmq:amqp-client:${rabbitmq}"
+    implementation libs.rabbitmq
     api "org.apache.commons:commons-lang3"
 }
