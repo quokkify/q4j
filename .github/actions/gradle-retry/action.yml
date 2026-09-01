@@ -31,5 +31,6 @@ runs:
       env:
         GRADLE_RETRY_MAX_ATTEMPTS: ${{ inputs.max-attempts }}
         GRADLE_RETRY_INITIAL_DELAY_SECONDS: ${{ inputs.initial-delay-seconds }}
+        GRADLE_RETRY_ARGS: ${{ inputs.args }}
       run: |
-        "${GITHUB_WORKSPACE}/tools/scripts/ci/gradle-retry.sh" ${{ inputs.args }}
+        "${GITHUB_WORKSPACE}/tools/scripts/ci/gradle-retry.sh" $GRADLE_RETRY_ARGS

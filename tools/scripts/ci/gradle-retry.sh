@@ -9,6 +9,16 @@ set -uo pipefail
 
 max_attempts="${GRADLE_RETRY_MAX_ATTEMPTS:-3}"
 delay="${GRADLE_RETRY_INITIAL_DELAY_SECONDS:-30}"
+
+if ! [[ "$max_attempts" =~ ^[1-9][0-9]*$ ]]; then
+  echo "gradle-retry.sh: GRADLE_RETRY_MAX_ATTEMPTS must be a positive integer, got '${max_attempts}'" >&2
+  exit 2
+fi
+if ! [[ "$delay" =~ ^[1-9][0-9]*$ ]]; then
+  echo "gradle-retry.sh: GRADLE_RETRY_INITIAL_DELAY_SECONDS must be a positive integer, got '${delay}'" >&2
+  exit 2
+fi
+
 attempt=1
 
 while true; do
@@ -27,7 +37,13 @@ while true; do
     exit "$status"
   fi
 
-  if ! grep -qE 'status code 429|429 Too Many Requests|Too Many Requests' "$output"; then
+  is_repository_failure=0
+  grep -qE 'Could not (GET|HEAD|resolve)' "$output" && is_repository_failure=1
+
+  is_429=0
+  grep -qE 'status code 429|429 Too Many Requests|Too Many Requests' "$output" && is_429=1
+
+  if [ "$is_repository_failure" -ne 1 ] || [ "$is_429" -ne 1 ]; then
     rm -f "$output"
     exit "$status"
   fi
