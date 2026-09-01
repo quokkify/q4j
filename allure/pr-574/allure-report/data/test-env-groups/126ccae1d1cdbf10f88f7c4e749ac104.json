@@ -1,1 +1,0 @@
-{"id":"126ccae1d1cdbf10f88f7c4e749ac104","fullName":"dev.quokkify.test.TableModelContractTest.supportsFullyCustomBackendContract","name":"The structural table contract supports a backend without browser types","status":"passed","testResultsByEnv":{"integrations-selenide":"4f8ac6b02f422dca636d7f58fdbe239a"}}

@@ -1,1 +1,0 @@
-{"id":"94daacccb69e2c766c6324bf0bc4cfb0","fullName":"dev.quokkify.test.ReproHorizontalAsyncTest.requiredRowWaitsForDelayedHorizontalRow","name":"FIXED: requiredRow waits for a delayed HORIZONTAL column row (N1)","status":"passed","testResultsByEnv":{"integrations-selenide":"fe78e09802db295bd01eaa5814434055"}}

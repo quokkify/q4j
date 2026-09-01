@@ -1,1 +1,0 @@
-{"id":"70e6e89d7369018fa7ab9485a95fb2a6","fullName":"dev.quokkify.test.TableQueryContractTest.keepsIndexedAndTypedConditionReadsOnCapturedSnapshot","name":"Native query waits keep cell reads on the same candidate snapshot","status":"passed","testResultsByEnv":{"integrations-selenide":"ea8549b7f0adb081a1414d5e48e38d2a"}}

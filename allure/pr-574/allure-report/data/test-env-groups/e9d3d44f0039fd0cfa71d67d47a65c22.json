@@ -1,1 +1,0 @@
-{"id":"e9d3d44f0039fd0cfa71d67d47a65c22","fullName":"dev.quokkify.test.NoSqlFactoryTest.rejectNullMongoClientForDatabaseName","name":"Reject a null Mongo client for database-name configuration","status":"passed","testResultsByEnv":{"data-utils-nosql-morphia":"63438b76d2a028b2b4dcc6b8a2a6fd73"}}
