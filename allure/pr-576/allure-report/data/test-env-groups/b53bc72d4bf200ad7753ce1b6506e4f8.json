@@ -1,0 +1,1 @@
+{"id":"b53bc72d4bf200ad7753ce1b6506e4f8","fullName":"dev.quokkify.test.TableAssertionsActionsContractTest.keepsIndexedAndTypedConditionReadsOnCapturedSnapshot","name":"Condition cell text stays on its captured row snapshot","status":"passed","testResultsByEnv":{"integrations-selenide":"e203b43f5ccb11d0089288726709a4b5"}}

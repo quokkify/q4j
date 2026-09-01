@@ -1,0 +1,1 @@
+{"id":"fccb0803d42a9930e40c02412508d2c4","fullName":"dev.quokkify.test.TableQueryContractTest.reportsMissingAndOutOfRangeReferences","name":"Missing keys and out-of-range zero-based indexes fail explicitly","status":"passed","testResultsByEnv":{"integrations-selenide":"5577bbd740ec6c4e0002ac8a676f0e23"}}

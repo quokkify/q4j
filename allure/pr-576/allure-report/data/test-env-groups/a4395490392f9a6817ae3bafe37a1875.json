@@ -1,0 +1,1 @@
+{"id":"a4395490392f9a6817ae3bafe37a1875","fullName":"dev.quokkify.converter.CsvConverterModuleDiscoveryTest.shouldUseDefaultDiscoveredJdk8Module","name":"Verify default discovered modules support JDK8 Optional serialization and deserialization for CSV","status":"passed","testResultsByEnv":{"common-utils-jackson-csv":"f5d64b1a23c0fa4268a70410b724c419"}}
