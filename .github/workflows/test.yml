@@ -64,7 +64,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/project-toolkit/actions/setup-java-gradle@aa4efad58b185a16ea6761960a9e125a7db25604 # v2.14.0
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@b9c7e7fbf543d4bfebd2952b52285fd454a73877 # v2.15.0
 
       - name: 🧱 Build (check, no tests)
         run: |
@@ -94,7 +94,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/project-toolkit/actions/setup-java-gradle@aa4efad58b185a16ea6761960a9e125a7db25604 # v2.14.0
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@b9c7e7fbf543d4bfebd2952b52285fd454a73877 # v2.15.0
 
       - name: 🧱 Build (check, no tests)
         run: |
@@ -124,7 +124,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/project-toolkit/actions/setup-java-gradle@aa4efad58b185a16ea6761960a9e125a7db25604 # v2.14.0
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@b9c7e7fbf543d4bfebd2952b52285fd454a73877 # v2.15.0
 
       - name: 🧱 Build (check, no tests)
         run: |
@@ -156,7 +156,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/project-toolkit/actions/setup-java-gradle@aa4efad58b185a16ea6761960a9e125a7db25604 # v2.14.0
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@b9c7e7fbf543d4bfebd2952b52285fd454a73877 # v2.15.0
 
       - name: 🚀 Run tests
         run: ./gradlew ${{ matrix.module }}:test --no-daemon --console=plain --stacktrace
@@ -223,11 +223,11 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/project-toolkit/actions/setup-java-gradle@aa4efad58b185a16ea6761960a9e125a7db25604 # v2.14.0
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@b9c7e7fbf543d4bfebd2952b52285fd454a73877 # v2.15.0
 
       - name: 🟢 Start Infra with health lifecycle
         if: ${{ matrix.profile != 'none' }}
-        uses: quokkify/project-toolkit/actions/compose-up@aa4efad58b185a16ea6761960a9e125a7db25604 # v2.14.0
+        uses: quokkify/project-toolkit/actions/compose-up@b9c7e7fbf543d4bfebd2952b52285fd454a73877 # v2.15.0
         with:
           compose-files: |
             tools/environment/docker/docker-compose.yml
@@ -371,11 +371,11 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/project-toolkit/actions/setup-java-gradle@aa4efad58b185a16ea6761960a9e125a7db25604 # v2.14.0
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@b9c7e7fbf543d4bfebd2952b52285fd454a73877 # v2.15.0
 
       - name: 🟢 Start Infra with health lifecycle
         if: ${{ matrix.profile != 'none' }}
-        uses: quokkify/project-toolkit/actions/compose-up@aa4efad58b185a16ea6761960a9e125a7db25604 # v2.14.0
+        uses: quokkify/project-toolkit/actions/compose-up@b9c7e7fbf543d4bfebd2952b52285fd454a73877 # v2.15.0
         with:
           compose-files: |
             tools/environment/docker/docker-compose.yml
@@ -516,10 +516,10 @@ jobs:
   #       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
   #
   #     - name: 🔨Prepare Java/Gradle
-  #       uses: quokkify/project-toolkit/actions/setup-java-gradle@aa4efad58b185a16ea6761960a9e125a7db25604 # v2.14.0
+  #       uses: quokkify/project-toolkit/actions/setup-java-gradle@b9c7e7fbf543d4bfebd2952b52285fd454a73877 # v2.15.0
   #
   #     - name: 🟢 Start Infra with health lifecycle
-  #       uses: quokkify/project-toolkit/actions/compose-up@aa4efad58b185a16ea6761960a9e125a7db25604 # v2.14.0
+  #       uses: quokkify/project-toolkit/actions/compose-up@b9c7e7fbf543d4bfebd2952b52285fd454a73877 # v2.15.0
   #       with:
   #         compose-files: |
   #           tools/environment/docker/docker-compose.yml
