@@ -1,0 +1,36 @@
+name: Gradle run with Maven Central 429 retry
+description: >
+  Runs a Gradle command and retries it only when the failure output shows an
+  HTTP 429 (Too Many Requests) response from a repository. Any other failure
+  (404, DNS/connection error, compilation error, failing test, etc.) is not
+  retried and fails immediately.
+
+inputs:
+  args:
+    description: Gradle task names and flags, appended after ./gradlew
+    required: true
+  working-directory:
+    description: Directory containing the Gradle wrapper
+    required: false
+    default: "."
+  max-attempts:
+    description: Maximum number of attempts, including the first one
+    required: false
+    default: "3"
+  initial-delay-seconds:
+    description: Delay before the first retry; multiplied by 3 before each subsequent retry
+    required: false
+    default: "30"
+
+runs:
+  using: composite
+  steps:
+    - name: Run Gradle with retry on transient Maven Central errors
+      shell: bash
+      working-directory: ${{ inputs.working-directory }}
+      env:
+        GRADLE_RETRY_MAX_ATTEMPTS: ${{ inputs.max-attempts }}
+        GRADLE_RETRY_INITIAL_DELAY_SECONDS: ${{ inputs.initial-delay-seconds }}
+        GRADLE_RETRY_ARGS: ${{ inputs.args }}
+      run: |
+        "${GITHUB_WORKSPACE}/tools/scripts/ci/gradle-retry.sh" $GRADLE_RETRY_ARGS

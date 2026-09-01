@@ -67,12 +67,9 @@ jobs:
         uses: quokkify/project-toolkit/actions/setup-java-gradle@b9c7e7fbf543d4bfebd2952b52285fd454a73877 # v2.15.0
 
       - name: 🧱 Build (check, no tests)
-        run: |
-          ./gradlew \
-            ${{ matrix.module }}:check \
-            -x ${{ matrix.module }}:test \
-            --no-daemon --console=plain --stacktrace
-        shell: bash
+        uses: ./.github/actions/gradle-retry
+        with:
+          args: "${{ matrix.module }}:check -x ${{ matrix.module }}:test"
 
   build-data:
     name: "Build data • ${{ matrix.name }}"
@@ -97,12 +94,9 @@ jobs:
         uses: quokkify/project-toolkit/actions/setup-java-gradle@b9c7e7fbf543d4bfebd2952b52285fd454a73877 # v2.15.0
 
       - name: 🧱 Build (check, no tests)
-        run: |
-          ./gradlew \
-            ${{ matrix.module }}:check \
-            -x ${{ matrix.module }}:test \
-            --no-daemon --console=plain --stacktrace
-        shell: bash
+        uses: ./.github/actions/gradle-retry
+        with:
+          args: "${{ matrix.module }}:check -x ${{ matrix.module }}:test"
 
   build-integrations:
     name: "Build integrations • ${{ matrix.name }}"
@@ -127,12 +121,9 @@ jobs:
         uses: quokkify/project-toolkit/actions/setup-java-gradle@b9c7e7fbf543d4bfebd2952b52285fd454a73877 # v2.15.0
 
       - name: 🧱 Build (check, no tests)
-        run: |
-          ./gradlew \
-            ${{ matrix.module }}:check \
-            -x ${{ matrix.module }}:test \
-            --no-daemon --console=plain --stacktrace
-        shell: bash
+        uses: ./.github/actions/gradle-retry
+        with:
+          args: "${{ matrix.module }}:check -x ${{ matrix.module }}:test"
 
   test-common:
     name: "Common • ${{ matrix.name }}"
@@ -159,8 +150,9 @@ jobs:
         uses: quokkify/project-toolkit/actions/setup-java-gradle@b9c7e7fbf543d4bfebd2952b52285fd454a73877 # v2.15.0
 
       - name: 🚀 Run tests
-        run: ./gradlew ${{ matrix.module }}:test --no-daemon --console=plain --stacktrace
-        shell: bash
+        uses: ./.github/actions/gradle-retry
+        with:
+          args: "${{ matrix.module }}:test"
 
       - name: 🧾 Allure CI env fragment
         if: always()
@@ -292,7 +284,7 @@ jobs:
             fi
           fi
 
-          ./gradlew ${{ matrix.module }}:test --no-daemon --console=plain --stacktrace
+          tools/scripts/ci/gradle-retry.sh ${{ matrix.module }}:test
         shell: bash
 
       - name: 🧾 Allure CI env fragment
@@ -440,7 +432,7 @@ jobs:
             fi
           fi
 
-          ./gradlew ${{ matrix.module }}:test --no-daemon --console=plain --stacktrace
+          tools/scripts/ci/gradle-retry.sh ${{ matrix.module }}:test
         shell: bash
 
       - name: 🧾 Allure CI env fragment
