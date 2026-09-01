@@ -41,12 +41,9 @@ jobs:
         uses: quokkify/project-toolkit/actions/setup-java-gradle@b9c7e7fbf543d4bfebd2952b52285fd454a73877 # v2.15.0
 
       - name: 🧱 Build (check, no tests)
-        run: |
-          ./gradlew \
-            ${{ matrix.module }}:check \
-            -x ${{ matrix.module }}:test \
-            --no-daemon --console=plain --stacktrace
-        shell: bash
+        uses: ./.github/actions/gradle-retry
+        with:
+          args: "${{ matrix.module }}:check -x ${{ matrix.module }}:test"
 
       - name: 📦 Pack checkstyle reports as artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -78,12 +75,9 @@ jobs:
         uses: quokkify/project-toolkit/actions/setup-java-gradle@b9c7e7fbf543d4bfebd2952b52285fd454a73877 # v2.15.0
 
       - name: 🧱 Build (check, no tests)
-        run: |
-          ./gradlew \
-            ${{ matrix.module }}:check \
-            -x ${{ matrix.module }}:test \
-            --no-daemon --console=plain --stacktrace
-        shell: bash
+        uses: ./.github/actions/gradle-retry
+        with:
+          args: "${{ matrix.module }}:check -x ${{ matrix.module }}:test"
 
       - name: 📦 Pack checkstyle reports as artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -115,9 +109,9 @@ jobs:
         uses: quokkify/project-toolkit/actions/setup-java-gradle@b9c7e7fbf543d4bfebd2952b52285fd454a73877 # v2.15.0
 
       - name: 🧱 Build (check, no tests)
-        run: |
-          ./gradlew ${{ matrix.module }}:check -x ${{ matrix.module }}:test --no-daemon --console=plain --stacktrace
-        shell: bash
+        uses: ./.github/actions/gradle-retry
+        with:
+          args: "${{ matrix.module }}:check -x ${{ matrix.module }}:test"
 
       - name: 📦 Pack checkstyle reports as artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
