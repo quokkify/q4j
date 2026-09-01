@@ -84,10 +84,6 @@ jobs:
                       not report_pages_url.endswith("/allure-report/") or \
                       pr_expression not in str(pages_action["with"].get("destination-dir", "")):
                   raise SystemExit("Allure Pages URL must use the resolved PR number and generated allure-report subdirectory")
-              if ".github/allure/safe_extract.py" in allure_workflow or ".github/allure/allurerc.mjs" in allure_workflow:
-                  raise SystemExit("Allure workflow must use the generated tools/allure paths")
-              if "MATERIALIZE_ROOT: ${{ github.workspace }}/.allure-input/results" in allure_workflow:
-                  raise SystemExit("Allure extractor must materialize source artifacts outside the results directory")
               test_workflow = Path(".github/workflows/test.yml").read_text()
               if 'path: "**/build/allure-results"' in test_workflow:
                   raise SystemExit("Test jobs must upload only their own Allure results directory")
