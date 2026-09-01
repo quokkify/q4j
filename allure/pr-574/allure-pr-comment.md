@@ -4,7 +4,7 @@
 
 | Tests | Passed | Failed | Broken | Skipped | Report |
 | ---: | ---: | ---: | ---: | ---: | :--- |
-| 261 | 261 | 0 | 0 | 0 | [View report ↗](https://quokkify.github.io/q4j/allure/pr-574/allure-report/?run=33485481425) |
+| 261 | 261 | 0 | 0 | 0 | [View report ↗](https://quokkify.github.io/q4j/allure/pr-574/allure-report/?run=33491662916) |
 
 <details>
 <summary><strong>Tests by layer</strong></summary>
