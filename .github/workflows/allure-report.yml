@@ -157,19 +157,18 @@ jobs:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           ARCHIVE_ROOT: ${{ runner.temp }}/allure-archives
           OUTPUT_ROOT: ${{ runner.temp }}/allure-expanded
-          MATERIALIZE_ROOT: ${{ github.workspace }}/.allure-input/source-artifacts
-        run: python tools/allure/safe_extract.py
+          MATERIALIZE_ROOT: ${{ github.workspace }}/.allure-input/results
+        run: python .github/allure/safe_extract.py
       - name: Build Allure report without write privileges
-        uses: quokkify/project-toolkit/actions/allure-report@b9c7e7fbf543d4bfebd2952b52285fd454a73877 # v2.15.0
+        uses: quokkify/project-toolkit/actions/allure-report@v2.18.0
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           results-directory: .allure-input/results
-          source-artifacts-directory: .allure-input/source-artifacts
           report-directory: allure-report
-          config-file: tools/allure/allurerc.mjs
+          config-file: .github/allure/allurerc.mjs
           categories-file: "tools/allure/categories.json"
           source-run-id: ${{ github.event.workflow_run.id }}
-          pages-url: "https://quokkify.github.io/q4j/allure/pr-${{ needs.resolve.outputs.pr-number }}/allure-report/"
+          pages-url: "https://quokkify.github.io/q4j"
           fork-pr: ${{ needs.resolve.outputs.fork-pr }}
           comment-marker: "<!-- project-toolkit-allure-report -->"
       - name: Upload generated Allure HTML
@@ -344,10 +343,10 @@ jobs:
           ARCHIVE_ROOT: ${{ runner.temp }}/allure-pages-archives
           OUTPUT_ROOT: ${{ runner.temp }}/allure-pages-expanded
           MATERIALIZE_ROOT: ${{ github.workspace }}/allure-report
-        run: python tools/allure/safe_extract.py
+        run: python .github/allure/safe_extract.py
       - name: Publish Allure HTML to GitHub Pages
         if: ${{ steps.freshness.outputs.fresh == 'true' }}
-        uses: quokkify/project-toolkit/actions/deploy-gh-pages-subdir@b9c7e7fbf543d4bfebd2952b52285fd454a73877 # v2.15.0
+        uses: quokkify/project-toolkit/actions/deploy-gh-pages-subdir@v2.18.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           publish-dir: allure-report

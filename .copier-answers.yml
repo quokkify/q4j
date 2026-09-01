@@ -1,4 +1,4 @@
-_commit: v2.15.0
+_commit: v2.18.0
 _src_path: https://github.com/quokkify/project-toolkit.git
 allure_categories_file: tools/allure/categories.json
 allure_external_artifact_max_count: 50
@@ -9,6 +9,10 @@ allure_external_workflow_path: .github/workflows/test.yml
 allure_pages_url: https://quokkify.github.io/q4j
 allure_publish_pages: true
 allure_report: true
+codeql: true
+codeql_languages:
+  - actions
+  - java-kotlin
 components: []
 docker: false
 project_name: Q4J
@@ -19,4 +23,4 @@ renovate_presets:
   - default
   - github-actions
   - java
-toolkit_version: v2.15.0
+toolkit_version: v2.18.0

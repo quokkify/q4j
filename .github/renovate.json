@@ -60,6 +60,18 @@
   ],
   "packageRules": [
     {
+      "description": "Disable competing updates inside template-owned workflows; project-toolkit owns those versions and delivers them through copier update.",
+      "matchFileNames": [
+        ".github/workflows/allure-report.yml",
+        ".github/workflows/codeql.yml",
+        ".github/workflows/copier-update.yml",
+        ".github/workflows/gitleaks.yml",
+        ".github/workflows/release.yml",
+        ".github/workflows/validate.yml"
+      ],
+      "enabled": false
+    },
+    {
       "description": "Update all Q4J module documentation examples together",
       "matchManagers": ["custom.regex"],
       "matchDatasources": ["maven"],
