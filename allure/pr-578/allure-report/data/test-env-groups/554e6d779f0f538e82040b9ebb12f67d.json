@@ -1,0 +1,1 @@
+{"id":"554e6d779f0f538e82040b9ebb12f67d","fullName":"dev.quokkify.test.TableModelContractTest.supportsCustomDivAdapter","name":"Public custom adapter isolates nested grids and preserves logical cells","status":"passed","testResultsByEnv":{"integrations-selenide":"d22a56c475334dd62d8c4793297e79c7"}}

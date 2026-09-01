@@ -1,0 +1,1 @@
+{"id":"4b425cc754167671f29f340c27f78efb","fullName":"dev.quokkify.test.TableQueryContractTest.reResolvesTypedColumnAfterHeaderReorder","name":"Typed column references resolve their index after remount and header reorder","status":"passed","testResultsByEnv":{"integrations-selenide":"4d1c962ee1ba124489de41e3d81dc85e"}}
