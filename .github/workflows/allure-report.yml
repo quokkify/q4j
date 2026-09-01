@@ -160,7 +160,7 @@ jobs:
           MATERIALIZE_ROOT: ${{ github.workspace }}/.allure-input/results
         run: python .github/allure/safe_extract.py
       - name: Build Allure report without write privileges
-        uses: quokkify/project-toolkit/actions/allure-report@v2.18.0
+        uses: quokkify/project-toolkit/actions/allure-report@v2.19.1
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           results-directory: .allure-input/results
@@ -168,7 +168,7 @@ jobs:
           config-file: .github/allure/allurerc.mjs
           categories-file: "tools/allure/categories.json"
           source-run-id: ${{ github.event.workflow_run.id }}
-          pages-url: "https://quokkify.github.io/q4j"
+          pages-url: "https://quokkify.github.io/q4j/allure/pr-${{ needs.resolve.outputs.pr-number }}/allure-report/"
           fork-pr: ${{ needs.resolve.outputs.fork-pr }}
           comment-marker: "<!-- project-toolkit-allure-report -->"
       - name: Upload generated Allure HTML
@@ -346,7 +346,7 @@ jobs:
         run: python .github/allure/safe_extract.py
       - name: Publish Allure HTML to GitHub Pages
         if: ${{ steps.freshness.outputs.fresh == 'true' }}
-        uses: quokkify/project-toolkit/actions/deploy-gh-pages-subdir@v2.18.0
+        uses: quokkify/project-toolkit/actions/deploy-gh-pages-subdir@v2.19.1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           publish-dir: allure-report
