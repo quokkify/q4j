@@ -125,7 +125,7 @@ while [ $SECONDS -lt $end_time ]; do
   if [[ "${CI:-}" == "true" ]]; then
     hub_container="$(compose_cmd ps -q selenium-hub | head -n1 || true)"
     if [[ -n "$hub_container" ]]; then
-      response="$(docker run --rm --network "container:${hub_container}" curlimages/curl:8.21.0@sha256:7c12af72ceb38b7432ab85e1a265cff6ae58e06f95539d539b654f2cfa64bb13 -sL "$CI_CONTAINER_STATUS_URL" || true)"
+      response="$(docker run --rm --network "container:${hub_container}" curlimages/curl:8.22.0@sha256:58adaa4e8dca9c988bae2aba4ab3434a0bb2da16bbe3f92dec39ec7785166777 -sL "$CI_CONTAINER_STATUS_URL" || true)"
     else
       response=""
     fi
@@ -166,7 +166,7 @@ if [[ "${CI:-}" == "true" ]]; then
     if [[ -n "$nginx_container" ]]; then
       echo "[selenium-grid] waiting for nginx to respond..."
       for i in $(seq 1 30); do
-        if docker run --rm --network "container:${nginx_container}" curlimages/curl:8.21.0@sha256:7c12af72ceb38b7432ab85e1a265cff6ae58e06f95539d539b654f2cfa64bb13 -sSf http://localhost/table/ >/dev/null 2>&1; then
+        if docker run --rm --network "container:${nginx_container}" curlimages/curl:8.22.0@sha256:58adaa4e8dca9c988bae2aba4ab3434a0bb2da16bbe3f92dec39ec7785166777 -sSf http://localhost/table/ >/dev/null 2>&1; then
           echo "[selenium-grid] nginx is ready"
           break
         fi
