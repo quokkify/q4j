@@ -1,0 +1,1 @@
+{"id":"0da63c4ff63acfb125ad80264dd608a4","fullName":"dev.quokkify.test.TableQueryContractTest.horizontalTypedLookupWaitsAndRejectsDuplicates","name":"Horizontal typed lookup waits for a delayed row and rejects duplicate headers","status":"passed","testResultsByEnv":{"integrations-selenide":"db0e2e56e7e8eb53481de1e7a0f72563"}}
