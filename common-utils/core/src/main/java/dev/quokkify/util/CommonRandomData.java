@@ -236,7 +236,7 @@ public class CommonRandomData {
    * @return the random double percent.
    */
   public static double randomDoublePercent() {
-    return ((double) betweenIntegerInclude(1, 9999)) / 100;
+    return (double) betweenIntegerInclude(1, 9999) / 100;
   }
 
   /**
