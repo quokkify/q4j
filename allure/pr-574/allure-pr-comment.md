@@ -4,7 +4,7 @@ No tests found · no pass rate
 
 | Tests | Passed | Failed | Broken | Skipped | Report |
 | ---: | ---: | ---: | ---: | ---: | :--- |
-| 0 | 0 | 0 | 0 | 0 | [View report ↗](https://quokkify.github.io/q4j/allure/pr-574/allure-report/?run=33540847970) |
+| 0 | 0 | 0 | 0 | 0 | [View report ↗](https://quokkify.github.io/q4j/allure/pr-574/allure-report/?run=33577349863) |
 
 <details>
 <summary><strong>Tests by layer</strong></summary>
