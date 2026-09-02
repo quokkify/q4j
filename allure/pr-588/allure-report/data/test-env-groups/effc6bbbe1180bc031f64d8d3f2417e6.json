@@ -1,0 +1,1 @@
+{"id":"effc6bbbe1180bc031f64d8d3f2417e6","fullName":"dev.quokkify.test.TableQueryContractTest.timedUniqueRowsReportObservedCardinality","name":"Timed unique lookup preserves the last observed zero, one, or multiple count","status":"passed","testResultsByEnv":{"integrations-selenide":"c79f74aaa1a588b54319f0cf095962f8"}}

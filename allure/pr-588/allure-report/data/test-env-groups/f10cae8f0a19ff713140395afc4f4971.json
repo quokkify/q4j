@@ -1,0 +1,1 @@
+{"id":"f10cae8f0a19ff713140395afc4f4971","fullName":"dev.quokkify.test.RowConditionsContractTest.greaterThanUsesStrictNumericContract","name":"greaterThan accepts canonical BigDecimal text and rejects decorated or malformed text","status":"passed","testResultsByEnv":{"integrations-selenide":"50d88e6d58e52af628630c88a4d62eb9"}}

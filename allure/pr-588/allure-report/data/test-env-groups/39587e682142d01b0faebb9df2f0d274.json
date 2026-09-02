@@ -1,0 +1,1 @@
+{"id":"39587e682142d01b0faebb9df2f0d274","fullName":"dev.quokkify.test.TableModelContractTest.customAdapterWaitsAndSurvivesRemount","name":"Custom adapter waits once for a late root and row, then remount-safe handles resolve","status":"passed","testResultsByEnv":{"integrations-selenide":"a8202920e0ab7293daf3e9400d30acbe"}}
