@@ -1,0 +1,1 @@
+{"id":"e7b1adf1ba4d47862716c81f245efed0","fullName":"dev.quokkify.reportportal.services.ParamOverrideTestNgServiceTest.getTestCaseDescription_returnsExpectedMarkdown","name":"getTestCaseDescription builds correct markdown for all combinations","status":"passed","testResultsByEnv":{"integrations-reportportal-testng":"10b5f4e89f23542467b2e1ec91f99f29"}}
