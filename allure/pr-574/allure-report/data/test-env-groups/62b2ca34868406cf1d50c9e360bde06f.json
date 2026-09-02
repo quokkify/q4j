@@ -1,1 +1,0 @@
-{"id":"62b2ca34868406cf1d50c9e360bde06f","fullName":"dev.quokkify.elements.table.model.SelenideRowConditionSnapshotTest.keepsRowConditionCellReadsInsideOneSnapshot","name":"Native row waits keep cell reads bound to the current candidate snapshot","status":"passed","testResultsByEnv":{"integrations-selenide":"1b040d502e8f3a1cbe872d7a9898ed08"}}

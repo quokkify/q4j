@@ -1,1 +1,0 @@
-{"id":"b0b6f58d5ca4c034dbfb81e869bfa2a6","fullName":"dev.quokkify.test.TableModelContractTest.resolvesDisplayedHeader","name":"Resolve typed columns by displayed headers rather than enum ordinal","status":"passed","testResultsByEnv":{"integrations-selenide":"7be3a61a89f4e5f36b6c4561587b1b5c"}}
