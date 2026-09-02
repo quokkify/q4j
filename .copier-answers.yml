@@ -16,7 +16,7 @@ codeql_languages:
 components: []
 docker: false
 project_name: Q4J
-release_mode: single
+release_mode: manifest
 release_please: true
 renovate: true
 renovate_config_repository: quokkify/renovate-presets
