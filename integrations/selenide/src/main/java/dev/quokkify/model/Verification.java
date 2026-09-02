@@ -31,6 +31,15 @@ public abstract class Verification<S extends PageSteps<S, V, P>, V extends Verif
     return (V) this;
   }
 
+  void apply(TimeoutOptions options) {
+    if (options.getTimeout() != null) {
+      timeout = options.getTimeout();
+    }
+    if (options.getPollingInterval() != null) {
+      pollingInterval = options.getPollingInterval();
+    }
+  }
+
   protected Duration getTimeout() {
     return timeout;
   }

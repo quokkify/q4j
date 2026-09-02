@@ -27,6 +27,15 @@ public abstract class PageSteps<S extends PageSteps<S, V, P>, V extends Verifica
     return verification;
   }
 
+  public V verify(TimeoutOptions... options) {
+    V result = verify();
+    java.util.Objects.requireNonNull(options, "timeout options must not be null");
+    for (TimeoutOptions option : options) {
+      result.apply(java.util.Objects.requireNonNull(option, "timeout option must not be null"));
+    }
+    return result;
+  }
+
   /**
    * Refresh current page.
    *
