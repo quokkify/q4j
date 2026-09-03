@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.6.3](https://github.com/quokkify/q4j/compare/v0.6.2...v0.6.3) (2026-09-03)
+
+
+### 🐛 Bug Fixes
+
+* **ci:** link Allure comments to generated report ([#577](https://github.com/quokkify/q4j/issues/577)) ([0af4935](https://github.com/quokkify/q4j/commit/0af4935f12192d505bddf98429bac2f42169c2ba))
+* **ci:** retry Gradle build/test only on transient Maven Central 429s ([#579](https://github.com/quokkify/q4j/issues/579)) ([002a088](https://github.com/quokkify/q4j/commit/002a088cb444833516bb1b9bb6e12ccffd574f1e))
+* **deps:** update checkstyle to v14.1.0 ([#587](https://github.com/quokkify/q4j/issues/587)) ([2958720](https://github.com/quokkify/q4j/commit/2958720b5f990a31ef2f9048d9d7559dd26637ea))
+* **deps:** update hibernate-orm monorepo to v7.4.7.final ([#583](https://github.com/quokkify/q4j/issues/583)) ([d723e5b](https://github.com/quokkify/q4j/commit/d723e5befb1ace19f0adac78c20096cb23bd4d62))
+* **deps:** update org.mongodb:mongodb-driver-sync to v5.11.0 ([#572](https://github.com/quokkify/q4j/issues/572)) ([66c8375](https://github.com/quokkify/q4j/commit/66c83753ff6eb3f693913c96a9daf8e2e50ab6d2))
+* **deps:** update org.mongodb:mongodb-driver-sync to v5.11.0 ([#575](https://github.com/quokkify/q4j/issues/575)) ([3595a12](https://github.com/quokkify/q4j/commit/3595a12adee61df7847ed8bd69ff70bcc88c7d46))
+
+
+### ⚙️ CI
+
+* **allure:** drop the stale extractor and asset-path guards ([#582](https://github.com/quokkify/q4j/issues/582)) ([65d8a2e](https://github.com/quokkify/q4j/commit/65d8a2ee0b28784d8e4aec3ff2e8d56a16910f9c))
+* migrate Allure reports to project-toolkit ([155cd31](https://github.com/quokkify/q4j/commit/155cd31b5a3995bb9e30519938226a892406f860))
+* **release:** adopt the template's Release Please workflow ([#585](https://github.com/quokkify/q4j/issues/585)) ([d39549f](https://github.com/quokkify/q4j/commit/d39549f83f39ca39a09afcd8b585bae7fde642f3))
+
+
+### 🧹 Chores
+
+* **agents:** add repository-local Gradle agent pack ([#571](https://github.com/quokkify/q4j/issues/571)) ([0b2930a](https://github.com/quokkify/q4j/commit/0b2930a5d22000cf7985d34d0e33bb3ed0899de6))
+* **deps:** update curlimages/curl docker tag to v8.22.0 ([#588](https://github.com/quokkify/q4j/issues/588)) ([4e8c91c](https://github.com/quokkify/q4j/commit/4e8c91c0686079fc025613897b932d35b7809b71))
+* **deps:** update q4j module documentation to v0.6.2 ([#589](https://github.com/quokkify/q4j/issues/589)) ([d5c157f](https://github.com/quokkify/q4j/commit/d5c157f66f38a756a3d6920db3fa66a6532f2919))
+* **deps:** update traefik:v3.7.12 docker digest to 9c2a54d ([#574](https://github.com/quokkify/q4j/issues/574)) ([785a350](https://github.com/quokkify/q4j/commit/785a3509fedac613bafca5b5c4402befecc14b0e))
+* **gradle:** apply Gradle Version Catalog to fix implicit property lookups … ([#570](https://github.com/quokkify/q4j/issues/570)) ([c8bd381](https://github.com/quokkify/q4j/commit/c8bd3814b99a7dd65ac38a349f806b17672f3767))
+* **template:** update shared project template ([#584](https://github.com/quokkify/q4j/issues/584)) ([11baabb](https://github.com/quokkify/q4j/commit/11baabbdcb164b911bb53ab3e590fd3afd60c482))
+* **template:** update shared project template ([#586](https://github.com/quokkify/q4j/issues/586)) ([9ba6c96](https://github.com/quokkify/q4j/commit/9ba6c9678779597ec99c9bb63eb4ccb6fb450ec1))
+* **template:** update shared project template to v2.19.1 ([#580](https://github.com/quokkify/q4j/issues/580)) ([e952dab](https://github.com/quokkify/q4j/commit/e952dab27831d0d368bc518f0f8d345efc6332f6))
+
 ## [0.6.2](https://github.com/quokkify/q4j/compare/v0.6.1...v0.6.2) (2026-08-30)
 
 
