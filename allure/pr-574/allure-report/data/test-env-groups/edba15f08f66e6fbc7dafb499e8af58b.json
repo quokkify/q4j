@@ -1,0 +1,1 @@
+{"id":"edba15f08f66e6fbc7dafb499e8af58b","fullName":"dev.quokkify.test.DropdownBehaviorTest.testClearSelectedClearsInputAndWaitsForAsyncRemoval","name":"Verify clearSelected clears a pending query, removes chips via remove controls, and waits for async removals","status":"passed","testResultsByEnv":{"integrations-selenide":"efe261a1c014a928790f8c723b87fc16"}}

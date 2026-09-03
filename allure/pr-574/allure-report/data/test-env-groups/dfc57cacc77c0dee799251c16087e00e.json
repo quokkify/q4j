@@ -1,0 +1,1 @@
+{"id":"dfc57cacc77c0dee799251c16087e00e","fullName":"dev.quokkify.test.DropdownBehaviorTest.testClearSelectedFailsWhenChipRemovalMakesNoProgress","name":"Verify clearSelected fails fast when chip removal makes no progress","status":"passed","testResultsByEnv":{"integrations-selenide":"bd6d654c6ca73a6b1bc3ad63bc29b7f1"}}
