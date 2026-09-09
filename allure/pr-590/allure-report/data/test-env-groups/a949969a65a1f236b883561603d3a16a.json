@@ -1,1 +1,1 @@
-{"id":"a949969a65a1f236b883561603d3a16a","fullName":"dev.quokkify.test.UiTableTest.testMissingTableRow","name":"Verify missing local TABLE row reports a negative lookup","status":"passed","testResultsByEnv":{"integrations-selenide":"b923b355936f13c3e6c32b60d879e349"}}
+{"id":"a949969a65a1f236b883561603d3a16a","fullName":"dev.quokkify.test.UiTableTest.testMissingTableRow","name":"Verify missing local TABLE row reports a negative lookup","status":"passed","testResultsByEnv":{"integrations-selenide":"7a3c78cb15c00ef4253239ec3f3f2297"}}
