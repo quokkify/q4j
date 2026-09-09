@@ -1,1 +1,1 @@
-{"id":"3395a1104f1295ec7a59107dfb61f936","fullName":"dev.quokkify.test.DatabaseNoSqlTest.checkUpdate","name":"Check update record in database","status":"passed","testResultsByEnv":{"data-utils-nosql-morphia":"53040b348cff0e15eda471f01a7bba4a"}}
+{"id":"3395a1104f1295ec7a59107dfb61f936","fullName":"dev.quokkify.test.DatabaseNoSqlTest.checkUpdate","name":"Check update record in database","status":"passed","testResultsByEnv":{"data-utils-nosql-morphia":"66d363593cf4d7f39df637b08728147d"}}

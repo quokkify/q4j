@@ -1,1 +1,1 @@
-{"id":"bd833ef3a7132156d99dd05b284bebdf","fullName":"dev.quokkify.model.JsonPojoTest.testMutationMethodsChaining","name":"Verify mutation methods chaining","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"1846c040d08549a5fe3c8aa759875b98"}}
+{"id":"bd833ef3a7132156d99dd05b284bebdf","fullName":"dev.quokkify.model.JsonPojoTest.testMutationMethodsChaining","name":"Verify mutation methods chaining","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"b909eae528b30620ed1debc15df6169f"}}

@@ -1,1 +1,1 @@
-{"id":"634d4a9c0ac582b7bf083d2b296e0309","fullName":"dev.quokkify.model.JsonPojoTest.testReadAtScalar","name":"Verify read scalar value by json pointer","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"7e5a75f24dda794e81d8a717a68a4c33"}}
+{"id":"634d4a9c0ac582b7bf083d2b296e0309","fullName":"dev.quokkify.model.JsonPojoTest.testReadAtScalar","name":"Verify read scalar value by json pointer","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"0fbb6a24f4fd54a8b6b067359c04ff88"}}
