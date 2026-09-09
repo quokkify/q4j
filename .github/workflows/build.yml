@@ -38,7 +38,7 @@ jobs:
       - name: 🔨Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/project-toolkit/actions/setup-java-gradle@f3a4da971c018077a7c748a8c214a8ec414a2567 # v2.21.0
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@fd3c377fa52c9dbf77449f766e6aa1b07ed1aee9 # v2.21.1
 
       - name: 🧱 Build (check, no tests)
         uses: ./.github/actions/gradle-retry
@@ -72,7 +72,7 @@ jobs:
       - name: 🔨Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/project-toolkit/actions/setup-java-gradle@f3a4da971c018077a7c748a8c214a8ec414a2567 # v2.21.0
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@fd3c377fa52c9dbf77449f766e6aa1b07ed1aee9 # v2.21.1
 
       - name: 🧱 Build (check, no tests)
         uses: ./.github/actions/gradle-retry
@@ -106,7 +106,7 @@ jobs:
       - name: 🔨Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/project-toolkit/actions/setup-java-gradle@f3a4da971c018077a7c748a8c214a8ec414a2567 # v2.21.0
+        uses: quokkify/project-toolkit/actions/setup-java-gradle@fd3c377fa52c9dbf77449f766e6aa1b07ed1aee9 # v2.21.1
 
       - name: 🧱 Build (check, no tests)
         uses: ./.github/actions/gradle-retry
