@@ -1,1 +1,1 @@
-{"id":"d82455bbf7f214caa7a1acdadcba4cf4","fullName":"dev.quokkify.test.TableModelContractTest.waitsForDelayedRow","name":"Required lookup waits for a row restored asynchronously","status":"passed","testResultsByEnv":{"integrations-selenide":"49987a28f8f6a53586b20c0257353204"}}
+{"id":"d82455bbf7f214caa7a1acdadcba4cf4","fullName":"dev.quokkify.test.TableModelContractTest.waitsForDelayedRow","name":"Required lookup waits for a row restored asynchronously","status":"passed","testResultsByEnv":{"integrations-selenide":"bf1f4b28dd275f5ae09bbfb46493b3e3"}}

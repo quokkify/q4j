@@ -1,1 +1,1 @@
-{"id":"45d8acf279629ca6ba015762bfdf01a2","fullName":"dev.quokkify.test.UiTableTest.testTable","name":"Verify local TABLE row lookup, cells, and column values","status":"passed","testResultsByEnv":{"integrations-selenide":"e43acb8c82b7699229f49e09439d44c9"}}
+{"id":"45d8acf279629ca6ba015762bfdf01a2","fullName":"dev.quokkify.test.UiTableTest.testTable","name":"Verify local TABLE row lookup, cells, and column values","status":"passed","testResultsByEnv":{"integrations-selenide":"c23dc02bba578397b16f7e7a1dbad80f"}}
