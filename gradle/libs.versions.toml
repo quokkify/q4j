@@ -1,7 +1,7 @@
 [versions]
 fasterxml-jackson = "2.22.2"
 aeonbits = "1.0.12"
-slf4j = "2.0.18"
+slf4j = "2.0.19"
 log4j = "2.26.1"
 assertj = "3.27.7"
 hamcrest = "3.0"
