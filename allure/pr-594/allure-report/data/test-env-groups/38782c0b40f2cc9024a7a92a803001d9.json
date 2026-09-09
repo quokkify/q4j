@@ -1,0 +1,1 @@
+{"id":"38782c0b40f2cc9024a7a92a803001d9","fullName":"dev.quokkify.test.TableRowWaitTest.testDynamicTableRowAppearingWithDelayIsFound","name":"Verify 'DYNAMIC TABLE' row search uses Selenide waiting for a delayed row","status":"passed","testResultsByEnv":{"integrations-selenide":"f4cfac12869ade022bb3ab9fcb0b5bb5"}}
