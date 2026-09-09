@@ -1,0 +1,1 @@
+{"id":"943198b2aa2e97c3377221b5964f017d","fullName":"dev.quokkify.test.DropdownBehaviorTest.testSelectAllExactAndRemoveSelectedPartial","name":"Verify selectAllExact adds multiple chips and removeSelectedPartial removes only the requested chip","status":"passed","testResultsByEnv":{"integrations-selenide":"306d8f47d1cf25cb1fae812b8217ba82"}}
