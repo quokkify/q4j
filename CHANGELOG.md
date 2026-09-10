@@ -2,6 +2,15 @@
 
 ## [0.6.3](https://github.com/quokkify/q4j/compare/v0.6.2...v0.6.3) (2026-09-10)
 
+<!-- project-toolkit:rich-block:start -->
+### 📦 Dependencies
+- update traefik:v3.7.12 docker digest to 9c2a54d ([#574](https://github.com/quokkify/q4j/pull/574)) ([785a350](https://github.com/quokkify/q4j/commit/785a3509fedac613bafca5b5c4402befecc14b0e)) <!-- project-toolkit:rich-release-notes pr=574 -->
+- update curlimages/curl docker tag to v8.22.0 ([#588](https://github.com/quokkify/q4j/pull/588)) ([4e8c91c](https://github.com/quokkify/q4j/commit/4e8c91c0686079fc025613897b932d35b7809b71)) <!-- project-toolkit:rich-release-notes pr=588 -->
+- update q4j module documentation to v0.6.2 ([#589](https://github.com/quokkify/q4j/pull/589)) ([d5c157f](https://github.com/quokkify/q4j/commit/d5c157f66f38a756a3d6920db3fa66a6532f2919)) <!-- project-toolkit:rich-release-notes pr=589 -->
+- update nginx docker tag to v1.31.5 ([#591](https://github.com/quokkify/q4j/pull/591)) ([eb0acf4](https://github.com/quokkify/q4j/commit/eb0acf49718dc99f94ca9d778d549c976489c8d5)) <!-- project-toolkit:rich-release-notes pr=591 -->
+- update traefik docker tag to v3.7.13 ([#593](https://github.com/quokkify/q4j/pull/593)) ([1e7977b](https://github.com/quokkify/q4j/commit/1e7977bdf42e1212ddf19a1df27234f0ab6c2f1a)) <!-- project-toolkit:rich-release-notes pr=593 -->
+- update docker docker tag to v29.8 ([#596](https://github.com/quokkify/q4j/pull/596)) ([a9b7805](https://github.com/quokkify/q4j/commit/a9b780567d56eb603c8cb6d673800b50eb291f52)) <!-- project-toolkit:rich-release-notes pr=596 -->
+<!-- project-toolkit:rich-block:end -->
 
 ### 🐛 Bug Fixes
 
