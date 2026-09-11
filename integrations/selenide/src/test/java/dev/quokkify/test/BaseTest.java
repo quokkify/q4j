@@ -59,6 +59,7 @@ public class BaseTest {
   protected void beforeSuite() {
     Browser.setDefaultConfigurations();
     com.codeborne.selenide.Configuration.headless = true;
+    com.codeborne.selenide.Configuration.pageLoadStrategy = "eager";
     // Selenide 7.17.0 already contributes --disable-dev-shm-usage for Chrome. Keep only the
     // empirically required extra flag here for this headless environment.
     com.codeborne.selenide.Configuration.browserCapabilities = Browser.mergeCapabilities(new ChromeOptions()

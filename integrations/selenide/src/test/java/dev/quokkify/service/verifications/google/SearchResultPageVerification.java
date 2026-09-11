@@ -7,7 +7,6 @@ import java.util.Objects;
 import dev.quokkify.model.Verification;
 import dev.quokkify.page.google.SearchResultPage;
 import dev.quokkify.service.steps.google.SearchResultPageSteps;
-import dev.quokkify.util.Waiter;
 
 import com.codeborne.selenide.WebDriverRunner;
 import io.qameta.allure.Step;
@@ -21,10 +20,7 @@ public class SearchResultPageVerification extends Verification<SearchResultPageS
 
   @Step("Verify that search results exist")
   public SearchResultPageVerification verifySearchResultsExist() {
-    Waiter.awaitAssertion(
-        () -> Assertions.assertThat(page.getSearchTitlesCount()).as("The search results not exists").isPositive(),
-        getTimeout(),
-        getPollingInterval());
+    page.shouldHaveSearchResults();
     return this;
   }
 
