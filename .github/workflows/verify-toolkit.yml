@@ -10,6 +10,6 @@ jobs:
       working-directory: .
       java-version: "21"
       build-tool: gradle
-      lint-command: ./gradlew classes --no-daemon
-      test-command: ./gradlew test --no-daemon
-      build-command: ./gradlew assemble --no-daemon
+      lint-command: bash ./gradlew classes --no-daemon
+      test-command: bash ./gradlew test --no-daemon
+      build-command: bash ./gradlew assemble --no-daemon
