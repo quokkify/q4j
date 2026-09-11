@@ -13,7 +13,8 @@ public class GoogleFixtureAssetContractTest {
       "../../tools/environment/assets/nginx/html/google/index.html");
   private static final Pattern EXTERNAL_LOAD_ATTRIBUTE = Pattern.compile(
       "<(?:script|link|img|image|iframe|source|video|audio|object|embed)\\b"
-          + "[^<>]*\\b(?:src|href)\\s*=\\s*(?:\\\"\\s*(?:https?:)?//"
+          + "(?:\\s+[A-Za-z_:][A-Za-z0-9:._-]*(?:\\s*=\\s*(?:\\\"[^\\\"]*\\\"|'[^']*'|[^\\s>]+))?)*"
+          + "\\s+(?:src|href)\\s*=\\s*(?:\\\"\\s*(?:https?:)?//"
           + "[^\\\">]*\\\"|'\\s*(?:https?:)?//[^' >]*'|(?:https?:)?//[^\\s>]+)",
       Pattern.CASE_INSENSITIVE | Pattern.DOTALL);
   private static final Pattern EXTERNAL_SRCSET = Pattern.compile(
@@ -52,6 +53,7 @@ public class GoogleFixtureAssetContractTest {
     String adversarialFixture = """
         <script src=https://cdn.example/script.js></script>
         <link href='//cdn.example/style.css'>
+        <img alt="1 > 0" src="https://cdn.example/image.png">
         <img srcset="/local.png 1x, https://cdn.example/2x.png 2x">
         <style>@import "https://cdn.example/import.css"; background: url(//cdn.example/image.png)</style>
         """;
