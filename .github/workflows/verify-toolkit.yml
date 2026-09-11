@@ -1,0 +1,13 @@
+name: Verify toolkit reusable Java CI
+on:
+  workflow_dispatch:
+jobs:
+  toolkit:
+    uses: quokkify/project-toolkit/.github/workflows/java-ci.yml@18c54f1387565734745c4a2b58aac6c06060dfc6
+    with:
+      working-directory: .
+      java-version: "21"
+      build-tool: gradle
+      lint-command: ./gradlew classes --no-daemon
+      test-command: ./gradlew test --no-daemon
+      build-command: ./gradlew assemble --no-daemon
