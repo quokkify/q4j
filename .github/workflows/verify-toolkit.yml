@@ -1,5 +1,7 @@
 name: Verify toolkit reusable Java CI
 on:
+  push:
+    branches: [verify/toolkit-18c54f1]
   workflow_dispatch:
 jobs:
   toolkit:
