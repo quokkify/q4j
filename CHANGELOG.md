@@ -2,6 +2,12 @@
 
 ## [0.6.4](https://github.com/quokkify/q4j/compare/v0.6.3...v0.6.4) (2026-09-11)
 
+<!-- project-toolkit:rich-block:start -->
+### 📦 Dependencies
+- update mongo docker tag to v8.3.9 ([#601](https://github.com/quokkify/q4j/pull/601)) ([8a6c426](https://github.com/quokkify/q4j/commit/8a6c426744c8e17b3461fbbfb2a5482135baae60)) <!-- project-toolkit:rich-release-notes pr=601 -->
+- update selenium grid images to v4.48.0-20260909 ([#607](https://github.com/quokkify/q4j/pull/607)) ([0453cfb](https://github.com/quokkify/q4j/commit/0453cfb8aa5918339976fea06f59d0378b32f3d4)) <!-- project-toolkit:rich-release-notes pr=607 -->
+- update selenium/standalone-chromium docker tag to v152 ([#608](https://github.com/quokkify/q4j/pull/608)) ([3885b0a](https://github.com/quokkify/q4j/commit/3885b0acd307cd89ad8d35300d5b9b1955d15100)) <!-- project-toolkit:rich-release-notes pr=608 -->
+<!-- project-toolkit:rich-block:end -->
 
 ### 🐛 Bug Fixes
 
