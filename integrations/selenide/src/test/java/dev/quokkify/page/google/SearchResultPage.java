@@ -6,15 +6,24 @@ import dev.quokkify.annotation.PageUrl;
 import dev.quokkify.elements.base.Component;
 import dev.quokkify.impl.Page;
 
+import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import org.openqa.selenium.support.FindBy;
 import org.openqa.selenium.support.How;
 
-@PageUrl("/google")
+import static com.codeborne.selenide.CollectionCondition.sizeGreaterThan;
+import static com.codeborne.selenide.Selenide.$$;
+
+@PageUrl("/google/")
 public class SearchResultPage implements Page {
 
   @FindBy(how = How.CSS, using = "#rso > div")
   private List<SearchResultBlock> searchResults;
+
+  public void shouldHaveSearchResults() {
+    ElementsCollection results = $$("#rso > div");
+    results.shouldHave(sizeGreaterThan(0));
+  }
 
   public int getSearchTitlesCount() {
     return searchResults.size();
