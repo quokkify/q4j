@@ -1,0 +1,1 @@
+{"id":"e8a9cca094eac297863a13c3fd39dfd9","fullName":"dev.quokkify.reportportal.test.ReportPortalConnectionTest.shouldConnectToReportPortalApi","name":"Verify ReportPortal endpoint and token can access project list","status":"passed","testResultsByEnv":{"integrations-reportportal-testng":"77c0d7a9d30408aeaf23747d0a6f1864"}}
