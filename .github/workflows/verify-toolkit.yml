@@ -5,7 +5,7 @@ on:
   workflow_dispatch:
 jobs:
   toolkit:
-    uses: quokkify/project-toolkit/.github/workflows/java-ci.yml@18c54f1387565734745c4a2b58aac6c06060dfc6
+    uses: quokkify/project-toolkit/.github/workflows/java-ci.yml@28c0d0049a3b0d4c12cd63e922e19e728b90ff93
     with:
       working-directory: .
       java-version: "21"
