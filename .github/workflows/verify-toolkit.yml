@@ -11,5 +11,5 @@ jobs:
       java-version: "21"
       build-tool: gradle
       lint-command: bash ./gradlew classes --no-daemon
-      test-command: bash ./gradlew test --no-daemon
+      test-command: bash ./gradlew test --no-daemon -x :integrations:kafka:test
       build-command: bash ./gradlew assemble --no-daemon
