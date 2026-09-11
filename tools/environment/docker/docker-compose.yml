@@ -5,13 +5,13 @@ services:
 
   selenium-hub:
     profiles: [web]
-    image: selenium/hub:4.47.0-20260808@sha256:c75dfeed53c3b3e00e7fc1424c6ec048752af30a0e7d4b97c73f9df3635ef74b
+    image: selenium/hub:4.48.0-20260909@sha256:46930985df99f63f1f623ce811d5a9c7503229efbcccf1e4ad12312fb031ee39
     environment:
       SE_SUB_PATH: /wd/hub
 
   selenium-node-docker:
     profiles: [web]
-    image: selenium/node-docker:4.47.0-20260808@sha256:4db88500e06f31f2a9063bbbad6fc2fa29c7882e7d9bbfc14bafa40d19249876
+    image: selenium/node-docker:4.48.0-20260909@sha256:8409d392194131e02a673e047e996746e8973a5168bca011ac88259ba78f7c85
     depends_on:
       - selenium-hub
       - docker-socket-proxy
