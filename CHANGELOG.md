@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.6.4](https://github.com/quokkify/q4j/compare/v0.6.3...v0.6.4) (2026-09-11)
+
+<!-- project-toolkit:rich-block:start -->
+### 📦 Dependencies
+- update mongo docker tag to v8.3.9 ([#601](https://github.com/quokkify/q4j/pull/601)) ([8a6c426](https://github.com/quokkify/q4j/commit/8a6c426744c8e17b3461fbbfb2a5482135baae60)) <!-- project-toolkit:rich-release-notes pr=601 -->
+- update selenium grid images to v4.48.0-20260909 ([#607](https://github.com/quokkify/q4j/pull/607)) ([0453cfb](https://github.com/quokkify/q4j/commit/0453cfb8aa5918339976fea06f59d0378b32f3d4)) <!-- project-toolkit:rich-release-notes pr=607 -->
+- update selenium/standalone-chromium docker tag to v152 ([#608](https://github.com/quokkify/q4j/pull/608)) ([3885b0a](https://github.com/quokkify/q4j/commit/3885b0acd307cd89ad8d35300d5b9b1955d15100)) <!-- project-toolkit:rich-release-notes pr=608 -->
+<!-- project-toolkit:rich-block:end -->
+
+### 🐛 Bug Fixes
+
+* **deps:** update feign monorepo to v13.15 ([#604](https://github.com/quokkify/q4j/issues/604)) ([5c5808d](https://github.com/quokkify/q4j/commit/5c5808dd9504fdaf94b1d4d94312c4fed099423a))
+* **deps:** update io.atlassian.fugue:fugue to v6.1.6 ([#602](https://github.com/quokkify/q4j/issues/602)) ([28d87f9](https://github.com/quokkify/q4j/commit/28d87f9cbf67de7759d99ce2ff9c526eea64ea61))
+* **deps:** update io.github.classgraph:classgraph to v4.8.195 ([#600](https://github.com/quokkify/q4j/issues/600)) ([2a38980](https://github.com/quokkify/q4j/commit/2a38980a424509e4113d4817f2344ffd792194f9))
+* **deps:** update org.bouncycastle:bcprov-jdk18on to v1.86 ([#605](https://github.com/quokkify/q4j/issues/605)) ([94816b4](https://github.com/quokkify/q4j/commit/94816b4924ec935763b1a5a40bc2ef11503f8da0))
+* **deps:** update org.mongodb:mongodb-driver-sync to v5.11.1 ([#603](https://github.com/quokkify/q4j/issues/603)) ([7c97787](https://github.com/quokkify/q4j/commit/7c97787f7fdc6b1deff098e2b195c8e8621fcd87))
+
+
+### 🧹 Chores
+
+* **deps:** update mongo docker tag to v8.3.9 ([#601](https://github.com/quokkify/q4j/issues/601)) ([8a6c426](https://github.com/quokkify/q4j/commit/8a6c426744c8e17b3461fbbfb2a5482135baae60))
+* **deps:** update selenium grid images to v4.48.0-20260909 ([#607](https://github.com/quokkify/q4j/issues/607)) ([0453cfb](https://github.com/quokkify/q4j/commit/0453cfb8aa5918339976fea06f59d0378b32f3d4))
+* **deps:** update selenium/standalone-chromium docker tag to v152 ([#608](https://github.com/quokkify/q4j/issues/608)) ([3885b0a](https://github.com/quokkify/q4j/commit/3885b0acd307cd89ad8d35300d5b9b1955d15100))
+* **template:** update shared project template ([#610](https://github.com/quokkify/q4j/issues/610)) ([f244f7f](https://github.com/quokkify/q4j/commit/f244f7f9ec61a3b1d2ee1e34efabcc0c801f5e3b))
+
 ## [0.6.3](https://github.com/quokkify/q4j/compare/v0.6.2...v0.6.3) (2026-09-10)
 
 <!-- project-toolkit:rich-block:start -->
