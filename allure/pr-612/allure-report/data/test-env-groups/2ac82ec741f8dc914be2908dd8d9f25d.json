@@ -1,0 +1,1 @@
+{"id":"2ac82ec741f8dc914be2908dd8d9f25d","fullName":"dev.quokkify.reportportal.services.ParamOverrideTestNgServiceTest.testCaseId_threadLocal_isSetAndRemovedCorrectly","name":"TEST_CASE_ID ThreadLocal is correctly set and then removed","status":"passed","testResultsByEnv":{"integrations-reportportal-testng":"e218730699f4f4cc3b286c8c3281a169"}}
