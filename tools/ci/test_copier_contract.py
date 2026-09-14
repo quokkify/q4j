@@ -42,6 +42,13 @@ def assert_no_merge_conflicts(repository: Path) -> None:
     conflicts = [line for line in status if line.startswith(("UU ", "AA ", "DD ", "AU ", "UA "))]
     assert not conflicts, "Copier update left unmerged paths: " + ", ".join(conflicts)
 
+    merge_artifacts = [
+        str(path.relative_to(repository))
+        for path in repository.rglob("*")
+        if path.is_file() and path.suffix in {".rej", ".orig"}
+    ]
+    assert not merge_artifacts, "Copier update left merge artifacts: " + ", ".join(merge_artifacts)
+
     markers = []
     for path in repository.rglob("*"):
         if not path.is_file() or ".git" in path.parts:
