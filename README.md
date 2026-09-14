@@ -64,16 +64,16 @@ exercise browser, API, database, queue, or reporting system
 produce a clear test result
 ```
 
-| Need                  | Add                                   | Result                                              |
-| --------------------- | ------------------------------------- | --------------------------------------------------- |
-| Shared test utilities | `core`                            | Formatting, generation, models, and reusable APIs   |
-| TestNG lifecycle      | `testng`                          | Listeners, retries, annotations, and extensions     |
-| Browser automation    | `selenide`                        | Components, page workflows, and browser services    |
-| API automation        | `rest-assured`                    | Requests, filters, steps, and response verification |
+| Need                  | Add                       | Result                                              |
+| --------------------- | ------------------------- | --------------------------------------------------- |
+| Shared test utilities | `core`                    | Formatting, generation, models, and reusable APIs   |
+| TestNG lifecycle      | `testng`                  | Listeners, retries, annotations, and extensions     |
+| Browser automation    | `selenide`                | Components, page workflows, and browser services    |
+| API automation        | `rest-assured`            | Requests, filters, steps, and response verification |
 | Database verification | `sql`, `morphia`, `redis` | Persistence helpers and reusable assertions         |
-| Messaging             | `kafka`, `rabbitmq`           | Producers, consumers, steps, and verifiers          |
-| Test management       | `jira-*`, `testrail-*`        | Ticket and test-case lifecycle integrations         |
-| Reporting             | `reportportal-*`                  | ReportPortal services and TestNG listeners          |
+| Messaging             | `kafka`, `rabbitmq`       | Producers, consumers, steps, and verifiers          |
+| Test management       | `jira-*`, `testrail-*`    | Ticket and test-case lifecycle integrations         |
+| Reporting             | `reportportal-*`          | ReportPortal services and TestNG listeners          |
 
 ---
 
@@ -87,8 +87,8 @@ dev.quokkify:<artifact>:<version>
 
 ### 🧱 Foundation
 
-| Artifact         | Purpose                                                          |
-| ---------------- | ---------------------------------------------------------------- |
+| Artifact     | Purpose                                                          |
+| ------------ | ---------------------------------------------------------------- |
 | `core`       | Shared types, formatting, generators, and utility APIs           |
 | `config`     | Typed configuration and locale providers                         |
 | `testng`     | TestNG listeners, retries, annotations, and lifecycle extensions |
@@ -102,8 +102,8 @@ dev.quokkify:<artifact>:<version>
 
 ### 🗂️ Data formats
 
-| Artifact              | Purpose                                       |
-| --------------------- | --------------------------------------------- |
+| Artifact          | Purpose                                       |
+| ----------------- | --------------------------------------------- |
 | `jackson-support` | Shared Jackson dependencies and configuration |
 | `jackson-json`    | JSON mapping and JSON Pointer utilities       |
 | `jackson-yaml`    | YAML parsing and resource providers           |
@@ -112,16 +112,16 @@ dev.quokkify:<artifact>:<version>
 
 ### 🗄️ Data access
 
-| Artifact      | Purpose                                          |
-| ------------- | ------------------------------------------------ |
+| Artifact  | Purpose                                          |
+| --------- | ------------------------------------------------ |
 | `sql`     | SQL, JPA, persistence, and database verification |
 | `morphia` | MongoDB and Morphia persistence helpers          |
 | `redis`   | Redis operations and verification                |
 
 ### 🔌 Test integrations
 
-| Artifact                    | Purpose                                     |
-| --------------------------- | ------------------------------------------- |
+| Artifact                | Purpose                                     |
+| ----------------------- | ------------------------------------------- |
 | `rest-assured`          | REST Assured API testing                    |
 | `selenide`              | Browser automation with Selenide            |
 | `selenide-proxy`        | Proxy and HAR support for Selenide          |
