@@ -4,11 +4,11 @@ TestNG extensions providing retry logic, group filtering, lifecycle listeners, a
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-testng):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/testng):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-testng:0.6.2")
+    testImplementation("dev.quokkify:testng:0.6.2")
 }
 ```
 

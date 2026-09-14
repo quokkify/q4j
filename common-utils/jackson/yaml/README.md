@@ -4,11 +4,11 @@ Load YAML classpath resources into typed Java objects, lists, or key-ordered map
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-jackson-yaml):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/jackson-yaml):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-jackson-yaml:0.6.2")
+    testImplementation("dev.quokkify:jackson-yaml:0.6.2")
 }
 ```
 

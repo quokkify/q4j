@@ -4,11 +4,11 @@ Shared Jackson dependencies and configuration for Q4J data-format modules.
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-jackson-support):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/jackson-support):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-jackson-support:0.6.2")
+    testImplementation("dev.quokkify:jackson-support:0.6.2")
 }
 ```
 

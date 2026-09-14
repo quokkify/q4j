@@ -65,15 +65,15 @@ The workflow rejects:
 Every public artifact follows the same pattern:
 
 ```text
-dev.quokkify:q4j-<module>:<version>
+dev.quokkify:<module>:<version>
 ```
 
 For example:
 
 ```text
-dev.quokkify:q4j-core:0.2.0
-dev.quokkify:q4j-testng:0.2.0
-dev.quokkify:q4j-selenide:0.2.0
+dev.quokkify:core:0.2.0
+dev.quokkify:testng:0.2.0
+dev.quokkify:selenide:0.2.0
 ```
 
 After publication, the artifacts are available from Maven Central and searchable through [Central Search](https://central.sonatype.com/).
@@ -105,7 +105,7 @@ List the aggregate publishing tasks:
   --no-daemon --console=plain
 ```
 
-The structural `q4j-nosql` parent project is not published. Every other configured Q4J module must have unique metadata in `gradle/module-metadata.gradle`.
+The structural `nosql` parent project is not published. Every other configured Q4J module must have unique metadata in `gradle/module-metadata.gradle`.
 
 ---
 

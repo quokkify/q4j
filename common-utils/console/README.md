@@ -2,11 +2,11 @@ Manages SSH tunnels and executes remote shell commands over port-forwarded sessi
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-ssh):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/ssh):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-ssh:0.6.2")
+    testImplementation("dev.quokkify:ssh:0.6.2")
 }
 ```
 

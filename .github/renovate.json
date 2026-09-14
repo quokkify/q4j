@@ -14,7 +14,7 @@
         "/^testng-extensions/README\\.md$/"
       ],
       "matchStrings": [
-        "dev\\.quokkify:(?<depName>q4j-[a-z0-9-]+):(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+        "dev\\.quokkify:(?<depName>[a-z0-9-]+):(?<currentValue>\\d+\\.\\d+\\.\\d+)"
       ],
       "datasourceTemplate": "maven",
       "packageNameTemplate": "dev.quokkify:{{{depName}}}",
@@ -75,9 +75,9 @@
       "description": "Update all Q4J module documentation examples together",
       "matchManagers": ["custom.regex"],
       "matchDatasources": ["maven"],
-      "matchPackageNames": ["/^dev\\.quokkify:q4j-/"],
+      "matchPackageNames": ["/^dev\\.quokkify:/"],
       "groupName": "Q4J module documentation",
-      "groupSlug": "q4j-module-documentation"
+      "groupSlug": "module-documentation"
     },
     {
       "description": "Keep standalone-chromium on the custom Selenium regex manager only",

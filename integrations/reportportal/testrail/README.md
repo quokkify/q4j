@@ -4,11 +4,11 @@ TestRail description provider for Q4J ReportPortal reporting.
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-reportportal-testrail):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/reportportal-testrail):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-reportportal-testrail:0.6.2")
+    testImplementation("dev.quokkify:reportportal-testrail:0.6.2")
 }
 ```
 

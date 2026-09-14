@@ -4,11 +4,11 @@ Type-safe Owner configuration backed by environment variables and classpath prop
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-config):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/config):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-config:0.6.2")
+    testImplementation("dev.quokkify:config:0.6.2")
 }
 ```
 

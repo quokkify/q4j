@@ -88,7 +88,7 @@ def main() -> None:
     assert (ROOT / "build.gradle").is_file()
     assert (ROOT / ".github" / "workflows").is_dir()
 
-    with tempfile.TemporaryDirectory(prefix="q4j-gradle-agent-smoke-") as fixture:
+    with tempfile.TemporaryDirectory(prefix="gradle-agent-smoke-") as fixture:
         fixture_agents = Path(fixture) / ".codex" / "agents"
         fixture_agents.mkdir(parents=True)
         for filename, expected in ROLES.items():

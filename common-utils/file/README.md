@@ -4,11 +4,11 @@ Classpath resource loading, file I/O utilities, and zip archive support for test
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-files):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/files):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-files:0.6.2")
+    testImplementation("dev.quokkify:files:0.6.2")
 }
 ```
 

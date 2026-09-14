@@ -2,11 +2,11 @@ Generates RS512-signed JWT tokens for use in test authentication flows.
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-jwt):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/jwt):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-jwt:0.6.2")
+    testImplementation("dev.quokkify:jwt:0.6.2")
 }
 ```
 

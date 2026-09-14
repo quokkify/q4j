@@ -4,11 +4,11 @@ Core Jira client and ticket abstractions for test automation.
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-jira-core):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/jira-core):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-jira-core:0.6.2")
+    testImplementation("dev.quokkify:jira-core:0.6.2")
 }
 ```
 

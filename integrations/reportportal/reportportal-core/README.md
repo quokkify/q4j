@@ -4,11 +4,11 @@ Core ReportPortal configuration and API services for Q4J.
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-reportportal-core):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/reportportal-core):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-reportportal-core:0.6.2")
+    testImplementation("dev.quokkify:reportportal-core:0.6.2")
 }
 ```
 

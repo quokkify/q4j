@@ -7,11 +7,11 @@ and a built-in verification layer with configurable polling timeout and Allure s
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-selenide):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/selenide):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-selenide:0.6.2")
+    testImplementation("dev.quokkify:selenide:0.6.2")
 }
 ```
 
@@ -151,7 +151,7 @@ remain Selenide/Selenium-specific. A future separately published external Appium
 depend on the structural contract and provide its own backend integration, but q4j core and this
 Selenide module do not depend on or discover Appium. Appium has no implementation in this task, and
 this PR introduces no runtime plugin loading.
-The contracts currently ship in this `q4j-selenide` artifact alongside its Selenide dependency, so a
+The contracts currently ship in this `selenide` artifact alongside its Selenide dependency, so a
 future plugin may pull Selenide transitively. Moving them to a neutral artifact/package is deferred
 to a future major release to preserve the released 0.6.0 FQCNs.
 

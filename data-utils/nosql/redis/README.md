@@ -7,11 +7,11 @@ with a fluent verification API, configurable polling timeout, and Allure step re
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-redis):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/redis):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-redis:0.6.2")
+    testImplementation("dev.quokkify:redis:0.6.2")
 }
 ```
 

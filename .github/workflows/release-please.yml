@@ -1,0 +1,138 @@
+name: Release Please
+
+on:
+  workflow_call:
+    inputs:
+      mode:
+        description: Release Please mode.
+        type: string
+        default: single
+      release-type:
+        description: Release type for single-package mode.
+        type: string
+        default: simple
+      path:
+        description: Package path for single-package mode.
+        type: string
+        default: .
+      config-file:
+        description: Release Please config path.
+        type: string
+        default: .github/release-please/config.json
+      manifest-file:
+        description: Release Please manifest path.
+        type: string
+        default: .github/release-please/manifest.json
+      enrich-release-notes:
+        description: Enrich generated release notes from PR sections.
+        type: boolean
+        default: false
+      enrichment-script:
+        description: Repository-relative enrichment script path.
+        type: string
+        default: .github/scripts/enrich_release_notes.py
+    outputs:
+      releases-created:
+        description: Whether Release Please created a release.
+        value: ${{ jobs.manifest.outputs.releases-created || jobs.single.outputs.releases-created }}
+      tag-name:
+        description: Tag created by Release Please.
+        value: ${{ jobs.manifest.outputs.tag-name || jobs.single.outputs.tag-name }}
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  validate:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+    steps:
+      - name: Validate mode
+        env:
+          MODE: ${{ inputs.mode }}
+        run: '[[ "$MODE" == single || "$MODE" == manifest ]] || { echo "mode must be single or manifest" >&2; exit 2; }'
+
+  single:
+    if: ${{ inputs.mode == 'single' }}
+    needs: validate
+    runs-on: ubuntu-latest
+    outputs:
+      releases-created: ${{ steps.release.outputs.releases_created }}
+      tag-name: ${{ steps.release.outputs.tag_name }}
+      release-prs: ${{ steps.release.outputs.prs }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Run Release Please for one package
+        id: release
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          release-type: ${{ inputs.release-type }}
+          path: ${{ inputs.path }}
+
+  manifest:
+    if: ${{ inputs.mode == 'manifest' }}
+    needs: validate
+    runs-on: ubuntu-latest
+    outputs:
+      releases-created: ${{ steps.release.outputs.releases_created }}
+      tag-name: ${{ steps.release.outputs.tag_name || steps.release.outputs['.--tag_name'] }}
+      release-prs: ${{ steps.release.outputs.prs }}
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+      - name: Run Release Please in manifest mode
+        id: release
+        uses: googleapis/release-please-action@45996ed1f6d02564a971a2fa1b5860e934307cf7 # v5.0.0
+        with:
+          config-file: ${{ inputs.config-file }}
+          manifest-file: ${{ inputs.manifest-file }}
+
+  enrich:
+    if: ${{ always() && inputs.enrich-release-notes && ((needs.single.result == 'success' && needs.single.outputs.release-prs != '') || (needs.manifest.result == 'success' && needs.manifest.outputs.release-prs != '')) }}
+    needs: [single, manifest]
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          fetch-depth: 0
+      - name: Prepare enriched release notes
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          RELEASE_PRS: ${{ needs.single.outputs.release-prs || needs.manifest.outputs.release-prs }}
+          ENRICHMENT_SCRIPT: ${{ inputs.enrichment-script }}
+          MODE: ${{ inputs.mode }}
+          PACKAGE_PATH: ${{ inputs.path }}
+          CONFIG_FILE: ${{ inputs.config-file }}
+          MANIFEST_FILE: ${{ inputs.manifest-file }}
+          OUTPUT_DIRECTORY: ${{ runner.temp }}/release-enrichment
+        run: |
+          set -euo pipefail
+          printf '%s' "$RELEASE_PRS" > "$RUNNER_TEMP/release-prs.json"
+          python "$ENRICHMENT_SCRIPT" --prepare \
+            --repository "$REPOSITORY" \
+            --release-prs "$RUNNER_TEMP/release-prs.json" \
+            --mode "$MODE" --path "$PACKAGE_PATH" \
+            --config-file "$CONFIG_FILE" --manifest-file "$MANIFEST_FILE" \
+            --output-directory "$OUTPUT_DIRECTORY"
+      - name: Update the existing Release Please pull request
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPOSITORY: ${{ github.repository }}
+          OUTPUT_DIRECTORY: ${{ runner.temp }}/release-enrichment
+        run: |
+          set -euo pipefail
+          mapfile -t changelogs < "$OUTPUT_DIRECTORY/changelog-paths.txt"
+          if ((${#changelogs[@]})) && ! git diff --quiet -- "${changelogs[@]}"; then
+            git config user.name github-actions[bot]
+            git config user.email 41898282+github-actions[bot]@users.noreply.github.com
+            git add -- "${changelogs[@]}"
+            git commit -m "chore(release): enrich release notes"
+            git push origin HEAD
+          fi
+          release_pr="$(jq -r '.release_pr' "$OUTPUT_DIRECTORY/metadata.json")"
+          gh api -X PATCH "repos/${REPOSITORY}/pulls/${release_pr}" --input "$OUTPUT_DIRECTORY/release-body.json"

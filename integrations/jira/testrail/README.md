@@ -4,11 +4,11 @@ Jira ticket source integration for Q4J TestRail workflows.
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-jira-testrail):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/jira-testrail):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-jira-testrail:0.6.2")
+    testImplementation("dev.quokkify:jira-testrail:0.6.2")
 }
 ```
 

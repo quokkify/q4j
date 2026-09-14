@@ -4,11 +4,11 @@ Fluent wrapper around Awaitility for polling assertions and conditions in tests,
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-awaitility):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/awaitility):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-awaitility:0.6.2")
+    testImplementation("dev.quokkify:awaitility:0.6.2")
 }
 ```
 

@@ -4,11 +4,11 @@ JPA/Hibernate + QueryDSL utilities for SQL database access in test automation.
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-sql):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/sql):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-sql:0.6.2")
+    testImplementation("dev.quokkify:sql:0.6.2")
 }
 ```
 
