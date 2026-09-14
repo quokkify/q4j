@@ -23,8 +23,8 @@ Choose a module and add it from Maven Central.
 
 ```kotlin
 dependencies {
-    implementation("dev.quokkify:q4j-core:<version>")
-    testImplementation("dev.quokkify:q4j-testng:<version>")
+    implementation("dev.quokkify:core:<version>")
+    testImplementation("dev.quokkify:testng:<version>")
 }
 ```
 
@@ -32,7 +32,7 @@ dependencies {
 
 ```groovy
 dependencies {
-    implementation "dev.quokkify:q4j-rest-assured:<version>"
+    implementation "dev.quokkify:rest-assured:<version>"
 }
 ```
 
@@ -41,7 +41,7 @@ dependencies {
 ```xml
 <dependency>
     <groupId>dev.quokkify</groupId>
-    <artifactId>q4j-selenide</artifactId>
+    <artifactId>selenide</artifactId>
     <version>VERSION</version>
 </dependency>
 ```
@@ -64,16 +64,16 @@ exercise browser, API, database, queue, or reporting system
 produce a clear test result
 ```
 
-| Need                  | Add                                   | Result                                              |
-| --------------------- | ------------------------------------- | --------------------------------------------------- |
-| Shared test utilities | `q4j-core`                            | Formatting, generation, models, and reusable APIs   |
-| TestNG lifecycle      | `q4j-testng`                          | Listeners, retries, annotations, and extensions     |
-| Browser automation    | `q4j-selenide`                        | Components, page workflows, and browser services    |
-| API automation        | `q4j-rest-assured`                    | Requests, filters, steps, and response verification |
-| Database verification | `q4j-sql`, `q4j-morphia`, `q4j-redis` | Persistence helpers and reusable assertions         |
-| Messaging             | `q4j-kafka`, `q4j-rabbitmq`           | Producers, consumers, steps, and verifiers          |
-| Test management       | `q4j-jira-*`, `q4j-testrail-*`        | Ticket and test-case lifecycle integrations         |
-| Reporting             | `q4j-reportportal-*`                  | ReportPortal services and TestNG listeners          |
+| Need                  | Add                       | Result                                              |
+| --------------------- | ------------------------- | --------------------------------------------------- |
+| Shared test utilities | `core`                    | Formatting, generation, models, and reusable APIs   |
+| TestNG lifecycle      | `testng`                  | Listeners, retries, annotations, and extensions     |
+| Browser automation    | `selenide`                | Components, page workflows, and browser services    |
+| API automation        | `rest-assured`            | Requests, filters, steps, and response verification |
+| Database verification | `sql`, `morphia`, `redis` | Persistence helpers and reusable assertions         |
+| Messaging             | `kafka`, `rabbitmq`       | Producers, consumers, steps, and verifiers          |
+| Test management       | `jira-*`, `testrail-*`    | Ticket and test-case lifecycle integrations         |
+| Reporting             | `reportportal-*`          | ReportPortal services and TestNG listeners          |
 
 ---
 
@@ -87,58 +87,58 @@ dev.quokkify:<artifact>:<version>
 
 ### 🧱 Foundation
 
-| Artifact         | Purpose                                                          |
-| ---------------- | ---------------------------------------------------------------- |
-| `q4j-core`       | Shared types, formatting, generators, and utility APIs           |
-| `q4j-config`     | Typed configuration and locale providers                         |
-| `q4j-testng`     | TestNG listeners, retries, annotations, and lifecycle extensions |
-| `q4j-awaitility` | Polling and timeout abstractions                                 |
-| `q4j-reflection` | Classpath scanning and reflection utilities                      |
-| `q4j-files`      | Files, archives, locking, and local resources                    |
-| `q4j-html`       | HTML parsing and generated browser-compatibility models          |
-| `q4j-jwt`        | JWT models, generators, and formatting                           |
-| `q4j-crypto`     | Encryption, key, and digital-signature utilities                 |
-| `q4j-ssh`        | SSH execution and port forwarding                                |
+| Artifact     | Purpose                                                          |
+| ------------ | ---------------------------------------------------------------- |
+| `core`       | Shared types, formatting, generators, and utility APIs           |
+| `config`     | Typed configuration and locale providers                         |
+| `testng`     | TestNG listeners, retries, annotations, and lifecycle extensions |
+| `awaitility` | Polling and timeout abstractions                                 |
+| `reflection` | Classpath scanning and reflection utilities                      |
+| `files`      | Files, archives, locking, and local resources                    |
+| `html`       | HTML parsing and generated browser-compatibility models          |
+| `jwt`        | JWT models, generators, and formatting                           |
+| `crypto`     | Encryption, key, and digital-signature utilities                 |
+| `ssh`        | SSH execution and port forwarding                                |
 
 ### 🗂️ Data formats
 
-| Artifact              | Purpose                                       |
-| --------------------- | --------------------------------------------- |
-| `q4j-jackson-support` | Shared Jackson dependencies and configuration |
-| `q4j-jackson-json`    | JSON mapping and JSON Pointer utilities       |
-| `q4j-jackson-yaml`    | YAML parsing and resource providers           |
-| `q4j-jackson-xml`     | XML parsing and conversion                    |
-| `q4j-jackson-csv`     | CSV parsing and conversion                    |
+| Artifact          | Purpose                                       |
+| ----------------- | --------------------------------------------- |
+| `jackson-support` | Shared Jackson dependencies and configuration |
+| `jackson-json`    | JSON mapping and JSON Pointer utilities       |
+| `jackson-yaml`    | YAML parsing and resource providers           |
+| `jackson-xml`     | XML parsing and conversion                    |
+| `jackson-csv`     | CSV parsing and conversion                    |
 
 ### 🗄️ Data access
 
-| Artifact      | Purpose                                          |
-| ------------- | ------------------------------------------------ |
-| `q4j-sql`     | SQL, JPA, persistence, and database verification |
-| `q4j-morphia` | MongoDB and Morphia persistence helpers          |
-| `q4j-redis`   | Redis operations and verification                |
+| Artifact  | Purpose                                          |
+| --------- | ------------------------------------------------ |
+| `sql`     | SQL, JPA, persistence, and database verification |
+| `morphia` | MongoDB and Morphia persistence helpers          |
+| `redis`   | Redis operations and verification                |
 
 ### 🔌 Test integrations
 
-| Artifact                    | Purpose                                     |
-| --------------------------- | ------------------------------------------- |
-| `q4j-rest-assured`          | REST Assured API testing                    |
-| `q4j-selenide`              | Browser automation with Selenide            |
-| `q4j-selenide-proxy`        | Proxy and HAR support for Selenide          |
-| `q4j-selenide-grid`         | Selenium Grid support for Selenide          |
-| `q4j-kafka`                 | Kafka producers, consumers, and assertions  |
-| `q4j-rabbitmq`              | RabbitMQ integration testing                |
-| `q4j-tyrus`                 | WebSocket testing with Tyrus                |
-| `q4j-jira-core`             | Jira client and ticket abstractions         |
-| `q4j-jira-testng`           | Jira integration for TestNG                 |
-| `q4j-jira-testrail`         | Jira ticket sources for TestRail workflows  |
-| `q4j-testrail-core`         | TestRail API models and services            |
-| `q4j-testrail-testng`       | TestRail lifecycle integration for TestNG   |
-| `q4j-reportportal-core`     | ReportPortal configuration and API services |
-| `q4j-reportportal-testng`   | ReportPortal listeners for TestNG           |
-| `q4j-reportportal-testrail` | TestRail descriptions for ReportPortal      |
+| Artifact                | Purpose                                     |
+| ----------------------- | ------------------------------------------- |
+| `rest-assured`          | REST Assured API testing                    |
+| `selenide`              | Browser automation with Selenide            |
+| `selenide-proxy`        | Proxy and HAR support for Selenide          |
+| `selenide-grid`         | Selenium Grid support for Selenide          |
+| `kafka`                 | Kafka producers, consumers, and assertions  |
+| `rabbitmq`              | RabbitMQ integration testing                |
+| `tyrus`                 | WebSocket testing with Tyrus                |
+| `jira-core`             | Jira client and ticket abstractions         |
+| `jira-testng`           | Jira integration for TestNG                 |
+| `jira-testrail`         | Jira ticket sources for TestRail workflows  |
+| `testrail-core`         | TestRail API models and services            |
+| `testrail-testng`       | TestRail lifecycle integration for TestNG   |
+| `reportportal-core`     | ReportPortal configuration and API services |
+| `reportportal-testng`   | ReportPortal listeners for TestNG           |
+| `reportportal-testrail` | TestRail descriptions for ReportPortal      |
 
-> `q4j-nosql` is an internal Gradle parent project and is not published.
+> `nosql` is an internal Gradle parent project and is not published.
 
 ---
 
@@ -149,12 +149,12 @@ dev.quokkify:<artifact>:<version>
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-testng:<version>")
-    testImplementation("dev.quokkify:q4j-selenide:<version>")
+    testImplementation("dev.quokkify:testng:<version>")
+    testImplementation("dev.quokkify:selenide:<version>")
 }
 ```
 
-Add `q4j-selenide-proxy` when a test needs proxy or HAR support, or `q4j-selenide-grid` for Selenium Grid integration.
+Add `selenide-proxy` when a test needs proxy or HAR support, or `selenide-grid` for Selenium Grid integration.
 
 </details>
 
@@ -163,9 +163,9 @@ Add `q4j-selenide-proxy` when a test needs proxy or HAR support, or `q4j-selenid
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-testng:<version>")
-    testImplementation("dev.quokkify:q4j-rest-assured:<version>")
-    testImplementation("dev.quokkify:q4j-jackson-json:<version>")
+    testImplementation("dev.quokkify:testng:<version>")
+    testImplementation("dev.quokkify:rest-assured:<version>")
+    testImplementation("dev.quokkify:jackson-json:<version>")
 }
 ```
 
@@ -178,9 +178,9 @@ Use Q4J request services, filters, steps, and verifiers while keeping project-sp
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-sql:<version>")
-    testImplementation("dev.quokkify:q4j-redis:<version>")
-    testImplementation("dev.quokkify:q4j-kafka:<version>")
+    testImplementation("dev.quokkify:sql:<version>")
+    testImplementation("dev.quokkify:redis:<version>")
+    testImplementation("dev.quokkify:kafka:<version>")
 }
 ```
 
@@ -193,9 +193,9 @@ Choose only the systems exercised by the test suite. Each integration is publish
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-reportportal-testng:<version>")
-    testImplementation("dev.quokkify:q4j-testrail-testng:<version>")
-    testImplementation("dev.quokkify:q4j-jira-testng:<version>")
+    testImplementation("dev.quokkify:reportportal-testng:<version>")
+    testImplementation("dev.quokkify:testrail-testng:<version>")
+    testImplementation("dev.quokkify:jira-testng:<version>")
 }
 ```
 
@@ -208,7 +208,7 @@ The integration modules connect test lifecycle events to ReportPortal, TestRail,
 ## 🧠 Design principles
 
 - **Modular first** — no umbrella dependency that silently imports every integration.
-- **Stable coordinates** — public artifacts follow `dev.quokkify:q4j-*`.
+- **Stable coordinates** — public artifacts follow `dev.quokkify:*`.
 - **One source namespace** — Java APIs live under `dev.quokkify.*`.
 - **Integration at the edges** — vendor-specific clients stay outside the core modules.
 - **Testable releases** — compilation, Checkstyle, SpotBugs, integration matrices, and publication metadata are validated in CI.

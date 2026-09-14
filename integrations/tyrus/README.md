@@ -8,11 +8,11 @@ built-in polling, timeout configuration, and Allure step reporting.
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-tyrus):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/tyrus):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-tyrus:0.6.2")
+    testImplementation("dev.quokkify:tyrus:0.6.2")
 }
 ```
 

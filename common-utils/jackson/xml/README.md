@@ -4,11 +4,11 @@ Parse XML classpath resources, input streams, and strings into typed Java object
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-jackson-xml):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/jackson-xml):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-jackson-xml:0.6.2")
+    testImplementation("dev.quokkify:jackson-xml:0.6.2")
 }
 ```
 

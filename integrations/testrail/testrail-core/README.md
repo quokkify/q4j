@@ -4,11 +4,11 @@ Core TestRail API models and services for test automation.
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-testrail-core):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/testrail-core):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-testrail-core:0.6.2")
+    testImplementation("dev.quokkify:testrail-core:0.6.2")
 }
 ```
 

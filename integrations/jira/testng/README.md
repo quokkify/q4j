@@ -4,11 +4,11 @@ TestNG integration for Q4J Jira workflows.
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-jira-testng):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/jira-testng):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-jira-testng:0.6.2")
+    testImplementation("dev.quokkify:jira-testng:0.6.2")
 }
 ```
 

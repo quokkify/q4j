@@ -4,11 +4,11 @@ Jackson-based JSON utility with module auto-discovery, null handling control, ge
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-jackson-json):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/jackson-json):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-jackson-json:0.6.2")
+    testImplementation("dev.quokkify:jackson-json:0.6.2")
 }
 ```
 

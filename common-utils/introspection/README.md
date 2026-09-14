@@ -4,11 +4,11 @@ Scans the classpath to discover methods carrying a specific annotation — usefu
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-reflection):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/reflection):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-reflection:0.6.2")
+    testImplementation("dev.quokkify:reflection:0.6.2")
 }
 ```
 

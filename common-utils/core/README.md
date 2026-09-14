@@ -4,11 +4,11 @@ Core types, formatting, generation, and utility APIs shared by Q4J modules.
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-core):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/core):
 
 ```kotlin
 dependencies {
-    implementation("dev.quokkify:q4j-core:0.6.2")
+    implementation("dev.quokkify:core:0.6.2")
 }
 ```
 

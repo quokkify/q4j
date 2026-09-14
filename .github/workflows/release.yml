@@ -10,12 +10,12 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: release-please-${{ github.ref }}
+  group: release-${{ github.workflow }}-${{ github.repository }}
   cancel-in-progress: false
 
 jobs:
   release:
-    uses: quokkify/project-toolkit/.github/workflows/release-please.yml@v2.21.3
+    uses: ./.github/workflows/release-please.yml
     with:
       mode: manifest
       config-file: .github/release-please/config.json

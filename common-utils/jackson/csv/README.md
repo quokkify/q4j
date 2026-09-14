@@ -4,11 +4,11 @@ CSV parsing and conversion utilities for Q4J.
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-jackson-csv):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/jackson-csv):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-jackson-csv:0.6.2")
+    testImplementation("dev.quokkify:jackson-csv:0.6.2")
 }
 ```
 

@@ -4,11 +4,11 @@ TestNG lifecycle integration for Q4J TestRail.
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-testrail-testng):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/testrail-testng):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-testrail-testng:0.6.2")
+    testImplementation("dev.quokkify:testrail-testng:0.6.2")
 }
 ```
 

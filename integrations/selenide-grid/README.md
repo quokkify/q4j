@@ -4,11 +4,11 @@ Selenium Grid support for Q4J Selenide tests.
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-selenide-grid):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/selenide-grid):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-selenide-grid:0.6.2")
+    testImplementation("dev.quokkify:selenide-grid:0.6.2")
 }
 ```
 

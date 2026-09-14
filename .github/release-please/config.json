@@ -3,6 +3,7 @@
   "include-component-in-tag": false,
   "packages": {
     ".": {
+      "package-name": "q4j",
       "release-type": "simple",
       "bump-minor-pre-major": true,
       "changelog-path": "CHANGELOG.md",
@@ -25,11 +26,13 @@
         },
         {
           "type": "ci",
-          "section": "⚙️ CI"
+          "section": "⚙️ CI",
+          "hidden": true
         },
         {
           "type": "build",
-          "section": "🛠 Build System"
+          "section": "🛠 Build System",
+          "hidden": true
         },
         {
           "type": "perf",
@@ -41,11 +44,18 @@
         },
         {
           "type": "test",
-          "section": "🧪 Tests"
+          "section": "🧪 Tests",
+          "hidden": true
         },
         {
           "type": "chore",
-          "section": "🧹 Chores"
+          "section": "🧹 Chores",
+          "hidden": true
+        },
+        {
+          "type": "style",
+          "section": "🎨 Style",
+          "hidden": true
         }
       ]
     }

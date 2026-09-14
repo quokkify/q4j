@@ -4,11 +4,11 @@ TestNG listener integration for Q4J ReportPortal reporting.
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-reportportal-testng):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/reportportal-testng):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-reportportal-testng:0.6.2")
+    testImplementation("dev.quokkify:reportportal-testng:0.6.2")
 }
 ```
 

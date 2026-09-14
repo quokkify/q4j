@@ -4,7 +4,7 @@ def validateMavenCentralPoms = tasks.register('validateMavenCentralPoms') {
 }
 
 subprojects {
-    def metadata = rootProject.q4jModules[path]
+    def metadata = rootProject.modules[path]
     if (metadata == null || metadata.publish == false) {
         return
     }

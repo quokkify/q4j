@@ -2,11 +2,11 @@ Provides RSA and HMAC signature generation plus AES encryption utilities for tes
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-crypto):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/crypto):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-crypto:0.6.2")
+    testImplementation("dev.quokkify:crypto:0.6.2")
 }
 ```
 

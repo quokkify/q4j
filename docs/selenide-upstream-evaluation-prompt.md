@@ -18,7 +18,7 @@ research. Do not create a
 Selenide fork, issue, or implementation MR before maintainer agreement; and do not expand scope to
 sorting, filtering, or pagination.
 
-Separate q4j-specific table models, DOM adapters, query semantics, assertions, actions, and typed
+Separate Q4J-specific table models, DOM adapters, query semantics, assertions, actions, and typed
 header behavior from generic primitives that could be useful outside tables. Search current
 Selenide APIs, issues, and pull requests before proposing anything. For every candidate classify it
 as exactly one of: `keep in q4j`, `clarify/document`, `improve compatibly`, `future major`,
@@ -28,7 +28,7 @@ Treat Appium only as a future separately published external plugin/module bounda
 contracts (`TableModel`, `TableRow`, `TableCell`) are the extension contract; the current Selenide
 adapter and its query/assertion/action APIs remain Selenide/Selenium-specific. Do not propose or
 implement an Appium type, dependency, driver setup, fixture, runtime code, or plugin discovery in
-q4j. Record that these contracts currently ship in `q4j-selenide` with Selenide dependencies, so
+q4j. Record that these contracts currently ship in `selenide` with Selenide dependencies, so
 neutral-artifact extraction is a future-major compatibility decision because 0.6.0 FQCNs cannot move.
 
 Require concrete cross-domain use cases for any upstream candidate. Prefer a maintainer

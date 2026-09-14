@@ -4,11 +4,11 @@ Parse raw HTML strings and extract elements by XPath — useful for validating H
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-html):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/html):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-html:0.6.2")
+    testImplementation("dev.quokkify:html:0.6.2")
 }
 ```
 

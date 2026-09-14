@@ -5,11 +5,11 @@ with configurable polling timeout and Allure step reporting.
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-kafka):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/kafka):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-kafka:0.6.2")
+    testImplementation("dev.quokkify:kafka:0.6.2")
 }
 ```
 

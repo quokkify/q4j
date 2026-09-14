@@ -4,11 +4,11 @@ Morphia-based MongoDB access utility for test automation with thread-safe datast
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-morphia):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/morphia):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-morphia:0.6.2")
+    testImplementation("dev.quokkify:morphia:0.6.2")
 }
 ```
 

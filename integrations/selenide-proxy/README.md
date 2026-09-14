@@ -4,11 +4,11 @@ Proxy and HAR capture support for Q4J Selenide tests.
 
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/q4j-selenide-proxy):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/selenide-proxy):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:q4j-selenide-proxy:0.6.2")
+    testImplementation("dev.quokkify:selenide-proxy:0.6.2")
 }
 ```
 
