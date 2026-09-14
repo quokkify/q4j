@@ -1,0 +1,1 @@
+{"id":"0d79fb93178fb3a30e9b13fcabf002f5","fullName":"dev.quokkify.test.TableAssertionsActionsContractTest.reResolvesEveryHandleAfterRemount","name":"Row, cell, and ordered duplicate column handles survive table remount","status":"passed","testResultsByEnv":{"integrations-selenide":"60e1c296ccc90c97f7ef7d4a7d19ffa5"}}

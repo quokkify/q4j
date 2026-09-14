@@ -1,0 +1,1 @@
+{"id":"10bef27288c2e688f378e8f26f6fed86","fullName":"dev.quokkify.model.JsonPojoTest.testSetEachAtCreatesNestedPathInElements","name":"Verify set value in each array element creates missing nested path","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"3cb96c9eae38bf115db95cdd30d44d30"}}
