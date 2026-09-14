@@ -1,0 +1,1 @@
+{"id":"51e6b14395ff77d32549bf5f492570b2","fullName":"dev.quokkify.test.DropdownBehaviorTest.testSelectExactClosesInitiallyOpenDropdown","name":"Verify selectExact closes an already-open dropdown after selecting the exact option","status":"passed","testResultsByEnv":{"integrations-selenide":"224b1eb2b0ba9e159d7b8daa6773c97f"}}
