@@ -1,0 +1,1 @@
+{"id":"b756c3fb43103eceda89097ee71d56f2","fullName":"dev.quokkify.test.TableRowWaitTest.testIsRowExistDoesNotWaitForUnmountedTable","name":"Verify isRowExist remains non-waiting when the table itself is not mounted","status":"passed","testResultsByEnv":{"integrations-selenide":"7e7656d11ea53644d3a996518a52e88e"}}

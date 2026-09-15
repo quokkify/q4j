@@ -1,0 +1,1 @@
+{"id":"1bbb7c8b906dd8cfb90d09cde725f5c4","fullName":"dev.quokkify.test.TableRowWaitTest.testReturnedHorizontalTableRowSurvivesTableReload","name":"Verify a returned HORIZONTAL TABLE row resolves itself again after the table root is replaced","status":"passed","testResultsByEnv":{"integrations-selenide":"cec07748caa18c76d1502e951c727aa9"}}

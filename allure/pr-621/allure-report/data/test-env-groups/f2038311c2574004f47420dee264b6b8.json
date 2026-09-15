@@ -1,0 +1,1 @@
+{"id":"f2038311c2574004f47420dee264b6b8","fullName":"dev.quokkify.model.JsonPojoTest.testSetAtNumericKeyOnExistingObject","name":"Verify set value by json pointer with numeric key on existing object","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"7e5527df07717f278dcf54a90537e96b"}}

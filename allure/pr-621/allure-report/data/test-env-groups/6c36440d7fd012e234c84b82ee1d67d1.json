@@ -1,0 +1,1 @@
+{"id":"6c36440d7fd012e234c84b82ee1d67d1","fullName":"dev.quokkify.model.JsonPojoTest.testRemoveAtField","name":"Verify remove node by json pointer","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"cf9cebd2db2eef10917403e718109322"}}

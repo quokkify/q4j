@@ -1,0 +1,1 @@
+{"id":"a5a22e3e7776d2e5a687e606b884e47b","fullName":"dev.quokkify.model.NavigationTest.openPageWithBasicAuthDoesNotLeakCredentials","name":"Typed page opening with Basic Auth must not leak credentials into url or Allure step","status":"passed","testResultsByEnv":{"integrations-selenide":"ee229abc34a4d4b763fcc1e80b2673c8"}}

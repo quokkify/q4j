@@ -1,0 +1,1 @@
+{"id":"021b597e5f1c3efac3789040c7598740","fullName":"dev.quokkify.test.TableRowWaitTest.testFlexTableMissingRowUsesCallerTimeout","name":"Verify 'FLEX TABLE' applies the caller timeout","status":"passed","testResultsByEnv":{"integrations-selenide":"2fdabd3b2b927b227bcda106b21262bd"}}

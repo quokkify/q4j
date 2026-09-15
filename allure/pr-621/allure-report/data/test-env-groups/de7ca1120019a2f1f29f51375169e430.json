@@ -1,0 +1,1 @@
+{"id":"de7ca1120019a2f1f29f51375169e430","fullName":"dev.quokkify.test.TableModelContractTest.waitsForDelayedRow","name":"Required lookup waits for a row restored asynchronously","status":"passed","testResultsByEnv":{"integrations-selenide":"e3c2ec88cc6da06cd0d4dd2bfad77dcc"}}

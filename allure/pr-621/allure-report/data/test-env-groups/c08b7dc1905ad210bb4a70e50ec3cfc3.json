@@ -1,0 +1,1 @@
+{"id":"c08b7dc1905ad210bb4a70e50ec3cfc3","fullName":"dev.quokkify.test.NoSqlFactoryTest.rejectNullDatabaseName","name":"Reject a null database name","status":"passed","testResultsByEnv":{"data-utils-nosql-morphia":"6d2ba28ce5d0196d1dbcb7a039f8638c"}}

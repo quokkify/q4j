@@ -1,0 +1,1 @@
+{"id":"41d060586084a387d0903256b1550b16","fullName":"dev.quokkify.test.YamlParserTest.testParseToMapFromFile","name":"Verify parse yaml file to map","status":"passed","testResultsByEnv":{"common-utils-jackson-yaml":"c7c7ea00a5af2bd3e167bc08694e93cc"}}
