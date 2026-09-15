@@ -1,0 +1,1 @@
+{"id":"63afc1ddb65560c7c9c28581b15a6937","fullName":"dev.quokkify.model.JsonPojoTest.testSetAtCreatesNestedObjects","name":"Verify set value by json pointer creates missing intermediate objects","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"8f1a5e0e2947a055f37dd9cccbf9d61d"}}
