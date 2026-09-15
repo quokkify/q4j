@@ -1,5 +1,22 @@
 # Changelog
 
+## [0.7.0](https://github.com/quokkify/q4j/compare/v0.6.3...v0.7.0) (2026-09-15)
+
+
+### ✨ Features
+
+* **release:** align coordinates and release workflow ([#614](https://github.com/quokkify/q4j/issues/614)) ([14d85c3](https://github.com/quokkify/q4j/commit/14d85c3e096e093f2a4e2861a1791ff3668dcc7f))
+
+
+### 🐛 Bug Fixes
+
+* **ci:** align q4j Copier consumer with toolkit v2.21.4 ([#616](https://github.com/quokkify/q4j/issues/616)) ([3149c3c](https://github.com/quokkify/q4j/commit/3149c3ce092000605cf5ba1fd25249ffa891b2b6))
+* **deps:** update feign monorepo to v13.15 ([#604](https://github.com/quokkify/q4j/issues/604)) ([5c5808d](https://github.com/quokkify/q4j/commit/5c5808dd9504fdaf94b1d4d94312c4fed099423a))
+* **deps:** update io.atlassian.fugue:fugue to v6.1.6 ([#602](https://github.com/quokkify/q4j/issues/602)) ([28d87f9](https://github.com/quokkify/q4j/commit/28d87f9cbf67de7759d99ce2ff9c526eea64ea61))
+* **deps:** update io.github.classgraph:classgraph to v4.8.195 ([#600](https://github.com/quokkify/q4j/issues/600)) ([2a38980](https://github.com/quokkify/q4j/commit/2a38980a424509e4113d4817f2344ffd792194f9))
+* **deps:** update org.bouncycastle:bcprov-jdk18on to v1.86 ([#605](https://github.com/quokkify/q4j/issues/605)) ([94816b4](https://github.com/quokkify/q4j/commit/94816b4924ec935763b1a5a40bc2ef11503f8da0))
+* **deps:** update org.mongodb:mongodb-driver-sync to v5.11.1 ([#603](https://github.com/quokkify/q4j/issues/603)) ([7c97787](https://github.com/quokkify/q4j/commit/7c97787f7fdc6b1deff098e2b195c8e8621fcd87))
+
 ## [0.6.3](https://github.com/quokkify/q4j/compare/v0.6.2...v0.6.3) (2026-09-10)
 
 <!-- project-toolkit:rich-block:start -->
