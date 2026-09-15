@@ -1,0 +1,1 @@
+{"id":"f1fc22bd949d55c3dec5a2f1ee154381","fullName":"dev.quokkify.test.RedisSmokeTest.shouldStoreAndReadBasicTypes","name":"shouldStoreAndReadBasicTypes","status":"passed","testResultsByEnv":{"data-utils-nosql-redis":"48dc2702378a9e48b49c80e57c33f04c"}}

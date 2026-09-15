@@ -1,0 +1,1 @@
+{"id":"c0caba233c57efdf0ad65b57ff6f4dd0","fullName":"dev.quokkify.test.TableRowWaitTest.testTableRowSearchFailsAfterTimeout","name":"Verify 'TABLE' row search fails with row details and a chained cause after the given timeout","status":"passed","testResultsByEnv":{"integrations-selenide":"2465c3ff747b1670a567c1e7754f9b5b"}}

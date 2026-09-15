@@ -1,0 +1,1 @@
+{"id":"ff62745c5ff7a396bea02c654f587265","fullName":"dev.quokkify.converter.CsvConverterModuleDiscoveryTest.shouldSerializeWithCustomFormattingWhenModuleRegistered","name":"Verify CSV serialization applies discovered custom module formatting","status":"passed","testResultsByEnv":{"common-utils-jackson-csv":"9b61ce2be1d4270e4d2b2471d213dee6"}}

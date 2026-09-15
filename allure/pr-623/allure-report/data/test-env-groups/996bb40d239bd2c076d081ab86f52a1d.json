@@ -1,0 +1,1 @@
+{"id":"996bb40d239bd2c076d081ab86f52a1d","fullName":"dev.quokkify.reportportal.test.ReportPortalConnectionTest.shouldRejectRequestWithInvalidToken","name":"Verify ReportPortal rejects requests with an invalid API token","status":"passed","testResultsByEnv":{"integrations-reportportal-testng":"042920f2eb5a52c22011182db1580e7b"}}

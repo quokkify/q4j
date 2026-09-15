@@ -1,0 +1,1 @@
+{"id":"10181dec9e71af04c21dd00b0221d7ce","fullName":"dev.quokkify.test.TableModelContractTest.readsTypedCellLazily","name":"Rows expose typed lazy-cell contract without table capabilities","status":"passed","testResultsByEnv":{"integrations-selenide":"0840e3e6cbfec2b91069bcd5e02af5a8"}}

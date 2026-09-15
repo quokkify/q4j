@@ -1,0 +1,1 @@
+{"id":"b04e21162546f17045d1e55acf5d72de","fullName":"dev.quokkify.test.ConnectionTimeoutTest.testConnectionClosedOnTimeout","name":"Verify connection is closed when MAX_RESPONSE_TIME_SECONDS is exceeded","status":"passed","testResultsByEnv":{"integrations-rest-assured":"4802326cb2a01aae82e14bc768ab89d4"}}
