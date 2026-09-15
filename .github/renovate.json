@@ -14,10 +14,10 @@
         "/^testng-extensions/README\\.md$/"
       ],
       "matchStrings": [
-        "dev\\.quokkify:(?<depName>[a-z0-9-]+):(?<currentValue>\\d+\\.\\d+\\.\\d+)"
+        "dev\\.quokkify:q4j-(?<depName>[a-z0-9-]+):(?<currentValue>\\d+\\.\\d+\\.\\d+)"
       ],
       "datasourceTemplate": "maven",
-      "packageNameTemplate": "dev.quokkify:{{{depName}}}",
+      "packageNameTemplate": "dev.quokkify:q4j-{{{depName}}}",
       "registryUrlTemplate": "https://repo.maven.apache.org/maven2"
     },
     {
