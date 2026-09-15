@@ -1,0 +1,1 @@
+{"id":"62407a6fe05f3fecda8ac137dac8c009","fullName":"dev.quokkify.converter.XmlConverterModuleDiscoveryTest.shouldUseDefaultDiscoveredJavaTimeModule","name":"Verify default discovered modules support Java Time serialization and deserialization for XML","status":"passed","testResultsByEnv":{"common-utils-jackson-xml":"303532e6979dff79183689a27e9a3569"}}

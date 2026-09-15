@@ -1,0 +1,1 @@
+{"id":"69eca70a46a2c11f83c1fd8f564be43e","fullName":"dev.quokkify.test.UiTableTest.testMissingTableRow","name":"Verify missing local TABLE row reports a negative lookup","status":"passed","testResultsByEnv":{"integrations-selenide":"00017fdf96b02eb67f3a6b9a549caab1"}}

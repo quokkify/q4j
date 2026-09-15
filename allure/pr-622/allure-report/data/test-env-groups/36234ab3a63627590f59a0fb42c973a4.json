@@ -1,0 +1,1 @@
+{"id":"36234ab3a63627590f59a0fb42c973a4","fullName":"dev.quokkify.model.JsonPojoTest.testAtReturnsMissingNodeForAbsentPath","name":"Verify get node by json pointer returns missing node for absent path","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"191c22018f4bc143db2ec63cce422c0f"}}

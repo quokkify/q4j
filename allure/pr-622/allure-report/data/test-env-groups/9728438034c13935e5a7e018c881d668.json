@@ -1,0 +1,1 @@
+{"id":"9728438034c13935e5a7e018c881d668","fullName":"dev.quokkify.test.NoSqlFactoryTest.rejectNullMorphiaConfig","name":"Reject a null Morphia configuration","status":"passed","testResultsByEnv":{"data-utils-nosql-morphia":"fa546d0dc48d5163351db00cb6bd8848"}}

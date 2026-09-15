@@ -1,0 +1,1 @@
+{"id":"c3b430a6a71b104ab7007144ffd25bc5","fullName":"dev.quokkify.model.JsonPojoTest.testSetAtRootPointerThrows","name":"Verify set value by root json pointer is rejected","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"d52e0098fa20583e93e39a3c98d312c5"}}

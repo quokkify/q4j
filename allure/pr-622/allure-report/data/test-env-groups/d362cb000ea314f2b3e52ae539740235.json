@@ -1,0 +1,1 @@
+{"id":"d362cb000ea314f2b3e52ae539740235","fullName":"dev.quokkify.test.ApiTest.testValidateSchemaByJsonSchemaFile","name":"Verify scheme validation by json schema file","status":"passed","testResultsByEnv":{"integrations-rest-assured":"68a8f5a255517aba31da436f9b798f87"}}

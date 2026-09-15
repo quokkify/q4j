@@ -1,0 +1,1 @@
+{"id":"3d7e27c6cc1fe485eecc6204a762e114","fullName":"dev.quokkify.test.TableRowWaitTest.testGetRowByMapWaitsForDelayedRow","name":"Verify 'TABLE' row search by a map of expected values waits for a delayed row","status":"passed","testResultsByEnv":{"integrations-selenide":"25898547a4fd292d4446d1ad75ffdb4c"}}

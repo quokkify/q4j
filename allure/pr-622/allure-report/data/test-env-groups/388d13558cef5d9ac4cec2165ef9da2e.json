@@ -1,0 +1,1 @@
+{"id":"388d13558cef5d9ac4cec2165ef9da2e","fullName":"dev.quokkify.test.CsvParserTest.testParseCsvFileToObjectHeader","name":"Verify parse CSV file with header to record model","status":"passed","testResultsByEnv":{"common-utils-jackson-csv":"8cba11d414708b854271b8ef776564d4"}}

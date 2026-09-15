@@ -1,0 +1,1 @@
+{"id":"3a0210de8c670675d991c3814975025e","fullName":"dev.quokkify.test.TableRowWaitTest.testReturnedDynamicTableRowSurvivesTableReload","name":"Verify a returned DYNAMIC TABLE row resolves itself again after the table root is replaced","status":"passed","testResultsByEnv":{"integrations-selenide":"39a19154c417512b42d19b7a2c9a23cc"}}

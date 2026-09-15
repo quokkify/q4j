@@ -1,0 +1,1 @@
+{"id":"768dec0e5a8fd3fcb91d5b28469b01f4","fullName":"dev.quokkify.test.DropdownBehaviorTest.testSelectAllPartialWithAutoCloseDisabled","name":"Verify selectAllPartial works with a non-autoclosing widget and preserves the second widget state","status":"passed","testResultsByEnv":{"integrations-selenide":"9b08129b206b0d98816a163b213e5d47"}}
