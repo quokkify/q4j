@@ -67,7 +67,7 @@ public class AllureLinkToTestRailRunListener implements ITestListener {
   }
 
   private static void updateTestCaseTmsLinks(ITestResult testResult) {
-    Allure.getLifecycle().updateTestCase(allureTestResult ->
+    Allure.getLifecycle().updateTest(allureTestResult ->
         allureTestResult.getLinks()
             .stream()
             .filter(link -> link.getName().equals(getTestCaseId(testResult)))
