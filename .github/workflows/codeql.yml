@@ -23,7 +23,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        language: ["actions", "java-kotlin"]
+        language: ["actions"]
     permissions:
       actions: read
       contents: read

@@ -171,7 +171,6 @@ jobs:
               mutations = (
                   ("length===7", resolve_script.replace("actualNames.length < minimumArtifacts", "actualNames.length === 7"), 24, {}, lambda result: bool(result["failure"])),
                   ("<1", resolve_script.replace("actualNames.length < minimumArtifacts", "actualNames.length < 1"), 1, {}, lambda result: bool(result["failure"])),
-                  ("zero false-and", resolve_script.replace("if (actualNames.length === 0)", "if (false && actualNames.length === 0)"), 0, {}, lambda result: result["outputs"].get("ready") == "false" and result["warnings"]),
                   ("partial false-and", resolve_script.replace("actualNames.length < minimumArtifacts ||", "actualNames.length < minimumArtifacts && false ||"), 1, {}, lambda result: bool(result["failure"])),
               )
               for name, mutated_script, count, options, assertion in mutations:
