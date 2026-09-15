@@ -1,0 +1,1 @@
+{"id":"3fc2c0a8004e689a7f31302bb5efe106","fullName":"dev.quokkify.util.JsonConverterModuleDiscoveryTest.shouldFailDeserializePolymorphicPayloadWhenCustomModuleNotRegistered","name":"Verify deserialization to base type fails without discovered custom module","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"7135e7061b17b6815f5d08967000cdb7"}}
