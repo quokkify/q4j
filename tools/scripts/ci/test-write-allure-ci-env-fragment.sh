@@ -13,6 +13,7 @@ MODULE_PATH=':common-utils:core' \
 OS_RELEASE_FILE="${ROOT}/os-release-2204" \
 GITHUB_JOB=fixture-job \
 RUNNER_NAME=fixture-runner \
+SYNTHETIC_SECRET_NAME=synthetic-secret-value \
 bash tools/scripts/ci/write-allure-ci-env-fragment.sh legacy-prefix "${ROOT}/allure-results"
 
 fragment="${ROOT}/allure-results/ci-env-fragment.properties"
@@ -27,8 +28,8 @@ if grep -q 'legacy-prefix' "${fragment}"; then
   printf 'legacy prefix leaked into provenance\n' >&2
   exit 1
 fi
-if grep -q 'SECRET' "${fragment}"; then
-  printf 'secret sentinel leaked into provenance\n' >&2
+if grep -Eq 'SYNTHETIC_SECRET_NAME|synthetic-secret-value' "${fragment}"; then
+  printf 'synthetic secret name or value leaked into provenance\n' >&2
   exit 1
 fi
 
@@ -41,6 +42,7 @@ MODULE_PATH=':data-utils:sql' \
 OS_RELEASE_FILE="${ROOT}/os-release-2404" \
 GITHUB_JOB=second-fixture-job \
 RUNNER_NAME=second-fixture-runner \
+SYNTHETIC_SECRET_NAME=second-synthetic-secret-value \
 bash tools/scripts/ci/write-allure-ci-env-fragment.sh another-prefix "${ROOT}/second-results"
 
 second_fragment="${ROOT}/second-results/ci-env-fragment.properties"
@@ -62,8 +64,8 @@ if grep -q 'another-prefix' "${second_fragment}"; then
   printf 'legacy prefix leaked into second provenance\n' >&2
   exit 1
 fi
-if grep -q 'SECRET' "${second_fragment}"; then
-  printf 'secret sentinel leaked into second provenance\n' >&2
+if grep -Eq 'SYNTHETIC_SECRET_NAME|second-synthetic-secret-value' "${second_fragment}"; then
+  printf 'synthetic secret name or value leaked into provenance\n' >&2
   exit 1
 fi
 

@@ -177,7 +177,7 @@ jobs:
           MATERIALIZE_ROOT: ${{ github.workspace }}/${{ needs.resolve.outputs.materialize-root }}
         run: python .github/allure/safe_extract.py
       - name: Build Allure report without write privileges
-        uses: quokkify/project-toolkit/actions/allure-report@v2.21.5
+        uses: quokkify/allure-report-action@350926c9bb84887cc22dc22434cc5eba3a8b3367 # v0.4.2
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           results-directory: .allure-input/results
