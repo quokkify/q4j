@@ -1,5 +1,6 @@
 package dev.quokkify.test;
 
+import dev.quokkify.annotation.SingleThread;
 import dev.quokkify.annotation.TestGroup;
 import dev.quokkify.step.AbstractSteps;
 
@@ -14,6 +15,16 @@ public class VerifySoftlyTest {
   @TestGroup("TestNG")
   @Test(description = "Verify Softly")
   public void testVerifySoftly() {
+    new VerifySoftSteps()
+        .verifySoftly(
+            verification -> verification.verifyString("Test"),
+            verification -> verification.verifyInteger(1),
+            verification -> verification.verifyBoolean(true));
+  }
+
+  @SingleThread
+  @Test(description = "Verify Softly sequentially")
+  public void testVerifySoftlySequentially() {
     new VerifySoftSteps()
         .verifySoftly(
             verification -> verification.verifyString("Test"),

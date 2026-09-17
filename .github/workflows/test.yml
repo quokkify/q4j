@@ -150,9 +150,10 @@ jobs:
         uses: quokkify/project-toolkit/actions/setup-java-gradle@b13b2d1604dbde783d0ee23ac01f41c1853fd665 # v2.21.5
 
       - name: 🚀 Run tests
-        uses: ./.github/actions/gradle-retry
-        with:
-          args: "${{ matrix.module }}:test"
+        run: ./gradlew ${{ matrix.module }}:test --no-daemon --console=plain --stacktrace
+        env:
+          MODULE_PATH: ${{ matrix.module }}
+        shell: bash
 
       - name: 🧾 Allure CI env fragment
         if: always()
@@ -164,14 +165,6 @@ jobs:
           module_dir="${module_dir:-.}"
           mkdir -p "$module_dir/build/allure-results"
           bash tools/scripts/ci/write-allure-ci-env-fragment.sh "Common ${{ matrix.name }}" "$module_dir/build/allure-results"
-        shell: bash
-
-      - name: 📦 Stage dedicated Allure results
-        if: always()
-        run: |
-          rm -rf allure-artifact
-          mkdir -p "allure-artifact/${{ matrix.results_path }}/build"
-          cp -a "${{ matrix.results_path }}/build/allure-results" "allure-artifact/${{ matrix.results_path }}/build/"
         shell: bash
 
       - name: 📦 Stage dedicated Allure results
@@ -240,6 +233,7 @@ jobs:
 
       - name: 🚀 Run tests
         run: |
+          export MODULE_PATH='${{ matrix.module }}'
           if [[ -f tools/environment/.selenium-grid.env ]]; then
             set -a
             source tools/environment/.selenium-grid.env
@@ -396,6 +390,7 @@ jobs:
 
       - name: 🚀 Run tests
         run: |
+          export MODULE_PATH='${{ matrix.module }}'
           if [[ -f tools/environment/.selenium-grid.env ]]; then
             set -a
             source tools/environment/.selenium-grid.env

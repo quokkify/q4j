@@ -70,9 +70,10 @@ if [[ ! "${ubuntu_id}" =~ ^[A-Za-z0-9._-]+$ || ! "${ubuntu_version_id}" =~ ^[0-9
   exit 1
 fi
 
-# Keep the legacy positional argument accepted while emitting the versioned,
-# module-scoped provenance contract consumed by the pinned report action.
-write_kv "Module" "${module_name}"
+# Keep the legacy positional argument accepted while emitting a module-scoped
+# provenance contract. The pinned action merges fragments globally, therefore a
+# flat Module key would conflict as soon as two modules are present.
+write_kv "${module_name}.Module" "${module_name}"
 write_kv "${module_name}.Environment" "${ubuntu_id}-${ubuntu_version_id}"
 write_kv "${module_name}.Ubuntu ID" "${ubuntu_id}"
 write_kv "${module_name}.Ubuntu VERSION_ID" "${ubuntu_version_id}"
