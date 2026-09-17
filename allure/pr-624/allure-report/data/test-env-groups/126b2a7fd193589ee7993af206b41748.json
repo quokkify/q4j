@@ -1,0 +1,1 @@
+{"id":"126b2a7fd193589ee7993af206b41748","fullName":"dev.quokkify.model.JsonPojoTest.testRequiredAtReturnsNode","name":"Verify get required node by json pointer","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"f1003dccacb914b819525f87a305dba5"}}

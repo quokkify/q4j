@@ -1,0 +1,1 @@
+{"id":"3449f4cb2f1fe597acc412615cc1d083","fullName":"dev.quokkify.test.TableQueryContractTest.preservesRowIndexInsideNativeWait","name":"Timeout lookup evaluates conditions with the actual mounted-row index","status":"passed","testResultsByEnv":{"integrations-selenide":"3b7470341f12ce6fa5d6977b8dd0466f"}}

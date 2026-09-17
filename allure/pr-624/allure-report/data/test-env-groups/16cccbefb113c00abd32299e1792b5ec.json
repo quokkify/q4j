@@ -1,0 +1,1 @@
+{"id":"16cccbefb113c00abd32299e1792b5ec","fullName":"dev.quokkify.rabbitmq.test.RabbitMessageTest.testPayloadSerialization","name":"Verify RabbitMessage object payload serialization","status":"passed","testResultsByEnv":{"integrations-rabbitmq":"2b74d536d97e58dee19cc0751c11c8ce"}}
