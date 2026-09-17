@@ -61,10 +61,10 @@ public class SuiteListener implements IAlterSuiteListener, IInvokedMethodListene
     String environment = ubuntuEnvironment();
     String module = System.getenv("MODULE_PATH");
     if (StringUtils.isNotBlank(environment)) {
-      Allure.getLifecycle().updateTestCase(result -> result.getLabels().add(new Label().setName("environment").setValue(environment)));
+      Allure.getLifecycle().updateTest(result -> result.getLabels().add(new Label().setName("environment").setValue(environment)));
     }
     if (StringUtils.isNotBlank(module)) {
-      Allure.getLifecycle().updateTestCase(result -> {
+      Allure.getLifecycle().updateTest(result -> {
         result.getLabels().removeIf(label -> "subSuite".equals(label.getName()));
         result.getLabels().add(new Label().setName("subSuite").setValue(module.replaceFirst("^:", "")));
       });
