@@ -1,0 +1,1 @@
+{"id":"09e87791b43b7c28650312234f762124","fullName":"dev.quokkify.test.TableAssertionsActionsContractTest.waitsForTableStateWithOneRootCondition","name":"Table assertions use native waiting for delayed headers and rows","status":"passed","testResultsByEnv":{"integrations-selenide":"6369a3e09e21cbe8e9a129a3f78f0d34"}}

@@ -1,0 +1,1 @@
+{"id":"02a238df5d1a33ed52ae88ec173fffae","fullName":"dev.quokkify.test.TableModelContractTest.reportsMissingDisplayedHeader","name":"Missing typed columns fail with the requested and available displayed headers","status":"passed","testResultsByEnv":{"integrations-selenide":"676e20c29bdc68cff3310c8735cf2c39"}}
