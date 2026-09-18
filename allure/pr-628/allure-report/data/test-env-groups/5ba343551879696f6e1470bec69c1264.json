@@ -1,0 +1,1 @@
+{"id":"5ba343551879696f6e1470bec69c1264","fullName":"dev.quokkify.test.CsvParserTest.testParseCsvFileToObjectNoHeaderPositional","name":"Verify parse CSV without header using enum-defined positional schema","status":"passed","testResultsByEnv":{"ubuntu-24-04":"da7b69abc90471c78c09f015739cfcce"}}
