@@ -5,6 +5,8 @@ dependencies {
     implementation project(":common-utils:core")
     implementation project(":common-utils:jackson:json")
     implementation project(":integrations:testrail:testrail-core")
-    api project(":integrations:rest-assured")
+    implementation "io.github.openfeign:feign-core:${feign}"
+    implementation "io.github.openfeign:feign-jackson:${feign}"
+    implementation "io.github.openfeign:feign-okhttp:${feign}"
     api "org.apache.commons:commons-lang3"
 }
