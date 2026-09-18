@@ -1,9 +1,9 @@
 #!/usr/bin/env bash
 # Writes non-secret CI metadata into an Allure result directory before artifact upload.
-# Usage: write-allure-ci-env-fragment.sh <Prefix> <allure_results_dir>
+# Usage: write-allure-ci-env-fragment.sh <legacy-prefix> <allure_results_dir>
 set -euo pipefail
 
-PREFIX="${1:?prefix e.g. common-core}"
+: "${1:?legacy prefix e.g. common-core}"
 ALLURE_RESULTS_DIR="${2:?allure results dir}"
 
 mkdir -p "${ALLURE_RESULTS_DIR}"
@@ -14,7 +14,7 @@ write_kv() {
   local val="$2"
   val="${val//$'\r'/}"
   val="${val//$'\n'/ }"
-  printf '%s.%s=%s\n' "${PREFIX}" "${key}" "${val}" >> "${OUT}"
+  printf '%s=%s\n' "${key}" "${val}" >> "${OUT}"
 }
 
 write_kv_nonempty() {
@@ -48,10 +48,39 @@ if [[ -z "${gradle_version}" ]]; then
 fi
 
 : > "${OUT}"
-write_kv "Suite" "Gradle TestNG"
-write_kv "Job" "${GITHUB_JOB:-local}"
-write_kv_nonempty "Module" "${MODULE_PATH:-}"
-write_kv_nonempty "Profile" "${QUOKKIFY_TEST_PROFILE:-}"
-write_kv_nonempty "Runner" "${RUNNER_NAME:-}"
-write_kv_nonempty "Java" "${java_version}"
-write_kv_nonempty "Gradle" "${gradle_version}"
+module_name="${MODULE_PATH:-}"
+module_name="${module_name#:}"
+module_name="${module_name:-unknown-module}"
+if [[ ! "${module_name}" =~ ^[A-Za-z0-9][A-Za-z0-9._:-]*$ ]]; then
+  printf 'Unsupported module path for Allure provenance: %s\n' "${module_name}" >&2
+  exit 1
+fi
+
+os_release="${OS_RELEASE_FILE:-/etc/os-release}"
+ubuntu_id="unknown"
+ubuntu_version_id="unknown"
+if [[ -r "${os_release}" ]]; then
+  ubuntu_id="$(awk -F= '$1 == "ID" {gsub(/^"|"$/, "", $2); print $2; exit}' "${os_release}")"
+  ubuntu_version_id="$(awk -F= '$1 == "VERSION_ID" {gsub(/^"|"$/, "", $2); print $2; exit}' "${os_release}")"
+  ubuntu_id="${ubuntu_id:-unknown}"
+  ubuntu_version_id="${ubuntu_version_id:-unknown}"
+fi
+if [[ ! "${ubuntu_id}" =~ ^[A-Za-z0-9._-]+$ || ! "${ubuntu_version_id}" =~ ^[0-9]+([.][0-9]+)*$ ]]; then
+  printf 'Unsupported OS metadata for Allure provenance: ID=%s VERSION_ID=%s\n' \
+    "${ubuntu_id}" "${ubuntu_version_id}" >&2
+  exit 1
+fi
+
+# Keep the legacy positional argument accepted while emitting a module-scoped
+# provenance contract. The pinned action merges fragments globally, therefore a
+# flat Module key would conflict as soon as two modules are present.
+write_kv "${module_name}.Module" "${module_name}"
+write_kv "${module_name}.Environment" "${ubuntu_id}-${ubuntu_version_id}"
+write_kv "${module_name}.Ubuntu ID" "${ubuntu_id}"
+write_kv "${module_name}.Ubuntu VERSION_ID" "${ubuntu_version_id}"
+write_kv "${module_name}.Suite" "Gradle TestNG"
+write_kv "${module_name}.Job" "${GITHUB_JOB:-local}"
+write_kv_nonempty "${module_name}.Profile" "${QUOKKIFY_TEST_PROFILE:-}"
+write_kv_nonempty "${module_name}.Runner" "${RUNNER_NAME:-}"
+write_kv_nonempty "${module_name}.Java" "${java_version}"
+write_kv_nonempty "${module_name}.Gradle" "${gradle_version}"

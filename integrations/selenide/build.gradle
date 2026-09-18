@@ -28,6 +28,18 @@ dependencies {
 
 tasks.named("test", Test) {
     usesService(selenideBrowserTestLock)
+    exclude("**/AllureFailureDemoTest.class")
+}
+
+tasks.register("allureFailureDemo", Test) {
+    description = "Runs the opt-in intentional Allure failure attachment demo"
+    group = "verification"
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    usesService(selenideBrowserTestLock)
+    filter {
+        includeTestsMatching("dev.quokkify.test.AllureFailureDemoTest.demonstrateAllureSelenideFailureAttachments")
+    }
 }
 
 tasks.register("tableModelContractStability", Test) {

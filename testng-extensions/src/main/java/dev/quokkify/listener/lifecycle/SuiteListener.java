@@ -1,6 +1,9 @@
 package dev.quokkify.listener.lifecycle;
 
+import java.io.IOException;
 import java.lang.reflect.Method;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -13,8 +16,13 @@ import dev.quokkify.annotation.SingleThread;
 import dev.quokkify.config.ConfigRegistry;
 import dev.quokkify.config.TestNGExtension;
 
+import io.qameta.allure.Allure;
+import io.qameta.allure.model.Label;
 import org.apache.commons.lang3.StringUtils;
 import org.testng.IAlterSuiteListener;
+import org.testng.IInvokedMethod;
+import org.testng.IInvokedMethodListener;
+import org.testng.ITestResult;
 import org.testng.annotations.Test;
 import org.testng.xml.XmlClass;
 import org.testng.xml.XmlInclude;
@@ -30,7 +38,7 @@ import org.testng.xml.XmlTest;
  * Used default values if not overridden.
  * </p>
  */
-public class SuiteListener implements IAlterSuiteListener {
+public class SuiteListener implements IAlterSuiteListener, IInvokedMethodListener {
 
   private static final int SINGLE_THREAD_COUNT = 1;
   private static final TestNGExtension CONFIG = ConfigRegistry.get(TestNGExtension.class);
@@ -42,6 +50,42 @@ public class SuiteListener implements IAlterSuiteListener {
     suites.clear();
     suites.add(suite);
     IAlterSuiteListener.super.alter(suites);
+  }
+
+  @Override
+  public void afterInvocation(IInvokedMethod method, ITestResult testResult) {
+    addProvenanceLabels();
+  }
+
+  private void addProvenanceLabels() {
+    String environment = ubuntuEnvironment();
+    String module = System.getenv("MODULE_PATH");
+    if (StringUtils.isNotBlank(environment)) {
+      Allure.getLifecycle().updateTest(result -> result.getLabels().add(new Label().setName("environment").setValue(environment)));
+    }
+    if (StringUtils.isNotBlank(module)) {
+      Allure.getLifecycle().updateTest(result -> {
+        result.getLabels().removeIf(label -> "subSuite".equals(label.getName()));
+        result.getLabels().add(new Label().setName("subSuite").setValue(module.replaceFirst("^:", "")));
+      });
+    }
+  }
+
+  private String ubuntuEnvironment() {
+    String configured = System.getenv("ALLURE_UBUNTU_ENVIRONMENT");
+    if (StringUtils.isNotBlank(configured)) return configured;
+    Path osRelease = Path.of(System.getenv().getOrDefault("OS_RELEASE_FILE", "/etc/os-release"));
+    try {
+      Map<String, String> values = Files.readAllLines(osRelease).stream()
+          .map(line -> line.split("=", 2))
+          .filter(parts -> parts.length == 2)
+          .collect(Collectors.toMap(parts -> parts[0], parts -> parts[1].replaceAll("^\\\"|\\\"$", ""), (first, ignored) -> first));
+      String id = values.get("ID");
+      String version = values.get("VERSION_ID");
+      return StringUtils.isNoneBlank(id, version) ? id + "-" + version : null;
+    } catch (IOException ignored) {
+      return null;
+    }
   }
 
   /**

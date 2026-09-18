@@ -72,9 +72,10 @@ jobs:
                   if step.get("id") == "resolve"
               )
               generate_steps = allure_document["jobs"]["generate"]["steps"]
+              approved_report_action = "quokkify/allure-report-action@350926c9bb84887cc22dc22434cc5eba3a8b3367"
               report_action = next(
                   step for step in generate_steps
-                  if str(step.get("uses", "")).startswith("quokkify/project-toolkit/actions/allure-report@")
+                  if str(step.get("uses", "")) == approved_report_action
               )
               pages_action = next(
                   step for step in allure_document["jobs"]["pages"]["steps"]
@@ -179,7 +180,7 @@ jobs:
               bad_expression = "${" + "{ needs.resolve.outputs.pr-bogus }}"
               mutated_workflow = allure_workflow.replace(pr_expression, bad_expression, 1)
               mutated_document = yaml.safe_load(mutated_workflow)
-              mutated_report = next(step for step in mutated_document["jobs"]["generate"]["steps"] if str(step.get("uses", "")).startswith("quokkify/project-toolkit/actions/allure-report@"))
+              mutated_report = next(step for step in mutated_document["jobs"]["generate"]["steps"] if str(step.get("uses", "")) == approved_report_action)
               mutated_pages = next(step for step in mutated_document["jobs"]["pages"]["steps"] if str(step.get("uses", "")).startswith("quokkify/project-toolkit/actions/deploy-gh-pages-subdir@"))
               if pr_expression in str(mutated_report["with"].get("pages-url", "")) and pr_expression in str(mutated_pages["with"].get("destination-dir", "")):
                   raise SystemExit("Executable Allure mutation was accepted: pr-bogus")

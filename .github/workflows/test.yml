@@ -150,9 +150,10 @@ jobs:
         uses: quokkify/project-toolkit/actions/setup-java-gradle@b13b2d1604dbde783d0ee23ac01f41c1853fd665 # v2.21.5
 
       - name: 🚀 Run tests
-        uses: ./.github/actions/gradle-retry
-        with:
-          args: "${{ matrix.module }}:test"
+        run: ./gradlew ${{ matrix.module }}:test --no-daemon --console=plain --stacktrace
+        env:
+          MODULE_PATH: ${{ matrix.module }}
+        shell: bash
 
       - name: 🧾 Allure CI env fragment
         if: always()
@@ -232,6 +233,7 @@ jobs:
 
       - name: 🚀 Run tests
         run: |
+          export MODULE_PATH='${{ matrix.module }}'
           if [[ -f tools/environment/.selenium-grid.env ]]; then
             set -a
             source tools/environment/.selenium-grid.env
@@ -313,6 +315,14 @@ jobs:
         run: ./tools/environment/scripts/infra/stop_app.sh
         shell: bash
 
+      - name: 📦 Stage dedicated Allure results
+        if: always()
+        run: |
+          rm -rf allure-artifact
+          mkdir -p "allure-artifact/${{ matrix.results_path }}/build"
+          cp -a "${{ matrix.results_path }}/build/allure-results" "allure-artifact/${{ matrix.results_path }}/build/"
+        shell: bash
+
       - name: 📊 Upload dedicated Allure results
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
         if: always()
@@ -380,6 +390,7 @@ jobs:
 
       - name: 🚀 Run tests
         run: |
+          export MODULE_PATH='${{ matrix.module }}'
           if [[ -f tools/environment/.selenium-grid.env ]]; then
             set -a
             source tools/environment/.selenium-grid.env
@@ -459,6 +470,14 @@ jobs:
       - name: 🛑 Stop Infra
         if: ${{ matrix.profile != 'none' && always() }}
         run: ./tools/environment/scripts/infra/stop_app.sh
+        shell: bash
+
+      - name: 📦 Stage dedicated Allure results
+        if: always()
+        run: |
+          rm -rf allure-artifact
+          mkdir -p "allure-artifact/${{ matrix.results_path }}/build"
+          cp -a "${{ matrix.results_path }}/build/allure-results" "allure-artifact/${{ matrix.results_path }}/build/"
         shell: bash
 
       - name: 📊 Upload dedicated Allure results
