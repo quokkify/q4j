@@ -1,0 +1,1 @@
+{"id":"b04e21162546f17045d1e55acf5d72de","fullName":"dev.quokkify.test.ConnectionTimeoutTest.testConnectionClosedOnTimeout","name":"Verify connection is closed when MAX_RESPONSE_TIME_SECONDS is exceeded","status":"passed","testResultsByEnv":{"ubuntu-24-04":"168e748e25854014a9d00aac824a7295"}}
