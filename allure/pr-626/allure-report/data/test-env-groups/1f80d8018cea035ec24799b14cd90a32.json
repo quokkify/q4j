@@ -1,1 +1,1 @@
-{"id":"1f80d8018cea035ec24799b14cd90a32","fullName":"dev.quokkify.model.JsonPojoTest.testAsJsonArrayJoinsSeveralPojos","name":"Verify static json array serialization joins several pojos","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"ef73ce635659dd06d0117a23a07e5287"}}
+{"id":"1f80d8018cea035ec24799b14cd90a32","fullName":"dev.quokkify.model.JsonPojoTest.testAsJsonArrayJoinsSeveralPojos","name":"Verify static json array serialization joins several pojos","status":"passed","testResultsByEnv":{"common-utils-jackson-json":"c9f45bb9238f90cc45d6f758787c3c54"}}

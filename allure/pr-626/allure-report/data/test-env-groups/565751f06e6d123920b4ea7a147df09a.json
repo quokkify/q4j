@@ -1,1 +1,1 @@
-{"id":"565751f06e6d123920b4ea7a147df09a","fullName":"dev.quokkify.rabbitmq.test.RabbitIntegrationTest.testRabbitMqPublishMessage","name":"Verify the publication of RabbitMQ message","status":"passed","testResultsByEnv":{"integrations-rabbitmq":"ea0d161418200801340e557c43148e1a"}}
+{"id":"565751f06e6d123920b4ea7a147df09a","fullName":"dev.quokkify.rabbitmq.test.RabbitIntegrationTest.testRabbitMqPublishMessage","name":"Verify the publication of RabbitMQ message","status":"passed","testResultsByEnv":{"integrations-rabbitmq":"e0895a13122ce2359ea50d0ebeb45053"}}

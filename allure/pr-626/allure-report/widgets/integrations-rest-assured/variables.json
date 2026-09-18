@@ -1,1 +1,1 @@
-{"Environment":"ubuntu-24.04","Gradle":"9.7.1","Java":"17.0.20.1","Job":"test-integrations","Module":"integrations:rest-assured","Profile":"mock","Runner":"GitHub Actions 1000064174","Suite":"Gradle TestNG","Ubuntu ID":"ubuntu","Ubuntu VERSION_ID":"24.04"}
+{"Environment":"ubuntu-24.04","Gradle":"9.7.1","Java":"17.0.20.1","Job":"test-integrations","Module":"integrations:rest-assured","Profile":"mock","Runner":"GitHub Actions 1000064274","Suite":"Gradle TestNG","Ubuntu ID":"ubuntu","Ubuntu VERSION_ID":"24.04"}
