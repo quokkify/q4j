@@ -1,0 +1,1 @@
+{"id":"3147dc6c3d1f9db873f46a905b0ad622","fullName":"dev.quokkify.test.DropdownBehaviorTest.testSelectedTextsMutationGuard","name":"Mutation guard: selectedTexts must not regress to returning chip text plus visible remove controls","status":"passed","testResultsByEnv":{"ubuntu-24-04":"8304168cb93c7f0b5937ac0f182e7928"}}

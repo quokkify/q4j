@@ -1,0 +1,1 @@
+{"id":"3ac207164de097e23a63bd1b3b96b112","fullName":"dev.quokkify.model.NavigationTest.openPageByUrlWithExplicitBasicAuthDomainKeepsExplicitDomain","name":"Basic Auth with an explicit domain must not be overridden by the target url's host","status":"passed","testResultsByEnv":{"ubuntu-24-04":"995b4f081fbd41414386d429ad792798"}}

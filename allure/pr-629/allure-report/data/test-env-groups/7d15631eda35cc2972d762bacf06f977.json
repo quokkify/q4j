@@ -1,0 +1,1 @@
+{"id":"7d15631eda35cc2972d762bacf06f977","fullName":"dev.quokkify.test.DropdownBehaviorTest.testRemoveSelectedPartialIgnoresRemoveControlTextWhenMatchingLabels","name":"Verify removeSelectedPartial matches chip labels only when earlier remove-control text also contains the query","status":"passed","testResultsByEnv":{"ubuntu-24-04":"a70ae0c13d85413380e4ec0ddf6ca86c"}}
