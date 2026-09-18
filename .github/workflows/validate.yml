@@ -72,7 +72,7 @@ jobs:
                   if step.get("id") == "resolve"
               )
               generate_steps = allure_document["jobs"]["generate"]["steps"]
-              approved_report_action = "quokkify/allure-report-action@350926c9bb84887cc22dc22434cc5eba3a8b3367"
+              approved_report_action = "quokkify/allure-report-action@e4b4f7d0ce7c43b6b705f15de87a25f64f24f3a8"
               report_action = next(
                   step for step in generate_steps
                   if str(step.get("uses", "")) == approved_report_action
