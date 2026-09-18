@@ -48,7 +48,8 @@ if [[ -z "${gradle_version}" ]]; then
 fi
 
 : > "${OUT}"
-module_name="${MODULE_PATH#:}"
+module_name="${MODULE_PATH:-}"
+module_name="${module_name#:}"
 module_name="${module_name:-unknown-module}"
 if [[ ! "${module_name}" =~ ^[A-Za-z0-9][A-Za-z0-9._:-]*$ ]]; then
   printf 'Unsupported module path for Allure provenance: %s\n' "${module_name}" >&2
