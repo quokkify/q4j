@@ -1,0 +1,1 @@
+{"id":"1bbb7c8b906dd8cfb90d09cde725f5c4","fullName":"dev.quokkify.test.TableRowWaitTest.testReturnedHorizontalTableRowSurvivesTableReload","name":"Verify a returned HORIZONTAL TABLE row resolves itself again after the table root is replaced","status":"passed","testResultsByEnv":{"ubuntu-24-04":"a795dbdc9b92ea43954b7f2e10f9b78b"}}

@@ -1,0 +1,1 @@
+{"id":"42c5fa5c9edd4be568f851bc1000f0e7","fullName":"dev.quokkify.util.JsonConverterModuleDiscoveryTest.shouldUseDefaultDiscoveredJavaTimeModule","name":"Verify default discovered modules support Java Time serialization and deserialization","status":"passed","testResultsByEnv":{"ubuntu-24-04":"9850c7c12a029616abcb8832222ec386"}}

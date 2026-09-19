@@ -1,0 +1,1 @@
+{"id":"ae66cdddcb14dcae696086ba33f014c2","fullName":"dev.quokkify.test.TableRowWaitTest.testReturnedFlexTableRowSurvivesTableReload","name":"Verify a returned FLEX TABLE row resolves itself again after the table root is replaced","status":"passed","testResultsByEnv":{"ubuntu-24-04":"f0978b122b392d8135319fdce72b9c7b"}}

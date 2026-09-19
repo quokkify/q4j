@@ -1,0 +1,1 @@
+{"id":"1217507e780f1b6e80a316cb311d242e","fullName":"dev.quokkify.model.JsonPojoTest.testEmptyConstructorCreatesEmptyJson","name":"Verify empty constructor creates empty json object","status":"passed","testResultsByEnv":{"ubuntu-24-04":"259458c55f2bd3c1221904affa6e3ee4"}}

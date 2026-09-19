@@ -1,0 +1,1 @@
+{"id":"19b11c8a999d44c10fcbc33652391723","fullName":"dev.quokkify.test.SqlConverterTest.checkInWithEscapingInCollection","name":"IN: string items with single quotes must be escaped (O'Hara -> O''Hara)","status":"passed","testResultsByEnv":{"ubuntu-24-04":"091edb9d4fc1ede1e1755c8bb12be0bb"}}
