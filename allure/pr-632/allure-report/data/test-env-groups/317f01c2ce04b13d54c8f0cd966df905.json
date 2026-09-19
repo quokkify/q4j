@@ -1,1 +1,1 @@
-{"id":"317f01c2ce04b13d54c8f0cd966df905","fullName":"dev.quokkify.test.SqlConverterTest.checkInWithStringCollection","name":"IN: simple string collection should expand into ('a','b','c')","status":"passed","testResultsByEnv":{"ubuntu-24-04":"98e7445cbe796f7bc0a215a8788fdb23"}}
+{"id":"317f01c2ce04b13d54c8f0cd966df905","fullName":"dev.quokkify.test.SqlConverterTest.checkInWithStringCollection","name":"IN: simple string collection should expand into ('a','b','c')","status":"passed","testResultsByEnv":{"ubuntu-24-04":"e82e17aa3fca171fd7bc5fc21fffb182"}}

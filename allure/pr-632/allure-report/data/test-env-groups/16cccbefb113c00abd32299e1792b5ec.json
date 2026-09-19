@@ -1,1 +1,1 @@
-{"id":"16cccbefb113c00abd32299e1792b5ec","fullName":"dev.quokkify.rabbitmq.test.RabbitMessageTest.testPayloadSerialization","name":"Verify RabbitMessage object payload serialization","status":"passed","testResultsByEnv":{"ubuntu-24-04":"733cefc3884c2ff2244d07994c4dd68c"}}
+{"id":"16cccbefb113c00abd32299e1792b5ec","fullName":"dev.quokkify.rabbitmq.test.RabbitMessageTest.testPayloadSerialization","name":"Verify RabbitMessage object payload serialization","status":"passed","testResultsByEnv":{"ubuntu-24-04":"0fc7a248b761bb0023b0aa4d87b5af2b"}}
