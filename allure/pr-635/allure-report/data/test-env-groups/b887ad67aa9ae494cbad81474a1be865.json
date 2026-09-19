@@ -1,0 +1,1 @@
+{"id":"b887ad67aa9ae494cbad81474a1be865","fullName":"dev.quokkify.converter.XmlConverterModuleDiscoveryTest.shouldFailDeserializePolymorphicPayloadWhenCustomModuleNotRegistered","name":"Verify XML deserialization to base type fails without discovered custom module","status":"passed","testResultsByEnv":{"ubuntu-24-04":"68fa55149ce72f2f7b0736f849551fef"}}
