@@ -1,5 +1,26 @@
 # Changelog
 
+## [0.7.1](https://github.com/quokkify/q4j/compare/v0.7.0...v0.7.1) (2026-09-19)
+
+<!-- project-toolkit:rich-block:start -->
+### 📦 Dependencies
+- update zookeeper:3.9 docker digest to cab8944 ([#612](https://github.com/quokkify/q4j/pull/612)) ([8f0b744](https://github.com/quokkify/q4j/commit/8f0b7445d138f7beec34457292ff261f78ab6c84)) <!-- project-toolkit:rich-release-notes pr=612 -->
+- update mongo docker tag to v8.3.11 ([#621](https://github.com/quokkify/q4j/pull/621)) ([af7f272](https://github.com/quokkify/q4j/commit/af7f272a30584f86d0ba59f1090227984d88f76c)) <!-- project-toolkit:rich-release-notes pr=621 -->
+- update mockserver/mockserver docker tag to v8 ([#623](https://github.com/quokkify/q4j/pull/623)) ([3273bce](https://github.com/quokkify/q4j/commit/3273bcea44b4c44a73523de0da3c2fc6b7f8c4e7)) <!-- project-toolkit:rich-release-notes pr=623 -->
+- update nginx docker tag to v1.31.6 ([#625](https://github.com/quokkify/q4j/pull/625)) ([a0cb794](https://github.com/quokkify/q4j/commit/a0cb794ece6832c0c55add4653961e518e6e7cc2)) <!-- project-toolkit:rich-release-notes pr=625 -->
+- update selenium grid images ([#629](https://github.com/quokkify/q4j/pull/629)) ([140e11f](https://github.com/quokkify/q4j/commit/140e11f966217d7508104e9bd3ebfbaaa6055e26)) <!-- project-toolkit:rich-release-notes pr=629 -->
+- update q4j module documentation to v0.7.0 ([#633](https://github.com/quokkify/q4j/pull/633)) ([f1d3828](https://github.com/quokkify/q4j/commit/f1d3828378157bbd72d015adbd8b5a1499e6f62c)) <!-- project-toolkit:rich-release-notes pr=633 -->
+<!-- project-toolkit:rich-block:end -->
+
+### 🐛 Bug Fixes
+
+* **allure:** report real Ubuntu environments with scoped modules ([#626](https://github.com/quokkify/q4j/issues/626)) ([b85bf56](https://github.com/quokkify/q4j/commit/b85bf56e21d73d334f57e388c596bc3911b5bd32))
+* **allure:** use deduplicated environment variables ([#628](https://github.com/quokkify/q4j/issues/628)) ([cf90539](https://github.com/quokkify/q4j/commit/cf9053926966af9e2731e10e3c3d96ebc145f474))
+* **allure:** use released top-level environments ([#627](https://github.com/quokkify/q4j/issues/627)) ([a68a1eb](https://github.com/quokkify/q4j/commit/a68a1eb865a1b5237990e76a1504e03e435d2f0c))
+* **deps:** update allure to v3 ([#611](https://github.com/quokkify/q4j/issues/611)) ([a91617d](https://github.com/quokkify/q4j/commit/a91617dc92f02b71dc6c7e53c4ca135906f903d3))
+* **deps:** update com.rabbitmq:amqp-client to v5.36.0 ([#622](https://github.com/quokkify/q4j/issues/622)) ([a4195c8](https://github.com/quokkify/q4j/commit/a4195c8dd99603647b9b7ef464966dcbdbc16e65))
+* **deps:** update hibernate-orm monorepo to v7.4.8.final ([#613](https://github.com/quokkify/q4j/issues/613)) ([24a21da](https://github.com/quokkify/q4j/commit/24a21da12a407806ab03792fcb9384696b0a143f))
+
 ## [0.7.0](https://github.com/quokkify/q4j/compare/v0.6.3...v0.7.0) (2026-09-15)
 
 <!-- project-toolkit:rich-block:start -->
