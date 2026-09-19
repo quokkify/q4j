@@ -1,0 +1,1 @@
+{"id":"9728438034c13935e5a7e018c881d668","fullName":"dev.quokkify.test.NoSqlFactoryTest.rejectNullMorphiaConfig","name":"Reject a null Morphia configuration","status":"passed","testResultsByEnv":{"ubuntu-24-04":"2e6bacd0acd8c395b9254e0ec4e02f32"}}

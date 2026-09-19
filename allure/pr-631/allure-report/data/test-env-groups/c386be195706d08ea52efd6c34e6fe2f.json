@@ -1,0 +1,1 @@
+{"id":"c386be195706d08ea52efd6c34e6fe2f","fullName":"dev.quokkify.test.TableRowWaitTest.testGetRowDefaultTimeoutOverloadWaits","name":"Verify the default-timeout 'TABLE' getRow(column, value) overload also waits for a delayed row","status":"passed","testResultsByEnv":{"ubuntu-24-04":"0b2f998a2e6b72d6d4c781a48f93b32d"}}
