@@ -8,7 +8,7 @@ Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.qu
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:selenide-grid:0.6.2")
+    testImplementation("dev.quokkify:selenide-grid:0.7.0")
 }
 ```
 
