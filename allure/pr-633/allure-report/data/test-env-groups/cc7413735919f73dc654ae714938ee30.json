@@ -1,0 +1,1 @@
+{"id":"cc7413735919f73dc654ae714938ee30","fullName":"dev.quokkify.model.JsonPojoTest.testReadAtTypedPojo","name":"Verify read typed value by json pointer","status":"passed","testResultsByEnv":{"ubuntu-24-04":"05384d6303e89a2312a60a8186133a5a"}}

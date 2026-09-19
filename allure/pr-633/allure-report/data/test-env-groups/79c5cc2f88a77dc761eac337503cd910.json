@@ -1,0 +1,1 @@
+{"id":"79c5cc2f88a77dc761eac337503cd910","fullName":"dev.quokkify.parser.YamlParserModuleDiscoveryIntegrationTest.shouldConvertYamlToPolymorphicTypeUsingDiscoveredModule","name":"Verify YamlParser + JsonConverter path applies discovered polymorphic module","status":"passed","testResultsByEnv":{"ubuntu-24-04":"9b4d1c9a388b5b0fcef5d2fca2f9baa4"}}

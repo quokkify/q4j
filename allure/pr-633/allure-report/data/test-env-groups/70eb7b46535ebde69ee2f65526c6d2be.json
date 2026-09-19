@@ -1,0 +1,1 @@
+{"id":"70eb7b46535ebde69ee2f65526c6d2be","fullName":"dev.quokkify.test.TableRowWaitTest.testFlexTableRowAppearingWithDelayIsFound","name":"Verify 'FLEX TABLE' row search uses Selenide waiting for a delayed row","status":"passed","testResultsByEnv":{"ubuntu-24-04":"2c2fa2ea2c050e85d2e79d58d04927b8"}}

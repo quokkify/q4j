@@ -1,0 +1,1 @@
+{"id":"ed4c42df74cddec81d7361a19482fb93","fullName":"dev.quokkify.util.WaiterAwaitAssertionTest.awaitAssertionHonoursCustomPollingIntervalRatherThanDefaultFiveSeconds","name":"awaitAssertionHonoursCustomPollingIntervalRatherThanDefaultFiveSeconds","status":"passed","testResultsByEnv":{"ubuntu-24-04":"b9af7529833023cb97eb6b99ea49ed71"}}
