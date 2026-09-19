@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.7.1](https://github.com/quokkify/q4j/compare/v0.7.0...v0.7.1) (2026-09-19)
+
+
+### 🐛 Bug Fixes
+
+* **allure:** report real Ubuntu environments with scoped modules ([#626](https://github.com/quokkify/q4j/issues/626)) ([b85bf56](https://github.com/quokkify/q4j/commit/b85bf56e21d73d334f57e388c596bc3911b5bd32))
+* **allure:** use deduplicated environment variables ([#628](https://github.com/quokkify/q4j/issues/628)) ([cf90539](https://github.com/quokkify/q4j/commit/cf9053926966af9e2731e10e3c3d96ebc145f474))
+* **allure:** use released top-level environments ([#627](https://github.com/quokkify/q4j/issues/627)) ([a68a1eb](https://github.com/quokkify/q4j/commit/a68a1eb865a1b5237990e76a1504e03e435d2f0c))
+* **deps:** update allure to v3 ([#611](https://github.com/quokkify/q4j/issues/611)) ([a91617d](https://github.com/quokkify/q4j/commit/a91617dc92f02b71dc6c7e53c4ca135906f903d3))
+* **deps:** update com.rabbitmq:amqp-client to v5.36.0 ([#622](https://github.com/quokkify/q4j/issues/622)) ([a4195c8](https://github.com/quokkify/q4j/commit/a4195c8dd99603647b9b7ef464966dcbdbc16e65))
+* **deps:** update hibernate-orm monorepo to v7.4.8.final ([#613](https://github.com/quokkify/q4j/issues/613)) ([24a21da](https://github.com/quokkify/q4j/commit/24a21da12a407806ab03792fcb9384696b0a143f))
+
 ## [0.7.0](https://github.com/quokkify/q4j/compare/v0.6.3...v0.7.0) (2026-09-15)
 
 <!-- project-toolkit:rich-block:start -->
