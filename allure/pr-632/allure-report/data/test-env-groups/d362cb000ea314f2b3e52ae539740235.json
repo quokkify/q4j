@@ -1,1 +1,1 @@
-{"id":"d362cb000ea314f2b3e52ae539740235","fullName":"dev.quokkify.test.ApiTest.testValidateSchemaByJsonSchemaFile","name":"Verify scheme validation by json schema file","status":"passed","testResultsByEnv":{"ubuntu-24-04":"b77765effa7aa211a2ab179a08a327a9"}}
+{"id":"d362cb000ea314f2b3e52ae539740235","fullName":"dev.quokkify.test.ApiTest.testValidateSchemaByJsonSchemaFile","name":"Verify scheme validation by json schema file","status":"passed","testResultsByEnv":{"ubuntu-24-04":"321638a78fc584d0ba1b7069c4d25db4"}}
