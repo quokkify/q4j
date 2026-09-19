@@ -1,1 +1,1 @@
-{"id":"6a6b7a350ceaef43812f4ba4a57f5694","fullName":"dev.quokkify.model.JsonPojoTest.testSetEachAtSkipsNonObjectElements","name":"Verify set value in each array element skips non object elements","status":"passed","testResultsByEnv":{"ubuntu-24-04":"58ff5a49e8bd70e4190a549969ca369f"}}
+{"id":"6a6b7a350ceaef43812f4ba4a57f5694","fullName":"dev.quokkify.model.JsonPojoTest.testSetEachAtSkipsNonObjectElements","name":"Verify set value in each array element skips non object elements","status":"passed","testResultsByEnv":{"ubuntu-24-04":"af73095b65ef1cbb6290586f07fc9c73"}}

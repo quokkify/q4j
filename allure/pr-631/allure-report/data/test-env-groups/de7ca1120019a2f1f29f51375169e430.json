@@ -1,1 +1,1 @@
-{"id":"de7ca1120019a2f1f29f51375169e430","fullName":"dev.quokkify.test.TableModelContractTest.waitsForDelayedRow","name":"Required lookup waits for a row restored asynchronously","status":"passed","testResultsByEnv":{"ubuntu-24-04":"e97232abb3493ac7adb435c91b1adf93"}}
+{"id":"de7ca1120019a2f1f29f51375169e430","fullName":"dev.quokkify.test.TableModelContractTest.waitsForDelayedRow","name":"Required lookup waits for a row restored asynchronously","status":"passed","testResultsByEnv":{"ubuntu-24-04":"4134ea084c9cc99d81b9cf160f5b185b"}}
