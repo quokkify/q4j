@@ -1,1 +1,1 @@
-{"id":"0e6721a446a29d6fbac2ab3511200235","fullName":"dev.quokkify.test.SelenideConfigurationTest.usesEagerPageLoadStrategyBeforeOpeningBrowser","name":"usesEagerPageLoadStrategyBeforeOpeningBrowser","status":"passed","testResultsByEnv":{"ubuntu-24-04":"cfbfea112a49a18afaf1f17ac5201d31"}}
+{"id":"0e6721a446a29d6fbac2ab3511200235","fullName":"dev.quokkify.test.SelenideConfigurationTest.usesEagerPageLoadStrategyBeforeOpeningBrowser","name":"usesEagerPageLoadStrategyBeforeOpeningBrowser","status":"passed","testResultsByEnv":{"ubuntu-24-04":"fc33730badd6893179e7cd243296d2b5"}}

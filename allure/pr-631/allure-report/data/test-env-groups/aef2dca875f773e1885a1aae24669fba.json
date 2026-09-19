@@ -1,1 +1,1 @@
-{"id":"aef2dca875f773e1885a1aae24669fba","fullName":"dev.quokkify.test.UiGridFileDownloadTest.testCdpDownload","name":"Download nginx file through CDP on Selenium Grid","status":"passed","testResultsByEnv":{"ubuntu-24-04":"88c8dea71f44fe42f49dede3a3ad6ecf"}}
+{"id":"aef2dca875f773e1885a1aae24669fba","fullName":"dev.quokkify.test.UiGridFileDownloadTest.testCdpDownload","name":"Download nginx file through CDP on Selenium Grid","status":"passed","testResultsByEnv":{"ubuntu-24-04":"ad963e4ddeaef174548422c1b0bfc78e"}}

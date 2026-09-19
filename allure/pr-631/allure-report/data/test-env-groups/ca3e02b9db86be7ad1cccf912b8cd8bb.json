@@ -1,1 +1,1 @@
-{"id":"ca3e02b9db86be7ad1cccf912b8cd8bb","fullName":"dev.quokkify.test.NoSqlFactoryTest.rejectNullMongoClientForDatabaseName","name":"Reject a null Mongo client for database-name configuration","status":"passed","testResultsByEnv":{"ubuntu-24-04":"39d5f7eccfb3d2c4d1a880eba2c8729d"}}
+{"id":"ca3e02b9db86be7ad1cccf912b8cd8bb","fullName":"dev.quokkify.test.NoSqlFactoryTest.rejectNullMongoClientForDatabaseName","name":"Reject a null Mongo client for database-name configuration","status":"passed","testResultsByEnv":{"ubuntu-24-04":"6ff89d456f89270e1fbd3cdd1e6c0e96"}}

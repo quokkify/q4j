@@ -1,1 +1,1 @@
-{"id":"823b1000f79bd0220ebcdc0391e16a64","fullName":"dev.quokkify.test.UiTableTest.testVerifyRow","name":"Verify local TABLE map lookup","status":"passed","testResultsByEnv":{"ubuntu-24-04":"67292735d6a2784b4808e51fbd10c999"}}
+{"id":"823b1000f79bd0220ebcdc0391e16a64","fullName":"dev.quokkify.test.UiTableTest.testVerifyRow","name":"Verify local TABLE map lookup","status":"passed","testResultsByEnv":{"ubuntu-24-04":"29b3daf16e2c9e01f316258c445547aa"}}

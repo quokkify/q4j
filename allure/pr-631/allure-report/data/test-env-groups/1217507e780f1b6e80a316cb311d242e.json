@@ -1,1 +1,1 @@
-{"id":"1217507e780f1b6e80a316cb311d242e","fullName":"dev.quokkify.model.JsonPojoTest.testEmptyConstructorCreatesEmptyJson","name":"Verify empty constructor creates empty json object","status":"passed","testResultsByEnv":{"ubuntu-24-04":"010a98baba425eb1059b7d7b43c46c55"}}
+{"id":"1217507e780f1b6e80a316cb311d242e","fullName":"dev.quokkify.model.JsonPojoTest.testEmptyConstructorCreatesEmptyJson","name":"Verify empty constructor creates empty json object","status":"passed","testResultsByEnv":{"ubuntu-24-04":"6bdb9dd3511df98e4acfb03f7be12062"}}

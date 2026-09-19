@@ -1,1 +1,1 @@
-{"id":"69eca70a46a2c11f83c1fd8f564be43e","fullName":"dev.quokkify.test.UiTableTest.testMissingTableRow","name":"Verify missing local TABLE row reports a negative lookup","status":"passed","testResultsByEnv":{"ubuntu-24-04":"a579cfb1ce62ef2c4bf295edecbb49b3"}}
+{"id":"69eca70a46a2c11f83c1fd8f564be43e","fullName":"dev.quokkify.test.UiTableTest.testMissingTableRow","name":"Verify missing local TABLE row reports a negative lookup","status":"passed","testResultsByEnv":{"ubuntu-24-04":"c901d140b5f6941969bef5102eac0ade"}}

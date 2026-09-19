@@ -1,1 +1,1 @@
-{"id":"4da796cb02ca3c0fd9a354377c16a26d","fullName":"dev.quokkify.test.TableModelContractTest.requiredRowsSkipHeaders","name":"Required row handles skip CLASSIC and FLEX header rows","status":"passed","testResultsByEnv":{"ubuntu-24-04":"d28e6beb8b69cb4dd5d60ffe0245a9bd"}}
+{"id":"4da796cb02ca3c0fd9a354377c16a26d","fullName":"dev.quokkify.test.TableModelContractTest.requiredRowsSkipHeaders","name":"Required row handles skip CLASSIC and FLEX header rows","status":"passed","testResultsByEnv":{"ubuntu-24-04":"db2e54e22bacf4d0712e5e0927a8cefb"}}

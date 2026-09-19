@@ -1,1 +1,1 @@
-{"id":"11938a856df2fee4de26f7a579179dba","fullName":"dev.quokkify.test.DatabaseSqlTest.checkUpdate","name":"Check update record in database","status":"passed","testResultsByEnv":{"ubuntu-24-04":"79d4c770a6e0f697e6d09ce4a84092e3"}}
+{"id":"11938a856df2fee4de26f7a579179dba","fullName":"dev.quokkify.test.DatabaseSqlTest.checkUpdate","name":"Check update record in database","status":"passed","testResultsByEnv":{"ubuntu-24-04":"20607b7c0bc62e4530f09b8b1c324a74"}}
