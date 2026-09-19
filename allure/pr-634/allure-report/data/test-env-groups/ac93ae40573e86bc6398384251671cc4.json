@@ -1,0 +1,1 @@
+{"id":"ac93ae40573e86bc6398384251671cc4","fullName":"dev.quokkify.test.ReproHorizontalAsyncTest.requiredRowWaitsForDelayedHorizontalRow","name":"FIXED: requiredRow waits for a delayed HORIZONTAL column row (N1)","status":"passed","testResultsByEnv":{"ubuntu-24-04":"f9cf4f53e2a84c681698a49b9ceb99f4"}}
