@@ -30,6 +30,10 @@ jobs:
           python-version: "3.14"
       - name: Validate release and publication contracts
         run: python tools/release_contract.py
+      - name: Test Gradle retry recovery contract
+        run: |
+          python -m unittest -v tools/ci/test_gradle_retry.py
+          bash -n tools/scripts/ci/gradle-retry.sh
       - name: Validate generated configuration
         run: |
           python -m pip install PyYAML==6.0.3

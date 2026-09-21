@@ -1,36 +1,29 @@
-name: Gradle run with bounded Maven Central retry
-description: >
-  Runs a Gradle command and retries only bounded repository HTTP 429/403
-  failures. Any other failure (404, DNS/connection error, compilation error,
-  failing test, etc.) is not retried and fails immediately. A persistent 403
-  still fails after the configured attempt limit.
+name: Gradle command with bounded retry
+description: Run a Gradle command, retrying bounded repository 429/403 failures and refreshing dependencies once after a repository not-found failure.
 
 inputs:
-  args:
-    description: Gradle task names and flags, appended after ./gradlew
+  command:
+    description: Trusted Gradle command to execute.
     required: true
-  working-directory:
-    description: Directory containing the Gradle wrapper
-    required: false
-    default: "."
   max-attempts:
-    description: Maximum number of attempts, including the first one
+    description: Maximum attempts for transient HTTP 429/403 failures.
     required: false
     default: "3"
   initial-delay-seconds:
-    description: Delay before the first retry; multiplied by 3 before each subsequent retry
+    description: Initial delay before a transient HTTP 429/403 retry.
     required: false
     default: "30"
 
 runs:
   using: composite
   steps:
-    - name: Run Gradle with retry on transient Maven Central errors
+    - name: Run Gradle command with bounded recovery
       shell: bash
-      working-directory: ${{ inputs.working-directory }}
       env:
+        GRADLE_RETRY_COMMAND: ${{ inputs.command }}
         GRADLE_RETRY_MAX_ATTEMPTS: ${{ inputs.max-attempts }}
         GRADLE_RETRY_INITIAL_DELAY_SECONDS: ${{ inputs.initial-delay-seconds }}
-        GRADLE_RETRY_ARGS: ${{ inputs.args }}
       run: |
-        "${GITHUB_WORKSPACE}/tools/scripts/ci/gradle-retry.sh" $GRADLE_RETRY_ARGS
+        # shellcheck disable=SC2034
+        export GRADLE_RETRY_COMMAND GRADLE_RETRY_MAX_ATTEMPTS GRADLE_RETRY_INITIAL_DELAY_SECONDS
+        bash "${GITHUB_ACTION_PATH}/gradle-retry.sh"
