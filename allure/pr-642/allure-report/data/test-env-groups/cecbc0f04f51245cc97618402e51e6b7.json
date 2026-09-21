@@ -1,1 +1,0 @@
-{"id":"cecbc0f04f51245cc97618402e51e6b7","fullName":"dev.quokkify.reportportal.test.ReportPortalApiServiceTest.getItemByUuid_pathContainsProjectAndUuid","name":"getItemByUuid path is built correctly for project and UUID","status":"passed","testResultsByEnv":{"ubuntu-24-04":"e46e76d4f43b986a3f4603a1b0d25a51"}}

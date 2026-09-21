@@ -1,1 +1,1 @@
-{"id":"549646902fd43857631d4568c13a1465","fullName":"dev.quokkify.test.TableModelContractTest.resolvesDisplayedHeader","name":"Resolve typed columns by displayed headers rather than enum ordinal","status":"passed","testResultsByEnv":{"ubuntu-24-04":"3fbbdb9d9722393d7b794ac22f9352b9"}}
+{"id":"549646902fd43857631d4568c13a1465","fullName":"dev.quokkify.test.TableModelContractTest.resolvesDisplayedHeader","name":"Resolve typed columns by displayed headers rather than enum ordinal","status":"passed","testResultsByEnv":{"ubuntu-24-04":"ffbc3edc53b4d70537316e5c01fb92bb"}}

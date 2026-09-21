@@ -1,1 +1,1 @@
-{"id":"bbec8251a2a0e7bb01b8cb17dc95bd85","fullName":"dev.quokkify.test.TableRowWaitTest.testTableRowAppearingWithDelayIsFound","name":"Verify 'TABLE' row search waits for a row appearing with a delay","status":"passed","testResultsByEnv":{"ubuntu-24-04":"5a62ff0e39cf9071a4274ae4a54ebd83"}}
+{"id":"bbec8251a2a0e7bb01b8cb17dc95bd85","fullName":"dev.quokkify.test.TableRowWaitTest.testTableRowAppearingWithDelayIsFound","name":"Verify 'TABLE' row search waits for a row appearing with a delay","status":"passed","testResultsByEnv":{"ubuntu-24-04":"48a1d560aa5d4f0da41c300361cf58e8"}}

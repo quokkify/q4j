@@ -1,1 +1,1 @@
-{"id":"9110f959a650baed074d5119ddc644f1","fullName":"dev.quokkify.test.TableModelContractTest.rowReferenceSurvivesRemount","name":"A row reference resolves again after a deterministic DOM remount","status":"passed","testResultsByEnv":{"ubuntu-24-04":"a0135e68c2770850ed0d3284b4f1e0b4"}}
+{"id":"9110f959a650baed074d5119ddc644f1","fullName":"dev.quokkify.test.TableModelContractTest.rowReferenceSurvivesRemount","name":"A row reference resolves again after a deterministic DOM remount","status":"passed","testResultsByEnv":{"ubuntu-24-04":"3c9811af7b936d24e5686f4bcf509065"}}

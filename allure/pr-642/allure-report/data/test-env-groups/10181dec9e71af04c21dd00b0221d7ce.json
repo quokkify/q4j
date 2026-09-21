@@ -1,1 +1,1 @@
-{"id":"10181dec9e71af04c21dd00b0221d7ce","fullName":"dev.quokkify.test.TableModelContractTest.readsTypedCellLazily","name":"Rows expose typed lazy-cell contract without table capabilities","status":"passed","testResultsByEnv":{"ubuntu-24-04":"2976eab65494af2766780b39f034b856"}}
+{"id":"10181dec9e71af04c21dd00b0221d7ce","fullName":"dev.quokkify.test.TableModelContractTest.readsTypedCellLazily","name":"Rows expose typed lazy-cell contract without table capabilities","status":"passed","testResultsByEnv":{"ubuntu-24-04":"f868cbb5d1d45240bc802a5669266c6a"}}
