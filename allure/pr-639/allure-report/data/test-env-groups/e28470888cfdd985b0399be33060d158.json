@@ -1,0 +1,1 @@
+{"id":"e28470888cfdd985b0399be33060d158","fullName":"dev.quokkify.model.JsonPojoTest.testSetAtReplacesArrayElement","name":"Verify set value by json pointer with array index","status":"passed","testResultsByEnv":{"ubuntu-24-04":"dbdab631d6a9a134e7ef747cd386a9b9"}}

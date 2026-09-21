@@ -1,0 +1,1 @@
+{"id":"3a69b06a83a43942ca891ad6ddaf9536","fullName":"dev.quokkify.test.TableQueryContractTest.waitsAndEnforcesUniqueRows","name":"Required queries wait natively and unique queries reject zero or duplicates","status":"passed","testResultsByEnv":{"ubuntu-24-04":"c29ce5b47147fd6ffe2758202b5dbbd1"}}

@@ -1,0 +1,1 @@
+{"id":"d3c6c258d5a6a7067a01a83f1afecdd9","fullName":"dev.quokkify.converter.CsvConverterModuleDiscoveryTest.shouldSerializeWithoutCustomFormattingWhenModuleNotRegistered","name":"Verify CSV serialization keeps default enum format when module discovery is disabled","status":"passed","testResultsByEnv":{"ubuntu-24-04":"444c607469b8ab6a2007258c2b933b43"}}
