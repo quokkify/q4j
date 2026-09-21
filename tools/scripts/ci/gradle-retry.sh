@@ -42,7 +42,7 @@ while true; do
   # repository's explicit 403 status diagnostic. This excludes bare
   # "Forbidden" text and unrelated "Could not resolve" failures.
   is_403=0
-  if tr '\n' ' ' < "$output" | grep -qE "Could not (GET|HEAD) ['\"]?https?://[^[:space:]'\">]+['\"]?[^.]*status code 403"; then
+  if grep -qE "Could not (GET|HEAD) ['\"]https?://[^'\"]+['\"]\. Received status code 403" "$output"; then
     is_403=1
   fi
 
@@ -57,6 +57,12 @@ while true; do
     attempt=$((attempt + 1))
     delay=$((delay * 3))
     continue
+  fi
+
+  if [[ "$is_repository_failure" -eq 1 && ( "$is_429" -eq 1 || "$is_403" -eq 1 ) && "$attempt" -ge "$max_attempts" ]]; then
+    status_code=429
+    [[ "$is_403" -eq 1 ]] && status_code=403
+    echo "::error::Gradle repository HTTP ${status_code} retry limit exhausted after ${attempt} attempt(s)." >&2
   fi
 
   # Gradle's dependency-resolution not-found report includes both the module

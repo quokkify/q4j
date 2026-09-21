@@ -16,6 +16,8 @@ class GradleRetryTests(unittest.TestCase):
     def run_case(self, mode: str, *, max_attempts: str = "3", persistent: bool = False) -> tuple[subprocess.CompletedProcess[str], int]:
         with tempfile.TemporaryDirectory(prefix="q4j-gradle-retry-") as temporary:
             root = Path(temporary)
+            tmpdir = root / "tmp"
+            tmpdir.mkdir()
             fake_gradle = root / "gradlew"
             count = root / "count"
             fake_gradle.write_text(
@@ -27,8 +29,8 @@ class GradleRetryTests(unittest.TestCase):
                 "  ordinary) echo 'compilation failed'; exit 9;;\n"
                 "  not-found) if [[ \"$*\" == *--refresh-dependencies* ]]; then [[ \"${PERSISTENT:-0}\" == 1 ]] && { echo 'Could not find org.example:missing:1.0.'; echo 'Searched in the following locations:'; exit 7; }; echo success; exit 0; fi; echo 'Could not find org.example:missing:1.0.'; echo 'Searched in the following locations:'; exit 7;;\n"
                 "  rate-limit) [[ $n -lt 2 ]] && { echo 'Could not GET https://repo.maven.apache.org/maven2/example.pom'; echo 'Received status code 429 from server: Too Many Requests'; exit 8; }; echo success; exit 0;;\n"
-                "  forbidden) [[ $n -lt 2 ]] && { echo 'Could not GET https://repo.maven.apache.org/maven2/example.pom'; echo 'Received status code 403 from server: Forbidden'; exit 13; }; echo success; exit 0;;\n"
-                "  persistent-forbidden) echo 'Could not GET https://repo.maven.apache.org/maven2/example.pom'; echo 'Received status code 403 from server: Forbidden'; exit 13;;\n"
+                "  forbidden) [[ $n -lt 2 ]] && { echo \"Could not GET 'https://repo.maven.apache.org/maven2/example.pom'. Received status code 403 from server: Forbidden\"; exit 13; }; echo success; exit 0;;\n"
+                "  persistent-forbidden) echo \"Could not GET 'https://repo.maven.apache.org/maven2/example.pom'. Received status code 403 from server: Forbidden\"; exit 13;;\n"
                 "  unrelated-forbidden) echo 'Could not resolve org.example:missing:1.0'; echo 'Task failed: Forbidden API operation'; exit 7;;\n"
                 "  server-error) echo 'Could not GET https://repo.maven.apache.org/maven2/example.pom'; echo 'Received status code 500 from server'; exit 14;;\n"
                 "esac\n"
@@ -40,6 +42,7 @@ class GradleRetryTests(unittest.TestCase):
                 "GRADLE_RETRY_COMMAND": f"{fake_gradle} --task test",
                 "GRADLE_RETRY_INITIAL_DELAY_SECONDS": "1",
                 "GRADLE_RETRY_MAX_ATTEMPTS": max_attempts,
+                "TMPDIR": str(tmpdir),
                 "MODE": mode,
             }
             if mode == "not-found" and persistent:
@@ -52,6 +55,7 @@ class GradleRetryTests(unittest.TestCase):
                 capture_output=True,
                 check=False,
             )
+            self.assertEqual(list(tmpdir.iterdir()), [], "retry temporary output was not cleaned up")
             return result, int(count.read_text())
 
     def test_existing_429_retry_is_preserved(self) -> None:
@@ -77,6 +81,7 @@ class GradleRetryTests(unittest.TestCase):
         self.assertEqual(result.returncode, 13)
         self.assertEqual(calls, 2)
         self.assertIn("repository 403", result.stdout)
+        self.assertIn("retry limit exhausted", result.stderr)
 
     def test_unrelated_forbidden_text_is_not_retried(self) -> None:
         result, calls = self.run_case("unrelated-forbidden")
