@@ -10,10 +10,19 @@ from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
 SCRIPT = ROOT / "tools/scripts/ci/gradle-retry.sh"
+ACTION_SCRIPT = ROOT / ".github/actions/gradle-retry/gradle-retry.sh"
 
 
 class GradleRetryTests(unittest.TestCase):
-    def run_case(self, mode: str, *, max_attempts: str = "3", persistent: bool = False) -> tuple[subprocess.CompletedProcess[str], int]:
+    def run_case(
+        self,
+        mode: str,
+        *,
+        max_attempts: str = "3",
+        persistent: bool = False,
+        script: Path = SCRIPT,
+        action_runtime: bool = False,
+    ) -> tuple[subprocess.CompletedProcess[str], int]:
         with tempfile.TemporaryDirectory(prefix="q4j-gradle-retry-") as temporary:
             root = Path(temporary)
             tmpdir = root / "tmp"
@@ -47,8 +56,12 @@ class GradleRetryTests(unittest.TestCase):
             }
             if mode == "not-found" and persistent:
                 env["PERSISTENT"] = "1"
+            command = ["bash", str(script)]
+            if action_runtime:
+                env["GITHUB_ACTION_PATH"] = str(ACTION_SCRIPT.parent)
+                command = ["bash", "-c", 'bash "$GITHUB_ACTION_PATH/gradle-retry.sh"']
             result = subprocess.run(
-                ["bash", str(SCRIPT)],
+                command,
                 cwd=root,
                 env=env,
                 text=True,
@@ -75,6 +88,11 @@ class GradleRetryTests(unittest.TestCase):
         self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
         self.assertEqual(calls, 2)
         self.assertIn("repository 403", result.stdout)
+
+    def test_composite_action_ships_and_executes_its_declared_script(self) -> None:
+        result, calls = self.run_case("forbidden", max_attempts="2", action_runtime=True)
+        self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+        self.assertEqual(calls, 2)
 
     def test_persistent_403_fails_after_limit(self) -> None:
         result, calls = self.run_case("persistent-forbidden", max_attempts="2")
