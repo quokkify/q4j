@@ -1,0 +1,1 @@
+{"id":"d6ea2f04e40fa3e1d38815e02885626a","fullName":"dev.quokkify.test.DropdownBehaviorTest.testTypeAndSelectExactClosesDropdown","name":"Verify typeAndSelectExact selects the exact matching option and closes the widget","status":"passed","testResultsByEnv":{"ubuntu-24-04":"36fe21a63fcc5d12b5f806e69b12fe0a"}}
