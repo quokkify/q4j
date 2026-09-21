@@ -1,0 +1,1 @@
+{"id":"6a6b7a350ceaef43812f4ba4a57f5694","fullName":"dev.quokkify.model.JsonPojoTest.testSetEachAtSkipsNonObjectElements","name":"Verify set value in each array element skips non object elements","status":"passed","testResultsByEnv":{"ubuntu-24-04":"72469af63ab7146bf2d1a61832b32c72"}}

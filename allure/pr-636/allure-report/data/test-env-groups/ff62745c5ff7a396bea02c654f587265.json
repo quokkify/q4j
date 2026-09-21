@@ -1,0 +1,1 @@
+{"id":"ff62745c5ff7a396bea02c654f587265","fullName":"dev.quokkify.converter.CsvConverterModuleDiscoveryTest.shouldSerializeWithCustomFormattingWhenModuleRegistered","name":"Verify CSV serialization applies discovered custom module formatting","status":"passed","testResultsByEnv":{"ubuntu-24-04":"825ea96892d65e75c7859b0e5775d7d4"}}

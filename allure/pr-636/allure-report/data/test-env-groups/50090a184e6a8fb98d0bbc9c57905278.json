@@ -1,0 +1,1 @@
+{"id":"50090a184e6a8fb98d0bbc9c57905278","fullName":"dev.quokkify.kafka.test.KafkaTest.testKafkaPublishMessage","name":"Verify the publication of Kafka message","status":"passed","testResultsByEnv":{"ubuntu-24-04":"955992f9f81b98f93a35bbed2efdaaca"}}
