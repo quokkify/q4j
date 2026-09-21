@@ -1,0 +1,1 @@
+{"id":"d9f2301bf20db1221d1951df5061fb13","fullName":"dev.quokkify.test.TableQueryContractTest.reportsMissingDuplicateAndNullHeaders","name":"String-first headers fail deterministically for missing and duplicate displayed names","status":"passed","testResultsByEnv":{"ubuntu-24-04":"59f0de8d91c5196f210925eb9a2373be"}}

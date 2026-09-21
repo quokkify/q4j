@@ -1,0 +1,1 @@
+{"id":"d2d1e318d082d0fa00bb3884ec0af221","fullName":"dev.quokkify.test.ApiTest.testLocalDateTimeFormatterAndParser","name":"Verify 'LocalDateFormatter' and 'LocalDateParser'","status":"passed","testResultsByEnv":{"ubuntu-24-04":"be38509caf6ec54b5ccfa458c3628889"}}
