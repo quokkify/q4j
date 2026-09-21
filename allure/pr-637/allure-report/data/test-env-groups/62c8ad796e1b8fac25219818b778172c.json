@@ -1,1 +1,1 @@
-{"id":"62c8ad796e1b8fac25219818b778172c","fullName":"dev.quokkify.test.ConnectionProviderTest.checkC3P0ProviderViaPersistenceProvider","name":"Check connection via Provider","status":"passed","testResultsByEnv":{"ubuntu-24-04":"f27c46e46ebbf3ae21c8afc0bc0c9cd9"}}
+{"id":"62c8ad796e1b8fac25219818b778172c","fullName":"dev.quokkify.test.ConnectionProviderTest.checkC3P0ProviderViaPersistenceProvider","name":"Check connection via Provider","status":"passed","testResultsByEnv":{"ubuntu-24-04":"90e2e8d6dc1dbfec6c96328893f09d17"}}

@@ -1,1 +1,1 @@
-{"id":"50090a184e6a8fb98d0bbc9c57905278","fullName":"dev.quokkify.kafka.test.KafkaTest.testKafkaPublishMessage","name":"Verify the publication of Kafka message","status":"passed","testResultsByEnv":{"ubuntu-24-04":"ec3376c357a8f40e90d9cc3841eec73f"}}
+{"id":"50090a184e6a8fb98d0bbc9c57905278","fullName":"dev.quokkify.kafka.test.KafkaTest.testKafkaPublishMessage","name":"Verify the publication of Kafka message","status":"passed","testResultsByEnv":{"ubuntu-24-04":"9d5b57b548e93bdd7ebcab0996fb8771"}}

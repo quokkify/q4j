@@ -1,1 +1,1 @@
-{"id":"565751f06e6d123920b4ea7a147df09a","fullName":"dev.quokkify.rabbitmq.test.RabbitIntegrationTest.testRabbitMqPublishMessage","name":"Verify the publication of RabbitMQ message","status":"passed","testResultsByEnv":{"ubuntu-24-04":"0a10b9e7f4c998002323ca355a1fb44f"}}
+{"id":"565751f06e6d123920b4ea7a147df09a","fullName":"dev.quokkify.rabbitmq.test.RabbitIntegrationTest.testRabbitMqPublishMessage","name":"Verify the publication of RabbitMQ message","status":"passed","testResultsByEnv":{"ubuntu-24-04":"78a2fc36a66c33ef011c92c405dc4caf"}}

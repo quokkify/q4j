@@ -1,1 +1,1 @@
-{"id":"348609a7d8be8bbcd877b26560fe1488","fullName":"dev.quokkify.tyrus.client.WsClientTest.clearMessages_emptiesQueue","name":"clearMessages_emptiesQueue","status":"passed","testResultsByEnv":{"ubuntu-24-04":"047fe55d177a7d885e1a879ced2def3e"}}
+{"id":"348609a7d8be8bbcd877b26560fe1488","fullName":"dev.quokkify.tyrus.client.WsClientTest.clearMessages_emptiesQueue","name":"clearMessages_emptiesQueue","status":"passed","testResultsByEnv":{"ubuntu-24-04":"ca9480ccb7dc4022d8e9a2cfff003349"}}
