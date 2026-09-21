@@ -1,1 +1,1 @@
-{"id":"17ac694f1d0f7b3a4a113c75581aaa58","fullName":"dev.quokkify.model.JsonPojoTest.testSetFieldCopiesJsonNodeValue","name":"Verify set field deep copies json node values","status":"passed","testResultsByEnv":{"ubuntu-24-04":"5f0a0ed4f259024bdbcc0c313d83ffae"}}
+{"id":"17ac694f1d0f7b3a4a113c75581aaa58","fullName":"dev.quokkify.model.JsonPojoTest.testSetFieldCopiesJsonNodeValue","name":"Verify set field deep copies json node values","status":"passed","testResultsByEnv":{"ubuntu-24-04":"7e2a1b199270969737e6866c603419fa"}}

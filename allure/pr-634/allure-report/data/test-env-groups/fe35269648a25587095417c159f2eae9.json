@@ -1,1 +1,1 @@
-{"id":"fe35269648a25587095417c159f2eae9","fullName":"dev.quokkify.util.ZipUtilsTest.testUnzipFileRejectsEntryOutsideDestinationDirectory","name":"testUnzipFileRejectsEntryOutsideDestinationDirectory","status":"passed","testResultsByEnv":{"ubuntu-24-04":"1fdde2ca678bbf3acbe107cd1e29d127"}}
+{"id":"fe35269648a25587095417c159f2eae9","fullName":"dev.quokkify.util.ZipUtilsTest.testUnzipFileRejectsEntryOutsideDestinationDirectory","name":"testUnzipFileRejectsEntryOutsideDestinationDirectory","status":"passed","testResultsByEnv":{"ubuntu-24-04":"8bb553ba4ec49b2bb12d913445c694be"}}
