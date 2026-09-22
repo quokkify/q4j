@@ -1,0 +1,1 @@
+{"id":"2468b12f5c2a7b5764799c2a1d482aae","fullName":"dev.quokkify.test.DropdownBehaviorTest.testTypeAndSelectPartialFromClosedDropdown","name":"Verify typeAndSelectPartial opens a closed dropdown, picks the first partial match, and closes it","status":"passed","testResultsByEnv":{"ubuntu-24-04":"4bc12766a21ca83d41f270f61fd4921a"}}
