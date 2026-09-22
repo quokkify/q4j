@@ -1,1 +1,1 @@
-{"id":"83791caf651eabef862a4eea34ed8631","fullName":"dev.quokkify.model.JsonPojoTest.testConstructorFromJsonString","name":"Verify constructor from json string","status":"passed","testResultsByEnv":{"ubuntu-24-04":"4e1c22e668ecc86a79c0972d089b4c63"}}
+{"id":"83791caf651eabef862a4eea34ed8631","fullName":"dev.quokkify.model.JsonPojoTest.testConstructorFromJsonString","name":"Verify constructor from json string","status":"passed","testResultsByEnv":{"ubuntu-24-04":"97c5303636f483eb1293d28ba1a947f0"}}

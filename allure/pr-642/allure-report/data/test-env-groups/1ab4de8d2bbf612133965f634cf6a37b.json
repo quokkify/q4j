@@ -1,1 +1,1 @@
-{"id":"1ab4de8d2bbf612133965f634cf6a37b","fullName":"dev.quokkify.test.TableAssertionsActionsContractTest.rejectsReadOnlyEditingExplicitly","name":"Read-only cells reject the explicit edit capability","status":"passed","testResultsByEnv":{"ubuntu-24-04":"9ba16fb0de5d1b10815c1b0a564f1eda"}}
+{"id":"1ab4de8d2bbf612133965f634cf6a37b","fullName":"dev.quokkify.test.TableAssertionsActionsContractTest.rejectsReadOnlyEditingExplicitly","name":"Read-only cells reject the explicit edit capability","status":"passed","testResultsByEnv":{"ubuntu-24-04":"8501338d328cc8f99fcc975aec05136c"}}

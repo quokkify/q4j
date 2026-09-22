@@ -1,1 +1,1 @@
-{"id":"a8891dfc30e776e116e3f51dab186e55","fullName":"dev.quokkify.model.JsonPojoTest.testAsJsonArrayWrapsSinglePojo","name":"Verify instance json array serialization wraps underlying json","status":"passed","testResultsByEnv":{"ubuntu-24-04":"e74576bb157b56c8960c903adbecb55d"}}
+{"id":"a8891dfc30e776e116e3f51dab186e55","fullName":"dev.quokkify.model.JsonPojoTest.testAsJsonArrayWrapsSinglePojo","name":"Verify instance json array serialization wraps underlying json","status":"passed","testResultsByEnv":{"ubuntu-24-04":"9a847f86e233c2c2d47de18318823e2c"}}

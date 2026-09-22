@@ -1,1 +1,1 @@
-{"id":"d2d1e318d082d0fa00bb3884ec0af221","fullName":"dev.quokkify.test.ApiTest.testLocalDateTimeFormatterAndParser","name":"Verify 'LocalDateFormatter' and 'LocalDateParser'","status":"passed","testResultsByEnv":{"ubuntu-24-04":"a27ce6b31ca66ff7cd7bc949475c6296"}}
+{"id":"d2d1e318d082d0fa00bb3884ec0af221","fullName":"dev.quokkify.test.ApiTest.testLocalDateTimeFormatterAndParser","name":"Verify 'LocalDateFormatter' and 'LocalDateParser'","status":"passed","testResultsByEnv":{"ubuntu-24-04":"b9330ee02fefe3fd71d5732628a0edd2"}}

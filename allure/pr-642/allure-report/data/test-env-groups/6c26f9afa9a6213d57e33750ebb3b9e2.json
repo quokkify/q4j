@@ -1,1 +1,1 @@
-{"id":"6c26f9afa9a6213d57e33750ebb3b9e2","fullName":"dev.quokkify.model.JsonPojoTest.testFromPojo","name":"Verify creation from typed pojo","status":"passed","testResultsByEnv":{"ubuntu-24-04":"5e1d6f93fae212af114b23eb411c8709"}}
+{"id":"6c26f9afa9a6213d57e33750ebb3b9e2","fullName":"dev.quokkify.model.JsonPojoTest.testFromPojo","name":"Verify creation from typed pojo","status":"passed","testResultsByEnv":{"ubuntu-24-04":"e4de0a67cafec06b8516c5eb0bf96ae3"}}

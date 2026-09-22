@@ -1,1 +1,1 @@
-{"id":"20ed58c9717a64aac5f7832a2fa6f757","fullName":"dev.quokkify.test.TableModelContractTest.bridgesAllLegacyVariants","name":"Every legacy table variant exposes the neutral model and typed cells","status":"passed","testResultsByEnv":{"ubuntu-24-04":"e4e6012695ebe86f39b10bbab9b5ae17"}}
+{"id":"20ed58c9717a64aac5f7832a2fa6f757","fullName":"dev.quokkify.test.TableModelContractTest.bridgesAllLegacyVariants","name":"Every legacy table variant exposes the neutral model and typed cells","status":"passed","testResultsByEnv":{"ubuntu-24-04":"c9ee5df43c595afd4b46630d8568d65a"}}

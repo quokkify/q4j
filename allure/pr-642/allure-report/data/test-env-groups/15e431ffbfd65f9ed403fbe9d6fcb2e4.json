@@ -1,1 +1,1 @@
-{"id":"15e431ffbfd65f9ed403fbe9d6fcb2e4","fullName":"dev.quokkify.model.JsonPojoTest.testSetFieldWithPojo","name":"Verify set field with typed pojo value","status":"passed","testResultsByEnv":{"ubuntu-24-04":"303ab9904c0276c151ca59c4e1b7129b"}}
+{"id":"15e431ffbfd65f9ed403fbe9d6fcb2e4","fullName":"dev.quokkify.model.JsonPojoTest.testSetFieldWithPojo","name":"Verify set field with typed pojo value","status":"passed","testResultsByEnv":{"ubuntu-24-04":"b57c551210e6a31b69e6a9560652e204"}}

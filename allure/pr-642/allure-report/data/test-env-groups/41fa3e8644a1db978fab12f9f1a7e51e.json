@@ -1,1 +1,1 @@
-{"id":"41fa3e8644a1db978fab12f9f1a7e51e","fullName":"dev.quokkify.test.TableAssertionsActionsContractTest.waitsForRowAndCellState","name":"Row and cell assertions wait natively for delayed cell state","status":"passed","testResultsByEnv":{"ubuntu-24-04":"56b38e59913ff4bda34bb4c31596745a"}}
+{"id":"41fa3e8644a1db978fab12f9f1a7e51e","fullName":"dev.quokkify.test.TableAssertionsActionsContractTest.waitsForRowAndCellState","name":"Row and cell assertions wait natively for delayed cell state","status":"passed","testResultsByEnv":{"ubuntu-24-04":"21779c8881ab51aa38c7eb07a23699f7"}}

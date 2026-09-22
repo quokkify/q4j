@@ -1,1 +1,1 @@
-{"id":"020a330293eaae5e93e479f5ee84604a","fullName":"dev.quokkify.test.UiHorizontalTableTest.testTable","name":"Verify local HORIZONTAL TABLE and DYNAMIC HORIZONTAL TABLE rows","status":"passed","testResultsByEnv":{"ubuntu-24-04":"71ed2cde867917441b2b60a8bf1f6485"}}
+{"id":"020a330293eaae5e93e479f5ee84604a","fullName":"dev.quokkify.test.UiHorizontalTableTest.testTable","name":"Verify local HORIZONTAL TABLE and DYNAMIC HORIZONTAL TABLE rows","status":"passed","testResultsByEnv":{"ubuntu-24-04":"a5dcb60e4f92d7cdbd7796714a14abcc"}}

@@ -1,1 +1,1 @@
-{"id":"b205475cead1e4be69821eb47b3f8392","fullName":"dev.quokkify.test.UiHorizontalTableTest.testMissingRow","name":"Verify missing local HORIZONTAL TABLE row is reported","status":"passed","testResultsByEnv":{"ubuntu-24-04":"4ce58b8e8f2abde01518aca9b4aaa854"}}
+{"id":"b205475cead1e4be69821eb47b3f8392","fullName":"dev.quokkify.test.UiHorizontalTableTest.testMissingRow","name":"Verify missing local HORIZONTAL TABLE row is reported","status":"passed","testResultsByEnv":{"ubuntu-24-04":"ae19e7f53817626d6c4a9f84656930b1"}}
