@@ -1,0 +1,1 @@
+{"id":"2fb2ed4b2aab804c5e603a4f86a5e349","fullName":"dev.quokkify.test.RowConditionsContractTest.greaterThanUsesStrictNumericContract","name":"greaterThan accepts canonical BigDecimal text and rejects decorated or malformed text","status":"passed","testResultsByEnv":{"ubuntu-24-04":"63cb18bce6e2a39865d0367844c14d2d"}}
