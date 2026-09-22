@@ -1,0 +1,1 @@
+{"id":"ce3be987c1e2ea0e65180fabb1c5fbc3","fullName":"dev.quokkify.util.WaiterAwaitAssertionTest.awaitAssertionHonoursCustomTimeoutInsteadOfDefaultSixtySeconds","name":"awaitAssertionHonoursCustomTimeoutInsteadOfDefaultSixtySeconds","status":"passed","testResultsByEnv":{"ubuntu-24-04":"42f8f2fee853c1380c1bb46f00c733f7"}}

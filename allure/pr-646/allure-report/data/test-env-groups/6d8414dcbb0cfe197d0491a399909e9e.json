@@ -1,0 +1,1 @@
+{"id":"6d8414dcbb0cfe197d0491a399909e9e","fullName":"dev.quokkify.test.CsvParserTest.testWriteMapsWithExplicitHeaderFromEnum","name":"Verify writing Map rows using explicit header order from enum","status":"passed","testResultsByEnv":{"ubuntu-24-04":"249ce5b43f9b7ee9efc64ba3232dcefa"}}

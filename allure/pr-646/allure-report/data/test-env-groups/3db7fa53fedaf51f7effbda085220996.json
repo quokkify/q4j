@@ -1,0 +1,1 @@
+{"id":"3db7fa53fedaf51f7effbda085220996","fullName":"dev.quokkify.converter.XmlConverterModuleDiscoveryTest.shouldSerializeWithoutTypeFieldWhenCustomModuleNotRegistered","name":"Verify XML serialization does not contain type discriminator when module discovery is disabled","status":"passed","testResultsByEnv":{"ubuntu-24-04":"0b3ccd6174cdeca7d7b4c0a8de0534d1"}}

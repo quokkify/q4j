@@ -1,0 +1,1 @@
+{"id":"c1049d11e1f962f1a11cbc5aa08f2d61","fullName":"dev.quokkify.test.CsvParserTest.testParseGenericTargetHeader","name":"Verify parsing to generic target (List<User>) with header","status":"passed","testResultsByEnv":{"ubuntu-24-04":"0d90da2e6341fa5538bc6bf90bf09d94"}}
