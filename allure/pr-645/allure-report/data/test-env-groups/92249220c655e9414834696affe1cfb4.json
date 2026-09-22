@@ -1,0 +1,1 @@
+{"id":"92249220c655e9414834696affe1cfb4","fullName":"dev.quokkify.reportportal.test.ReportPortalApiServiceTest.getItemByUuid_nonExistentUuid_returnsItemWithNullId","name":"getItemByUuid returns an object for an existing project (negative: non-existent UUID)","status":"passed","testResultsByEnv":{"ubuntu-24-04":"80fcc649375e35366f90f99f8b01bc81"}}

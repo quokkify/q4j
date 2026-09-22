@@ -1,0 +1,1 @@
+{"id":"d7bdef3dbb8fb70bf4e9425c4b06c88d","fullName":"dev.quokkify.converter.CsvConverterModuleDiscoveryTest.shouldDeserializeCustomFormattedEnumWhenModuleRegistered","name":"Verify CSV deserialization succeeds with discovered custom module","status":"passed","testResultsByEnv":{"ubuntu-24-04":"b3f08bc9f44edfed5d0cb4be020cce94"}}
