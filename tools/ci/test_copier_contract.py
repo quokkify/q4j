@@ -13,8 +13,8 @@ import yaml
 
 REPOSITORY = Path(__file__).resolve().parents[2]
 TOOLKIT_SOURCE = "https://github.com/quokkify/project-toolkit.git"
-TOOLKIT_REVISION = "e9ebaf5ce4bafdd48a7ab9486404af51db6ce1a7"
-TOOLKIT_VERSION = "v2.21.4"
+TOOLKIT_REVISION = "v2.21.6"
+TOOLKIT_VERSION = "v2.21.6"
 
 
 def run(*args: str, cwd: Path) -> subprocess.CompletedProcess[str]:
