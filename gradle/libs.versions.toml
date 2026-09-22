@@ -1,5 +1,5 @@
 [versions]
-fasterxml-jackson = "2.22.2"
+fasterxml-jackson = "2.22.3"
 aeonbits = "1.0.12"
 slf4j = "2.0.19"
 log4j = "2.26.1"
