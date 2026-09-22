@@ -1,1 +1,1 @@
-{"id":"c953f66652539114a3284a2f7f76746d","fullName":"dev.quokkify.test.SqlConverterTest.checkInWithNumericCollection","name":"IN: numeric collection should render without quotes","status":"passed","testResultsByEnv":{"ubuntu-24-04":"97cf1db5c9183714f671274497132e3c"}}
+{"id":"c953f66652539114a3284a2f7f76746d","fullName":"dev.quokkify.test.SqlConverterTest.checkInWithNumericCollection","name":"IN: numeric collection should render without quotes","status":"passed","testResultsByEnv":{"ubuntu-24-04":"ad4253b440f673751aa4c379ff875ff3"}}
