@@ -1,0 +1,12 @@
+
+    select
+        dtu1_0.id,
+        dtu1_0.firstName,
+        dtu1_0.lastName 
+    from
+        DatabaseTestUser dtu1_0 
+    where
+        dtu1_0.firstName='Adam' 
+        and dtu1_0.lastName='Sadler' 
+    fetch
+        first 1 rows only

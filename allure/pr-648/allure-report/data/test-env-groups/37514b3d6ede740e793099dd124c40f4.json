@@ -1,0 +1,1 @@
+{"id":"37514b3d6ede740e793099dd124c40f4","fullName":"dev.quokkify.model.JsonPojoTest.testSetAtPropertyOnArrayThrows","name":"Verify set property by json pointer on array node is rejected","status":"passed","testResultsByEnv":{"ubuntu-24-04":"244b6a2b8139f25366148e2f3dbe5f41"}}
