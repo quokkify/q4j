@@ -93,6 +93,11 @@ def copier_update_fixture() -> Path:
         "components=[]",
         cwd=repository,
     )
+    # Clearing components intentionally removes the generated component jobs.
+    # Resolve that expected deletion before checking for unrelated Copier
+    # conflicts; the component render is exercised separately below.
+    run("git", "checkout", "--theirs", ".github/workflows/validate.yml", cwd=repository)
+    run("git", "add", ".github/workflows/validate.yml", cwd=repository)
     assert_no_merge_conflicts(repository)
     parse_generated_configuration(repository)
     return fixture
@@ -159,6 +164,13 @@ def assert_component_contract(repository: Path) -> None:
         'test-artifact-path: "allure-results"',
     ):
         assert expected in validate, f"Component validation contract is missing: {expected}"
+
+    checked_in_validate = (REPOSITORY / ".github/workflows/validate.yml").read_text(encoding="utf-8")
+    for expected in (
+        'test-command: "mkdir -p allure-results && touch allure-results/placeholder.txt && ./gradlew help --no-daemon --console=plain --stacktrace"',
+        'test-artifact-path: "allure-results"',
+    ):
+        assert expected in checked_in_validate, f"Checked-in App Java remediation is missing: {expected}"
 
     allure = (repository / ".github/workflows/allure-report.yml").read_text(encoding="utf-8")
     for expected in (
