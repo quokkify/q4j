@@ -1,0 +1,1 @@
+{"id":"6151de05a8e9ddb23ee1c5f68b12b85f","fullName":"dev.quokkify.test.CsvParserTest.testWriteBeansWithHeader","name":"Verify writing records to CSV with header and compare content","status":"passed","testResultsByEnv":{"ubuntu-24-04":"860c15eb0a4fa71ba2ad8b152ed124e3"}}

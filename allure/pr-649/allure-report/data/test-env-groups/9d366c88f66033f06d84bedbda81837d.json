@@ -1,0 +1,1 @@
+{"id":"9d366c88f66033f06d84bedbda81837d","fullName":"dev.quokkify.test.TableModelContractTest.rejectsAmbiguousDisplayedHeader","name":"Reject typed columns whose displayed header occurs more than once","status":"passed","testResultsByEnv":{"ubuntu-24-04":"aa3a9572e1aeb22b0032447c388af0dc"}}

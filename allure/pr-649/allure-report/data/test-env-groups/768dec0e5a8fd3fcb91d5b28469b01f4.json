@@ -1,0 +1,1 @@
+{"id":"768dec0e5a8fd3fcb91d5b28469b01f4","fullName":"dev.quokkify.test.DropdownBehaviorTest.testSelectAllPartialWithAutoCloseDisabled","name":"Verify selectAllPartial works with a non-autoclosing widget and preserves the second widget state","status":"passed","testResultsByEnv":{"ubuntu-24-04":"9782d09c86e345f727034277f887681d"}}

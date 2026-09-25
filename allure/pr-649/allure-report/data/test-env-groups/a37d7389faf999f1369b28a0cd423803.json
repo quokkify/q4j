@@ -1,0 +1,1 @@
+{"id":"a37d7389faf999f1369b28a0cd423803","fullName":"dev.quokkify.test.CsvParserTest.testReadWithHeaderMapping","name":"Verify read all rows as Map<String,String> using header mapping","status":"passed","testResultsByEnv":{"ubuntu-24-04":"d35e033ab928ea0af12b2560dca2971d"}}
