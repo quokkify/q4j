@@ -312,7 +312,7 @@ jobs:
     uses: quokkify/project-toolkit/.github/workflows/node-ci.yml@v2.22.0
     with:
       working-directory: "."
-      install-command: "mkdir -p allure-results && touch allure-results/.gitkeep"
+      install-command: "mkdir -p allure-results && touch allure-results/placeholder.txt"
       lint-command: "true"
       test-command: "true"
       upload-test-artifacts: true
@@ -324,7 +324,7 @@ jobs:
     uses: quokkify/project-toolkit/.github/workflows/python-ci.yml@v2.22.0
     with:
       working-directory: "."
-      install-command: "python -m pip install pytest allure-pytest && mkdir -p allure-results && touch allure-results/.gitkeep"
+      install-command: "python -m pip install pytest allure-pytest && mkdir -p allure-results && touch allure-results/placeholder.txt"
       lint-command: "true"
       test-command: "true"
       upload-test-artifacts: true
