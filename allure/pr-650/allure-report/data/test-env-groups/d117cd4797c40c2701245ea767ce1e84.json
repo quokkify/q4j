@@ -1,0 +1,1 @@
+{"id":"d117cd4797c40c2701245ea767ce1e84","fullName":"dev.quokkify.reportportal.services.ParamOverrideTestNgServiceTest.getTestCaseDescription_returnsExpectedMarkdown","name":"getTestCaseDescription builds correct markdown for all combinations","status":"passed","testResultsByEnv":{"ubuntu-24-04":"94c1056fb26bd82ad4c82d43bb626727"}}

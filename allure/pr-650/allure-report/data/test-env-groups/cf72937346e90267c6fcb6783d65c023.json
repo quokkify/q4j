@@ -1,0 +1,1 @@
+{"id":"cf72937346e90267c6fcb6783d65c023","fullName":"dev.quokkify.test.DropdownBehaviorTest.testTwoWidgetIsolation","name":"Verify selectPartial keeps widget selection isolated between two dropdown instances","status":"passed","testResultsByEnv":{"ubuntu-24-04":"6afc93d68cd14031330d90856d0248d3"}}
