@@ -1,0 +1,1 @@
+{"id":"3364f6cbd06de63cfa463d2e1a3adfbd","fullName":"dev.quokkify.reportportal.test.ReportPortalConnectionTest.shouldRaiseErrorForUnreachableEndpoint","name":"Verify connection failure is raised for an unreachable ReportPortal endpoint","status":"passed","testResultsByEnv":{"ubuntu-24-04":"b406fd438be1782093def5afa1e76157"}}
