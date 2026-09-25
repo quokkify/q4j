@@ -116,7 +116,7 @@ jobs:
                 const pulls = [{ number: 566, base: { repo: { full_name: "quokkify/q4j" } },
                   head: { repo: { full_name: "quokkify/q4j" }, sha: "sha" }, user: { login: "owner" } }];
                 const artifacts = Array.from({ length: input.count }, (_, index) => ({
-                  name: "allure-results-" + String(index).padStart(2, "0"), id: index + 1,
+                  name: "allure-results-component-" + String(index).padStart(2, "0"), id: index + 1,
                   expired: Boolean(input.expired && index === 0), size_in_bytes: 0,
                 }));
                 if (input.duplicate) artifacts[input.count - 1].name = artifacts[0].name;

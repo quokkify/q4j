@@ -89,6 +89,8 @@ def copier_update_fixture() -> Path:
         "--trust",
         "--vcs-ref",
         TOOLKIT_REVISION,
+        "--data",
+        "components=[]",
         cwd=repository,
     )
     assert_no_merge_conflicts(repository)
