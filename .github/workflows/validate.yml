@@ -291,3 +291,31 @@ jobs:
           else
             git diff --check "$BASE_SHA..$HEAD_SHA"
           fi
+
+  app-java:
+    name: "App Java"
+    uses: quokkify/project-toolkit/.github/workflows/java-ci.yml@v2.22.0
+    with:
+      working-directory: "."
+      upload-test-artifacts: true
+      test-artifact-path: "allure-results"
+      test-artifact-name: allure-results-app-java
+
+  app-node:
+    name: "App Node"
+    uses: quokkify/project-toolkit/.github/workflows/node-ci.yml@v2.22.0
+    with:
+      working-directory: "."
+      upload-test-artifacts: true
+      test-artifact-path: "allure-results"
+      test-artifact-name: allure-results-app-node
+
+  app-python:
+    name: "App Python"
+    uses: quokkify/project-toolkit/.github/workflows/python-ci.yml@v2.22.0
+    with:
+      working-directory: "."
+      install-command: "python -m pip install pytest allure-pytest"
+      upload-test-artifacts: true
+      test-artifact-path: "allure-results"
+      test-artifact-name: allure-results-app-python

@@ -13,8 +13,8 @@ import yaml
 
 REPOSITORY = Path(__file__).resolve().parents[2]
 TOOLKIT_SOURCE = "https://github.com/quokkify/project-toolkit.git"
-TOOLKIT_REVISION = "v2.21.6"
-TOOLKIT_VERSION = "v2.21.6"
+TOOLKIT_REVISION = "v2.22.0"
+TOOLKIT_VERSION = "v2.22.0"
 
 
 def run(*args: str, cwd: Path) -> subprocess.CompletedProcess[str]:
@@ -134,7 +134,7 @@ def component_fixture() -> Path:
         "--data",
         "allure_external_workflow_path=.github/workflows/test.yml",
         "--data",
-        'components=[{"type":"java","path":"."}]',
+        'components=[{"type":"java","path":".","id":"app-java","name":"App Java"}]',
         TOOLKIT_SOURCE,
         str(fixture),
         cwd=REPOSITORY,
@@ -145,15 +145,15 @@ def component_fixture() -> Path:
 
 def assert_component_contract(repository: Path) -> None:
     answers = yaml.safe_load((repository / ".copier-answers.yml").read_text(encoding="utf-8"))
-    assert answers.get("components") == [{"type": "java", "path": "."}], (
+    assert answers.get("components") == [{"type": "java", "path": ".", "id": "app-java", "name": "App Java"}], (
         "Component fixture did not preserve the java component declaration"
     )
 
     validate = (repository / ".github/workflows/validate.yml").read_text(encoding="utf-8")
     for expected in (
-        "java-1:",
+        "app-java:",
         'working-directory: "."',
-        'test-artifact-name: allure-results-java-1',
+        'test-artifact-name: allure-results-app-java',
         'test-artifact-path: "allure-results"',
     ):
         assert expected in validate, f"Component validation contract is missing: {expected}"
@@ -161,9 +161,8 @@ def assert_component_contract(repository: Path) -> None:
     allure = (repository / ".github/workflows/allure-report.yml").read_text(encoding="utf-8")
     for expected in (
         'const componentMode = true;',
-        '"allure-results-java-1"',
         'const componentWorkflowPath = ".github/workflows/validate.yml";',
-        'const expectedArtifacts = [\n              "allure-results-java-1",\n            ];',
+        'const componentArtifactPattern = /^allure-results-[A-Za-z_][A-Za-z0-9_-]*$/;',
     ):
         assert expected in allure, f"Component Allure contract is missing: {expected}"
 
