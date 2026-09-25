@@ -42,15 +42,14 @@ jobs:
         with:
           script: |
             const run = context.payload.workflow_run;
-            const expectedArtifacts = [
-            ];
             const artifactPrefix = "allure-results-";
             const minimumArtifacts = 24;
             const maximumArtifacts = 50;
+            const minimumComponentArtifacts = 3;
             const componentWorkflowPath = ".github/workflows/validate.yml";
             const externalWorkflowPath = ".github/workflows/test.yml";
-            const componentMode = false;
-            const externalMode = true;
+            const componentMode = true;
+            const externalMode = false;
             const materializeRoot = componentMode ? ".allure-input/results" : ".allure-input/source-artifacts";
             const sourceArtifactsDirectory = componentMode ? "" : ".allure-input/source-artifacts";
             const skip = (message) => {
@@ -106,9 +105,17 @@ jobs:
               artifact.name.startsWith(componentRun ? "allure-results-" : artifactPrefix)
             );
             const actualNames = allureArtifacts.map((artifact) => artifact.name).sort();
-            const expectedNames = [...expectedArtifacts].sort();
-            if (componentRun && JSON.stringify(actualNames) !== JSON.stringify(expectedNames)) {
-              core.setFailed(`Allure artifact contract mismatch. Expected ${expectedNames.join(", ")}; received ${actualNames.join(", ") || "none"}.`);
+            // The source run is authoritative for component artifact identities.  The
+            // trusted report workflow may be updated before a consumer's source run,
+            // so matching against this workflow's current component IDs would drop
+            // reports during a migration.  Keep the contract versioned and strict
+            // without coupling it to the report workflow's component inventory.
+            const sourceArtifactContractVersion = 1;
+            const componentArtifactPattern = /^allure-results-[A-Za-z_][A-Za-z0-9_-]*$/;
+            if (componentRun && (sourceArtifactContractVersion !== 1 || actualNames.length < minimumComponentArtifacts || actualNames.length > maximumArtifacts ||
+                actualNames.some((name) => !componentArtifactPattern.test(name)) ||
+                new Set(actualNames).size !== actualNames.length)) {
+              core.setFailed(`Allure artifact contract v${sourceArtifactContractVersion} mismatch; received ${actualNames.join(", ") || "none"}.`);
               return;
             }
             if (externalRun && actualNames.length === 0) {
@@ -133,10 +140,7 @@ jobs:
               return;
             }
             core.setOutput("artifact_manifest", JSON.stringify(
-              componentRun ? expectedArtifacts.map((name) => {
-                const artifact = allureArtifacts.find((candidate) => candidate.name === name);
-                return { name, id: Number(artifact.id) };
-              }) : allureArtifacts.map((artifact) => ({
+              allureArtifacts.map((artifact) => ({
                 name: artifact.name,
                 id: Number(artifact.id),
               }))
@@ -366,7 +370,7 @@ jobs:
         run: python .github/allure/safe_extract.py
       - name: Publish Allure HTML to GitHub Pages
         if: ${{ steps.freshness.outputs.fresh == 'true' }}
-        uses: quokkify/project-toolkit/actions/deploy-gh-pages-subdir@v2.21.6
+        uses: quokkify/project-toolkit/actions/deploy-gh-pages-subdir@v2.22.0
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           publish-dir: allure-report

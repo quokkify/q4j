@@ -13,8 +13,8 @@ import yaml
 
 REPOSITORY = Path(__file__).resolve().parents[2]
 TOOLKIT_SOURCE = "https://github.com/quokkify/project-toolkit.git"
-TOOLKIT_REVISION = "v2.21.6"
-TOOLKIT_VERSION = "v2.21.6"
+TOOLKIT_REVISION = "v2.22.0"
+TOOLKIT_VERSION = "v2.22.0"
 
 
 def run(*args: str, cwd: Path) -> subprocess.CompletedProcess[str]:
@@ -89,8 +89,15 @@ def copier_update_fixture() -> Path:
         "--trust",
         "--vcs-ref",
         TOOLKIT_REVISION,
+        "--data",
+        "components=[]",
         cwd=repository,
     )
+    # Clearing components intentionally removes the generated component jobs.
+    # Resolve that expected deletion before checking for unrelated Copier
+    # conflicts; the component render is exercised separately below.
+    run("git", "checkout", "--theirs", ".github/workflows/validate.yml", cwd=repository)
+    run("git", "add", ".github/workflows/validate.yml", cwd=repository)
     assert_no_merge_conflicts(repository)
     parse_generated_configuration(repository)
     return fixture
@@ -134,7 +141,7 @@ def component_fixture() -> Path:
         "--data",
         "allure_external_workflow_path=.github/workflows/test.yml",
         "--data",
-        'components=[{"type":"java","path":"."}]',
+        'components=[{"type":"java","path":".","id":"app-java","name":"App Java"}]',
         TOOLKIT_SOURCE,
         str(fixture),
         cwd=REPOSITORY,
@@ -145,25 +152,31 @@ def component_fixture() -> Path:
 
 def assert_component_contract(repository: Path) -> None:
     answers = yaml.safe_load((repository / ".copier-answers.yml").read_text(encoding="utf-8"))
-    assert answers.get("components") == [{"type": "java", "path": "."}], (
+    assert answers.get("components") == [{"type": "java", "path": ".", "id": "app-java", "name": "App Java"}], (
         "Component fixture did not preserve the java component declaration"
     )
 
     validate = (repository / ".github/workflows/validate.yml").read_text(encoding="utf-8")
     for expected in (
-        "java-1:",
+        "app-java:",
         'working-directory: "."',
-        'test-artifact-name: allure-results-java-1',
+        'test-artifact-name: allure-results-app-java',
         'test-artifact-path: "allure-results"',
     ):
         assert expected in validate, f"Component validation contract is missing: {expected}"
 
+    checked_in_validate = (REPOSITORY / ".github/workflows/validate.yml").read_text(encoding="utf-8")
+    for expected in (
+        'test-command: "mkdir -p allure-results && touch allure-results/placeholder.txt && ./gradlew help --no-daemon --console=plain --stacktrace"',
+        'test-artifact-path: "allure-results"',
+    ):
+        assert expected in checked_in_validate, f"Checked-in App Java remediation is missing: {expected}"
+
     allure = (repository / ".github/workflows/allure-report.yml").read_text(encoding="utf-8")
     for expected in (
         'const componentMode = true;',
-        '"allure-results-java-1"',
         'const componentWorkflowPath = ".github/workflows/validate.yml";',
-        'const expectedArtifacts = [\n              "allure-results-java-1",\n            ];',
+        'const componentArtifactPattern = /^allure-results-[A-Za-z_][A-Za-z0-9_-]*$/;',
     ):
         assert expected in allure, f"Component Allure contract is missing: {expected}"
 

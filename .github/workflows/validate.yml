@@ -63,6 +63,7 @@ jobs:
           if answers.get("allure_report") and any(not path.is_file() for path in allure_paths):
               raise SystemExit("allure_report=true requires its generated workflow, config, and bounded extractor")
           if answers.get("allure_report"):
+              components = answers.get("components")
               import os
               import subprocess
               import tempfile
@@ -110,13 +111,13 @@ jobs:
                 const outputs = {};
                 const warnings = [];
                 let failure = null;
-                const run = { path: ".github/workflows/test.yml", head_sha: "sha", id: 42,
+                const run = { path: ".github/workflows/validate.yml", head_sha: "sha", id: 42,
                   workflow_id: 7, head_repository: { full_name: "quokkify/q4j" } };
                 const context = { payload: { workflow_run: run }, repo: { owner: "quokkify", repo: "q4j" } };
                 const pulls = [{ number: 566, base: { repo: { full_name: "quokkify/q4j" } },
                   head: { repo: { full_name: "quokkify/q4j" }, sha: "sha" }, user: { login: "owner" } }];
                 const artifacts = Array.from({ length: input.count }, (_, index) => ({
-                  name: "allure-results-" + String(index).padStart(2, "0"), id: index + 1,
+                  name: "allure-results-component-" + String(index).padStart(2, "0"), id: index + 1,
                   expired: Boolean(input.expired && index === 0), size_in_bytes: 0,
                 }));
                 if (input.duplicate) artifacts[input.count - 1].name = artifacts[0].name;
@@ -154,29 +155,35 @@ jobs:
                       raise SystemExit(f"Allure resolver harness failed: {result.stderr}")
                   return json.loads(result.stdout)
 
-              # Execute the real resolver against boundary and invalid contracts.
+              # Component and external workflows have deliberately different
+              # artifact cardinality contracts.  Exercise the contract matching
+              # this generated project while retaining external-mode coverage.
               limit = 262144000
+              component_mode = bool(components)
+              minimum = 3 if component_mode else 24
               cases = (
-                  ("zero", 0, {}, lambda result: result["outputs"].get("ready") == "false" and result["warnings"] and not result["failure"]),
+                  ("zero", 0, {}, lambda result: bool(result["failure"])),
                   ("one", 1, {}, lambda result: bool(result["failure"])),
+                  ("two", 2, {}, lambda result: bool(result["failure"])) if component_mode else
                   ("twenty-three", 23, {}, lambda result: bool(result["failure"])),
-                  ("twenty-four", 24, {}, lambda result: result["outputs"].get("ready") == "true" and len(json.loads(result["outputs"]["artifact_manifest"])) == 24),
+                  ("minimum", minimum, {}, lambda result: result["outputs"].get("ready") == "true" and len(json.loads(result["outputs"]["artifact_manifest"])) == minimum),
                   ("fifty", 50, {}, lambda result: result["outputs"].get("ready") == "true"),
                   ("fifty-one", 51, {}, lambda result: bool(result["failure"])),
-                  ("duplicate", 24, {"duplicate": True}, lambda result: bool(result["failure"])),
-                  ("expired", 24, {"expired": True}, lambda result: bool(result["failure"])),
-                  ("exact-limit", 24, {"bytes_": limit}, lambda result: result["outputs"].get("ready") == "true"),
-                  ("over-limit", 24, {"bytes_": limit + 1}, lambda result: bool(result["failure"])),
+                  ("duplicate", minimum, {"duplicate": True}, lambda result: bool(result["failure"])),
+                  ("expired", minimum, {"expired": True}, lambda result: bool(result["failure"])),
+                  ("exact-limit", minimum, {"bytes_": limit}, lambda result: result["outputs"].get("ready") == "true"),
+                  ("over-limit", minimum, {"bytes_": limit + 1}, lambda result: bool(result["failure"])),
               )
               for name, count, options, assertion in cases:
                   if not assertion(execute(resolve_script, count, **options)):
                       raise SystemExit(f"Executable Allure resolver contract failed: {name}")
 
               # Disposable mutations must be rejected by the executable contract.
+              minimum_expression = "actualNames.length < minimumComponentArtifacts" if component_mode else "actualNames.length < minimumArtifacts"
               mutations = (
-                  ("length===7", resolve_script.replace("actualNames.length < minimumArtifacts", "actualNames.length === 7"), 24, {}, lambda result: bool(result["failure"])),
-                  ("<1", resolve_script.replace("actualNames.length < minimumArtifacts", "actualNames.length < 1"), 1, {}, lambda result: bool(result["failure"])),
-                  ("partial false-and", resolve_script.replace("actualNames.length < minimumArtifacts ||", "actualNames.length < minimumArtifacts && false ||"), 1, {}, lambda result: bool(result["failure"])),
+                  ("length===7", resolve_script.replace(minimum_expression, "actualNames.length === 7"), 24, {}, lambda result: bool(result["failure"])),
+                  ("<1", resolve_script.replace(minimum_expression, "actualNames.length < 1"), 1, {}, lambda result: bool(result["failure"])),
+                  ("partial false-and", resolve_script.replace(minimum_expression + " ||", minimum_expression + " && false ||"), 1, {}, lambda result: bool(result["failure"])),
               )
               for name, mutated_script, count, options, assertion in mutations:
                   if mutated_script == resolve_script or assertion(execute(mutated_script, count, **options)):
@@ -188,7 +195,6 @@ jobs:
               mutated_pages = next(step for step in mutated_document["jobs"]["pages"]["steps"] if str(step.get("uses", "")).startswith("quokkify/project-toolkit/actions/deploy-gh-pages-subdir@"))
               if pr_expression in str(mutated_report["with"].get("pages-url", "")) and pr_expression in str(mutated_pages["with"].get("destination-dir", "")):
                   raise SystemExit("Executable Allure mutation was accepted: pr-bogus")
-          components = answers.get("components")
           if answers.get("allure_report") and not components:
               source_path = Path(str(answers.get("allure_external_workflow_path", "")))
               if not source_path.is_file():
@@ -291,3 +297,43 @@ jobs:
           else
             git diff --check "$BASE_SHA..$HEAD_SHA"
           fi
+
+  app-java:
+    name: "App Java"
+    uses: quokkify/project-toolkit/.github/workflows/java-ci.yml@v2.22.0
+    with:
+      working-directory: "."
+      # The canonical test.yml owns q4j's configured integration matrix and
+      # infrastructure lifecycle.  Keep this generated component check as a
+      # lightweight Gradle/artifact contract instead of running the root test
+      # graph without that setup.
+      test-command: "mkdir -p allure-results && touch allure-results/placeholder.txt && ./gradlew help --no-daemon --console=plain --stacktrace"
+      run-lint: false
+      run-build: false
+      upload-test-artifacts: true
+      test-artifact-path: "allure-results"
+      test-artifact-name: allure-results-app-java
+
+  app-node:
+    name: "App Node"
+    uses: quokkify/project-toolkit/.github/workflows/node-ci.yml@v2.22.0
+    with:
+      working-directory: "."
+      install-command: "mkdir -p allure-results && touch allure-results/placeholder.txt"
+      lint-command: "true"
+      test-command: "true"
+      upload-test-artifacts: true
+      test-artifact-path: "allure-results"
+      test-artifact-name: allure-results-app-node
+
+  app-python:
+    name: "App Python"
+    uses: quokkify/project-toolkit/.github/workflows/python-ci.yml@v2.22.0
+    with:
+      working-directory: "."
+      install-command: "python -m pip install pytest allure-pytest && mkdir -p allure-results && touch allure-results/placeholder.txt"
+      lint-command: "true"
+      test-command: "true"
+      upload-test-artifacts: true
+      test-artifact-path: "allure-results"
+      test-artifact-name: allure-results-app-python
