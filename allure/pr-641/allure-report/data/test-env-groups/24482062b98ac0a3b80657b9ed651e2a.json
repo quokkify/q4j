@@ -1,1 +1,1 @@
-{"id":"24482062b98ac0a3b80657b9ed651e2a","fullName":"dev.quokkify.test.UiTableTest.testDynamicAndFlexTables","name":"Verify DYNAMIC TABLE maps displayed headers and FLEX TABLE excludes its header row","status":"passed","testResultsByEnv":{"ubuntu-24-04":"af760091d19cc4bf4c0c8f6b4b1ba9a5"}}
+{"id":"24482062b98ac0a3b80657b9ed651e2a","fullName":"dev.quokkify.test.UiTableTest.testDynamicAndFlexTables","name":"Verify DYNAMIC TABLE maps displayed headers and FLEX TABLE excludes its header row","status":"passed","testResultsByEnv":{"ubuntu-24-04":"bad5c0ca9166cf62b4b3c32058e6469f"}}

@@ -1,1 +1,1 @@
-{"id":"76afe665d3c173533d3e4fbbfbd06437","fullName":"dev.quokkify.test.DatabaseSqlTest.checkReadingPersistenceXml","name":"Check reading persistence.xml","status":"passed","testResultsByEnv":{"ubuntu-24-04":"f6731afe4ec95c3bc7aed36557ab8204"}}
+{"id":"76afe665d3c173533d3e4fbbfbd06437","fullName":"dev.quokkify.test.DatabaseSqlTest.checkReadingPersistenceXml","name":"Check reading persistence.xml","status":"passed","testResultsByEnv":{"ubuntu-24-04":"cc07b109c7c55bbfefd63a502824d808"}}

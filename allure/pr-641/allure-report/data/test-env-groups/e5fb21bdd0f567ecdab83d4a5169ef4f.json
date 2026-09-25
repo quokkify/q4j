@@ -1,1 +1,1 @@
-{"id":"e5fb21bdd0f567ecdab83d4a5169ef4f","fullName":"dev.quokkify.test.TableModelContractTest.supportsBodyOnlyClassicTable","name":"Classic adapter preserves tables whose header row is inside tbody","status":"passed","testResultsByEnv":{"ubuntu-24-04":"85d6eed505c11187ef869ba95c17f72f"}}
+{"id":"e5fb21bdd0f567ecdab83d4a5169ef4f","fullName":"dev.quokkify.test.TableModelContractTest.supportsBodyOnlyClassicTable","name":"Classic adapter preserves tables whose header row is inside tbody","status":"passed","testResultsByEnv":{"ubuntu-24-04":"db5e5a8aa60fe04a7589f59e0deef134"}}

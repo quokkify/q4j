@@ -1,1 +1,1 @@
-{"id":"b6f826c050ba7de99e2d44ee56b9a8dc","fullName":"dev.quokkify.test.TableModelContractTest.supportsCustomDivAdapter","name":"Public custom adapter isolates nested grids and preserves logical cells","status":"passed","testResultsByEnv":{"ubuntu-24-04":"2f17189b2c97e96b021aaafd0a561d02"}}
+{"id":"b6f826c050ba7de99e2d44ee56b9a8dc","fullName":"dev.quokkify.test.TableModelContractTest.supportsCustomDivAdapter","name":"Public custom adapter isolates nested grids and preserves logical cells","status":"passed","testResultsByEnv":{"ubuntu-24-04":"60a09270a77c235d4ac41a586e63d683"}}
