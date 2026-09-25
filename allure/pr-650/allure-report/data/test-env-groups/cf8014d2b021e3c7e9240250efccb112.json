@@ -1,1 +1,1 @@
-{"id":"cf8014d2b021e3c7e9240250efccb112","fullName":"dev.quokkify.tyrus.client.WsClientTest.verifier_messagesInOrder_passes","name":"verifier_messagesInOrder_passes","status":"passed","testResultsByEnv":{"ubuntu-24-04":"c2698fc9ac06c88453477f075c62e724"}}
+{"id":"cf8014d2b021e3c7e9240250efccb112","fullName":"dev.quokkify.tyrus.client.WsClientTest.verifier_messagesInOrder_passes","name":"verifier_messagesInOrder_passes","status":"passed","testResultsByEnv":{"ubuntu-24-04":"a251ac5310b172f162d98262a0cd21d8"}}

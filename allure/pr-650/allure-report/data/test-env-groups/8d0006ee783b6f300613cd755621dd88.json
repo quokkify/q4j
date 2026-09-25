@@ -1,1 +1,1 @@
-{"id":"8d0006ee783b6f300613cd755621dd88","fullName":"dev.quokkify.test.UiProxyTest.testProxyHar","name":"Verify proxy 'Har' recording","status":"passed","testResultsByEnv":{"ubuntu-24-04":"3ea97f547f6f80f8f0f5c9e52a3ddebb"}}
+{"id":"8d0006ee783b6f300613cd755621dd88","fullName":"dev.quokkify.test.UiProxyTest.testProxyHar","name":"Verify proxy 'Har' recording","status":"passed","testResultsByEnv":{"ubuntu-24-04":"a1501bf429c0e18d36c657184420c6b2"}}

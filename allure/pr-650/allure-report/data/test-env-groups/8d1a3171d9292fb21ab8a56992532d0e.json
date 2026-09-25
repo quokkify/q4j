@@ -1,1 +1,1 @@
-{"id":"8d1a3171d9292fb21ab8a56992532d0e","fullName":"dev.quokkify.test.JwtTest.testJwtFunctionalityPrivatePublicKeys","name":"Verify JWT functionality using private and public keys","status":"passed","testResultsByEnv":{"ubuntu-24-04":"cb3a7000a011f167fadea732355e7b0d"}}
+{"id":"8d1a3171d9292fb21ab8a56992532d0e","fullName":"dev.quokkify.test.JwtTest.testJwtFunctionalityPrivatePublicKeys","name":"Verify JWT functionality using private and public keys","status":"passed","testResultsByEnv":{"ubuntu-24-04":"9341dc2dc4fe88b60ea4086c046c0b58"}}
