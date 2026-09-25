@@ -45,6 +45,7 @@ jobs:
             const artifactPrefix = "allure-results-";
             const minimumArtifacts = 24;
             const maximumArtifacts = 50;
+            const minimumComponentArtifacts = 3;
             const componentWorkflowPath = ".github/workflows/validate.yml";
             const externalWorkflowPath = ".github/workflows/test.yml";
             const componentMode = true;
@@ -111,7 +112,7 @@ jobs:
             // without coupling it to the report workflow's component inventory.
             const sourceArtifactContractVersion = 1;
             const componentArtifactPattern = /^allure-results-[A-Za-z_][A-Za-z0-9_-]*$/;
-            if (componentRun && (sourceArtifactContractVersion !== 1 || actualNames.length === 0 ||
+            if (componentRun && (sourceArtifactContractVersion !== 1 || actualNames.length < minimumComponentArtifacts ||
                 actualNames.some((name) => !componentArtifactPattern.test(name)) ||
                 new Set(actualNames).size !== actualNames.length)) {
               core.setFailed(`Allure artifact contract v${sourceArtifactContractVersion} mismatch; received ${actualNames.join(", ") || "none"}.`);

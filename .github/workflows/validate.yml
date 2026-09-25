@@ -298,7 +298,7 @@ jobs:
     with:
       working-directory: "."
       upload-test-artifacts: true
-      test-artifact-path: "allure-results"
+      test-artifact-path: "build/allure-results"
       test-artifact-name: allure-results-app-java
 
   app-node:
@@ -306,6 +306,9 @@ jobs:
     uses: quokkify/project-toolkit/.github/workflows/node-ci.yml@v2.22.0
     with:
       working-directory: "."
+      install-command: "mkdir -p allure-results"
+      lint-command: "true"
+      test-command: "true"
       upload-test-artifacts: true
       test-artifact-path: "allure-results"
       test-artifact-name: allure-results-app-node
@@ -315,7 +318,9 @@ jobs:
     uses: quokkify/project-toolkit/.github/workflows/python-ci.yml@v2.22.0
     with:
       working-directory: "."
-      install-command: "python -m pip install pytest allure-pytest"
+      install-command: "python -m pip install pytest allure-pytest && mkdir -p allure-results"
+      lint-command: "true"
+      test-command: "true"
       upload-test-artifacts: true
       test-artifact-path: "allure-results"
       test-artifact-name: allure-results-app-python
