@@ -1,1 +1,1 @@
-{"id":"c3b430a6a71b104ab7007144ffd25bc5","fullName":"dev.quokkify.model.JsonPojoTest.testSetAtRootPointerThrows","name":"Verify set value by root json pointer is rejected","status":"passed","testResultsByEnv":{"ubuntu-24-04":"dc9a55c55ed90456b0c938b81f60fcce"}}
+{"id":"c3b430a6a71b104ab7007144ffd25bc5","fullName":"dev.quokkify.model.JsonPojoTest.testSetAtRootPointerThrows","name":"Verify set value by root json pointer is rejected","status":"passed","testResultsByEnv":{"ubuntu-24-04":"105479f8264d3979baa0019028d3932b"}}

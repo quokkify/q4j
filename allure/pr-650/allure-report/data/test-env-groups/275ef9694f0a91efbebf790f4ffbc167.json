@@ -1,1 +1,1 @@
-{"id":"275ef9694f0a91efbebf790f4ffbc167","fullName":"dev.quokkify.tyrus.client.WsClientIntegrationTest.sendJson_verifyJsonField","name":"sendJson_verifyJsonField","status":"passed","testResultsByEnv":{"ubuntu-24-04":"9271c7c47bc73f94875e88c76b5a4e36"}}
+{"id":"275ef9694f0a91efbebf790f4ffbc167","fullName":"dev.quokkify.tyrus.client.WsClientIntegrationTest.sendJson_verifyJsonField","name":"sendJson_verifyJsonField","status":"passed","testResultsByEnv":{"ubuntu-24-04":"fd88dec1d5efa212f4991d6babc43b07"}}
