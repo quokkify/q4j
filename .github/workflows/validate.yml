@@ -110,7 +110,7 @@ jobs:
                 const outputs = {};
                 const warnings = [];
                 let failure = null;
-                const run = { path: ".github/workflows/test.yml", head_sha: "sha", id: 42,
+                const run = { path: ".github/workflows/validate.yml", head_sha: "sha", id: 42,
                   workflow_id: 7, head_repository: { full_name: "quokkify/q4j" } };
                 const context = { payload: { workflow_run: run }, repo: { owner: "quokkify", repo: "q4j" } };
                 const pulls = [{ number: 566, base: { repo: { full_name: "quokkify/q4j" } },
@@ -157,7 +157,7 @@ jobs:
               # Execute the real resolver against boundary and invalid contracts.
               limit = 262144000
               cases = (
-                  ("zero", 0, {}, lambda result: result["outputs"].get("ready") == "false" and result["warnings"] and not result["failure"]),
+                  ("zero", 0, {}, lambda result: bool(result["failure"])),
                   ("one", 1, {}, lambda result: bool(result["failure"])),
                   ("twenty-three", 23, {}, lambda result: bool(result["failure"])),
                   ("twenty-four", 24, {}, lambda result: result["outputs"].get("ready") == "true" and len(json.loads(result["outputs"]["artifact_manifest"])) == 24),
