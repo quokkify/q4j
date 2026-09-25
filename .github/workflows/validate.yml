@@ -63,6 +63,7 @@ jobs:
           if answers.get("allure_report") and any(not path.is_file() for path in allure_paths):
               raise SystemExit("allure_report=true requires its generated workflow, config, and bounded extractor")
           if answers.get("allure_report"):
+              components = answers.get("components")
               import os
               import subprocess
               import tempfile
@@ -154,19 +155,24 @@ jobs:
                       raise SystemExit(f"Allure resolver harness failed: {result.stderr}")
                   return json.loads(result.stdout)
 
-              # Execute the real resolver against boundary and invalid contracts.
+              # Component and external workflows have deliberately different
+              # artifact cardinality contracts.  Exercise the contract matching
+              # this generated project while retaining external-mode coverage.
               limit = 262144000
+              component_mode = bool(components)
+              minimum = 3 if component_mode else 24
               cases = (
                   ("zero", 0, {}, lambda result: bool(result["failure"])),
                   ("one", 1, {}, lambda result: bool(result["failure"])),
+                  ("two", 2, {}, lambda result: bool(result["failure"])) if component_mode else
                   ("twenty-three", 23, {}, lambda result: bool(result["failure"])),
-                  ("twenty-four", 24, {}, lambda result: result["outputs"].get("ready") == "true" and len(json.loads(result["outputs"]["artifact_manifest"])) == 24),
+                  ("minimum", minimum, {}, lambda result: result["outputs"].get("ready") == "true" and len(json.loads(result["outputs"]["artifact_manifest"])) == minimum),
                   ("fifty", 50, {}, lambda result: result["outputs"].get("ready") == "true"),
                   ("fifty-one", 51, {}, lambda result: bool(result["failure"])),
-                  ("duplicate", 24, {"duplicate": True}, lambda result: bool(result["failure"])),
-                  ("expired", 24, {"expired": True}, lambda result: bool(result["failure"])),
-                  ("exact-limit", 24, {"bytes_": limit}, lambda result: result["outputs"].get("ready") == "true"),
-                  ("over-limit", 24, {"bytes_": limit + 1}, lambda result: bool(result["failure"])),
+                  ("duplicate", minimum, {"duplicate": True}, lambda result: bool(result["failure"])),
+                  ("expired", minimum, {"expired": True}, lambda result: bool(result["failure"])),
+                  ("exact-limit", minimum, {"bytes_": limit}, lambda result: result["outputs"].get("ready") == "true"),
+                  ("over-limit", minimum, {"bytes_": limit + 1}, lambda result: bool(result["failure"])),
               )
               for name, count, options, assertion in cases:
                   if not assertion(execute(resolve_script, count, **options)):
@@ -188,7 +194,6 @@ jobs:
               mutated_pages = next(step for step in mutated_document["jobs"]["pages"]["steps"] if str(step.get("uses", "")).startswith("quokkify/project-toolkit/actions/deploy-gh-pages-subdir@"))
               if pr_expression in str(mutated_report["with"].get("pages-url", "")) and pr_expression in str(mutated_pages["with"].get("destination-dir", "")):
                   raise SystemExit("Executable Allure mutation was accepted: pr-bogus")
-          components = answers.get("components")
           if answers.get("allure_report") and not components:
               source_path = Path(str(answers.get("allure_external_workflow_path", "")))
               if not source_path.is_file():
@@ -297,6 +302,7 @@ jobs:
     uses: quokkify/project-toolkit/.github/workflows/java-ci.yml@v2.22.0
     with:
       working-directory: "."
+      test-command: "./gradlew test || status=$?; mkdir -p build/allure-results; exit ${status:-0}"
       upload-test-artifacts: true
       test-artifact-path: "build/allure-results"
       test-artifact-name: allure-results-app-java
