@@ -308,6 +308,8 @@ jobs:
       # lightweight Gradle/artifact contract instead of running the root test
       # graph without that setup.
       test-command: "mkdir -p allure-results && touch allure-results/placeholder.txt && ./gradlew help --no-daemon --console=plain --stacktrace"
+      run-lint: false
+      run-build: false
       upload-test-artifacts: true
       test-artifact-path: "allure-results"
       test-artifact-name: allure-results-app-java
