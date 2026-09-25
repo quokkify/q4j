@@ -1,1 +1,1 @@
-{"id":"2a09681516b7ec60cd348ac79cd56341","fullName":"dev.quokkify.test.DatabaseNoSqlTest.checkDelete","name":"Check delete records from database","status":"passed","testResultsByEnv":{"ubuntu-24-04":"37bb8633e60e8b9bd5bbbbaab0470e1e"}}
+{"id":"2a09681516b7ec60cd348ac79cd56341","fullName":"dev.quokkify.test.DatabaseNoSqlTest.checkDelete","name":"Check delete records from database","status":"passed","testResultsByEnv":{"ubuntu-24-04":"92296cc13cfdd87b5f0c4a60664fd23f"}}

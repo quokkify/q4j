@@ -1,1 +1,1 @@
-{"id":"e42962483fc41eee81a67f182fa3e839","fullName":"dev.quokkify.model.JsonPojoTest.testAsJsonRoundTrip","name":"Verify custom pojo json round trip","status":"passed","testResultsByEnv":{"ubuntu-24-04":"d499b14aeb8c9de2bb46f5204e7b7cc7"}}
+{"id":"e42962483fc41eee81a67f182fa3e839","fullName":"dev.quokkify.model.JsonPojoTest.testAsJsonRoundTrip","name":"Verify custom pojo json round trip","status":"passed","testResultsByEnv":{"ubuntu-24-04":"612615bb783c52d5fbe938f8967d86fe"}}
