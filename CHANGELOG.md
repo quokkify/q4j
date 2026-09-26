@@ -2,6 +2,25 @@
 
 ## [0.7.1](https://github.com/quokkify/q4j/compare/v0.7.0...v0.7.1) (2026-09-26)
 
+<!-- project-toolkit:rich-block:start -->
+### 📦 Dependencies
+- update zookeeper:3.9 docker digest to cab8944 ([#612](https://github.com/quokkify/q4j/pull/612)) ([8f0b744](https://github.com/quokkify/q4j/commit/8f0b7445d138f7beec34457292ff261f78ab6c84)) <!-- project-toolkit:rich-release-notes pr=612 -->
+- update mongo docker tag to v8.3.11 ([#621](https://github.com/quokkify/q4j/pull/621)) ([af7f272](https://github.com/quokkify/q4j/commit/af7f272a30584f86d0ba59f1090227984d88f76c)) <!-- project-toolkit:rich-release-notes pr=621 -->
+- update mockserver/mockserver docker tag to v8 ([#623](https://github.com/quokkify/q4j/pull/623)) ([3273bce](https://github.com/quokkify/q4j/commit/3273bcea44b4c44a73523de0da3c2fc6b7f8c4e7)) <!-- project-toolkit:rich-release-notes pr=623 -->
+- update nginx docker tag to v1.31.6 ([#625](https://github.com/quokkify/q4j/pull/625)) ([a0cb794](https://github.com/quokkify/q4j/commit/a0cb794ece6832c0c55add4653961e518e6e7cc2)) <!-- project-toolkit:rich-release-notes pr=625 -->
+- update selenium grid images ([#629](https://github.com/quokkify/q4j/pull/629)) ([140e11f](https://github.com/quokkify/q4j/commit/140e11f966217d7508104e9bd3ebfbaaa6055e26)) <!-- project-toolkit:rich-release-notes pr=629 -->
+- update mockserver/mockserver:8.0.0 docker digest to b8426e0 ([#631](https://github.com/quokkify/q4j/pull/631)) ([f862eda](https://github.com/quokkify/q4j/commit/f862edadbb28a302825d34a332a12831543bebb7)) <!-- project-toolkit:rich-release-notes pr=631 -->
+- update opensearchproject/opensearch:3.8.0 docker digest to fafe3fc ([#632](https://github.com/quokkify/q4j/pull/632)) ([a3187a7](https://github.com/quokkify/q4j/commit/a3187a72b306181db69da12afe8e8cad34c52920)) <!-- project-toolkit:rich-release-notes pr=632 -->
+- update q4j module documentation to v0.7.0 ([#633](https://github.com/quokkify/q4j/pull/633)) ([f1d3828](https://github.com/quokkify/q4j/commit/f1d3828378157bbd72d015adbd8b5a1499e6f62c)) <!-- project-toolkit:rich-release-notes pr=633 -->
+- update mongo:8.3.11 docker digest to 5d7043a ([#634](https://github.com/quokkify/q4j/pull/634)) ([b16a492](https://github.com/quokkify/q4j/commit/b16a4921337b66cb246ab1c406b519d0d611512e)) <!-- project-toolkit:rich-release-notes pr=634 -->
+- update docker:29.8-dind docker digest to 3f3c01a ([#639](https://github.com/quokkify/q4j/pull/639)) ([4540003](https://github.com/quokkify/q4j/commit/4540003e2c37bea787422b0280501b2b7ea8bfc8)) <!-- project-toolkit:rich-release-notes pr=639 -->
+- update zookeeper:3.9 docker digest to 7d0f24e ([#642](https://github.com/quokkify/q4j/pull/642)) ([d4d183c](https://github.com/quokkify/q4j/commit/d4d183ccb254cf41baf102f8dbcb8032d11bbd4a)) <!-- project-toolkit:rich-release-notes pr=642 -->
+- update nginx:1.31.6 docker digest to 908dc23 ([#644](https://github.com/quokkify/q4j/pull/644)) ([8eec8c6](https://github.com/quokkify/q4j/commit/8eec8c6f68904296d43fc722516420dd440122a8)) <!-- project-toolkit:rich-release-notes pr=644 -->
+- update redis docker tag to v8.10.2 ([#645](https://github.com/quokkify/q4j/pull/645)) ([bdb2510](https://github.com/quokkify/q4j/commit/bdb251041e74ad204211ffebdd59b377c6416437)) <!-- project-toolkit:rich-release-notes pr=645 -->
+- update slf4j monorepo to v2.0.20 ([#648](https://github.com/quokkify/q4j/pull/648)) ([e7e0b1e](https://github.com/quokkify/q4j/commit/e7e0b1e46f72b7c91b0e2ca5c4dead8ae0cf188e)) <!-- project-toolkit:rich-release-notes pr=648 -->
+- update gradle to v9.8.0 ([#649](https://github.com/quokkify/q4j/pull/649)) ([d434a98](https://github.com/quokkify/q4j/commit/d434a981895fd4fdaeb748b3f7c195fe7da74991)) <!-- project-toolkit:rich-release-notes pr=649 -->
+- update io.github.classgraph:classgraph to v4.8.196 ([#652](https://github.com/quokkify/q4j/pull/652)) ([642f290](https://github.com/quokkify/q4j/commit/642f2903aa6f770d602b85e6882cdeb94541c6cf)) <!-- project-toolkit:rich-release-notes pr=652 -->
+<!-- project-toolkit:rich-block:end -->
 
 ### 🐛 Bug Fixes
 
