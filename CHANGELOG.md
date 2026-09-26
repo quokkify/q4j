@@ -1,5 +1,24 @@
 # Changelog
 
+## [0.7.1](https://github.com/quokkify/q4j/compare/v0.7.0...v0.7.1) (2026-09-26)
+
+
+### 🐛 Bug Fixes
+
+* **allure:** report real Ubuntu environments with scoped modules ([#626](https://github.com/quokkify/q4j/issues/626)) ([b85bf56](https://github.com/quokkify/q4j/commit/b85bf56e21d73d334f57e388c596bc3911b5bd32))
+* **allure:** use deduplicated environment variables ([#628](https://github.com/quokkify/q4j/issues/628)) ([cf90539](https://github.com/quokkify/q4j/commit/cf9053926966af9e2731e10e3c3d96ebc145f474))
+* **allure:** use released top-level environments ([#627](https://github.com/quokkify/q4j/issues/627)) ([a68a1eb](https://github.com/quokkify/q4j/commit/a68a1eb865a1b5237990e76a1504e03e435d2f0c))
+* **ci:** retry transient Gradle repository 403s ([#647](https://github.com/quokkify/q4j/issues/647)) ([aaf3a29](https://github.com/quokkify/q4j/commit/aaf3a2992617483759ac1f0950695843787a8611))
+* **deps:** update allure to v3 ([#611](https://github.com/quokkify/q4j/issues/611)) ([a91617d](https://github.com/quokkify/q4j/commit/a91617dc92f02b71dc6c7e53c4ca135906f903d3))
+* **deps:** update com.fasterxml.jackson:jackson-bom to v2.22.3 ([#646](https://github.com/quokkify/q4j/issues/646)) ([2c28639](https://github.com/quokkify/q4j/commit/2c28639835fd12916b9a0189586fa9a3681991c0))
+* **deps:** update com.rabbitmq:amqp-client to v5.36.0 ([#622](https://github.com/quokkify/q4j/issues/622)) ([a4195c8](https://github.com/quokkify/q4j/commit/a4195c8dd99603647b9b7ef464966dcbdbc16e65))
+* **deps:** update hibernate-orm monorepo to v7.4.10.final ([#640](https://github.com/quokkify/q4j/issues/640)) ([9903966](https://github.com/quokkify/q4j/commit/99039667cc0b715dd0c488ab76e21cbad46038aa))
+* **deps:** update hibernate-orm monorepo to v7.4.8.final ([#613](https://github.com/quokkify/q4j/issues/613)) ([24a21da](https://github.com/quokkify/q4j/commit/24a21da12a407806ab03792fcb9384696b0a143f))
+* **deps:** update hibernate-orm monorepo to v7.4.9.final ([#636](https://github.com/quokkify/q4j/issues/636)) ([4a07962](https://github.com/quokkify/q4j/commit/4a07962b9769f6cca09036803cbcb79e0b0b237f))
+* **deps:** update io.hypersistence:hypersistence-utils-hibernate-73 to v3.16.0 ([#637](https://github.com/quokkify/q4j/issues/637)) ([4fc126d](https://github.com/quokkify/q4j/commit/4fc126d0216b03ed5ffa5856d4e4d9bf57860e0a))
+* **deps:** update org.mongodb:mongodb-driver-sync to v5.12.0 ([#638](https://github.com/quokkify/q4j/issues/638)) ([6b0a441](https://github.com/quokkify/q4j/commit/6b0a441fda9d00cd55434a418492be76549da754))
+* **deps:** update selenide to v7.18.2 ([#635](https://github.com/quokkify/q4j/issues/635)) ([beb5b45](https://github.com/quokkify/q4j/commit/beb5b45a8b275da8dcd31a427fb38d2d604df7f6))
+
 ## [0.7.0](https://github.com/quokkify/q4j/compare/v0.6.3...v0.7.0) (2026-09-15)
 
 <!-- project-toolkit:rich-block:start -->
