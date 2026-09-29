@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Check out repository
-        uses: quokkify/project-toolkit/actions/checkout@v2.23.4
+        uses: quokkify/project-toolkit/actions/checkout@v2.23.5
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -300,7 +300,7 @@ jobs:
 
   app-java:
     name: "App Java"
-    uses: quokkify/project-toolkit/.github/workflows/java-ci.yml@v2.23.4
+    uses: quokkify/project-toolkit/.github/workflows/java-ci.yml@v2.23.5
     with:
       working-directory: "."
       # The canonical test.yml owns q4j's configured integration matrix and
@@ -314,7 +314,7 @@ jobs:
 
   app-node:
     name: "App Node"
-    uses: quokkify/project-toolkit/.github/workflows/node-ci.yml@v2.23.4
+    uses: quokkify/project-toolkit/.github/workflows/node-ci.yml@v2.23.5
     with:
       working-directory: "."
       install-command: "mkdir -p allure-results && touch allure-results/placeholder.txt"
@@ -326,7 +326,7 @@ jobs:
 
   app-python:
     name: "App Python"
-    uses: quokkify/project-toolkit/.github/workflows/python-ci.yml@v2.23.4
+    uses: quokkify/project-toolkit/.github/workflows/python-ci.yml@v2.23.5
     with:
       working-directory: "."
       install-command: "python -m pip install pytest allure-pytest && mkdir -p allure-results && touch allure-results/placeholder.txt"
