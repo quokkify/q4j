@@ -1,4 +1,4 @@
-_commit: v2.22.0
+_commit: v2.23.2
 _src_path: https://github.com/quokkify/project-toolkit.git
 allure_categories_file: tools/allure/categories.json
 allure_external_artifact_max_count: 50
@@ -27,6 +27,7 @@ components:
     path: .
     type: python
 docker: false
+gitleaks: true
 project_name: Q4J
 release_mode: manifest
 release_please: true
@@ -36,4 +37,4 @@ renovate_presets:
   - default
   - github-actions
   - java
-toolkit_version: v2.22.0
+toolkit_version: v2.23.2

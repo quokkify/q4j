@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Check out repository
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        uses: quokkify/project-toolkit/actions/checkout@v2.23.2
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -300,13 +300,11 @@ jobs:
 
   app-java:
     name: "App Java"
-    uses: quokkify/project-toolkit/.github/workflows/java-ci.yml@v2.22.0
+    uses: quokkify/project-toolkit/.github/workflows/java-ci.yml@v2.23.2
     with:
       working-directory: "."
       # The canonical test.yml owns q4j's configured integration matrix and
-      # infrastructure lifecycle.  Keep this generated component check as a
-      # lightweight Gradle/artifact contract instead of running the root test
-      # graph without that setup.
+      # infrastructure lifecycle. Keep this generated component check lightweight.
       test-command: "mkdir -p allure-results && touch allure-results/placeholder.txt && ./gradlew help --no-daemon --console=plain --stacktrace"
       run-lint: false
       run-build: false
@@ -316,7 +314,7 @@ jobs:
 
   app-node:
     name: "App Node"
-    uses: quokkify/project-toolkit/.github/workflows/node-ci.yml@v2.22.0
+    uses: quokkify/project-toolkit/.github/workflows/node-ci.yml@v2.23.2
     with:
       working-directory: "."
       install-command: "mkdir -p allure-results && touch allure-results/placeholder.txt"
@@ -328,7 +326,7 @@ jobs:
 
   app-python:
     name: "App Python"
-    uses: quokkify/project-toolkit/.github/workflows/python-ci.yml@v2.22.0
+    uses: quokkify/project-toolkit/.github/workflows/python-ci.yml@v2.23.2
     with:
       working-directory: "."
       install-command: "python -m pip install pytest allure-pytest && mkdir -p allure-results && touch allure-results/placeholder.txt"
