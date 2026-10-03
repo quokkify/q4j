@@ -76,7 +76,7 @@ services:
 
   rabbitmq:
     profiles: [rabbitmq]
-    image: bitnamilegacy/rabbitmq:4.1.3-debian-12-r1@sha256:9e635efba43143807c003fd52cd741e88ae1b45e4f5739105c8bf8f6f94912fe
+    image: soldevelo/rabbitmq:4.1.5-debian-12-r0@sha256:173ac3ec3faa60ef90b233b83d98207b848e1715af1acccb405d589a3221ed46
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
@@ -153,7 +153,7 @@ services:
 
   reportportal-rabbitmq:
     profiles: [reporting]
-    image: bitnamilegacy/rabbitmq:4.1.3-debian-12-r1@sha256:9e635efba43143807c003fd52cd741e88ae1b45e4f5739105c8bf8f6f94912fe
+    image: soldevelo/rabbitmq:4.1.5-debian-12-r0@sha256:173ac3ec3faa60ef90b233b83d98207b848e1715af1acccb405d589a3221ed46
     environment:
       RABBITMQ_DEFAULT_USER: ${REPORTPORTAL_RABBITMQ_USER:-rabbitmq}
       RABBITMQ_DEFAULT_PASS: ${REPORTPORTAL_RABBITMQ_PASSWORD:-rabbitmq}
