@@ -40,7 +40,7 @@ GitHub release tag
         ↓
 validate stable vMAJOR.MINOR.PATCH format
         ↓
-match the tag to version.txt and checked-out commit
+match the tag to the release manifest and checked-out commit
         ↓
 build 33 module publications
         ↓
@@ -54,7 +54,7 @@ release on Maven Central
 The workflow rejects:
 
 - malformed or prerelease tags;
-- a tag whose version differs from `version.txt`;
+- a tag whose version differs from `.github/release-please/manifest.json`;
 - a checkout that does not point at the requested tag;
 - missing Central Portal credentials or signing material.
 
@@ -82,7 +82,7 @@ After publication, the artifacts are available from Maven Central and searchable
 
 ## 🧪 Local publication validation
 
-Local builds use `<version.txt>-SNAPSHOT`. A stable version is supplied only by the release workflow.
+Local builds use the manifest version with `-SNAPSHOT`. A stable version is supplied only by the release workflow.
 
 Generate every Maven POM without contacting Central:
 

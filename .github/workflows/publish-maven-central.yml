@@ -47,9 +47,9 @@ jobs:
             exit 1
           fi
           version="${RELEASE_TAG#v}"
-          file_version="$(tr -d '[:space:]' < version.txt)"
-          test "$version" = "$file_version" || {
-            echo "Tag $RELEASE_TAG does not match version.txt ($file_version)" >&2
+          manifest_version="$(python3 -c 'import json; print(json.load(open(".github/release-please/manifest.json"))["."])')"
+          test "$version" = "$manifest_version" || {
+            echo "Tag $RELEASE_TAG does not match release manifest ($manifest_version)" >&2
             exit 1
           }
           git tag --points-at HEAD | grep -Fxq "$RELEASE_TAG" || {
