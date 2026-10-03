@@ -14,19 +14,19 @@ concurrency:
 jobs:
   report:
     name: Generate and comment trusted Allure report
-    uses: quokkify/project-toolkit/.github/workflows/allure-publisher-core.yml@v2.25.0
+    uses: quokkify/ci-kit/.github/workflows/allure-publisher-core.yml@v3.0.0
     permissions:
       actions: read
       contents: read
       pull-requests: write
     with:
-      source-workflow: Validate
-      source-workflow-path: .github/workflows/validate.yml
-      artifact-prefix: allure-results-
-      artifact-mode: component
-      minimum-artifacts: 1
+      source-workflow: "Run tests"
+      source-workflow-path: ".github/workflows/test.yml"
+      artifact-prefix: "allure-results-"
+      artifact-mode: external
+      minimum-artifacts: 24
       maximum-artifacts: 50
-      skip-empty-artifacts: false
+      skip-empty-artifacts: true
       config-file: .github/allure/allurerc.mjs
       categories-file: "tools/allure/categories.json"
       publish-pages: true
@@ -38,15 +38,14 @@ jobs:
     name: Publish trusted Pages report
     needs: report
     if: ${{ needs.report.outputs.ready == 'true' && needs.report.outputs.fork-pr == 'false' }}
-    uses: quokkify/project-toolkit/.github/workflows/allure-pages.yml@v2.25.0
+    uses: quokkify/ci-kit/.github/workflows/allure-pages.yml@v3.0.0
     permissions:
       actions: read
       contents: write
       pull-requests: read
     with:
-      source-workflow: Validate
-      source-workflow-path: .github/workflows/validate.yml
+      source-workflow: "Run tests"
+      source-workflow-path: ".github/workflows/test.yml"
       managed-pages-layout: true
       pr-number: ${{ needs.report.outputs.pr-number }}
       pages-destination-directory: ${{ format('allure/pr-{0}', needs.report.outputs.pr-number) }}
-

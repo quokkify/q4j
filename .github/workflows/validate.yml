@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Check out repository
-        uses: quokkify/project-toolkit/actions/checkout@v2.25.0
+        uses: quokkify/ci-kit/actions/checkout@v3.0.0
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -28,11 +28,18 @@ jobs:
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.14"
+      - name: Validate release and publication contracts
+        run: python tools/release_contract.py
+      - name: Test Gradle retry recovery contract
+        run: |
+          python -m unittest -v tools/ci/test_gradle_retry.py
+          bash -n tools/scripts/ci/gradle-retry.sh
       - name: Validate generated configuration
         run: |
           python -m pip install PyYAML==6.0.3
           python - <<'PY'
           import json
+          import re
           from pathlib import Path
           import yaml
 
@@ -55,8 +62,46 @@ jobs:
           )
           if answers.get("allure_report") and any(not path.is_file() for path in allure_paths):
               raise SystemExit("allure_report=true requires its generated workflow, config, and bounded extractor")
+          if answers.get("allure_report"):
+              allure_document = yaml.safe_load(Path(".github/workflows/allure-report.yml").read_text())
+              jobs = allure_document["jobs"]
+              report = jobs.get("report")
+              pages = jobs.get("pages")
+              expected_core = "quokkify/ci-kit/.github/workflows/allure-publisher-core.yml@" + answers["toolkit_version"]
+              expected_pages = "quokkify/ci-kit/.github/workflows/allure-pages.yml@" + answers["toolkit_version"]
+              if not report or report.get("uses") != expected_core:
+                  raise SystemExit("Allure report must use the versioned shared publisher workflow")
+              report_inputs = report.get("with", {})
+              if answers.get("allure_source") != "external" or report_inputs.get("artifact-mode") != "external":
+                  raise SystemExit("q4j Allure reporting must use the external Run tests source")
+              if report_inputs.get("source-workflow") != answers.get("allure_external_workflow_name") or report_inputs.get("source-workflow-path") != answers.get("allure_external_workflow_path"):
+                  raise SystemExit("External Allure reporting must match its configured source workflow")
+              if report_inputs.get("minimum-artifacts") != answers.get("allure_external_artifact_min_count") or report_inputs.get("maximum-artifacts") != answers.get("allure_external_artifact_max_count") or report_inputs.get("skip-empty-artifacts") is not True:
+                  raise SystemExit("External Allure artifact contract must preserve its configured bounds and empty-run behavior")
+              if report_inputs.get("history-path") != "allure-history/history.jsonl":
+                  raise SystemExit("Allure history must be carried between report runs")
+              if set(jobs) != {"report", "pages"}:
+                  raise SystemExit("Allure reporting must use only the generated report and Pages jobs")
+              if not pages or pages.get("uses") != expected_pages:
+                  raise SystemExit("Allure Pages must use the versioned shared publisher workflow")
+              pages_inputs = pages.get("with", {})
+              if pages_inputs.get("managed-pages-layout") is not True or "allure/pr-" not in str(pages_inputs.get("pages-destination-directory", "")):
+                  raise SystemExit("Allure Pages must publish to the managed per-PR report directory")
+              test_workflow = Path(".github/workflows/test.yml").read_text()
+              if "path: \"**/build/allure-results\"" in test_workflow:
+                  raise SystemExit("Test jobs must upload only their own Allure results directory")
+              if "allure-artifact" not in test_workflow:
+                  raise SystemExit("Test jobs must stage Allure results with their module path preserved")
+              if "allure-artifact/stability-tests/build" not in test_workflow:
+                  raise SystemExit("Stability Allure results must use a distinct source path")
+              if "results_path" not in test_workflow or "results_path" not in Path(".github/workflows/reusable-module-matrices.yml").read_text():
+                  raise SystemExit("Test matrix must provide a dedicated Allure results path")
           components = answers.get("components")
-          if answers.get("allure_report") and not components:
+          allure_source = answers.get("allure_source") or "auto"
+          allure_mode = allure_source if allure_source in ("component", "external") else ("component" if components else "external")
+          if answers.get("allure_report") and allure_mode == "component" and not components:
+              raise SystemExit("allure_source=component requires at least one component")
+          if answers.get("allure_report") and allure_mode == "external":
               source_path = Path(str(answers.get("allure_external_workflow_path", "")))
               if not source_path.is_file():
                   raise SystemExit("external Allure reporting requires its configured source workflow")
@@ -76,13 +121,63 @@ jobs:
               text = path.read_text()
               yaml.safe_load(text)
               for line in text.splitlines():
-                  marker = "uses: quokkify/project-toolkit/"
+                  marker = "uses: quokkify/ci-kit/"
                   if line.lstrip().startswith(marker):
                       reference = line.split("@", 1)[1].split()[0]
                       comment = line.partition("#")[2].strip()
                       pinned_release = len(reference) == 40 and all(char in "0123456789abcdef" for char in reference) and comment == answers["toolkit_version"]
                       if reference != answers["toolkit_version"] and not pinned_release:
                           raise SystemExit(f"{path} uses toolkit {reference}, expected {answers['toolkit_version']}")
+
+          publish_workflow = Path(".github/workflows/publish-maven-central.yml")
+          if publish_workflow.is_file():
+              publish_text = publish_workflow.read_text()
+              if "uses: actions/setup-java@" in publish_text:
+                  raise SystemExit("Maven Central publishing must use ci-kit/actions/setup-java-gradle")
+              setup_java_gradle = re.search(
+                  r"(?m)^\s+uses: quokkify/ci-kit/actions/setup-java-gradle@(?P<reference>[^ #]+)(?:\s+#\s*(?P<comment>\S+))?$",
+                  publish_text,
+              )
+              if not setup_java_gradle:
+                  raise SystemExit("Maven Central publishing must use ci-kit/actions/setup-java-gradle")
+              reference = setup_java_gradle.group("reference")
+              comment = setup_java_gradle.group("comment")
+              pinned_release = len(reference) == 40 and all(char in "0123456789abcdef" for char in reference)
+              if (reference != answers["toolkit_version"] and not pinned_release) or (pinned_release and comment != answers["toolkit_version"]):
+                  raise SystemExit("Maven Central publishing toolkit action must match toolkit_version")
+
+          selenium_grid = Path("tools/environment/assets/selenium-grid/config.toml").read_text()
+          marker = re.search(
+              r'(?m)^# renovate: depName=selenium/standalone-chromium currentValue=(?P<currentValue>\d+\.\d+(?:\.\d+)?-\d+) currentDigest=(?P<currentDigest>sha256:[a-f0-9]{64})$',
+              selenium_grid,
+          )
+          if not marker:
+              raise SystemExit("selenium grid config must keep a valid Renovate marker comment for the standalone-chromium image")
+          configs_line = re.search(
+              r'(?m)^configs = \["selenium/standalone-chromium:(?P<currentValue>\d+\.\d+(?:\.\d+)?-\d+)"',
+              selenium_grid,
+          )
+          if not configs_line or configs_line.group("currentValue") != marker.group("currentValue"):
+              raise SystemExit("selenium grid config must pin the standalone-chromium image by tag and keep marker/config values aligned")
+          if '@sha256:' in selenium_grid:
+              raise SystemExit("selenium grid config must not use a digest reference in configs")
+          renovate = json.loads(Path(".github/renovate.json").read_text())
+          selenium_rules = [
+              rule for rule in renovate["customManagers"]
+              if "Selenium" in str(rule.get("description", ""))
+          ]
+          if len(selenium_rules) != 1:
+              raise SystemExit("selenium Renovate extraction must stay consolidated into a single custom manager")
+          selenium_rule = selenium_rules[0]
+          pattern = selenium_rule["matchStrings"][0]
+          if "depName=(?<depName>selenium/standalone-chromium)" not in pattern or "currentDigest=(?<currentDigest>sha256:[a-f0-9]{64})" not in pattern or "configs\\s*=\\s*\\[\\s*\"selenium/standalone-chromium:(?<currentValue>" not in pattern:
+              raise SystemExit("selenium Renovate matcher must capture both the digest marker and config tag in one rule")
+          if selenium_rule.get("datasourceTemplate") != "docker":
+              raise SystemExit("selenium Renovate matcher must stay on the docker datasource")
+          if selenium_rule.get("packageNameTemplate") != "selenium/standalone-chromium":
+              raise SystemExit("selenium Renovate matcher must explicitly pin the standalone-chromium package name")
+          if selenium_rule.get("versioningTemplate") != "regex:^(?<major>\\d+)\\.(?<minor>\\d+)(?:\\.(?<patch>\\d+))?-(?<build>\\d+)$":
+              raise SystemExit("selenium Renovate matcher must keep the dated tag versioning")
           PY
       - name: Install actionlint
         env:
@@ -111,28 +206,29 @@ jobs:
 
   app-java:
     name: "App Java"
-    uses: quokkify/project-toolkit/.github/workflows/java-ci.yml@v2.25.0
+    uses: quokkify/ci-kit/.github/workflows/java-ci.yml@v3.0.0
     with:
       working-directory: "."
-      upload-test-artifacts: true
-      test-artifact-path: "allure-results"
-      test-artifact-name: allure-results-app-java
+      # The canonical test.yml owns q4j's configured integration matrix and infrastructure lifecycle.
+      # Keep this generated component check lightweight.
+      test-command: "./gradlew help --no-daemon --console=plain --stacktrace"
+      run-lint: false
+      run-build: false
 
   app-node:
     name: "App Node"
-    uses: quokkify/project-toolkit/.github/workflows/node-ci.yml@v2.25.0
+    uses: quokkify/ci-kit/.github/workflows/node-ci.yml@v3.0.0
     with:
       working-directory: "."
-      upload-test-artifacts: true
-      test-artifact-path: "allure-results"
-      test-artifact-name: allure-results-app-node
+      install-command: "true"
+      lint-command: "true"
+      test-command: "true"
 
   app-python:
     name: "App Python"
-    uses: quokkify/project-toolkit/.github/workflows/python-ci.yml@v2.25.0
+    uses: quokkify/ci-kit/.github/workflows/python-ci.yml@v3.0.0
     with:
       working-directory: "."
-      install-command: "python -m pip install pytest allure-pytest"
-      upload-test-artifacts: true
-      test-artifact-path: "allure-results"
-      test-artifact-name: allure-results-app-python
+      install-command: "true"
+      lint-command: "true"
+      test-command: "true"
