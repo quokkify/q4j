@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Check out repository
-        uses: quokkify/project-toolkit/actions/checkout@v2.23.5
+        uses: quokkify/project-toolkit/actions/checkout@v2.24.0
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -63,37 +63,27 @@ jobs:
           if answers.get("allure_report") and any(not path.is_file() for path in allure_paths):
               raise SystemExit("allure_report=true requires its generated workflow, config, and bounded extractor")
           if answers.get("allure_report"):
-              components = answers.get("components")
-              import os
-              import subprocess
-              import tempfile
-
-              allure_path = Path(".github/workflows/allure-report.yml")
-              allure_workflow = allure_path.read_text()
-              allure_document = yaml.safe_load(allure_workflow)
-              resolve_script = next(
-                  step["with"]["script"]
-                  for step in allure_document["jobs"]["resolve"]["steps"]
-                  if step.get("id") == "resolve"
-              )
-              generate_steps = allure_document["jobs"]["generate"]["steps"]
-              approved_report_action = "quokkify/allure-report-action@00a2788fd72dce6727a3232104f770f659aeaccb"
-              report_action = next(
-                  step for step in generate_steps
-                  if str(step.get("uses", "")) == approved_report_action
-              )
-              pages_action = next(
-                  step for step in allure_document["jobs"]["pages"]["steps"]
-                  if str(step.get("uses", "")).startswith("quokkify/project-toolkit/actions/deploy-gh-pages-subdir@")
-              )
-              pr_expression = "${" + "{ needs.resolve.outputs.pr-number }}"
-              report_pages_url = str(report_action["with"].get("pages-url", ""))
-              if pr_expression not in report_pages_url or \
-                      not report_pages_url.endswith("/allure-report/") or \
-                      pr_expression not in str(pages_action["with"].get("destination-dir", "")):
-                  raise SystemExit("Allure Pages URL must use the resolved PR number and generated allure-report subdirectory")
+              components = answers.get("components") or []
+              allure_document = yaml.safe_load(Path(".github/workflows/allure-report.yml").read_text())
+              jobs = allure_document["jobs"]
+              report = jobs.get("report")
+              pages = jobs.get("pages")
+              expected_core = "quokkify/project-toolkit/.github/workflows/allure-publisher-core.yml@" + answers["toolkit_version"]
+              expected_pages = "quokkify/project-toolkit/.github/workflows/allure-pages.yml@" + answers["toolkit_version"]
+              if not report or report.get("uses") != expected_core:
+                  raise SystemExit("Allure report must use the versioned shared publisher workflow")
+              report_inputs = report.get("with", {})
+              if report_inputs.get("artifact-mode") != "component" or report_inputs.get("minimum-artifacts") != len(components):
+                  raise SystemExit("Component Allure artifact contract must require one artifact per configured component")
+              if report_inputs.get("maximum-artifacts") != 50 or report_inputs.get("skip-empty-artifacts") is not False:
+                  raise SystemExit("Component Allure artifact contract must remain bounded and fail closed")
+              if not pages or pages.get("uses") != expected_pages:
+                  raise SystemExit("Allure Pages must use the versioned shared publisher workflow")
+              pages_inputs = pages.get("with", {})
+              if pages_inputs.get("managed-pages-layout") is not True or "allure/pr-" not in str(pages_inputs.get("pages-destination-directory", "")):
+                  raise SystemExit("Allure Pages must publish to the managed per-PR report directory")
               test_workflow = Path(".github/workflows/test.yml").read_text()
-              if 'path: "**/build/allure-results"' in test_workflow:
+              if "path: \"**/build/allure-results\"" in test_workflow:
                   raise SystemExit("Test jobs must upload only their own Allure results directory")
               if "allure-artifact" not in test_workflow:
                   raise SystemExit("Test jobs must stage Allure results with their module path preserved")
@@ -101,100 +91,18 @@ jobs:
                   raise SystemExit("Stability Allure results must use a distinct source path")
               if "results_path" not in test_workflow or "results_path" not in Path(".github/workflows/reusable-module-matrices.yml").read_text():
                   raise SystemExit("Test matrix must provide a dedicated Allure results path")
-
-              node_harness = r'''
-                (async () => {
-                const fs = require("fs");
-                const script = fs.readFileSync(process.argv[2], "utf8");
-                const input = JSON.parse(fs.readFileSync(0, "utf8"));
-                const AsyncFunction = Object.getPrototypeOf(async function () {}).constructor;
-                const outputs = {};
-                const warnings = [];
-                let failure = null;
-                const run = { path: ".github/workflows/validate.yml", head_sha: "sha", id: 42,
-                  workflow_id: 7, head_repository: { full_name: "quokkify/q4j" } };
-                const context = { payload: { workflow_run: run }, repo: { owner: "quokkify", repo: "q4j" } };
-                const pulls = [{ number: 566, base: { repo: { full_name: "quokkify/q4j" } },
-                  head: { repo: { full_name: "quokkify/q4j" }, sha: "sha" }, user: { login: "owner" } }];
-                const artifacts = Array.from({ length: input.count }, (_, index) => ({
-                  name: "allure-results-component-" + String(index).padStart(2, "0"), id: index + 1,
-                  expired: Boolean(input.expired && index === 0), size_in_bytes: 0,
-                }));
-                if (input.duplicate) artifacts[input.count - 1].name = artifacts[0].name;
-                if (input.bytes) artifacts[0].size_in_bytes = input.bytes;
-                const github = { rest: { pulls: { list: {} }, actions: {
-                  listWorkflowRuns: {}, listWorkflowRunArtifacts: {} } },
-                  paginate: async (method) => method === github.rest.pulls.list ? pulls :
-                    method === github.rest.actions.listWorkflowRuns ? [run] : artifacts };
-                const core = { warning: (message) => warnings.push(message),
-                  setFailed: (message) => { failure = message; },
-                  setOutput: (key, value) => { outputs[key] = value; } };
-                try { await new AsyncFunction("context", "github", "core", script)(context, github, core); }
-                catch (error) { failure = "uncaught: " + error.message; }
-                process.stdout.write(JSON.stringify({ outputs, warnings, failure }));
-                })();
-              '''
-
-              def execute(script, count, *, duplicate=False, expired=False, bytes_=0):
-                  with tempfile.NamedTemporaryFile("w", suffix=".js", delete=False) as script_handle, \
-                          tempfile.NamedTemporaryFile("w", suffix=".js", delete=False) as harness_handle:
-                      script_handle.write(script)
-                      harness_handle.write(node_harness)
-                      script_path = script_handle.name
-                      harness_path = harness_handle.name
-                  try:
-                      result = subprocess.run(
-                          ["node", harness_path, script_path],
-                          input=json.dumps({"count": count, "duplicate": duplicate, "expired": expired, "bytes": bytes_}),
-                          text=True, capture_output=True, check=False,
-                      )
-                  finally:
-                      os.unlink(script_path)
-                      os.unlink(harness_path)
-                  if result.returncode != 0:
-                      raise SystemExit(f"Allure resolver harness failed: {result.stderr}")
-                  return json.loads(result.stdout)
-
-              # Component and external workflows have deliberately different
-              # artifact cardinality contracts.  Exercise the contract matching
-              # this generated project while retaining external-mode coverage.
-              limit = 262144000
-              component_mode = bool(components)
-              minimum = 3 if component_mode else 24
-              cases = (
-                  ("zero", 0, {}, lambda result: bool(result["failure"])),
-                  ("one", 1, {}, lambda result: bool(result["failure"])),
-                  ("two", 2, {}, lambda result: bool(result["failure"])) if component_mode else
-                  ("twenty-three", 23, {}, lambda result: bool(result["failure"])),
-                  ("minimum", minimum, {}, lambda result: result["outputs"].get("ready") == "true" and len(json.loads(result["outputs"]["artifact_manifest"])) == minimum),
-                  ("fifty", 50, {}, lambda result: result["outputs"].get("ready") == "true"),
-                  ("fifty-one", 51, {}, lambda result: bool(result["failure"])),
-                  ("duplicate", minimum, {"duplicate": True}, lambda result: bool(result["failure"])),
-                  ("expired", minimum, {"expired": True}, lambda result: bool(result["failure"])),
-                  ("exact-limit", minimum, {"bytes_": limit}, lambda result: result["outputs"].get("ready") == "true"),
-                  ("over-limit", minimum, {"bytes_": limit + 1}, lambda result: bool(result["failure"])),
-              )
-              for name, count, options, assertion in cases:
-                  if not assertion(execute(resolve_script, count, **options)):
-                      raise SystemExit(f"Executable Allure resolver contract failed: {name}")
-
-              # Disposable mutations must be rejected by the executable contract.
-              minimum_expression = "actualNames.length < minimumComponentArtifacts" if component_mode else "actualNames.length < minimumArtifacts"
-              mutations = (
-                  ("length===7", resolve_script.replace(minimum_expression, "actualNames.length === 7"), 24, {}, lambda result: bool(result["failure"])),
-                  ("<1", resolve_script.replace(minimum_expression, "actualNames.length < 1"), 1, {}, lambda result: bool(result["failure"])),
-                  ("partial false-and", resolve_script.replace(minimum_expression + " ||", minimum_expression + " && false ||"), 1, {}, lambda result: bool(result["failure"])),
-              )
-              for name, mutated_script, count, options, assertion in mutations:
-                  if mutated_script == resolve_script or assertion(execute(mutated_script, count, **options)):
-                      raise SystemExit(f"Executable Allure mutation was accepted: {name}")
-              bad_expression = "${" + "{ needs.resolve.outputs.pr-bogus }}"
-              mutated_workflow = allure_workflow.replace(pr_expression, bad_expression, 1)
-              mutated_document = yaml.safe_load(mutated_workflow)
-              mutated_report = next(step for step in mutated_document["jobs"]["generate"]["steps"] if str(step.get("uses", "")) == approved_report_action)
-              mutated_pages = next(step for step in mutated_document["jobs"]["pages"]["steps"] if str(step.get("uses", "")).startswith("quokkify/project-toolkit/actions/deploy-gh-pages-subdir@"))
-              if pr_expression in str(mutated_report["with"].get("pages-url", "")) and pr_expression in str(mutated_pages["with"].get("destination-dir", "")):
-                  raise SystemExit("Executable Allure mutation was accepted: pr-bogus")
+              if answers.get("allure_external_workflow_name") == "Run tests":
+                  external = jobs.get("external-report")
+                  external_pages = jobs.get("external-pages")
+                  if not external or not external_pages:
+                      raise SystemExit("External Run tests Allure reporting must remain configured")
+                  external_inputs = external.get("with", {})
+                  if external_inputs.get("source-workflow") != "Run tests" or external_inputs.get("source-workflow-path") != answers.get("allure_external_workflow_path"):
+                      raise SystemExit("External Allure reporting must match its configured source workflow")
+                  if external_inputs.get("artifact-mode") != "external" or external_inputs.get("minimum-artifacts") != answers.get("allure_external_artifact_min_count") or external_inputs.get("maximum-artifacts") != answers.get("allure_external_artifact_max_count") or external_inputs.get("skip-empty-artifacts") is not True:
+                      raise SystemExit("External Allure artifact contract must preserve its configured bounds and empty-run behavior")
+                  if external_pages.get("needs") != "external-report":
+                      raise SystemExit("External Allure Pages publication must depend on its report job")
           if answers.get("allure_report") and not components:
               source_path = Path(str(answers.get("allure_external_workflow_path", "")))
               if not source_path.is_file():
@@ -300,11 +208,11 @@ jobs:
 
   app-java:
     name: "App Java"
-    uses: quokkify/project-toolkit/.github/workflows/java-ci.yml@v2.23.5
+    uses: quokkify/project-toolkit/.github/workflows/java-ci.yml@v2.24.0
     with:
       working-directory: "."
-      # The canonical test.yml owns q4j's configured integration matrix and
-      # infrastructure lifecycle. Keep this generated component check lightweight.
+      # The canonical test.yml owns q4j's configured integration matrix and infrastructure lifecycle.
+      # Keep this generated component check lightweight.
       test-command: "mkdir -p allure-results && touch allure-results/placeholder.txt && ./gradlew help --no-daemon --console=plain --stacktrace"
       run-lint: false
       run-build: false
@@ -314,7 +222,7 @@ jobs:
 
   app-node:
     name: "App Node"
-    uses: quokkify/project-toolkit/.github/workflows/node-ci.yml@v2.23.5
+    uses: quokkify/project-toolkit/.github/workflows/node-ci.yml@v2.24.0
     with:
       working-directory: "."
       install-command: "mkdir -p allure-results && touch allure-results/placeholder.txt"
@@ -326,7 +234,7 @@ jobs:
 
   app-python:
     name: "App Python"
-    uses: quokkify/project-toolkit/.github/workflows/python-ci.yml@v2.23.5
+    uses: quokkify/project-toolkit/.github/workflows/python-ci.yml@v2.24.0
     with:
       working-directory: "."
       install-command: "python -m pip install pytest allure-pytest && mkdir -p allure-results && touch allure-results/placeholder.txt"
