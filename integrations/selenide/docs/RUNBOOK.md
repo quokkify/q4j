@@ -41,10 +41,11 @@ curl -s http://localhost:4444/wd/hub/status   # expect "ready": true with a chro
 curl -s -o /dev/null -w '%{http_code}\n' http://localhost:80/table/
 ```
 
-If the grid shows `Selenium Grid not ready` with the node log
-`Make sure that a driver is available on $PATH`, the node container was created with a truncated
-`config.toml` (the rendering bug fixed in this branch) — re-create the node so it loads the fresh
-config:
+If the grid shows `Selenium Grid not ready` and the node log says
+`Make sure that a driver is available on $PATH`, check that the generated
+`tools/environment/assets/selenium-grid/generated/config.toml` contains the full `configs` entry
+from the tracked template. After correcting the generated file, recreate the node and hub so they
+load it:
 
 ```bash
 docker compose -f tools/environment/docker/docker-compose.yml \
@@ -104,7 +105,7 @@ BROWSER_REMOTE_URL=http://localhost:4444/wd/hub \
   timing-flaky). Multi-arch images would help.
 - Local runs keep the tracked `config.toml` template unchanged. Generated config and
   `assets/selenium-grid/assets/**` session artifacts are gitignored — see
-  `integrations/selenide/AUDIT.md` F8.
+  `integrations/selenide/docs/AUDIT.md` F8.
 - The generated local `config.toml` is mode `0644`, and its generated directory is mode `0755`:
   the node image's UID 1200 can traverse and read it through Compose's read-only mount, while the
   generated file and directory remain host-owned and are not writable by that container user. The

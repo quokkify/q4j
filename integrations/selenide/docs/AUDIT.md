@@ -12,7 +12,7 @@ where, and a recommended change. Severity is relative to the module's stated con
 - Separate verification run: `http://localhost:80` over HTTPS was stopped by
   `ERR_SSL_PROTOCOL_ERROR` before reaching the fixture, so it provides no test evidence and does
   not support the findings. Table tests require `BASE_URL`/`NGINX_BASE_URL` reachable from the
-  containerized browser; see RUNBOOK.
+  containerized browser; see [`RUNBOOK.md`](RUNBOOK.md).
 
 ## Findings
 
@@ -83,7 +83,7 @@ or documenting the strict-numeric contract.
 
 ## Infra / local-run findings
 
-See `RUNBOOK.md` for the working local recipe. Non-obvious points worth product decisions:
+See [`RUNBOOK.md`](RUNBOOK.md) for the working local recipe. Non-obvious points worth product decisions:
 
 ### F7 — Timing-sensitive tests flake under bulk/emulation (Medium)
 
