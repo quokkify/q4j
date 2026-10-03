@@ -286,7 +286,7 @@ jobs:
             fi
           fi
 
-          GRADLE_RETRY_COMMAND="./gradlew ${{ matrix.module }}:test" bash tools/scripts/ci/gradle-retry.sh
+          GRADLE_RETRY_COMMAND="./gradlew ${{ matrix.module }}:test --console=plain" bash tools/scripts/ci/gradle-retry.sh
         shell: bash
 
       - name: 🧾 Allure CI env fragment
@@ -443,7 +443,7 @@ jobs:
             fi
           fi
 
-          GRADLE_RETRY_COMMAND="./gradlew ${{ matrix.module }}:test" bash tools/scripts/ci/gradle-retry.sh
+          GRADLE_RETRY_COMMAND="./gradlew ${{ matrix.module }}:test --console=plain" bash tools/scripts/ci/gradle-retry.sh
         shell: bash
 
       - name: 🧾 Allure CI env fragment
