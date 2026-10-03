@@ -12,7 +12,7 @@ from pathlib import Path
 import yaml
 
 REPOSITORY = Path(__file__).resolve().parents[2]
-TOOLKIT_SOURCE = "https://github.com/quokkify/project-toolkit.git"
+TOOLKIT_SOURCE = "https://github.com/quokkify/ci-kit.git"
 TOOLKIT_REVISION = "v2.22.0"
 TOOLKIT_VERSION = "v2.22.0"
 

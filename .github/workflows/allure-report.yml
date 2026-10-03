@@ -14,7 +14,7 @@ concurrency:
 jobs:
   report:
     name: Generate and comment trusted Allure report
-    uses: quokkify/project-toolkit/.github/workflows/allure-publisher-core.yml@v2.25.0
+    uses: quokkify/ci-kit/.github/workflows/allure-publisher-core.yml@v3.0.0
     permissions:
       actions: read
       contents: read
@@ -38,7 +38,7 @@ jobs:
     name: Publish trusted Pages report
     needs: report
     if: ${{ needs.report.outputs.ready == 'true' && needs.report.outputs.fork-pr == 'false' }}
-    uses: quokkify/project-toolkit/.github/workflows/allure-pages.yml@v2.25.0
+    uses: quokkify/ci-kit/.github/workflows/allure-pages.yml@v3.0.0
     permissions:
       actions: read
       contents: write
@@ -53,7 +53,7 @@ jobs:
   external-report:
     name: Generate and comment external Allure report
     if: ${{ github.event.workflow_run.name == 'Run tests' }}
-    uses: quokkify/project-toolkit/.github/workflows/allure-publisher-core.yml@v2.25.0
+    uses: quokkify/ci-kit/.github/workflows/allure-publisher-core.yml@v3.0.0
     permissions:
       actions: read
       contents: read
@@ -77,7 +77,7 @@ jobs:
     name: Publish trusted external Pages report
     needs: external-report
     if: ${{ needs.external-report.outputs.ready == 'true' && needs.external-report.outputs.fork-pr == 'false' }}
-    uses: quokkify/project-toolkit/.github/workflows/allure-pages.yml@v2.25.0
+    uses: quokkify/ci-kit/.github/workflows/allure-pages.yml@v3.0.0
     permissions:
       actions: read
       contents: write
