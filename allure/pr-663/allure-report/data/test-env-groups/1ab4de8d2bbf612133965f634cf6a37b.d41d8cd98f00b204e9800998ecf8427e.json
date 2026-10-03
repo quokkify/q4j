@@ -1,0 +1,1 @@
+{"id":"1ab4de8d2bbf612133965f634cf6a37b.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.TableAssertionsActionsContractTest.rejectsReadOnlyEditingExplicitly","name":"Read-only cells reject the explicit edit capability","status":"passed","testResultsByEnv":{"ubuntu-24-04":"a95b40e0e8e84b55bf387713596b6c13"}}
