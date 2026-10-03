@@ -70,6 +70,7 @@ jobs:
       categories-file: tools/allure/categories.json
       publish-pages: true
       managed-pages-layout: true
+      history-path: allure-history/history.jsonl
       pages-url: https://quokkify.github.io/q4j
 
   external-pages:
