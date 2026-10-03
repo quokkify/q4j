@@ -24,7 +24,7 @@ jobs:
       source-workflow-path: .github/workflows/validate.yml
       artifact-prefix: allure-results-
       artifact-mode: component
-      minimum-artifacts: 3
+      minimum-artifacts: 1
       maximum-artifacts: 50
       skip-empty-artifacts: false
       config-file: .github/allure/allurerc.mjs
@@ -50,41 +50,3 @@ jobs:
       pr-number: ${{ needs.report.outputs.pr-number }}
       pages-destination-directory: ${{ format('allure/pr-{0}', needs.report.outputs.pr-number) }}
 
-  external-report:
-    name: Generate and comment external Allure report
-    if: ${{ github.event.workflow_run.name == 'Run tests' }}
-    uses: quokkify/project-toolkit/.github/workflows/allure-publisher-core.yml@v2.25.0
-    permissions:
-      actions: read
-      contents: read
-      pull-requests: write
-    with:
-      source-workflow: Run tests
-      source-workflow-path: .github/workflows/test.yml
-      artifact-prefix: allure-results-
-      artifact-mode: external
-      minimum-artifacts: 24
-      maximum-artifacts: 50
-      skip-empty-artifacts: true
-      config-file: .github/allure/allurerc.mjs
-      categories-file: tools/allure/categories.json
-      publish-pages: true
-      managed-pages-layout: true
-      history-path: allure-history/history.jsonl
-      pages-url: https://quokkify.github.io/q4j
-
-  external-pages:
-    name: Publish trusted external Pages report
-    needs: external-report
-    if: ${{ needs.external-report.outputs.ready == 'true' && needs.external-report.outputs.fork-pr == 'false' }}
-    uses: quokkify/project-toolkit/.github/workflows/allure-pages.yml@v2.25.0
-    permissions:
-      actions: read
-      contents: write
-      pull-requests: read
-    with:
-      source-workflow: Run tests
-      source-workflow-path: .github/workflows/test.yml
-      managed-pages-layout: true
-      pr-number: ${{ needs.external-report.outputs.pr-number }}
-      pages-destination-directory: ${{ format('allure/pr-{0}', needs.external-report.outputs.pr-number) }}

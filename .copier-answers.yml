@@ -9,6 +9,7 @@ allure_external_workflow_path: .github/workflows/test.yml
 allure_pages_url: https://quokkify.github.io/q4j
 allure_publish_pages: true
 allure_report: true
+allure_source: external
 codeql: true
 codeql_languages:
   - actions
