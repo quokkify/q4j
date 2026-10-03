@@ -5,8 +5,9 @@ plugins {
     id 'com.vanniktech.maven.publish' version '0.37.0' apply false
 }
 
+def releaseManifest = new groovy.json.JsonSlurper().parse(file('.github/release-please/manifest.json'))
 def q4jVersion = providers.gradleProperty('version')
-    .getOrElse("${file('version.txt').text.trim()}-SNAPSHOT")
+    .getOrElse("${releaseManifest['.']}-SNAPSHOT")
 
 allprojects {
     group = 'dev.quokkify'
