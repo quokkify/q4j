@@ -1,6 +1,7 @@
 package dev.quokkify.listener.retry;
 
 import java.lang.reflect.InvocationTargetException;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -78,9 +79,18 @@ public class RetryChecker {
 
   private static List<Class<? extends Throwable>> getExceptionsToRetry(ITestContext context) {
     Object attribute = context.getAttribute("exceptionsToRetry");
-    return (attribute instanceof List)
-        ? (List<Class<? extends Throwable>>) attribute
-        : Collections.emptyList();
+    if (!(attribute instanceof List<?> exceptionTypes)) {
+      return Collections.emptyList();
+    }
+
+    List<Class<? extends Throwable>> exceptionsToRetry = new ArrayList<>();
+    for (Object exceptionType : exceptionTypes) {
+      if (exceptionType instanceof Class<?> exceptionClass
+          && Throwable.class.isAssignableFrom(exceptionClass)) {
+        exceptionsToRetry.add(exceptionClass.asSubclass(Throwable.class));
+      }
+    }
+    return exceptionsToRetry;
   }
 
   private boolean isRetryNeededAccordingRetryCount() {

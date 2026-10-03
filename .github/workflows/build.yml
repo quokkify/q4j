@@ -43,7 +43,16 @@ jobs:
       - name: 🧱 Build (check, no tests)
         uses: ./.github/actions/gradle-retry
         with:
-          command: "./gradlew ${{ matrix.module }}:check -x ${{ matrix.module }}:test --console=plain"
+          command: "./gradlew ${{ matrix.module }}:check -x ${{ matrix.module }}:test --warning-mode all --console=plain"
+
+      - name: 📊 Upload Gradle Problems report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: gradle-problems-${{ github.job }}-${{ matrix.slug }}
+          retention-days: 3
+          if-no-files-found: ignore
+          path: build/reports/problems/problems-report.html
 
       - name: 📦 Pack checkstyle reports as artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -77,7 +86,16 @@ jobs:
       - name: 🧱 Build (check, no tests)
         uses: ./.github/actions/gradle-retry
         with:
-          command: "./gradlew ${{ matrix.module }}:check -x ${{ matrix.module }}:test --console=plain"
+          command: "./gradlew ${{ matrix.module }}:check -x ${{ matrix.module }}:test --warning-mode all --console=plain"
+
+      - name: 📊 Upload Gradle Problems report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: gradle-problems-${{ github.job }}-${{ matrix.slug }}
+          retention-days: 3
+          if-no-files-found: ignore
+          path: build/reports/problems/problems-report.html
 
       - name: 📦 Pack checkstyle reports as artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
@@ -111,7 +129,16 @@ jobs:
       - name: 🧱 Build (check, no tests)
         uses: ./.github/actions/gradle-retry
         with:
-          command: "./gradlew ${{ matrix.module }}:check -x ${{ matrix.module }}:test --console=plain"
+          command: "./gradlew ${{ matrix.module }}:check -x ${{ matrix.module }}:test --warning-mode all --console=plain"
+
+      - name: 📊 Upload Gradle Problems report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: gradle-problems-${{ github.job }}-${{ matrix.slug }}
+          retention-days: 3
+          if-no-files-found: ignore
+          path: build/reports/problems/problems-report.html
 
       - name: 📦 Pack checkstyle reports as artifact
         uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7

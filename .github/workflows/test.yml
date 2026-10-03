@@ -69,7 +69,16 @@ jobs:
       - name: 🧱 Build (check, no tests)
         uses: ./.github/actions/gradle-retry
         with:
-          command: "./gradlew ${{ matrix.module }}:check -x ${{ matrix.module }}:test --console=plain"
+          command: "./gradlew ${{ matrix.module }}:check -x ${{ matrix.module }}:test --warning-mode all --console=plain"
+
+      - name: 📊 Upload Gradle Problems report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: gradle-problems-${{ github.job }}-${{ matrix.slug }}
+          retention-days: 3
+          if-no-files-found: ignore
+          path: build/reports/problems/problems-report.html
 
   build-data:
     name: "Build data • ${{ matrix.name }}"
@@ -96,7 +105,16 @@ jobs:
       - name: 🧱 Build (check, no tests)
         uses: ./.github/actions/gradle-retry
         with:
-          command: "./gradlew ${{ matrix.module }}:check -x ${{ matrix.module }}:test --console=plain"
+          command: "./gradlew ${{ matrix.module }}:check -x ${{ matrix.module }}:test --warning-mode all --console=plain"
+
+      - name: 📊 Upload Gradle Problems report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: gradle-problems-${{ github.job }}-${{ matrix.slug }}
+          retention-days: 3
+          if-no-files-found: ignore
+          path: build/reports/problems/problems-report.html
 
   build-integrations:
     name: "Build integrations • ${{ matrix.name }}"
@@ -123,7 +141,16 @@ jobs:
       - name: 🧱 Build (check, no tests)
         uses: ./.github/actions/gradle-retry
         with:
-          command: "./gradlew ${{ matrix.module }}:check -x ${{ matrix.module }}:test --console=plain"
+          command: "./gradlew ${{ matrix.module }}:check -x ${{ matrix.module }}:test --warning-mode all --console=plain"
+
+      - name: 📊 Upload Gradle Problems report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: gradle-problems-${{ github.job }}-${{ matrix.slug }}
+          retention-days: 3
+          if-no-files-found: ignore
+          path: build/reports/problems/problems-report.html
 
   test-common:
     name: "Common • ${{ matrix.name }}"
@@ -150,7 +177,7 @@ jobs:
         uses: quokkify/project-toolkit/actions/setup-java-gradle@cc1453ae30bac9f43a7c8cd0169d382bd0aaa8a7 # v2.24.0
 
       - name: 🚀 Run tests
-        run: ./gradlew ${{ matrix.module }}:test --no-daemon --console=plain --stacktrace
+        run: ./gradlew ${{ matrix.module }}:test --no-daemon --warning-mode all --console=plain --stacktrace
         env:
           MODULE_PATH: ${{ matrix.module }}
         shell: bash
@@ -193,6 +220,15 @@ jobs:
           path: |
             **/build/reports
             **/build/test-results
+
+      - name: 📊 Upload Gradle Problems report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: gradle-problems-${{ github.job }}-${{ matrix.slug }}
+          retention-days: 3
+          if-no-files-found: ignore
+          path: build/reports/problems/problems-report.html
 
   test-data:
     name: "Data • ${{ matrix.name }}"
@@ -286,7 +322,7 @@ jobs:
             fi
           fi
 
-          GRADLE_RETRY_COMMAND="./gradlew ${{ matrix.module }}:test --console=plain" bash tools/scripts/ci/gradle-retry.sh
+          GRADLE_RETRY_COMMAND="./gradlew ${{ matrix.module }}:test --warning-mode all --console=plain" bash tools/scripts/ci/gradle-retry.sh
         shell: bash
 
       - name: 🧾 Allure CI env fragment
@@ -349,6 +385,15 @@ jobs:
           path: |
             **/build/reports
             **/build/test-results
+
+      - name: 📊 Upload Gradle Problems report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: gradle-problems-${{ github.job }}-${{ matrix.slug }}
+          retention-days: 3
+          if-no-files-found: ignore
+          path: build/reports/problems/problems-report.html
 
   test-integrations:
     name: "Integrations • ${{ matrix.name }}"
@@ -443,7 +488,7 @@ jobs:
             fi
           fi
 
-          GRADLE_RETRY_COMMAND="./gradlew ${{ matrix.module }}:test --console=plain" bash tools/scripts/ci/gradle-retry.sh
+          GRADLE_RETRY_COMMAND="./gradlew ${{ matrix.module }}:test --warning-mode all --console=plain" bash tools/scripts/ci/gradle-retry.sh
         shell: bash
 
       - name: 🧾 Allure CI env fragment
@@ -507,6 +552,15 @@ jobs:
             **/build/reports
             **/build/test-results
 
+      - name: 📊 Upload Gradle Problems report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: gradle-problems-${{ github.job }}-${{ matrix.slug }}
+          retention-days: 3
+          if-no-files-found: ignore
+          path: build/reports/problems/problems-report.html
+
   # Temporarily disabled; keep the full job for a future re-enable.
   # stability-tests:
   #   name: Stability tests
@@ -558,7 +612,7 @@ jobs:
   #           exit 1
   #         fi
   #
-  #         ./gradlew :integrations:selenide:tableModelContractStability --no-daemon --console=plain --stacktrace
+  #         ./gradlew :integrations:selenide:tableModelContractStability --no-daemon --warning-mode all --console=plain --stacktrace
   #       shell: bash
   #
   #     - name: 🧾 Allure CI env fragment

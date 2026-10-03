@@ -130,7 +130,7 @@ public final class SignatureGenerator {
    * Normalize incoming signature algorithm names if needed.
    */
   private static String normalizeSigAlgorithm(String algorithm) {
-    return StringUtils.trim(algorithm);
+    return algorithm == null ? null : algorithm.trim();
   }
 
   /**
@@ -142,7 +142,7 @@ public final class SignatureGenerator {
     String k = StringUtils.trimToEmpty(key);
     final String begin = "-----BEGIN PRIVATE KEY-----";
     final String end = "-----END PRIVATE KEY-----";
-    if (StringUtils.contains(k, begin) && StringUtils.contains(k, end)) {
+    if (k.contains(begin) && k.contains(end)) {
       k = StringUtils.substringBetween(k, begin, end);
     }
     return k.replaceAll("\\s+", "");
