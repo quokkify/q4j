@@ -35,7 +35,7 @@ if [[ "${CI:-}" == "true" ]]; then
   tmp_config="$(mktemp)"
   render_config "$CONFIG_PATH" "$tmp_config"
   # renovate: datasource=docker depName=busybox
-  cat "$tmp_config" | docker run --rm -i -v "${SELENIUM_GRID_MOUNT}":/opt/selenium/config.d busybox:1.38.0@sha256:dc2d74b28e4cf8984fa52af1f39bc7c3d9c73760b41a74d629f5d11b1ab28616 \
+  cat "$tmp_config" | docker run --rm -i -v "${SELENIUM_GRID_MOUNT}":/opt/selenium/config.d busybox:1.38.0@sha256:fd7dc98638c8e305f4dc34e979f1c0fdfdcaeb0fbf8fcff77ae834b6da3d7e6e \
     sh -c "mkdir -p /opt/selenium/config.d && cat > /opt/selenium/config.d/config.toml"
   rm -f "$tmp_config"
   export SELENIUM_GRID_MOUNT
