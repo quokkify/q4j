@@ -16,7 +16,6 @@ import java.util.concurrent.ExecutionException;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
-import java.util.stream.Collectors;
 
 import dev.quokkify.architecture.contract.ArchitectureContext;
 import dev.quokkify.architecture.contract.ArchitectureRule;
@@ -66,10 +65,6 @@ public final class ArchitectureRunner {
 
   private static final Logger LOG = LogManager.getLogger(ArchitectureRunner.class);
 
-  private static final String SEPARATOR = "=".repeat(60);
-  private static final String CONTINUATION_INDENT = "    ";
-  private static final String LINE_FORMAT = "%-7s %s";
-
   private ArchitectureRunner() {
   }
 
@@ -85,13 +80,13 @@ public final class ArchitectureRunner {
    */
   public static void main(String[] args) {
     Optional<RuleSeverity> failOn = failOnThreshold();
+    ReportFormat format = ReportFormat.fromSystemProperties();
     Report report;
     try (ArchitectureContext context = ArchitectureContext.fromSystemProperties()) {
-      report = verify(discoverRules(), context);
+      report = verify(discoverRules(), context, format);
     }
     boolean failing = failOn.isPresent() && report.hasFindingAtOrAbove(failOn.get());
-    LOG.info("Gate: fail on {} -> {}",
-        failOn.map(RuleSeverity::name).orElse(NEVER), failing ? "failed" : "passed");
+    LOG.info(format.gate(failOn, failing));
     if (failing) {
       throw new ArchitectureViolationException(
           "Architecture verification failed: %d error(s), %d warning(s), %d info, gate fails on %s. "
@@ -184,22 +179,30 @@ public final class ArchitectureRunner {
    * @return aggregated outcome of the run
    */
   public static Report verify(List<ArchitectureRule> rules, ArchitectureContext context) {
+    return verify(rules, context, ReportFormat.fromSystemProperties());
+  }
+
+  /**
+   * Evaluates every rule like {@link #verify(List, ArchitectureContext)}, printing the report in the given
+   * format.
+   *
+   * @param rules   rules to evaluate
+   * @param context shared classpath model
+   * @param format  how the report is rendered
+   * @return aggregated outcome of the run
+   */
+  static Report verify(List<ArchitectureRule> rules, ArchitectureContext context, ReportFormat format) {
     Map<RuleSeverity, Integer> violated = new EnumMap<>(RuleSeverity.class);
     for (RuleSeverity severity : RuleSeverity.values()) {
       violated.put(severity, 0);
     }
 
-    List<String> lines = new ArrayList<>();
-    lines.add(SEPARATOR);
-    lines.add("Architecture verification (%d rules)".formatted(rules.size()));
-    lines.add(SEPARATOR);
-
+    List<ReportFormat.Row> rows = new ArrayList<>();
     long startedAt = System.nanoTime();
     List<RuleOutcome> outcomes = evaluateAll(rules, context);
     long elapsedMillis = (System.nanoTime() - startedAt) / 1_000_000;
 
     RuleSeverity worst = null;
-    int evaluated = 0;
     Error unrecoverable = null;
     // The report is emitted in a finally block so that an ArchitectureRunnerError, which aborts the run,
     // still leaves behind the findings of the rules that did complete.
@@ -209,22 +212,20 @@ public final class ArchitectureRunner {
           unrecoverable = keepFirst(unrecoverable, outcome.unrecoverable());
           continue;
         }
-        evaluated++;
         ArchitectureRule rule = outcome.rule();
         if (Objects.isNull(outcome.finding())) {
-          lines.add(LINE_FORMAT.formatted("[PASS]", rule.name()));
+          rows.add(new ReportFormat.Row(rule.name(), rule.severity(), null, outcome.millis()));
           continue;
         }
         RuleSeverity severity = rule.severity();
-        lines.add(LINE_FORMAT.formatted("[%s]".formatted(severity.getLabel()), rule.name()));
-        lines.add(indent(describe(outcome.finding())));
+        rows.add(new ReportFormat.Row(rule.name(), severity, describe(outcome.finding()), outcome.millis()));
         violated.merge(severity, 1, Integer::sum);
         if (Objects.isNull(worst) || severity.compareTo(worst) > 0) {
           worst = severity;
         }
       }
     } finally {
-      emit(lines, toReport(violated), evaluated, rules.size(), worst, elapsedMillis);
+      emit(format.render(rules.size(), rows, toReport(violated), elapsedMillis), worst);
     }
     if (Objects.nonNull(unrecoverable)) {
       throw unrecoverable;
@@ -240,8 +241,8 @@ public final class ArchitectureRunner {
    */
   private static List<RuleOutcome> evaluateAll(List<ArchitectureRule> rules, ArchitectureContext context) {
     try (ExecutorService executor = Executors.newVirtualThreadPerTaskExecutor()) {
-      List<Future<Throwable>> pending = rules.stream()
-          .map(rule -> executor.submit(() -> evaluate(rule, context)))
+      List<Future<Evaluation>> pending = rules.stream()
+          .map(rule -> executor.submit(() -> timed(rule, context)))
           .toList();
       List<RuleOutcome> outcomes = new ArrayList<>(rules.size());
       for (int index = 0; index < rules.size(); index++) {
@@ -257,11 +258,12 @@ public final class ArchitectureRunner {
    * reported at the rule's severity. It is carried out of the task rather than thrown at once, so the
    * findings of the rules that did complete are still reported.
    */
-  private static RuleOutcome outcomeOf(ArchitectureRule rule, Future<Throwable> pending) {
+  private static RuleOutcome outcomeOf(ArchitectureRule rule, Future<Evaluation> pending) {
     try {
-      return new RuleOutcome(rule, pending.get(), null);
+      Evaluation evaluation = pending.get();
+      return new RuleOutcome(rule, evaluation.finding(), null, evaluation.millis());
     } catch (ExecutionException failed) {
-      return new RuleOutcome(rule, null, asUnrecoverable(rule, failed.getCause()));
+      return new RuleOutcome(rule, null, asUnrecoverable(rule, failed.getCause()), 0);
     } catch (InterruptedException interrupted) {
       Thread.currentThread().interrupt();
       throw new ArchitectureRunnerError(
@@ -297,21 +299,22 @@ public final class ArchitectureRunner {
   /**
    * Emits the whole report as one log event on purpose: the layout prefix (timestamp, thread, logger) is
    * then printed once instead of on every line, so the report stays aligned and readable in a CI log. The
-   * event level is the worst severity found, which keeps the report greppable by level.
+   * event level is the worst severity found, so a layout that prints the level, or an appender filtering on
+   * it, sees how serious the report is; the plain layout repeats the severity in each rule tag.
    */
-  private static void emit(List<String> lines, Report report, int evaluated, int total, RuleSeverity worst,
-      long elapsedMillis) {
-    int passed = evaluated - report.errors() - report.warnings() - report.infos();
-    lines.add(SEPARATOR);
-    lines.add("Architecture verification: %d passed, %d error(s), %d warning(s), %d info in %d ms"
-        .formatted(passed, report.errors(), report.warnings(), report.infos(), elapsedMillis));
-    if (evaluated < total) {
-      lines.add("Run aborted: %d of %d rules were not evaluated, see the error below."
-          .formatted(total - evaluated, total));
-    }
-    lines.add(SEPARATOR);
+  private static void emit(List<String> lines, RuleSeverity worst) {
     LOG.log(Objects.isNull(worst) ? Level.INFO : worst.getLevel(),
         System.lineSeparator() + String.join(System.lineSeparator(), lines));
+  }
+
+  /**
+   * Measures one rule on its own thread. A rule that waits for a shared model another rule is building counts
+   * that wait too, so the times show where the run spends its wall clock rather than pure rule cost.
+   */
+  private static Evaluation timed(ArchitectureRule rule, ArchitectureContext context) {
+    long startedAt = System.nanoTime();
+    Throwable finding = evaluate(rule, context);
+    return new Evaluation(finding, (System.nanoTime() - startedAt) / 1_000_000);
   }
 
   /**
@@ -352,12 +355,6 @@ public final class ArchitectureRunner {
     return "%s%s%s".formatted(message, System.lineSeparator(), trace);
   }
 
-  private static String indent(String message) {
-    return message.lines()
-        .map(CONTINUATION_INDENT::concat)
-        .collect(Collectors.joining(System.lineSeparator()));
-  }
-
   /**
    * Outcome of one rule evaluation.
    *
@@ -367,8 +364,15 @@ public final class ArchitectureRunner {
    * @param rule          the evaluated rule
    * @param finding       violation reported by the rule, or {@code null} when it is satisfied
    * @param unrecoverable error proving the rule could not run at all, or {@code null}
+   * @param millis        time the rule took, in milliseconds
    */
-  private record RuleOutcome(ArchitectureRule rule, Throwable finding, Error unrecoverable) {
+  private record RuleOutcome(ArchitectureRule rule, Throwable finding, Error unrecoverable, long millis) {
+  }
+
+  /**
+   * What a rule task returns: its finding, or {@code null} when it passed, and how long it took.
+   */
+  private record Evaluation(Throwable finding, long millis) {
   }
 
   /**

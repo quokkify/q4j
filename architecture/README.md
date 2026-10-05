@@ -85,8 +85,10 @@ Q4J applies itself the same way: see `verifyArchitecture` in [`gradle/architectu
 | `architecture.test.resources` | _unset_    | Comma separated test resource directories for `resources()`; empty means none  |
 | `architecture.main.sources`   | _unset_    | Comma separated main source roots for `mainSources()`; empty means none        |
 | `architecture.test.sources`   | _unset_    | Comma separated test source roots for `testSources()`; empty means none        |
+| `architecture.module`         | _unset_    | Name of the verified module shown in the report header, such as `:core`        |
+| `architecture.color`          | `auto`     | Colored report: `auto` on a terminal, `always` or `never`                      |
 
-An unknown `architecture.fail.on` value, a missing package list, and an empty rule set all abort the run.
+An unknown `architecture.fail.on` or `architecture.color` value, a missing package list, and an empty rule set all abort the run.
 A typo in CI therefore cannot silently disable the gate. A rule that reads a source group whose property is
 unset aborts too, and so does a rule that reads resources while a resource property is unset; an empty value
 states that the project has no such sources or resources.
@@ -112,19 +114,30 @@ stricter CI job. In Q4J, pass the threshold as a Gradle property:
 ./gradlew check -Parchitecture.fail.on=WARNING
 ```
 
-The whole report is logged as one event at the worst severity found:
+The whole report is logged as one event at the worst severity found. Each rule shows its declared severity
+and how long it took; a rule waiting for a shared model that another rule is building counts that wait too.
 
 ```text
 ============================================================
-Architecture verification (2 rules)
+Architecture verification of :common-utils:core (3 rules)
 ============================================================
-[PASS]  No console output in main code
-[PASS]  Test class naming
+[PASS]  No console output in main code    ERROR    396 ms
+[WARN]  No deprecated API usage (Taikai)  WARNING  403 ms
+    Architecture Violation [Priority: MEDIUM] - Rule 'No classes should use deprecated APIs' ...
+[PASS]  Test class naming                 ERROR     32 ms
 ============================================================
-Architecture verification: 2 passed, 0 error(s), 0 warning(s), 0 info in 412 ms
+Architecture verification: 2 passed, 0 error(s), 1 warning(s), 0 info in 405 ms
 ============================================================
 Gate: fail on ERROR -> passed
 ```
+
+This plain layout carries no escape sequences, so a CI log stays greppable. On a terminal the report is colored
+and marks each rule with `✔`, `✘`, `⚠` or `ℹ`, or with ASCII symbols when standard output is not UTF-8. A build
+tool that pipes the runner output cannot be detected as a terminal, so it sets `architecture.color` itself: Q4J
+passes `never` for `--console=plain`, when `NO_COLOR` is set, or on CI (`CI` set) unless a `--console` mode
+asks for color, and `always` otherwise. Give the runner logger
+a `%msg%n` layout to print the report without a timestamp prefix, as
+[`tools/architecture/log4j2.xml`](../tools/architecture/log4j2.xml) does.
 
 ---
 

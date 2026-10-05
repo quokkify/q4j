@@ -43,6 +43,7 @@ subprojects {
     def testResources = processed(testSourceSets())
 
     def verifiedMarker = layout.buildDirectory.file('architecture/verified')
+    def modulePath = path
     def verifyArchitecture = tasks.register('verifyArchitecture', JavaExec) {
         group = 'verification'
         description = 'Verifies the architecture rules registered in tools/architecture against this module.'
@@ -52,6 +53,15 @@ subprojects {
         classpath = files(runnerSettings) + configurations.architectureRunner + mainClasses + testClasses +
             files({ sourceSets.collect { it.runtimeClasspath } })
         systemProperty 'architecture.packages', 'dev.quokkify'
+        systemProperty 'architecture.module', modulePath
+        // Gradle pipes the runner output, so the runner cannot detect the terminal itself. A CI job without
+        // --console=plain still gets the plain report through the CI variable most CI services set.
+        def consoleOutput = gradle.startParameter.consoleOutput
+        def plainConsole = consoleOutput == org.gradle.api.logging.configuration.ConsoleOutput.Plain
+        def autoConsole = consoleOutput == org.gradle.api.logging.configuration.ConsoleOutput.Auto
+        def isSet = { String name -> !providers.environmentVariable(name).getOrElse('').isBlank() }
+        def colored = !plainConsole && !isSet('NO_COLOR') && !(autoConsole && isSet('CI'))
+        systemProperty 'architecture.color', colored ? 'always' : 'never'
         inputs.files(mainSources.asFileTree.matching { include '**/*.java' })
             .withPropertyName('mainSources')
             .withPathSensitivity(PathSensitivity.RELATIVE)
