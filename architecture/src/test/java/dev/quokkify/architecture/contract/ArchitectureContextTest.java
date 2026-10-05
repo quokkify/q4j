@@ -6,6 +6,8 @@ import java.util.List;
 import dev.quokkify.architecture.ArchitectureRunner;
 import dev.quokkify.architecture.ClassDirs;
 import dev.quokkify.architecture.exceptions.ArchitectureRunnerError;
+import dev.quokkify.architecture.fixtures.taikai.clean.QuietLogging;
+import dev.quokkify.architecture.fixtures.taikai.violating.LowercaseLogger;
 
 import com.tngtech.archunit.core.domain.JavaClass;
 import org.testng.annotations.Test;
@@ -59,6 +61,32 @@ public class ArchitectureContextTest {
           .contains(ArchitectureContextTest.class.getName());
       assertThat(context.scan().getAllClasses().getNames()).doesNotContain(ArchitectureRunner.class.getName());
       assertThat(context.mainClasses()).isEmpty();
+    }
+  }
+
+  @Test
+  public void classesWithoutAnAuthoredSourceAreLeftOutLikeGeneratedCode() {
+    Path onlyQuietLogging = Path.of("src/test/java/dev/quokkify/architecture/fixtures/taikai/clean");
+    try (ArchitectureContext context = ArchitectureContext.builder(List.of("dev.quokkify.architecture.fixtures.taikai"))
+        .mainClasses(List.of())
+        .testClasses(List.of(ClassDirs.test()))
+        .mainSources(List.of())
+        .testSources(List.of(onlyQuietLogging))
+        .build()) {
+      assertThat(names(context.all()))
+          .as("LowercaseLogger is compiled but has no source under the roots, as generated code would")
+          .contains(QuietLogging.class.getName())
+          .doesNotContain(LowercaseLogger.class.getName());
+    }
+  }
+
+  @Test
+  public void withoutSourcesEveryCompiledClassIsKept() {
+    try (ArchitectureContext context = ArchitectureContext.builder(List.of("dev.quokkify.architecture.fixtures.taikai"))
+        .mainClasses(List.of())
+        .testClasses(List.of(ClassDirs.test()))
+        .build()) {
+      assertThat(names(context.all())).contains(QuietLogging.class.getName(), LowercaseLogger.class.getName());
     }
   }
 

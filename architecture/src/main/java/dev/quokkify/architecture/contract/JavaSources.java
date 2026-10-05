@@ -7,6 +7,9 @@ import java.nio.file.Path;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
 import dev.quokkify.architecture.exceptions.ArchitectureRunnerError;
@@ -89,6 +92,19 @@ public final class JavaSources {
       }
       return units;
     }
+  }
+
+  /**
+   * Returns the fully qualified names of the top level types declared in these sources.
+   *
+   * @return type names, parsing the sources on first call
+   */
+  public Set<String> declaredTypeNames() {
+    return units().stream()
+        .flatMap(unit -> unit.getTypes().stream())
+        .map(type -> type.getFullyQualifiedName())
+        .flatMap(Optional::stream)
+        .collect(Collectors.toUnmodifiableSet());
   }
 
   private List<CompilationUnit> parse(List<Path> configuredRoots) {

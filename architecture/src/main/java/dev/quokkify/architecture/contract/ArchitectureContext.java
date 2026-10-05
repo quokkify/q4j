@@ -4,8 +4,10 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import dev.quokkify.architecture.exceptions.ArchitectureRunnerError;
@@ -186,7 +188,9 @@ public class ArchitectureContext implements AutoCloseable {
    * Returns every class under {@link #packages()} as an ArchUnit model, importing it on first call.
    *
    * <p>When class directories are configured, only those directories are imported, so neither the runner nor
-   * any dependency on the classpath is verified. Otherwise the packages are imported from the classpath.
+   * any dependency on the classpath is verified. Otherwise the packages are imported from the classpath. When
+   * both main and test sources are configured, classes without an authored Java source, generated code above
+   * all, are left out. The ClassGraph {@link #scan()} is not filtered this way.
    *
    * @return all classes of the covered packages
    */
@@ -283,13 +287,37 @@ public class ArchitectureContext implements AutoCloseable {
   }
 
   private JavaClasses importClasses() {
-    if (!hasClassDirs()) {
-      return new ClassFileImporter().importPackages(packages);
+    JavaClasses imported = hasClassDirs()
+        ? new ClassFileImporter()
+            .importPaths(existingClassDirs())
+            .that(JavaClass.Predicates.resideInAnyPackage(
+                packages.stream().map(name -> name + "..").toArray(String[]::new)))
+        : new ClassFileImporter().importPackages(packages);
+    if (!mainSources.isConfigured() || !testSources.isConfigured()) {
+      return imported;
     }
-    String[] patterns = packages.stream().map(name -> name + "..").toArray(String[]::new);
-    return new ClassFileImporter()
-        .importPaths(existingClassDirs())
-        .that(JavaClass.Predicates.resideInAnyPackage(patterns));
+    return imported.that(declaredIn(authoredTypeNames()));
+  }
+
+  /**
+   * Generated code, such as QueryDSL or annotation processor output, is compiled into the same directories as
+   * authored code but has no source file under the configured roots. Keeping only classes whose top level type
+   * is declared in those sources removes it from every bytecode rule, without a per rule exclusion list.
+   */
+  private Set<String> authoredTypeNames() {
+    Set<String> names = new HashSet<>(mainSources.declaredTypeNames());
+    names.addAll(testSources.declaredTypeNames());
+    return names;
+  }
+
+  private static DescribedPredicate<JavaClass> declaredIn(Set<String> authored) {
+    return DescribedPredicate.describe("declared in an authored source", javaClass -> {
+      JavaClass topLevel = javaClass;
+      while (topLevel.getEnclosingClass().isPresent()) {
+        topLevel = topLevel.getEnclosingClass().get();
+      }
+      return authored.contains(topLevel.getName());
+    });
   }
 
   private boolean hasClassDirs() {
