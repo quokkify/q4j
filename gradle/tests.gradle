@@ -10,6 +10,7 @@ subprojects {
         systemProperties['file.encoding'] = encoding
         systemProperties['allure.results.directory'] = "${project.layout.buildDirectory.dir("allure-results").get().asFile.absolutePath}"
         systemProperties['allure.report.directory'] = "${project.layout.buildDirectory.dir("allure-report").get().asFile.absolutePath}"
+        systemProperties['allure.testng.hide.disabled.tests'] = 'true'
 
         testLogging {
             events "passed", "skipped", "failed"
