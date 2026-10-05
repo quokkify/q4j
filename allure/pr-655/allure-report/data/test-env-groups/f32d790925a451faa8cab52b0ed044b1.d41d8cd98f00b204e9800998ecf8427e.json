@@ -1,0 +1,1 @@
+{"id":"f32d790925a451faa8cab52b0ed044b1.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.SingleThreadInParallelTest.testSingleThreadTestsRunAlongsideConcurrentTestsWhenEnabled","name":"Single thread tests run alongside the concurrent tests when the option is enabled","status":"passed","testResultsByEnv":{"ubuntu-24-04":"8cde5258bb0d876745915f613e74312b"}}
