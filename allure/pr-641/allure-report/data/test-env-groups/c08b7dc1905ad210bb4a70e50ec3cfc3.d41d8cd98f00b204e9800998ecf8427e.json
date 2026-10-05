@@ -1,1 +1,1 @@
-{"id":"c08b7dc1905ad210bb4a70e50ec3cfc3.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.NoSqlFactoryTest.rejectNullDatabaseName","name":"Reject a null database name","status":"passed","testResultsByEnv":{"ubuntu-24-04":"c5aba9a211df1e147947a7031edbb1f0"}}
+{"id":"c08b7dc1905ad210bb4a70e50ec3cfc3.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.NoSqlFactoryTest.rejectNullDatabaseName","name":"Reject a null database name","status":"passed","testResultsByEnv":{"ubuntu-24-04":"8783c0614c99ce5ef45bd0d5507b0b6b"}}
