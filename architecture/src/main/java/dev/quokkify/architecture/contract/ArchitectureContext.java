@@ -379,7 +379,7 @@ public class ArchitectureContext implements AutoCloseable {
       return new ResourceList();
     }
     resourceScan = new ClassGraph().overrideClasspath(existing).scan();
-    return resourceScan.getAllResources();
+    return resourceScan.getAllResources().nonClassFilesOnly();
   }
 
   private JavaClasses importClasses() {

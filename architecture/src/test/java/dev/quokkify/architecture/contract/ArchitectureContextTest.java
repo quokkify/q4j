@@ -1,5 +1,7 @@
 package dev.quokkify.architecture.contract;
 
+import java.io.IOException;
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
 
@@ -135,6 +137,20 @@ public class ArchitectureContextTest {
       assertThat(context.resources().getPaths())
           .as("the log4j2-test.xml on the test classpath lies outside the configured directories")
           .containsExactly("META-INF/services/dev.quokkify.architecture.fixtures.services.Greeting");
+    }
+  }
+
+  @Test
+  public void classFilesInAResourceDirectoryAreNoResources() throws IOException {
+    Path resources = Files.createTempDirectory("resources");
+    Path compiled = ClassDirs.test().resolve(PoliteGreeting.class.getName().replace('.', '/') + ".class");
+    Files.copy(compiled, resources.resolve("PoliteGreeting.class"));
+    Files.writeString(resources.resolve("application.properties"), "key=value");
+    try (ArchitectureContext context = ArchitectureContext.builder(PACKAGES)
+        .mainResources(List.of(resources))
+        .testResources(List.of())
+        .build()) {
+      assertThat(context.resources().getPaths()).containsExactly("application.properties");
     }
   }
 
