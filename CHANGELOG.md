@@ -1,5 +1,67 @@
 # Changelog
 
+## [0.8.0](https://github.com/quokkify/q4j/compare/v0.7.1...v0.8.0) (2026-10-05)
+
+<!-- project-toolkit:rich-block:start -->
+### ✨ Highlights
+<!-- project-toolkit:rich-release-notes pr=671 -->
+#### **testng-extensions:** allow running @SingleThread tests in parallel (#671)
+**Shorter wall-clock time for suites with `@SingleThread` tests.** Set `SINGLE_THREAD_TESTS_IN_PARALLEL=true` and the `@SingleThread` chain starts with the parallel tests instead of after them. Total run time drops from `parallel + sequential` to roughly `max(parallel, sequential)`. `@SingleThread` tests still run strictly one at a time, so they stay isolated from each other.
+
+<!-- project-toolkit:rich-release-notes pr=672 -->
+#### **console:** serialize concurrent SSH commands per target (#672)
+**Stop parallel tests from stepping on each other over SSH.** Pass a target name and a queue timeout, and q4j makes sure the same command never runs twice at once on the same host, without slowing down anything else. No lock bookkeeping in your test code, no leaked lock entries.
+
+### 💡 Usage Examples
+<!-- project-toolkit:rich-release-notes pr=671 -->
+#### **testng-extensions:** allow running @SingleThread tests in parallel (#671)
+Enable it with an environment variable:
+
+```bash
+SINGLE_THREAD_TESTS_IN_PARALLEL=true ./gradlew test
+```
+
+or in `src/test/resources/testng.properties`:
+
+```properties
+SINGLE_THREAD_TESTS_IN_PARALLEL=true
+```
+
+Tests do not change:
+
+```java
+public class AccountTest {
+
+    @Test
+    public void readsBalance() { /* runs in the parallel Concurrency block */ }
+
+    @SingleThread
+    @Test
+    public void rotatesSharedCredentials() { /* runs one by one, now alongside readsBalance */ }
+}
+```
+
+<!-- project-toolkit:rich-release-notes pr=672 -->
+#### **console:** serialize concurrent SSH commands per target (#672)
+```java
+Shell shell = new Shell.Plain(new SSH(host, 22, user, privateKey));
+
+// Two threads calling this on "staging-01" run one after another;
+// the same call on "staging-02", or a different command, runs in parallel.
+String output = SshUtils.executeCommand(shell, "staging-01", "bin/rake search:reindex", Duration.ofMinutes(5));
+```
+
+### 🔄 Migration
+<!-- project-toolkit:rich-release-notes pr=671 -->
+#### **testng-extensions:** allow running @SingleThread tests in parallel (#671)
+None. The option defaults to `false`, so suites keep their current order. Enable it only when `@SingleThread` tests do not conflict with the parallel ones, because they no longer wait for the parallel tests to finish.
+<!-- project-toolkit:rich-block:end -->
+
+### ✨ Features
+
+* **console:** serialize concurrent SSH commands per target ([#672](https://github.com/quokkify/q4j/issues/672)) ([7df4993](https://github.com/quokkify/q4j/commit/7df4993713f54deeaeadee20dcfccb9d14d511ad))
+* **testng-extensions:** allow running @SingleThread tests in parallel ([#671](https://github.com/quokkify/q4j/issues/671)) ([8d36c00](https://github.com/quokkify/q4j/commit/8d36c000f84f74af32fefae93abc781e62e8556f))
+
 ## [0.7.1](https://github.com/quokkify/q4j/compare/v0.7.0...v0.7.1) (2026-10-04)
 
 
