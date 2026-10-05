@@ -1,0 +1,1 @@
+{"id":"7c13868595c403fe352996496d415311.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DropdownBehaviorTest.testSelectedTextsSupportsDirectTextChips","name":"Verify selectedTexts uses the default direct-text chip contract without including remove-control text","status":"passed","testResultsByEnv":{"ubuntu-24-04":"a9e1891058683b7e91bd8fc7f2a10b93"}}
