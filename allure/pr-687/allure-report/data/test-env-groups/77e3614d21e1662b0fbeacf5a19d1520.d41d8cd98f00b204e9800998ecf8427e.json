@@ -1,0 +1,1 @@
+{"id":"77e3614d21e1662b0fbeacf5a19d1520.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.util.CommandLockManagerTest.entryIsRemovedOnlyAfterLastReferenceIsReleased","name":"entryIsRemovedOnlyAfterLastReferenceIsReleased","status":"passed","testResultsByEnv":{"ubuntu-24-04":"1a61cba29157a37630f2641cc3f1cd52"}}
