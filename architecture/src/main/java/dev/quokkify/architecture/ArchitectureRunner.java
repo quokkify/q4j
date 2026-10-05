@@ -226,7 +226,8 @@ public final class ArchitectureRunner {
         }
       }
     } finally {
-      emit(format.render(rules.size(), rows, toReport(violated), elapsedMillis), worst);
+      emit(format.render(rules.size(), context.modelClock().builtModels(), rows, toReport(violated), elapsedMillis),
+          worst);
     }
     if (Objects.nonNull(unrecoverable)) {
       throw unrecoverable;
@@ -309,13 +310,14 @@ public final class ArchitectureRunner {
   }
 
   /**
-   * Measures one rule on its own thread. A rule that waits for a shared model another rule is building counts
-   * that wait too, so the times show where the run spends its wall clock rather than pure rule cost.
+   * Measures one rule on its own thread, without the time it spent building or waiting for shared models: those
+   * are reported once each, so a rule waiting for a model another rule is building is not charged with it.
    */
   private static Evaluation timed(ArchitectureRule rule, ArchitectureContext context) {
     long startedAt = System.nanoTime();
     Throwable finding = evaluate(rule, context);
-    return new Evaluation(finding, (System.nanoTime() - startedAt) / 1_000_000);
+    long own = System.nanoTime() - startedAt - context.modelClock().takeAccessNanos();
+    return new Evaluation(finding, Math.max(0, own) / 1_000_000);
   }
 
   /**

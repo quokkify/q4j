@@ -114,20 +114,27 @@ stricter CI job. In Q4J, pass the threshold as a Gradle property:
 ./gradlew check -Parchitecture.fail.on=WARNING
 ```
 
-The whole report is logged as one event at the worst severity found. Each rule shows what it verifies
-(`MAIN`, `TEST`, `RESOURCES`, or `-` when undeclared), its declared severity and how long it took; a rule
-waiting for a shared model that another rule is building counts that wait too.
+The whole report is logged as one event at the worst severity found. It first lists the shared models the run
+built, each with its build time; a build nested in another, such as the ArchUnit import parsing the sources, is
+listed on its own. Each rule then shows what it verifies (`MAIN`, `TEST`, `RESOURCES`, or `-` when undeclared),
+its declared severity and the time of its own work. Rules run in parallel, and a rule waiting for a model that
+another rule is building is not charged with that wait, so the rule times do not add up to the total.
 
 ```text
 ============================================================
 Architecture verification of :common-utils:core (3 rules)
 ============================================================
-[PASS]  No console output in main code    MAIN       ERROR    396 ms
-[WARN]  No deprecated API usage (Taikai)  MAIN+TEST  WARNING  403 ms
+Shared models, built once (rule times below exclude them):
+  ArchUnit classes         355 ms
+  JavaParser main sources   82 ms
+  ClassGraph classes        20 ms
+------------------------------------------------------------
+[PASS]  No console output in main code    MAIN       ERROR    19 ms
+[WARN]  No deprecated API usage (Taikai)  MAIN+TEST  WARNING  34 ms
     Architecture Violation [Priority: MEDIUM] - Rule 'No classes should use deprecated APIs' ...
-[PASS]  Test class naming                 TEST       ERROR     32 ms
+[PASS]  Test class naming                 TEST       ERROR     2 ms
 ============================================================
-Architecture verification: 2 passed, 0 error(s), 1 warning(s), 0 info in 405 ms
+Architecture verification: 2 passed, 0 error(s), 1 warning(s), 0 info in 498 ms
 ============================================================
 Gate: fail on ERROR -> passed
 ```

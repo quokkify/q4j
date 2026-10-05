@@ -44,14 +44,18 @@ public final class JavaSources {
   private final String property;
   private final List<Path> roots;
   private final List<String> packages;
+  private final ModelClock clock;
+  private final String model;
   private final Object unitsLock = new Object();
 
   private volatile List<CompilationUnit> units;
 
-  JavaSources(String property, List<Path> roots, List<String> packages) {
+  JavaSources(String property, List<Path> roots, List<String> packages, ModelClock clock, String model) {
     this.property = property;
     this.roots = Objects.isNull(roots) ? null : List.copyOf(roots);
     this.packages = packages;
+    this.clock = clock;
+    this.model = model;
   }
 
   /**
@@ -86,12 +90,14 @@ public final class JavaSources {
    */
   public List<CompilationUnit> units() {
     List<Path> configuredRoots = roots();
-    synchronized (unitsLock) {
-      if (Objects.isNull(units)) {
-        units = parse(configuredRoots);
+    return clock.access(() -> {
+      synchronized (unitsLock) {
+        if (Objects.isNull(units)) {
+          units = clock.build(model, () -> parse(configuredRoots));
+        }
+        return units;
       }
-      return units;
-    }
+    });
   }
 
   /**

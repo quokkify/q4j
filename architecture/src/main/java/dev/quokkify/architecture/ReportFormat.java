@@ -10,6 +10,7 @@ import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import dev.quokkify.architecture.contract.ModelClock.ModelTime;
 import dev.quokkify.architecture.contract.RuleScope;
 import dev.quokkify.architecture.contract.RuleSeverity;
 import dev.quokkify.architecture.exceptions.ArchitectureRunnerError;
@@ -44,6 +45,7 @@ final class ReportFormat {
   private static final String TAG_FORMAT = "%-7s";
   private static final int RICH_RULE_WIDTH = 72;
   private static final String UNDECLARED_SCOPE = "-";
+  private static final String MODELS_HEADER = "Shared models, built once (rule times below exclude them):";
 
   private static final String RESET = "\u001B[0m";
   private static final String BOLD = "\u001B[1m";
@@ -114,13 +116,15 @@ final class ReportFormat {
    * Renders the whole report block.
    *
    * @param total   number of rules that were to be evaluated
+   * @param models  build time of each shared model, slowest first
    * @param rows    the evaluated rules, in report order
    * @param report  aggregated findings
    * @param elapsed wall clock time of the whole run, in milliseconds
    * @return the report lines
    */
-  List<String> render(int total, List<Row> rows, ArchitectureRunner.Report report, long elapsed) {
-    return color ? rich(total, rows, report, elapsed) : plain(total, rows, report, elapsed);
+  List<String> render(int total, List<ModelTime> models, List<Row> rows, ArchitectureRunner.Report report,
+      long elapsed) {
+    return color ? rich(total, models, rows, report, elapsed) : plain(total, models, rows, report, elapsed);
   }
 
   /**
@@ -141,7 +145,8 @@ final class ReportFormat {
     return "  %s %s".formatted(verdict, paint(DIM, "(fail on %s)".formatted(threshold)));
   }
 
-  private List<String> plain(int total, List<Row> rows, ArchitectureRunner.Report report, long elapsed) {
+  private List<String> plain(int total, List<ModelTime> models, List<Row> rows, ArchitectureRunner.Report report,
+      long elapsed) {
     int nameWidth = nameWidth(rows);
     int scopeWidth = scopeWidth(rows);
     int timeWidth = timeWidth(rows);
@@ -151,6 +156,14 @@ final class ReportFormat {
         ? "Architecture verification (%d rules)".formatted(total)
         : "Architecture verification of %s (%d rules)".formatted(module, total));
     lines.add(SEPARATOR);
+    if (!models.isEmpty()) {
+      int modelWidth = modelWidth(models);
+      int modelTimeWidth = modelTimeWidth(models);
+      lines.add(MODELS_HEADER);
+      models.forEach(model -> lines.add("  %s  %s".formatted(
+          pad(model.name(), modelWidth), duration(model.millis(), modelTimeWidth))));
+      lines.add("-".repeat(SEPARATOR.length()));
+    }
     for (Row row : rows) {
       String tag = row.passed() ? "[PASS]" : "[%s]".formatted(row.severity().getLabel());
       lines.add("%s %s  %s  %-7s  %s".formatted(TAG_FORMAT.formatted(tag), pad(row.name(), nameWidth),
@@ -169,7 +182,8 @@ final class ReportFormat {
     return lines;
   }
 
-  private List<String> rich(int total, List<Row> rows, ArchitectureRunner.Report report, long elapsed) {
+  private List<String> rich(int total, List<ModelTime> models, List<Row> rows, ArchitectureRunner.Report report,
+      long elapsed) {
     int nameWidth = nameWidth(rows);
     int scopeWidth = scopeWidth(rows);
     int timeWidth = timeWidth(rows);
@@ -179,6 +193,14 @@ final class ReportFormat {
     lines.add(" %s  %s%s".formatted(
         paint(CYAN + BOLD, "Architecture"), scope, paint(DIM, "%d rules".formatted(total))));
     lines.add("");
+    if (!models.isEmpty()) {
+      int modelWidth = modelWidth(models);
+      int modelTimeWidth = modelTimeWidth(models);
+      lines.add("  " + paint(DIM, MODELS_HEADER));
+      models.forEach(model -> lines.add("    %s  %s".formatted(
+          pad(model.name(), modelWidth), paint(DIM, duration(model.millis(), modelTimeWidth)))));
+      lines.add("");
+    }
     for (Row row : rows) {
       String accent = accent(row);
       String name = row.passed() ? pad(row.name(), nameWidth) : paint(accent + BOLD, pad(row.name(), nameWidth));
@@ -249,6 +271,14 @@ final class ReportFormat {
     return rows.stream().mapToInt(row -> row.name().length()).max().orElse(0);
   }
 
+  private static int modelWidth(List<ModelTime> models) {
+    return models.stream().mapToInt(model -> model.name().length()).max().orElse(0);
+  }
+
+  private static int modelTimeWidth(List<ModelTime> models) {
+    return models.stream().mapToInt(model -> Long.toString(model.millis()).length()).max().orElse(1);
+  }
+
   private static int scopeWidth(List<Row> rows) {
     return rows.stream().mapToInt(row -> row.scope().length()).max().orElse(0);
   }
@@ -272,7 +302,7 @@ final class ReportFormat {
    * @param severity declared rule severity
    * @param scopes   declared verified scopes, empty when undeclared
    * @param message  the finding, or {@code null} when the rule passed
-   * @param millis   time from submitting the rule until it completed, in milliseconds
+   * @param millis   time the rule took, without building or waiting for shared models, in milliseconds
    */
   record Row(String name, RuleSeverity severity, Set<RuleScope> scopes, String message, long millis) {
 

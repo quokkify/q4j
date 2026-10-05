@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
+import dev.quokkify.architecture.contract.ModelClock;
 import dev.quokkify.architecture.contract.RuleScope;
 import dev.quokkify.architecture.contract.RuleSeverity;
 import dev.quokkify.architecture.exceptions.ArchitectureRunnerError;
@@ -28,7 +29,7 @@ public class ReportFormatTest {
 
   @Test
   public void plainReportAlignsRulesAndCarriesNoEscapeSequence() {
-    List<String> lines = new ReportFormat(":common-utils:core", false, true).render(2, ROWS, REPORT, 1045);
+    List<String> lines = new ReportFormat(":common-utils:core", false, true).render(2, List.of(), ROWS, REPORT, 1045);
 
     assertThat(lines).noneMatch(line -> line.contains(ESCAPE));
     assertThat(lines).contains("Architecture verification of :common-utils:core (2 rules)");
@@ -44,20 +45,41 @@ public class ReportFormatTest {
     List<ReportFormat.Row> rows = List.of(
         new ReportFormat.Row("Service registrations resolve", RuleSeverity.ERROR, Set.of(RuleScope.RESOURCES), null, 1));
 
-    assertThat(new ReportFormat("", false, true).render(1, rows, new ArchitectureRunner.Report(0, 0, 0), 1))
+    assertThat(new ReportFormat("", false, true).render(1, List.of(), rows, new ArchitectureRunner.Report(0, 0, 0), 1))
         .contains("[PASS]  Service registrations resolve  RESOURCES  ERROR    1 ms");
   }
 
   @Test
+  public void sharedModelsAreReportedOnceAboveTheRules() {
+    List<ModelClock.ModelTime> models = List.of(
+        new ModelClock.ModelTime("ArchUnit classes", 1904), new ModelClock.ModelTime("ClassGraph classes", 38));
+
+    List<String> lines = new ReportFormat("", false, true).render(2, models, ROWS, REPORT, 2310);
+
+    assertThat(lines).containsSubsequence(
+        "Shared models, built once (rule times below exclude them):",
+        "  ArchUnit classes    1904 ms",
+        "  ClassGraph classes    38 ms",
+        "-".repeat(60),
+        "[PASS]  Green rule                     MAIN+TEST  ERROR    312 ms");
+  }
+
+  @Test
+  public void modelsBlockIsOmittedWhenNoModelWasBuilt() {
+    assertThat(new ReportFormat("", false, true).render(2, List.of(), ROWS, REPORT, 1))
+        .noneMatch(line -> line.startsWith("Shared models"));
+  }
+
+  @Test
   public void plainReportOmitsTheModuleWhenItIsUnknown() {
-    List<String> lines = new ReportFormat(null, false, true).render(2, ROWS, REPORT, 1045);
+    List<String> lines = new ReportFormat(null, false, true).render(2, List.of(), ROWS, REPORT, 1045);
 
     assertThat(lines).contains("Architecture verification (2 rules)");
   }
 
   @Test
   public void richReportColorsEachRuleBySeverity() {
-    String output = String.join("\n", new ReportFormat(":core", true, true).render(2, ROWS, REPORT, 1045));
+    String output = String.join("\n", new ReportFormat(":core", true, true).render(2, List.of(), ROWS, REPORT, 1045));
 
     assertThat(output)
         .contains(ESCAPE)
@@ -70,7 +92,7 @@ public class ReportFormatTest {
 
   @Test
   public void richReportFallsBackToAsciiSymbolsOutsideUtf8() {
-    String output = String.join("\n", new ReportFormat(":core", true, false).render(2, ROWS, REPORT, 1045));
+    String output = String.join("\n", new ReportFormat(":core", true, false).render(2, List.of(), ROWS, REPORT, 1045));
 
     assertThat(output).doesNotContain("✔", "⚠", "│", "·", "─").contains("+", "!", "|");
   }
@@ -80,9 +102,9 @@ public class ReportFormatTest {
     List<ReportFormat.Row> evaluated = ROWS.subList(0, 1);
     ArchitectureRunner.Report clean = new ArchitectureRunner.Report(0, 0, 0);
 
-    assertThat(new ReportFormat("", false, true).render(2, evaluated, clean, 10))
+    assertThat(new ReportFormat("", false, true).render(2, List.of(), evaluated, clean, 10))
         .contains("Run aborted: 1 of 2 rules were not evaluated, see the error below.");
-    assertThat(String.join("\n", new ReportFormat("", true, true).render(2, evaluated, clean, 10)))
+    assertThat(String.join("\n", new ReportFormat("", true, true).render(2, List.of(), evaluated, clean, 10)))
         .contains("Run aborted: 1 of 2 rules were not evaluated");
   }
 
