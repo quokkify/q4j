@@ -31,14 +31,18 @@ subprojects {
     def testSourceSets = { sourceSets.matching { it.name != SourceSet.MAIN_SOURCE_SET_NAME } }
     def mainSources = authored(mainSourceSets())
     def testSources = authored(testSourceSets())
+    def compiled = { Collection<SourceSet> sets ->
+        files({ sets.collect { it.output.classesDirs } })
+    }
+    def mainClasses = compiled(mainSourceSets())
+    def testClasses = compiled(testSourceSets())
 
     def verifiedMarker = layout.buildDirectory.file('architecture/verified')
     def verifyArchitecture = tasks.register('verifyArchitecture', JavaExec) {
         group = 'verification'
         description = 'Verifies the architecture rules registered in tools/architecture against this module.'
         mainClass = 'dev.quokkify.architecture.ArchitectureRunner'
-        classpath = files(runnerSettings) + configurations.architectureRunner +
-            files({ sourceSets.collect { it.output.classesDirs } })
+        classpath = files(runnerSettings) + configurations.architectureRunner + mainClasses + testClasses
         systemProperty 'architecture.packages', 'dev.quokkify'
         inputs.files(mainSources.asFileTree.matching { include '**/*.java' })
             .withPropertyName('mainSources')
@@ -51,8 +55,14 @@ subprojects {
             systemProperty 'architecture.fail.on', failOn.get()
         }
         outputs.file(verifiedMarker)
+        onlyIf('the module has compiled classes') {
+            (mainClasses + testClasses).files.any { it.directory }
+        }
 
         doFirst {
+            // Only these directories are verified, so the runner and the dependencies on the classpath are not.
+            systemProperty 'architecture.main.classes', mainClasses.files.findAll { it.directory }.join(',')
+            systemProperty 'architecture.test.classes', testClasses.files.findAll { it.directory }.join(',')
             systemProperty 'architecture.main.sources', mainSources.files.join(',')
             systemProperty 'architecture.test.sources', testSources.files.join(',')
         }

@@ -1,13 +1,17 @@
 package dev.quokkify.architecture.contract;
 
+import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
+import java.util.stream.Stream;
 
 import dev.quokkify.architecture.exceptions.ArchitectureRunnerError;
 
+import com.tngtech.archunit.base.DescribedPredicate;
+import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import io.github.classgraph.ClassGraph;
@@ -52,7 +56,19 @@ public class ArchitectureContext implements AutoCloseable {
    */
   public static final String TEST_SOURCES_PROPERTY = "architecture.test.sources";
 
+  /**
+   * Comma separated main class directories, for example {@code -Darchitecture.main.classes=build/classes/java/main}.
+   */
+  public static final String MAIN_CLASSES_PROPERTY = "architecture.main.classes";
+
+  /**
+   * Comma separated test class directories, for example {@code -Darchitecture.test.classes=build/classes/java/test}.
+   */
+  public static final String TEST_CLASSES_PROPERTY = "architecture.test.classes";
+
   private final List<String> packages;
+  private final List<Path> mainClassDirs;
+  private final List<Path> testClassDirs;
   private final JavaSources mainSources;
   private final JavaSources testSources;
 
@@ -70,35 +86,41 @@ public class ArchitectureContext implements AutoCloseable {
    * @throws ArchitectureRunnerError when no package is given, since a rule could then verify nothing
    */
   public ArchitectureContext(Collection<String> packages) {
-    this(packages, null, null);
+    this(builder(packages));
+  }
+
+  private ArchitectureContext(Builder builder) {
+    this.packages = requirePackages(builder.packages);
+    this.mainClassDirs = copyOrNull(builder.mainClasses);
+    this.testClassDirs = copyOrNull(builder.testClasses);
+    this.mainSources = new JavaSources(MAIN_SOURCES_PROPERTY, builder.mainSources, this.packages);
+    this.testSources = new JavaSources(TEST_SOURCES_PROPERTY, builder.testSources, this.packages);
   }
 
   /**
-   * Creates a context covering the given root packages, with the source roots read by source based rules.
+   * Starts a context covering the given root packages; class directories and source roots are optional.
    *
-   * @param packages        root packages to verify, at least one
-   * @param mainSourceRoots main source roots, empty when there are none, {@code null} when not configured
-   * @param testSourceRoots test source roots, empty when there are none, {@code null} when not configured
-   * @throws ArchitectureRunnerError when no package is given, since a rule could then verify nothing
+   * @param packages root packages to verify, at least one
+   * @return builder of the context
    */
-  public ArchitectureContext(Collection<String> packages, List<Path> mainSourceRoots, List<Path> testSourceRoots) {
-    this.packages = requirePackages(packages);
-    this.mainSources = new JavaSources(MAIN_SOURCES_PROPERTY, mainSourceRoots, this.packages);
-    this.testSources = new JavaSources(TEST_SOURCES_PROPERTY, testSourceRoots, this.packages);
+  public static Builder builder(Collection<String> packages) {
+    return new Builder(packages);
   }
 
   /**
-   * Creates a context from {@link #PACKAGES_PROPERTY}, {@link #MAIN_SOURCES_PROPERTY} and
-   * {@link #TEST_SOURCES_PROPERTY}. A source property that is absent leaves that group unconfigured.
+   * Creates a context from {@link #PACKAGES_PROPERTY} and the class and source properties. A class or source
+   * property that is absent leaves that group unconfigured.
    *
-   * @return context covering the configured packages and sources
+   * @return context covering the configured packages, classes and sources
    * @throws ArchitectureRunnerError when the package property is missing or names no package
    */
   public static ArchitectureContext fromSystemProperties() {
-    return new ArchitectureContext(
-        parsePackages(System.getProperty(PACKAGES_PROPERTY)),
-        parseRoots(System.getProperty(MAIN_SOURCES_PROPERTY)),
-        parseRoots(System.getProperty(TEST_SOURCES_PROPERTY)));
+    return builder(parsePackages(System.getProperty(PACKAGES_PROPERTY)))
+        .mainClasses(parseRoots(System.getProperty(MAIN_CLASSES_PROPERTY)))
+        .testClasses(parseRoots(System.getProperty(TEST_CLASSES_PROPERTY)))
+        .mainSources(parseRoots(System.getProperty(MAIN_SOURCES_PROPERTY)))
+        .testSources(parseRoots(System.getProperty(TEST_SOURCES_PROPERTY)))
+        .build();
   }
 
   /**
@@ -163,16 +185,59 @@ public class ArchitectureContext implements AutoCloseable {
   /**
    * Returns every class under {@link #packages()} as an ArchUnit model, importing it on first call.
    *
+   * <p>When class directories are configured, only those directories are imported, so neither the runner nor
+   * any dependency on the classpath is verified. Otherwise the packages are imported from the classpath.
+   *
    * @return all classes of the covered packages
    */
   public JavaClasses all() {
     requireOpen();
     synchronized (javaClassesLock) {
       if (Objects.isNull(javaClasses)) {
-        javaClasses = new ClassFileImporter().importPackages(packages);
+        javaClasses = importClasses();
       }
       return javaClasses;
     }
+  }
+
+  /**
+   * Returns the configured main class directories.
+   *
+   * @return immutable list of directories, empty when the project has no main classes
+   * @throws ArchitectureRunnerError when no main class directory was configured
+   */
+  public List<Path> mainClassDirs() {
+    return requireClassDirs(mainClassDirs, MAIN_CLASSES_PROPERTY);
+  }
+
+  /**
+   * Returns the configured test class directories.
+   *
+   * @return immutable list of directories, empty when the project has no test classes
+   * @throws ArchitectureRunnerError when no test class directory was configured
+   */
+  public List<Path> testClassDirs() {
+    return requireClassDirs(testClassDirs, TEST_CLASSES_PROPERTY);
+  }
+
+  /**
+   * Returns the classes compiled from the main source set, a view of {@link #all()}.
+   *
+   * @return main classes of the covered packages
+   * @throws ArchitectureRunnerError when no main class directory was configured
+   */
+  public JavaClasses mainClasses() {
+    return all().that(locatedIn(mainClassDirs()));
+  }
+
+  /**
+   * Returns the classes compiled from the test source sets, a view of {@link #all()}.
+   *
+   * @return test classes of the covered packages
+   * @throws ArchitectureRunnerError when no test class directory was configured
+   */
+  public JavaClasses testClasses() {
+    return all().that(locatedIn(testClassDirs()));
   }
 
   /**
@@ -184,7 +249,11 @@ public class ArchitectureContext implements AutoCloseable {
     requireOpen();
     synchronized (scanResultLock) {
       if (Objects.isNull(scanResult)) {
-        scanResult = new ClassGraph()
+        ClassGraph classGraph = new ClassGraph();
+        if (hasClassDirs()) {
+          classGraph.overrideClasspath(existingClassDirs());
+        }
+        scanResult = classGraph
             .acceptPackages(packages.toArray(String[]::new))
             .enableClassInfo()
             .enableMethodInfo()
@@ -213,6 +282,58 @@ public class ArchitectureContext implements AutoCloseable {
     }
   }
 
+  private JavaClasses importClasses() {
+    if (!hasClassDirs()) {
+      return new ClassFileImporter().importPackages(packages);
+    }
+    String[] patterns = packages.stream().map(name -> name + "..").toArray(String[]::new);
+    return new ClassFileImporter()
+        .importPaths(existingClassDirs())
+        .that(JavaClass.Predicates.resideInAnyPackage(patterns));
+  }
+
+  private boolean hasClassDirs() {
+    return Objects.nonNull(mainClassDirs) || Objects.nonNull(testClassDirs);
+  }
+
+  private List<Path> classDirs() {
+    return Stream.of(mainClassDirs, testClassDirs)
+        .filter(Objects::nonNull)
+        .flatMap(List::stream)
+        .toList();
+  }
+
+  private List<Path> existingClassDirs() {
+    List<Path> existing = classDirs().stream().filter(Files::isDirectory).toList();
+    if (existing.isEmpty()) {
+      throw new ArchitectureRunnerError("""
+          None of the configured class directories %s exists, so there is no class to verify. Build the classes \
+          first, or do not run the verification for a project without code.""".formatted(classDirs()));
+    }
+    return existing;
+  }
+
+  private static List<Path> requireClassDirs(List<Path> dirs, String property) {
+    if (Objects.isNull(dirs)) {
+      throw new ArchitectureRunnerError("""
+          No class directory was configured through -D%s, so main and test classes cannot be told apart. Pass \
+          the compiled class directories, for example -D%s=build/classes/java/main.""".formatted(property, property));
+    }
+    return dirs;
+  }
+
+  private static DescribedPredicate<JavaClass> locatedIn(List<Path> dirs) {
+    List<Path> roots = dirs.stream().map(dir -> dir.toAbsolutePath().normalize()).toList();
+    return DescribedPredicate.describe("located in " + roots, javaClass -> javaClass.getSource()
+        .map(source -> Path.of(source.getUri()).toAbsolutePath().normalize())
+        .filter(location -> roots.stream().anyMatch(location::startsWith))
+        .isPresent());
+  }
+
+  private static List<Path> copyOrNull(List<Path> paths) {
+    return Objects.isNull(paths) ? null : List.copyOf(paths);
+  }
+
   private static List<String> requirePackages(Collection<String> packages) {
     if (Objects.isNull(packages) || packages.isEmpty()) {
       throw new ArchitectureRunnerError("""
@@ -220,6 +341,77 @@ public class ArchitectureContext implements AutoCloseable {
           packages of the project, for example -D%s=com.example.""".formatted(PACKAGES_PROPERTY));
     }
     return List.copyOf(packages);
+  }
+
+  /**
+   * Configures an {@link ArchitectureContext}. Every group is optional: {@code null} leaves it unconfigured, an
+   * empty list states that the project has none.
+   */
+  public static final class Builder {
+
+    private final Collection<String> packages;
+    private List<Path> mainClasses;
+    private List<Path> testClasses;
+    private List<Path> mainSources;
+    private List<Path> testSources;
+
+    private Builder(Collection<String> packages) {
+      this.packages = packages;
+    }
+
+    /**
+     * Sets the directories the main classes are compiled into.
+     *
+     * @param dirs class directories, empty when there are none, {@code null} when not configured
+     * @return this builder
+     */
+    public Builder mainClasses(List<Path> dirs) {
+      this.mainClasses = dirs;
+      return this;
+    }
+
+    /**
+     * Sets the directories the test classes are compiled into.
+     *
+     * @param dirs class directories, empty when there are none, {@code null} when not configured
+     * @return this builder
+     */
+    public Builder testClasses(List<Path> dirs) {
+      this.testClasses = dirs;
+      return this;
+    }
+
+    /**
+     * Sets the main source roots read by {@link ArchitectureContext#mainSources()}.
+     *
+     * @param roots source roots, empty when there are none, {@code null} when not configured
+     * @return this builder
+     */
+    public Builder mainSources(List<Path> roots) {
+      this.mainSources = roots;
+      return this;
+    }
+
+    /**
+     * Sets the test source roots read by {@link ArchitectureContext#testSources()}.
+     *
+     * @param roots source roots, empty when there are none, {@code null} when not configured
+     * @return this builder
+     */
+    public Builder testSources(List<Path> roots) {
+      this.testSources = roots;
+      return this;
+    }
+
+    /**
+     * Creates the context.
+     *
+     * @return the configured context
+     * @throws ArchitectureRunnerError when no package is given
+     */
+    public ArchitectureContext build() {
+      return new ArchitectureContext(this);
+    }
   }
 
   private void requireOpen() {

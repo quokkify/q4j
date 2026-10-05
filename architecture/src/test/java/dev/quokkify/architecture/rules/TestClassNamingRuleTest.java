@@ -56,8 +56,9 @@ public class TestClassNamingRuleTest {
 
   @Test
   public void projectDeclaringNoTestSourcesHasNothingToVerify() {
-    try (ArchitectureContext context = new ArchitectureContext(
-        List.of(FIXTURES + "empty"), List.of(), List.of())) {
+    try (ArchitectureContext context = ArchitectureContext.builder(List.of(FIXTURES + "empty"))
+        .testSources(List.of())
+        .build()) {
       assertThatCode(() -> rule.verify(context)).doesNotThrowAnyException();
     }
   }
