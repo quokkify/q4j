@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.8.0](https://github.com/quokkify/q4j/compare/v0.7.1...v0.8.0) (2026-10-05)
+
+
+### ✨ Features
+
+* **console:** serialize concurrent SSH commands per target ([#672](https://github.com/quokkify/q4j/issues/672)) ([7df4993](https://github.com/quokkify/q4j/commit/7df4993713f54deeaeadee20dcfccb9d14d511ad))
+* **testng-extensions:** allow running @SingleThread tests in parallel ([#671](https://github.com/quokkify/q4j/issues/671)) ([8d36c00](https://github.com/quokkify/q4j/commit/8d36c000f84f74af32fefae93abc781e62e8556f))
+
 ## [0.7.1](https://github.com/quokkify/q4j/compare/v0.7.0...v0.7.1) (2026-10-04)
 
 
