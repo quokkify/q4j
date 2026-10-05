@@ -1,5 +1,6 @@
 package dev.quokkify.architecture.rules;
 
+import dev.quokkify.architecture.contract.ClassScope;
 import dev.quokkify.architecture.contract.RuleSeverity;
 import dev.quokkify.architecture.taikai.TaikaiArchitectureRule;
 
@@ -8,8 +9,8 @@ import com.enofex.taikai.Taikai;
 /**
  * General Java conventions taken from Taikai's {@code java} and {@code logging} rule sets.
  *
- * <p>Only conventions that hold for main and test code alike are included: Taikai evaluates them against every
- * class of the run, tests included.
+ * <p>Only conventions that hold for main and test code alike are included, and they are verified against both
+ * ({@link ClassScope#ALL}).
  *
  * <ul>
  *   <li>a class overriding {@code equals} or {@code hashCode} overrides both;</li>
@@ -30,6 +31,11 @@ public class JavaConventionsRule extends TaikaiArchitectureRule {
   @Override
   public RuleSeverity severity() {
     return RuleSeverity.ERROR;
+  }
+
+  @Override
+  protected ClassScope scope() {
+    return ClassScope.ALL;
   }
 
   @Override

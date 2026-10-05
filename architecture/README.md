@@ -53,6 +53,8 @@ val verifyArchitecture by tasks.registering(JavaExec::class) {
     mainClass = "dev.quokkify.architecture.ArchitectureRunner"
     classpath = architecture + sourceSets.main.get().runtimeClasspath + sourceSets.test.get().output
     systemProperty("architecture.packages", "com.example")
+    systemProperty("architecture.main.classes", sourceSets.main.get().output.classesDirs.asPath.replace(File.pathSeparator, ","))
+    systemProperty("architecture.test.classes", sourceSets.test.get().output.classesDirs.asPath.replace(File.pathSeparator, ","))
     systemProperty("architecture.main.sources", file("src/main/java").absolutePath)
     systemProperty("architecture.test.sources", file("src/test/java").absolutePath)
 }
@@ -70,6 +72,8 @@ Q4J applies itself the same way: see `verifyArchitecture` in [`gradle/architectu
 | --------------------------- | ---------- | ------------------------------------------------------------------------------ |
 | `architecture.packages`     | _required_ | Comma separated root packages to scan                                          |
 | `architecture.fail.on`      | `WARNING`  | Least severe finding that fails the run: `INFO`, `WARNING`, `ERROR` or `NEVER` |
+| `architecture.main.classes` | _unset_    | Comma separated main class directories for `mainClasses()`; empty means none   |
+| `architecture.test.classes` | _unset_    | Comma separated test class directories for `testClasses()`; empty means none   |
 | `architecture.main.sources` | _unset_    | Comma separated main source roots for `mainSources()`; empty means none        |
 | `architecture.test.sources` | _unset_    | Comma separated test source roots for `testSources()`; empty means none        |
 
@@ -146,8 +150,14 @@ reads. A rule that cannot run proves nothing and must never turn into a green `W
 | Accessor                         | Backed by  | Use it for                                                  |
 | -------------------------------- | ---------- | ----------------------------------------------------------- |
 | `all()`                          | ArchUnit   | dependencies and layering between classes                   |
+| `mainClasses()`, `testClasses()` | ArchUnit   | the same, restricted to main or test classes                |
 | `scan()`                         | ClassGraph | class, method and annotation metadata                       |
 | `mainSources()`, `testSources()` | JavaParser | content of classes and methods: calls, literals, statements |
+
+When class directories are set, the ArchUnit and ClassGraph models contain only those directories: the runner,
+your dependencies and anything else on the classpath are never verified. When main and test sources are set
+too, the ArchUnit models also drop every class whose top level type has no authored Java source, so generated
+code (QueryDSL, annotation processors) is not verified either.
 
 Every model is built lazily, once per run, and shared by every rule. Rules only read them. A source file that
 does not parse aborts the run instead of being skipped, and so do sources of which none lies under
@@ -173,7 +183,7 @@ Calls are matched syntactically: JavaParser runs without a symbol solver, so a r
 ### Reusing Taikai rules
 
 [Taikai](https://github.com/enofex/taikai) ships predefined ArchUnit rule sets. Extend `TaikaiArchitectureRule`
-to run one of them inside this runner. Taikai then evaluates against the shared `all()` model, and its findings
+to run one of them inside this runner. Taikai then evaluates against the shared ArchUnit model, and its findings
 land in the same report under the severity of your rule:
 
 ```java
@@ -186,7 +196,12 @@ public class NoDeprecatedApiRule extends TaikaiArchitectureRule {
 
   @Override
   public RuleSeverity severity() {
-    return RuleSeverity.WARNING;
+    return RuleSeverity.INFO;
+  }
+
+  @Override
+  protected ClassScope scope() {
+    return ClassScope.ALL;
   }
 
   @Override
@@ -196,8 +211,15 @@ public class NoDeprecatedApiRule extends TaikaiArchitectureRule {
 }
 ```
 
-The adapter supplies the classes, so `configure` must not set a namespace or classes. One adapter rule is one
-report entry with one severity. Split rule sets that need different severities into separate classes.
+- `scope()` picks the classes: `MAIN` (the default, like Taikai's own), `TEST` or `ALL`. The adapter supplies
+  them, so `configure` must not set a namespace or classes.
+- A single Taikai rule that matches no class holds, for example the `serialVersionUID` convention in a module
+  without serializable classes. A scope that imports no class at all aborts the run, unless its class
+  directories are configured as empty.
+- The adapter never changes the global ArchUnit configuration: Taikai's `failOnEmpty` write is neutralised, so
+  your `archunit.properties` and concurrently evaluated rules keep their behaviour.
+- One adapter rule is one report entry with one severity. Split rule sets that need different severities into
+  separate classes.
 
 Rule names are part of the report contract: the report is sorted by `name()`, not by classpath order.
 
@@ -205,15 +227,15 @@ Rule names are part of the report contract: the report is sorted by `name()`, no
 
 ## 📚 Shipped rules
 
-| Rule                  | Severity  | Protects                                                                                              |
-| --------------------- | --------- | ----------------------------------------------------------------------------------------------------- |
-| `TestClassNamingRule` | `ERROR`   | A class declaring TestNG `@Test` must be named `*Test`, or name based selection never runs it         |
-| `NoConsoleOutputRule` | `ERROR`   | Main code must log through a logger, not `System.out`, `System.err` or `printStackTrace()`            |
-| `JavaConventionsRule` | `ERROR`   | Taikai: `equals`/`hashCode` together, `serialVersionUID`, package and interface naming, `LOG` loggers |
-| `NoDeprecatedApiRule` | `WARNING` | Taikai: no use of deprecated APIs                                                                     |
+| Rule                  | Severity | Protects                                                                                              |
+| --------------------- | -------- | ----------------------------------------------------------------------------------------------------- |
+| `TestClassNamingRule` | `ERROR`  | A class declaring TestNG `@Test` must be named `*Test`, or name based selection never runs it         |
+| `NoConsoleOutputRule` | `ERROR`  | Taikai and ArchUnit: main code logs instead of `System.out`/`err`, `printStackTrace()`, `dumpStack()` |
+| `JavaConventionsRule` | `ERROR`  | Taikai: `equals`/`hashCode` together, `serialVersionUID`, package and interface naming, `LOG` loggers |
+| `NoDeprecatedApiRule` | `INFO`   | Taikai: reports use of deprecated APIs without blocking dependency updates                            |
 
 Q4J applies the rules listed in [`tools/architecture`](../tools/architecture/META-INF/services) to every
-module: each module's `check` runs its own `verifyArchitecture` on its compiled classes and on the authored
-sources of its source sets (`main` as main sources, every other source set as test sources; generated sources
+module with compiled classes: each module's `check` runs its own `verifyArchitecture` on the class directories
+and authored sources of its source sets (`main` as main, every other source set as test; generated sources
 under `build/` are not verified), so every CI build job verifies the module it builds. `:architecture` itself is
 skipped, since its test fixtures violate the rules on purpose.
