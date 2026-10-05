@@ -36,6 +36,11 @@ subprojects {
     }
     def mainClasses = compiled(mainSourceSets())
     def testClasses = compiled(testSourceSets())
+    def processed = { Collection<SourceSet> sets ->
+        files({ sets.collect { it.output.resourcesDir } })
+    }
+    def mainResources = processed(mainSourceSets())
+    def testResources = processed(testSourceSets())
 
     def verifiedMarker = layout.buildDirectory.file('architecture/verified')
     def verifyArchitecture = tasks.register('verifyArchitecture', JavaExec) {
@@ -66,6 +71,8 @@ subprojects {
             // Only these directories are verified, so the runner and the dependencies on the classpath are not.
             systemProperty 'architecture.main.classes', mainClasses.files.findAll { it.directory }.join(',')
             systemProperty 'architecture.test.classes', testClasses.files.findAll { it.directory }.join(',')
+            systemProperty 'architecture.main.resources', mainResources.files.findAll { it.directory }.join(',')
+            systemProperty 'architecture.test.resources', testResources.files.findAll { it.directory }.join(',')
             systemProperty 'architecture.main.sources', mainSources.files.join(',')
             systemProperty 'architecture.test.sources', testSources.files.join(',')
         }

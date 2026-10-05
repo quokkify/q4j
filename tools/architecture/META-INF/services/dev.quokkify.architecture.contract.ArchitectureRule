@@ -3,4 +3,5 @@
 dev.quokkify.architecture.rules.JavaConventionsRule
 dev.quokkify.architecture.rules.NoConsoleOutputRule
 dev.quokkify.architecture.rules.NoDeprecatedApiRule
+dev.quokkify.architecture.rules.ServiceRegistrationRule
 dev.quokkify.architecture.rules.TestClassNamingRule

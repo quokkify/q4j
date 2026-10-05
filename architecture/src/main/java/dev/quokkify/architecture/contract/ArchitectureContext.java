@@ -17,6 +17,7 @@ import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import io.github.classgraph.ClassGraph;
+import io.github.classgraph.ResourceList;
 import io.github.classgraph.ScanResult;
 
 /**
@@ -26,11 +27,13 @@ import io.github.classgraph.ScanResult;
  * any particular project: the consumer names its root packages through {@link #PACKAGES_PROPERTY} or the
  * constructor, and every rule reads the same selection.
  *
- * <p>Three models are offered. The ArchUnit {@link JavaClasses} of {@link #all()}, with its
+ * <p>Four models are offered. The ArchUnit {@link JavaClasses} of {@link #all()}, with its
  * {@link #mainClasses()} and {@link #testClasses()} views, and the ClassGraph {@link ScanResult} read bytecode;
  * {@link #mainSources()} and {@link #testSources()} hold JavaParser syntax trees for rules that verify the
- * content of classes and methods. Each is created lazily on first use and then cached, so a scan or a parse
- * happens at most once per verification run regardless of how many rules are registered. With class
+ * content of classes and methods; the ClassGraph {@link #resources()} list the non-class files of the
+ * project, such as {@code META-INF/services} registrations. Each is created lazily on first use and then
+ * cached, so a scan or a parse happens at most once per verification run regardless of how many rules are
+ * registered. With class
  * directories configured, only those directories are verified; with sources configured as well, generated
  * classes are left out of the ArchUnit models.
  *
@@ -71,19 +74,36 @@ public class ArchitectureContext implements AutoCloseable {
    */
   public static final String TEST_CLASSES_PROPERTY = "architecture.test.classes";
 
+  /**
+   * Comma separated main resource directories, for example
+   * {@code -Darchitecture.main.resources=build/resources/main}.
+   */
+  public static final String MAIN_RESOURCES_PROPERTY = "architecture.main.resources";
+
+  /**
+   * Comma separated test resource directories, for example
+   * {@code -Darchitecture.test.resources=build/resources/test}.
+   */
+  public static final String TEST_RESOURCES_PROPERTY = "architecture.test.resources";
+
   private static final String PACKAGE_INFO = "package-info";
 
   private final List<String> packages;
   private final List<Path> mainClassDirs;
   private final List<Path> testClassDirs;
+  private final List<Path> mainResourceDirs;
+  private final List<Path> testResourceDirs;
   private final JavaSources mainSources;
   private final JavaSources testSources;
 
   private final Object javaClassesLock = new Object();
   private final Object scanResultLock = new Object();
+  private final Object resourcesLock = new Object();
 
   private volatile JavaClasses javaClasses;
   private volatile ScanResult scanResult;
+  private volatile ScanResult resourceScan;
+  private volatile ResourceList resources;
   private volatile boolean closed;
 
   /**
@@ -100,12 +120,15 @@ public class ArchitectureContext implements AutoCloseable {
     this.packages = requirePackages(builder.packages);
     this.mainClassDirs = copyOrNull(builder.mainClasses);
     this.testClassDirs = copyOrNull(builder.testClasses);
+    this.mainResourceDirs = copyOrNull(builder.mainResources);
+    this.testResourceDirs = copyOrNull(builder.testResources);
     this.mainSources = new JavaSources(MAIN_SOURCES_PROPERTY, builder.mainSources, this.packages);
     this.testSources = new JavaSources(TEST_SOURCES_PROPERTY, builder.testSources, this.packages);
   }
 
   /**
-   * Starts a context covering the given root packages; class directories and source roots are optional.
+   * Starts a context covering the given root packages; class and resource directories and source roots are
+   * optional.
    *
    * @param packages root packages to verify, at least one
    * @return builder of the context
@@ -115,16 +138,18 @@ public class ArchitectureContext implements AutoCloseable {
   }
 
   /**
-   * Creates a context from {@link #PACKAGES_PROPERTY} and the class and source properties. A class or source
-   * property that is absent leaves that group unconfigured.
+   * Creates a context from {@link #PACKAGES_PROPERTY} and the class, resource and source properties. A class,
+   * resource or source property that is absent leaves that group unconfigured.
    *
-   * @return context covering the configured packages, classes and sources
+   * @return context covering the configured packages, classes, resources and sources
    * @throws ArchitectureRunnerError when the package property is missing or names no package
    */
   public static ArchitectureContext fromSystemProperties() {
     return builder(parsePackages(System.getProperty(PACKAGES_PROPERTY)))
         .mainClasses(parseRoots(System.getProperty(MAIN_CLASSES_PROPERTY)))
         .testClasses(parseRoots(System.getProperty(TEST_CLASSES_PROPERTY)))
+        .mainResources(parseRoots(System.getProperty(MAIN_RESOURCES_PROPERTY)))
+        .testResources(parseRoots(System.getProperty(TEST_RESOURCES_PROPERTY)))
         .mainSources(parseRoots(System.getProperty(MAIN_SOURCES_PROPERTY)))
         .testSources(parseRoots(System.getProperty(TEST_SOURCES_PROPERTY)))
         .build();
@@ -252,7 +277,10 @@ public class ArchitectureContext implements AutoCloseable {
   }
 
   /**
-   * Returns the ClassGraph scan used for annotation and method metadata queries.
+   * Returns the ClassGraph scan used for class, method, field and annotation metadata queries.
+   *
+   * <p>Fields carry the values of their {@code static final} constant initializers, which the compiler inlines
+   * at every use, so that ArchUnit cannot see them.
    *
    * @return scan result covering {@link #packages()}
    */
@@ -272,8 +300,11 @@ public class ArchitectureContext implements AutoCloseable {
             .acceptPackages(packages.toArray(String[]::new))
             .enableClassInfo()
             .enableMethodInfo()
+            .enableFieldInfo()
+            .enableStaticFinalFieldConstantInitializerValues()
             .enableAnnotationInfo()
             .ignoreMethodVisibility()
+            .ignoreFieldVisibility()
             .scan();
       }
       return scanResult;
@@ -281,7 +312,31 @@ public class ArchitectureContext implements AutoCloseable {
   }
 
   /**
-   * Releases the ClassGraph scan result and makes this context unusable.
+   * Returns every file of the configured main and test resource directories, scanned with ClassGraph on first
+   * call.
+   *
+   * <p>Bytecode models only hold classes, so registrations and configuration shipped next to them, such as
+   * {@code META-INF/services} files, are read here. Unlike {@link #scan()}, the resources are not limited to
+   * {@link #packages()}: most resources lie outside any package. A configured directory that does not exist is
+   * skipped, since a module without resources has no resource directory.
+   *
+   * @return resources of both groups, readable until this context is closed
+   * @throws ArchitectureRunnerError when either resource group was not configured
+   */
+  public ResourceList resources() {
+    requireOpen();
+    synchronized (resourcesLock) {
+      // Checked again under the lock, as in scan(): a scan created after close() would never be closed.
+      requireOpen();
+      if (Objects.isNull(resources)) {
+        resources = scanResources();
+      }
+      return resources;
+    }
+  }
+
+  /**
+   * Releases the ClassGraph scan results and makes this context unusable.
    *
    * <p>Closing marks the context instead of clearing the cached scan, so a rule that runs after the
    * verification finished fails loudly rather than silently triggering a second full classpath scan whose
@@ -290,11 +345,41 @@ public class ArchitectureContext implements AutoCloseable {
   @Override
   public void close() {
     closed = true;
-    synchronized (scanResultLock) {
-      if (Objects.nonNull(scanResult)) {
-        scanResult.close();
+    try {
+      synchronized (scanResultLock) {
+        if (Objects.nonNull(scanResult)) {
+          scanResult.close();
+        }
+      }
+    } finally {
+      synchronized (resourcesLock) {
+        if (Objects.nonNull(resourceScan)) {
+          resourceScan.close();
+        }
       }
     }
+  }
+
+  /**
+   * Main resources without test resources, or the reverse, would leave a resource rule silently missing one half
+   * of the project, so both groups are required.
+   */
+  private ResourceList scanResources() {
+    if (Objects.isNull(mainResourceDirs) || Objects.isNull(testResourceDirs)) {
+      throw new ArchitectureRunnerError("""
+          Resource directories were not configured through both -D%s and -D%s, so a rule reading resources \
+          could not verify them. Set both, an empty value meaning that the project has no such resources.\
+          """.formatted(MAIN_RESOURCES_PROPERTY, TEST_RESOURCES_PROPERTY));
+    }
+    List<Path> existing = Stream.concat(mainResourceDirs.stream(), testResourceDirs.stream())
+        .filter(Files::isDirectory)
+        .toList();
+    if (existing.isEmpty()) {
+      // ClassGraph rejects an empty classpath override.
+      return new ResourceList();
+    }
+    resourceScan = new ClassGraph().overrideClasspath(existing).scan();
+    return resourceScan.getAllResources();
   }
 
   private JavaClasses importClasses() {
@@ -427,6 +512,8 @@ public class ArchitectureContext implements AutoCloseable {
     private final Collection<String> packages;
     private List<Path> mainClasses;
     private List<Path> testClasses;
+    private List<Path> mainResources;
+    private List<Path> testResources;
     private List<Path> mainSources;
     private List<Path> testSources;
 
@@ -453,6 +540,28 @@ public class ArchitectureContext implements AutoCloseable {
      */
     public Builder testClasses(List<Path> dirs) {
       this.testClasses = dirs;
+      return this;
+    }
+
+    /**
+     * Sets the directories the main resources are processed into, read by {@link ArchitectureContext#resources()}.
+     *
+     * @param dirs resource directories, empty when there are none, {@code null} when not configured
+     * @return this builder
+     */
+    public Builder mainResources(List<Path> dirs) {
+      this.mainResources = dirs;
+      return this;
+    }
+
+    /**
+     * Sets the directories the test resources are processed into, read by {@link ArchitectureContext#resources()}.
+     *
+     * @param dirs resource directories, empty when there are none, {@code null} when not configured
+     * @return this builder
+     */
+    public Builder testResources(List<Path> dirs) {
+      this.testResources = dirs;
       return this;
     }
 

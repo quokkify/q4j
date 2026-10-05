@@ -6,6 +6,7 @@ import java.util.List;
 import dev.quokkify.architecture.ArchitectureRunner;
 import dev.quokkify.architecture.ClassDirs;
 import dev.quokkify.architecture.exceptions.ArchitectureRunnerError;
+import dev.quokkify.architecture.fixtures.services.PoliteGreeting;
 import dev.quokkify.architecture.fixtures.taikai.clean.QuietLogging;
 import dev.quokkify.architecture.fixtures.taikai.violating.LowercaseLogger;
 
@@ -117,6 +118,39 @@ public class ArchitectureContextTest {
   }
 
   @Test
+  public void scanExposesConstantsTheCompilerInlines() {
+    try (ArchitectureContext context = new ArchitectureContext(List.of("dev.quokkify.architecture.fixtures.services"))) {
+      assertThat(context.scan().getClassInfo(PoliteGreeting.class.getName()).getFieldInfo("TEXT")
+          .getConstantInitializerValue())
+          .isEqualTo(PoliteGreeting.TEXT);
+    }
+  }
+
+  @Test
+  public void resourcesAreReadFromTheConfiguredDirectoriesOnly() {
+    try (ArchitectureContext context = ArchitectureContext.builder(PACKAGES)
+        .mainResources(List.of(Path.of("src/test/resources/services/registered")))
+        .testResources(List.of(Path.of("src/test/resources/services/absent")))
+        .build()) {
+      assertThat(context.resources().getPaths())
+          .as("the log4j2-test.xml on the test classpath lies outside the configured directories")
+          .containsExactly("META-INF/services/dev.quokkify.architecture.fixtures.services.Greeting");
+    }
+  }
+
+  @Test
+  public void oneResourceGroupWithoutTheOtherCannotRun() {
+    try (ArchitectureContext context = ArchitectureContext.builder(PACKAGES)
+        .mainResources(List.of())
+        .build()) {
+      assertThatThrownBy(context::resources)
+          .as("a resource rule would silently miss the test resources")
+          .isInstanceOf(ArchitectureRunnerError.class)
+          .hasMessageContaining(ArchitectureContext.TEST_RESOURCES_PROPERTY);
+    }
+  }
+
+  @Test
   public void contextWithoutPackagesCannotRun() {
     assertThatThrownBy(() -> new ArchitectureContext(List.of()))
         .as("a context covering nothing would let every rule pass without verifying anything")
@@ -132,6 +166,7 @@ public class ArchitectureContextTest {
     assertThatThrownBy(context::scan).isInstanceOf(IllegalStateException.class);
     assertThatThrownBy(context::all).isInstanceOf(IllegalStateException.class);
     assertThatThrownBy(context::mainSources).isInstanceOf(IllegalStateException.class);
+    assertThatThrownBy(context::resources).isInstanceOf(IllegalStateException.class);
   }
 
   private static List<String> names(Iterable<JavaClass> classes) {
