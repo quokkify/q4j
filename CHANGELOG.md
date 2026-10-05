@@ -2,6 +2,90 @@
 
 ## [0.9.0](https://github.com/quokkify/q4j/compare/v0.8.0...v0.9.0) (2026-10-05)
 
+<!-- project-toolkit:rich-block:start -->
+### ✨ Highlights
+<!-- project-toolkit:rich-release-notes pr=687 -->
+#### **architecture:** richer verification report with rule scopes (#687)
+The architecture report shows what each rule verifies, its severity and its own duration, lists how long each shared model took to build, and names the module.
+
+Before:
+```text
+15:47:04 [INFO ] PluginLoader - Detected Java version 21.0.12.1
+15:47:05 [INFO ] ArchitectureRunner -
+============================================================
+Architecture verification (5 rules)
+============================================================
+[PASS]  Java conventions (Taikai)
+[PASS]  No console output in main code
+[PASS]  No deprecated API usage (Taikai)
+[PASS]  Service registrations resolve
+[PASS]  Test class naming
+============================================================
+Architecture verification: 5 passed, 0 error(s), 0 warning(s), 0 info in 1045 ms
+============================================================
+15:47:05 [INFO ] ArchitectureRunner - Gate: fail on ERROR -> passed
+```
+
+After (`--console=plain`; a terminal gets the same report colored, with ✔ ✘ ⚠ ℹ):
+```text
+============================================================
+Architecture verification of :common-utils:jackson:json (5 rules)
+============================================================
+Shared models, built once (rule times below exclude them):
+  ArchUnit classes         327 ms
+  JavaParser main sources   75 ms
+  JavaParser test sources   21 ms
+  ClassGraph classes        19 ms
+  ClassGraph resources      18 ms
+------------------------------------------------------------
+[PASS]  Java conventions (Taikai)         MAIN+TEST  ERROR    22 ms
+[PASS]  No console output in main code    MAIN       ERROR    19 ms
+[PASS]  No deprecated API usage (Taikai)  MAIN+TEST  WARNING  35 ms
+[PASS]  Service registrations resolve     RESOURCES  ERROR     6 ms
+[PASS]  Test class naming                 TEST       ERROR     1 ms
+============================================================
+Architecture verification: 5 passed, 0 error(s), 0 warning(s), 0 info in 498 ms
+============================================================
+Gate: fail on ERROR -> passed
+```
+
+### 💡 Usage Examples
+<!-- project-toolkit:rich-release-notes pr=682 -->
+#### **architecture:** add architecture verification module (#682)
+```kotlin
+val architecture by configurations.creating
+
+dependencies {
+    architecture("dev.quokkify:architecture:<version>")
+    architecture("org.apache.logging.log4j:log4j-core:<version>")
+}
+
+val verifyArchitecture by tasks.registering(JavaExec::class) {
+    mainClass = "dev.quokkify.architecture.ArchitectureRunner"
+    classpath = architecture + sourceSets.main.get().runtimeClasspath + sourceSets.test.get().output
+    systemProperty("architecture.packages", "com.example")
+    systemProperty("architecture.main.sources", file("src/main/java").absolutePath)
+    systemProperty("architecture.test.sources", file("src/test/java").absolutePath)
+}
+
+tasks.check { dependsOn(verifyArchitecture) }
+```
+
+Register the rules to apply in `META-INF/services/dev.quokkify.architecture.contract.ArchitectureRule`. See `architecture/README.md`.
+
+<!-- project-toolkit:rich-release-notes pr=687 -->
+#### **architecture:** richer verification report with rule scopes (#687)
+A custom rule declares what it verifies:
+
+```java
+@Override
+public Set<RuleScope> scopes() {
+  return Set.of(RuleScope.MAIN);
+}
+```
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+<!-- project-toolkit:rich-block:end -->
 
 ### ✨ Features
 
