@@ -17,6 +17,7 @@ subprojects {
     dependencies {
         architectureRunner project(':architecture')
         architectureRunner rootProject.libs.log4j.core
+        architectureRunner rootProject.libs.log4j.slf4j2.impl
     }
 
     // Read lazily, after the module's own build script adjusted its source sets. Every source set other

@@ -5,6 +5,7 @@ Build gate for architecture and project contracts that would otherwise only be c
 - ✅ One runner, rules discovered through the `ServiceLoader`
 - ✅ Shared ArchUnit and ClassGraph model, scanned once per run
 - ✅ JavaParser source model for rules that read method bodies
+- ✅ Taikai rule sets through one adapter
 - ✅ Severity per rule, gate threshold per build
 - ✅ A rule that cannot run fails the build instead of passing silently
 
@@ -169,16 +170,47 @@ public void verify(ArchitectureContext context) {
 
 Calls are matched syntactically: JavaParser runs without a symbol solver, so a rule sees names, not resolved types.
 
+### Reusing Taikai rules
+
+[Taikai](https://github.com/enofex/taikai) ships predefined ArchUnit rule sets. Extend `TaikaiArchitectureRule`
+to run one of them inside this runner. Taikai then evaluates against the shared `all()` model, and its findings
+land in the same report under the severity of your rule:
+
+```java
+public class NoDeprecatedApiRule extends TaikaiArchitectureRule {
+
+  @Override
+  public String name() {
+    return "No deprecated API usage (Taikai)";
+  }
+
+  @Override
+  public RuleSeverity severity() {
+    return RuleSeverity.WARNING;
+  }
+
+  @Override
+  protected void configure(Taikai.Builder builder) {
+    builder.java(java -> java.noUsageOfDeprecatedAPIs());
+  }
+}
+```
+
+The adapter supplies the classes, so `configure` must not set a namespace or classes. One adapter rule is one
+report entry with one severity. Split rule sets that need different severities into separate classes.
+
 Rule names are part of the report contract: the report is sorted by `name()`, not by classpath order.
 
 ---
 
 ## 📚 Shipped rules
 
-| Rule                  | Severity | Protects                                                                                      |
-| --------------------- | -------- | --------------------------------------------------------------------------------------------- |
-| `TestClassNamingRule` | `ERROR`  | A class declaring TestNG `@Test` must be named `*Test`, or name based selection never runs it |
-| `NoConsoleOutputRule` | `ERROR`  | Main code must log through a logger, not `System.out`, `System.err` or `printStackTrace()`    |
+| Rule                  | Severity  | Protects                                                                                              |
+| --------------------- | --------- | ----------------------------------------------------------------------------------------------------- |
+| `TestClassNamingRule` | `ERROR`   | A class declaring TestNG `@Test` must be named `*Test`, or name based selection never runs it         |
+| `NoConsoleOutputRule` | `ERROR`   | Main code must log through a logger, not `System.out`, `System.err` or `printStackTrace()`            |
+| `JavaConventionsRule` | `ERROR`   | Taikai: `equals`/`hashCode` together, `serialVersionUID`, package and interface naming, `LOG` loggers |
+| `NoDeprecatedApiRule` | `WARNING` | Taikai: no use of deprecated APIs                                                                     |
 
 Q4J applies the rules listed in [`tools/architecture`](../tools/architecture/META-INF/services) to every
 module: each module's `check` runs its own `verifyArchitecture` on its compiled classes and on the authored
