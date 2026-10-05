@@ -23,6 +23,7 @@ subprojects {
 
 apply from: 'gradle/compilation.gradle'
 apply from: 'gradle/code-analysis.gradle'
+apply from: 'gradle/architecture.gradle'
 apply from: 'gradle/dependencies.gradle'
 apply from: 'gradle/tests.gradle'
 apply from: 'gradle/aspectj.gradle'

@@ -1,0 +1,3 @@
+# Rules applied by the verifyArchitecture task of every Q4J module, wired in gradle/architecture.gradle.
+# Only this directory registers them: the published jar registers none, so consumers opt in rule by rule.
+dev.quokkify.architecture.rules.TestClassNamingRule

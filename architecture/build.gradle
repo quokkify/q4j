@@ -1,53 +1,5 @@
-sourceSets {
-    verification {
-        compileClasspath += sourceSets.main.output
-        runtimeClasspath += sourceSets.main.runtimeClasspath
-    }
-}
-
 dependencies {
     api libs.archunit
     api libs.classgraph
     api "org.apache.logging.log4j:log4j-api"
-
-    verificationRuntimeOnly libs.log4j.core
-}
-
-def verifiedProjects = rootProject.modules.keySet()
-    .findAll { it != project.path }
-    .collect { rootProject.project(it) }
-def expectedClassDirs = verifiedProjects.collectMany { verified ->
-    ['main', 'test']
-        .findAll { verified.file("src/${it}/java").directory }
-        .collect { verified.layout.buildDirectory.dir("classes/java/${it}").get().asFile }
-}
-def verifiedClasses = files(expectedClassDirs)
-    .builtBy(verifiedProjects.collectMany { ["${it.path}:classes", "${it.path}:testClasses"] })
-def verifiedMarker = layout.buildDirectory.file('architecture/verified')
-
-def verifyArchitecture = tasks.register('verifyArchitecture', JavaExec) {
-    group = 'verification'
-    description = 'Verifies the architecture rules registered for Q4J against the classes of every other Q4J module.'
-    mainClass = 'dev.quokkify.architecture.ArchitectureRunner'
-    classpath = sourceSets.verification.runtimeClasspath + verifiedClasses
-    systemProperty 'architecture.packages', 'dev.quokkify'
-    def failOn = providers.gradleProperty('architecture.fail.on')
-    if (failOn.isPresent()) {
-        systemProperty 'architecture.fail.on', failOn.get()
-    }
-    outputs.file(verifiedMarker)
-
-    doFirst {
-        def missing = expectedClassDirs.findAll { !it.directory }
-        if (!missing.empty) {
-            throw new GradleException("Compiled classes missing, so they would not be verified: ${missing}")
-        }
-    }
-    doLast {
-        verifiedMarker.get().asFile.text = 'verified\n'
-    }
-}
-
-tasks.named('check') {
-    dependsOn verifyArchitecture
 }

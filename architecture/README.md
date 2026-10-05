@@ -56,7 +56,7 @@ val verifyArchitecture by tasks.registering(JavaExec::class) {
 tasks.check { dependsOn(verifyArchitecture) }
 ```
 
-Q4J applies itself the same way: see `verifyArchitecture` in [`build.gradle`](build.gradle).
+Q4J applies itself the same way: see `verifyArchitecture` in [`gradle/architecture.gradle`](../gradle/architecture.gradle).
 
 ---
 
@@ -148,6 +148,6 @@ Rule names are part of the report contract: the report is sorted by `name()`, no
 | --------------------- | -------- | --------------------------------------------------------------------------------------------- |
 | `TestClassNamingRule` | `ERROR`  | A class declaring TestNG `@Test` must be named `*Test`, or name based selection never runs it |
 
-Q4J applies `TestClassNamingRule` to every module except `:architecture` itself, whose test fixtures violate it
-on purpose, through
-[`src/verification/resources/META-INF/services`](src/verification/resources/META-INF/services).
+Q4J applies the rules listed in [`tools/architecture`](../tools/architecture/META-INF/services) to every
+module with tests: each module's `check` runs its own `verifyArchitecture`, so every CI build job verifies the
+module it builds. `:architecture` itself is skipped, since its test fixtures violate the rules on purpose.

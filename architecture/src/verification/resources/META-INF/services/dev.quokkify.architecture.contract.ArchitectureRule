@@ -1,3 +1,0 @@
-# Rules applied to every Q4J module by :architecture:verifyArchitecture, which :architecture:check depends on.
-# Only this source set registers them: the published jar registers none, so consumers opt in rule by rule.
-dev.quokkify.architecture.rules.TestClassNamingRule

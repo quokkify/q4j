@@ -1,0 +1,43 @@
+def runnerSettings = rootProject.file('tools/architecture')
+
+subprojects {
+    // :architecture is the runner itself; its test fixtures violate the rules on purpose.
+    if (path == ':architecture' || !file('src/test/java').directory) {
+        return
+    }
+
+    configurations {
+        architectureRunner {
+            canBeConsumed = false
+            canBeResolved = true
+        }
+    }
+
+    dependencies {
+        architectureRunner project(':architecture')
+        architectureRunner rootProject.libs.log4j.core
+    }
+
+    def verifiedMarker = layout.buildDirectory.file('architecture/verified')
+    def verifyArchitecture = tasks.register('verifyArchitecture', JavaExec) {
+        group = 'verification'
+        description = 'Verifies the architecture rules registered in tools/architecture against this module.'
+        mainClass = 'dev.quokkify.architecture.ArchitectureRunner'
+        classpath = files(runnerSettings) + configurations.architectureRunner +
+            sourceSets.main.output.classesDirs + sourceSets.test.output.classesDirs
+        systemProperty 'architecture.packages', 'dev.quokkify'
+        def failOn = providers.gradleProperty('architecture.fail.on')
+        if (failOn.isPresent()) {
+            systemProperty 'architecture.fail.on', failOn.get()
+        }
+        outputs.file(verifiedMarker)
+
+        doLast {
+            verifiedMarker.get().asFile.text = 'verified\n'
+        }
+    }
+
+    tasks.named('check') {
+        dependsOn verifyArchitecture
+    }
+}
