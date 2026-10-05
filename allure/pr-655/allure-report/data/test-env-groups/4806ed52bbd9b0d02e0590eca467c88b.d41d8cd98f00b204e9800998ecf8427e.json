@@ -1,0 +1,1 @@
+{"id":"4806ed52bbd9b0d02e0590eca467c88b.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.architecture.rules.NoConsoleOutputRuleTest.unparseableSourceMeansTheRuleCannotRun","name":"unparseableSourceMeansTheRuleCannotRun","status":"passed","testResultsByEnv":{"ubuntu-24-04":"83c9c154a517e5e0687f899796fbcf25"}}
