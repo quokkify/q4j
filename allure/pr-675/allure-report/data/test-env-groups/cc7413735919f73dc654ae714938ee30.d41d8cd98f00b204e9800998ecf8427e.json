@@ -1,1 +1,1 @@
-{"id":"cc7413735919f73dc654ae714938ee30.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.model.JsonPojoTest.testReadAtTypedPojo","name":"Verify read typed value by json pointer","status":"passed","testResultsByEnv":{"ubuntu-24-04":"35739b2a7a6b47b92286a8ea2c61b303"}}
+{"id":"cc7413735919f73dc654ae714938ee30.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.model.JsonPojoTest.testReadAtTypedPojo","name":"Verify read typed value by json pointer","status":"passed","testResultsByEnv":{"ubuntu-24-04":"2f5bf31bf115d822aed791464a72a38d"}}
