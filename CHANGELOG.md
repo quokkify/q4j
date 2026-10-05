@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.9.0](https://github.com/quokkify/q4j/compare/v0.8.0...v0.9.0) (2026-10-05)
+
+
+### ✨ Features
+
+* **architecture:** add architecture verification module ([#682](https://github.com/quokkify/q4j/issues/682)) ([622197f](https://github.com/quokkify/q4j/commit/622197f654c9dea612cd6bad8596915705da802a))
+* **architecture:** add ClassGraph resources model and service registration rule ([#686](https://github.com/quokkify/q4j/issues/686)) ([6612e79](https://github.com/quokkify/q4j/commit/6612e792cedd76479e9d70114c5de51c466f435e))
+* **architecture:** reuse Taikai rules through the runner ([#685](https://github.com/quokkify/q4j/issues/685)) ([1075e79](https://github.com/quokkify/q4j/commit/1075e796d5245456938df3e78e38e65d93bb8ac9))
+* **architecture:** richer verification report with rule scopes ([#687](https://github.com/quokkify/q4j/issues/687)) ([1284a4a](https://github.com/quokkify/q4j/commit/1284a4a78da6d6796671b87a979f143eced1ab33))
+
+
+### 🐛 Bug Fixes
+
+* **release:** drop trailing whitespace from rich release-note sections ([#688](https://github.com/quokkify/q4j/issues/688)) ([fae03c4](https://github.com/quokkify/q4j/commit/fae03c41c80e590f114f33ffb53021b04587cb1d))
+
 ## [0.8.0](https://github.com/quokkify/q4j/compare/v0.7.1...v0.8.0) (2026-10-05)
 
 <!-- project-toolkit:rich-block:start -->
