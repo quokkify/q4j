@@ -1,0 +1,1 @@
+{"id":"a4f6c72bce7b21a9659142be57899d8d.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.architecture.rules.NoConsoleOutputRuleTest.sourcesOutsideTheVerifiedPackagesAreIgnoredNextToVerifiedOnes","name":"sourcesOutsideTheVerifiedPackagesAreIgnoredNextToVerifiedOnes","status":"passed","testResultsByEnv":{"ubuntu-24-04":"2a18e7beed27498fd3bca37138658417"}}
