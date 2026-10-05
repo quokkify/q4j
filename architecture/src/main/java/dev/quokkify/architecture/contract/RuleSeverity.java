@@ -14,8 +14,8 @@ import org.apache.logging.log4j.Level;
  * is what the threshold comparison uses. Each constant carries the log level a finding of that severity is
  * reported at.
  *
- * <p>Under the default gate both {@link #WARNING} and {@link #ERROR} fail the build, so a finding that must
- * never block anyone belongs at {@link #INFO}.
+ * <p>Under the default gate only {@link #ERROR} fails the build. A {@link #WARNING} is reported and fails only
+ * where a build opts in with {@code -Darchitecture.fail.on=WARNING}; an {@link #INFO} is purely informational.
  */
 public enum RuleSeverity {
   INFO(Level.INFO),

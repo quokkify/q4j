@@ -12,7 +12,7 @@ import org.testng.annotations.Test;
 import static org.assertj.core.api.Assertions.assertThat;
 
 /**
- * The rules shipped here are opt in: this module registers none of them, a consumer lists the ones it wants in
+ * The rules shipped here are opt-in: this module registers none of them, a consumer lists the ones it wants in
  * its own {@code META-INF/services} file. That only works when every rule can be created by the
  * {@link java.util.ServiceLoader}, which is asserted here for every rule class, including future ones.
  */

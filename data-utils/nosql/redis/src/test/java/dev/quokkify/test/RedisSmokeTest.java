@@ -36,12 +36,10 @@ public class RedisSmokeTest {
           cluster.addNodeAddress(address.startsWith("redis://") ? address : "redis://" + address);
         }
       }
-      cluster.setPassword(password.isBlank() ? null : password);
     } else {
-      config.useSingleServer()
-          .setAddress("redis://" + host + ":" + port)
-          .setPassword(password.isBlank() ? null : password);
+      config.useSingleServer().setAddress("redis://" + host + ":" + port);
     }
+    config.setPassword(password.isBlank() ? null : password);
 
     RedissonClient client = Redisson.create(config);
     try {

@@ -1,14 +1,11 @@
 package dev.quokkify.architecture.rules;
 
-import java.net.URISyntaxException;
-import java.nio.file.Path;
 import java.util.List;
-import java.util.Objects;
 
+import dev.quokkify.architecture.ClassDirs;
 import dev.quokkify.architecture.contract.ArchitectureContext;
 import dev.quokkify.architecture.contract.RuleSeverity;
-import dev.quokkify.architecture.exceptions.ArchitectureRunnerError;
-import dev.quokkify.architecture.exceptions.ArchitectureViolationException;
+import dev.quokkify.architecture.fixtures.console.violating.NoisyComponent;
 
 import org.testng.annotations.Test;
 
@@ -18,75 +15,41 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class NoConsoleOutputRuleTest {
 
-  private static final List<String> PACKAGES = List.of("dev.quokkify");
+  private static final String FIXTURES = "dev.quokkify.architecture.fixtures.console.";
 
   private final NoConsoleOutputRule rule = new NoConsoleOutputRule();
 
   @Test
-  public void everyConsoleWriteIsReportedWithItsLocation() {
-    try (ArchitectureContext context = contextFor("violating")) {
+  public void everyConsoleWriteIsReported() {
+    try (ArchitectureContext context = mainContextFor("violating")) {
       assertThatThrownBy(() -> rule.verify(context))
-          .isInstanceOf(ArchitectureViolationException.class)
-          .hasMessageContaining("Violations (6)")
-          .hasMessageContaining("dev.quokkify.sample.NoisyService:8 uses System.out")
-          .hasMessageContaining("dev.quokkify.sample.NoisyService:12 uses System.err")
-          .hasMessageContaining("dev.quokkify.sample.NoisyService:13 calls printStackTrace()")
-          .hasMessageContaining("dev.quokkify.sample.NoisyService:14 uses System.err")
-          .hasMessageContaining("dev.quokkify.sample.NoisyService:16 references System.out::println")
-          .hasMessageContaining("dev.quokkify.sample.NoisyService:17 calls dumpStack()");
+          .isInstanceOf(AssertionError.class)
+          .as("System.out, a statically imported out, System.err::println, printStackTrace(), dumpStack() and a reference")
+          .hasMessageContaining("Found 6 Taikai violation(s)")
+          .hasMessageContaining(NoisyComponent.class.getName() + ".run() calls java.lang.System.out")
+          .hasMessageContaining(NoisyComponent.class.getName() + ".run() calls java.lang.System.err")
+          .hasMessageContaining("java.lang.IllegalStateException.printStackTrace()")
+          .hasMessageContaining("java.lang.Thread.dumpStack()")
+          .hasMessageContaining("references method <java.lang.Throwable.printStackTrace()>");
     }
   }
 
   @Test
   public void stackTraceRenderedIntoAChosenWriterIsAllowed() {
-    try (ArchitectureContext context = contextFor("clean")) {
+    try (ArchitectureContext context = mainContextFor("clean")) {
       assertThatCode(() -> rule.verify(context)).doesNotThrowAnyException();
-      assertThat(context.mainSources().units()).as("the clean source must be read, not missed").hasSize(1);
     }
   }
 
   @Test
-  public void sourcesOfWhichNoneLiesUnderTheVerifiedPackagesCannotBeVerified() {
-    try (ArchitectureContext context = contextFor("foreign")) {
-      assertThatThrownBy(() -> rule.verify(context))
-          .as("filtering every source away must not pass as a clean result")
-          .isInstanceOf(ArchitectureRunnerError.class)
-          .hasMessageContaining("none declares a package under [dev.quokkify]");
-    }
-  }
-
-  @Test
-  public void sourcesOutsideTheVerifiedPackagesAreIgnoredNextToVerifiedOnes() {
-    try (ArchitectureContext context = new ArchitectureContext(
-        PACKAGES, List.of(sourceRoot("clean"), sourceRoot("foreign")), List.of())) {
-      assertThatCode(() -> rule.verify(context)).doesNotThrowAnyException();
-      assertThat(context.mainSources().units()).hasSize(1);
-    }
-  }
-
-  @Test
-  public void unparseableSourceMeansTheRuleCannotRun() {
-    try (ArchitectureContext context = contextFor("broken")) {
-      assertThatThrownBy(() -> rule.verify(context))
-          .as("a file the parser could not read must not be reported as clean")
-          .isInstanceOf(ArchitectureRunnerError.class)
-          .hasMessageContaining("Broken.java");
-    }
-  }
-
-  @Test
-  public void unconfiguredMainSourcesMeanTheRuleCannotRun() {
-    try (ArchitectureContext context = new ArchitectureContext(PACKAGES)) {
-      assertThatThrownBy(() -> rule.verify(context))
-          .isInstanceOf(ArchitectureRunnerError.class)
-          .hasMessageContaining(ArchitectureContext.MAIN_SOURCES_PROPERTY);
-    }
-  }
-
-  @Test
-  public void projectWithoutMainSourcesPasses() {
-    try (ArchitectureContext context = new ArchitectureContext(PACKAGES, List.of(), List.of())) {
-      assertThatCode(() -> rule.verify(context)).doesNotThrowAnyException();
+  public void testClassesAreNotVerified() {
+    try (ArchitectureContext context = ArchitectureContext.builder(List.of(FIXTURES + "violating"))
+        .mainClasses(List.of())
+        .testClasses(List.of(ClassDirs.test()))
+        .build()) {
+      assertThatCode(() -> rule.verify(context))
+          .as("a project without main classes has nothing to verify, even if its tests print")
+          .doesNotThrowAnyException();
     }
   }
 
@@ -95,16 +58,13 @@ public class NoConsoleOutputRuleTest {
     assertThat(rule.severity()).isEqualTo(RuleSeverity.ERROR);
   }
 
-  private static ArchitectureContext contextFor(String fixture) {
-    return new ArchitectureContext(PACKAGES, List.of(sourceRoot(fixture)), List.of());
-  }
-
-  private static Path sourceRoot(String fixture) {
-    try {
-      return Path.of(Objects.requireNonNull(
-          NoConsoleOutputRuleTest.class.getResource("/sources/" + fixture), fixture).toURI());
-    } catch (URISyntaxException invalid) {
-      throw new IllegalStateException(invalid);
-    }
+  /**
+   * The fixtures are compiled into the test class directory, which therefore plays the main directory here.
+   */
+  private static ArchitectureContext mainContextFor(String fixture) {
+    return ArchitectureContext.builder(List.of(FIXTURES + fixture))
+        .mainClasses(List.of(ClassDirs.test()))
+        .testClasses(List.of())
+        .build();
   }
 }

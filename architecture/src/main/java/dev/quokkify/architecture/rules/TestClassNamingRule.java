@@ -1,6 +1,7 @@
 package dev.quokkify.architecture.rules;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import dev.quokkify.architecture.contract.ArchitectureContext;
 import dev.quokkify.architecture.contract.ArchitectureRule;
@@ -26,7 +27,7 @@ public class TestClassNamingRule implements ArchitectureRule {
   private static final String TEST_ANNOTATION = "org.testng.annotations.Test";
   private static final String TEST_CLASS_SUFFIX = "Test";
   private static final String EXPECTED_CONTRACT = """
-      Every class declaring TestNG @Test methods must have a name ending in 'Test', otherwise a name based test \
+      Every class declaring TestNG @Test methods must have a name ending in 'Test', otherwise a name-based test \
       selection does not pick it up and its tests never run. Rename the class, or move the shared code into a \
       support class without @Test methods.""";
 
@@ -72,10 +73,16 @@ public class TestClassNamingRule implements ArchitectureRule {
 
   /**
    * TestNG accepts {@code @Test} on a method and on the class, where it applies to every public method, so
-   * both placements have to be inspected.
+   * both placements have to be inspected. TestNG also runs the tests a class inherits, so a concrete subclass
+   * of an abstract test base declares tests as well, even without a {@code @Test} of its own.
    */
   private static boolean declaresTest(ClassInfo testClass) {
-    return testClass.hasAnnotation(TEST_ANNOTATION)
-        || testClass.getDeclaredMethodInfo().stream().anyMatch(method -> method.hasAnnotation(TEST_ANNOTATION));
+    return Stream.concat(Stream.of(testClass), testClass.getSuperclasses().stream())
+        .anyMatch(TestClassNamingRule::declaresTestItself);
+  }
+
+  private static boolean declaresTestItself(ClassInfo type) {
+    return type.hasAnnotation(TEST_ANNOTATION)
+        || type.getDeclaredMethodInfo().stream().anyMatch(method -> method.hasAnnotation(TEST_ANNOTATION));
   }
 }

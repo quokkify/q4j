@@ -30,7 +30,7 @@ import org.slf4j.LoggerFactory;
  */
 public class ConfigRegistry {
 
-  private static final Logger log = LoggerFactory.getLogger(ConfigRegistry.class);
+  private static final Logger LOG = LoggerFactory.getLogger(ConfigRegistry.class);
 
   private ConfigRegistry() {
   }
@@ -45,7 +45,7 @@ public class ConfigRegistry {
    * @return a cached configuration instance
    */
   public static <T extends Config> T get(Class<T> clazz) {
-    log.debug("Fetching Config instance for {}", clazz.getSimpleName());
+    LOG.debug("Fetching Config instance for {}", clazz.getSimpleName());
     return ConfigCache.getOrCreate(clazz);
   }
 
@@ -61,7 +61,7 @@ public class ConfigRegistry {
    * @return a cached mutable configuration instance
    */
   public static <T extends Config & Mutable> T getMutable(Class<T> clazz) {
-    log.debug("Fetching Mutable Config instance for {}", clazz.getSimpleName());
+    LOG.debug("Fetching Mutable Config instance for {}", clazz.getSimpleName());
     return ConfigCache.getOrCreate(clazz);
   }
 
@@ -77,7 +77,7 @@ public class ConfigRegistry {
    * @return a cached reloadable configuration instance
    */
   public static <T extends Config & Mutable & Reloadable> T getReloadable(Class<T> clazz) {
-    log.debug("Fetching Reloadable Config instance for {}", clazz.getSimpleName());
+    LOG.debug("Fetching Reloadable Config instance for {}", clazz.getSimpleName());
     return ConfigCache.getOrCreate(clazz);
   }
 
@@ -92,13 +92,13 @@ public class ConfigRegistry {
   public static <T extends Mutable & Reloadable> void overlay(T cfg, Map<String, String> props) {
     Objects.requireNonNull(cfg, "config is null");
     Objects.requireNonNull(props, "props is null");
-    log.info("Applying {} property overrides to {}", props.size(), cfg.getClass().getSimpleName());
+    LOG.info("Applying {} property overrides to {}", props.size(), cfg.getClass().getSimpleName());
     props.forEach((key, value) -> {
-      log.debug("override {} = {}", key, value);
+      LOG.debug("override {} = {}", key, value);
       cfg.setProperty(key, value);
     });
     cfg.reload();
-    log.info("Configuration {} reloaded after map overlay", cfg.getClass().getSimpleName());
+    LOG.info("Configuration {} reloaded after map overlay", cfg.getClass().getSimpleName());
   }
 
   /**
@@ -112,13 +112,13 @@ public class ConfigRegistry {
   public static <T extends Mutable & Reloadable> void overlay(T cfg, Properties props) {
     Objects.requireNonNull(cfg, "config is null");
     Objects.requireNonNull(props, "props is null");
-    log.info("Applying {} property overrides (Properties) to {}", props.size(), cfg.getClass().getSimpleName());
+    LOG.info("Applying {} property overrides (Properties) to {}", props.size(), cfg.getClass().getSimpleName());
     props.forEach((key, value) -> {
-      log.debug("override {} = {}", key, value);
+      LOG.debug("override {} = {}", key, value);
       cfg.setProperty(String.valueOf(key), String.valueOf(value));
     });
     cfg.reload();
-    log.info("Configuration {} reloaded after Properties overlay", cfg.getClass().getSimpleName());
+    LOG.info("Configuration {} reloaded after Properties overlay", cfg.getClass().getSimpleName());
   }
 
   /**
@@ -133,10 +133,10 @@ public class ConfigRegistry {
   public static <T extends Mutable & Reloadable> void load(T cfg, InputStream in) throws IOException {
     Objects.requireNonNull(cfg, "config is null");
     Objects.requireNonNull(in, "input stream is null");
-    log.info("Loading properties from InputStream into {}", cfg.getClass().getSimpleName());
+    LOG.info("Loading properties from InputStream into {}", cfg.getClass().getSimpleName());
     cfg.load(in);
     cfg.reload();
-    log.info("Configuration {} reloaded after InputStream load", cfg.getClass().getSimpleName());
+    LOG.info("Configuration {} reloaded after InputStream load", cfg.getClass().getSimpleName());
   }
 
   /**
@@ -151,9 +151,9 @@ public class ConfigRegistry {
   public static <T extends Mutable & Reloadable> void load(T cfg, Reader reader) throws IOException {
     Objects.requireNonNull(cfg, "config is null");
     Objects.requireNonNull(reader, "reader is null");
-    log.info("Loading properties from Reader into {}", cfg.getClass().getSimpleName());
+    LOG.info("Loading properties from Reader into {}", cfg.getClass().getSimpleName());
     cfg.load(reader);
     cfg.reload();
-    log.info("Configuration {} reloaded after Reader load", cfg.getClass().getSimpleName());
+    LOG.info("Configuration {} reloaded after Reader load", cfg.getClass().getSimpleName());
   }
 }

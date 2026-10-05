@@ -22,7 +22,7 @@ import org.apache.logging.log4j.Logger;
  */
 public final class SshUtils {
 
-  private static final Logger log = LogManager.getLogger(SshUtils.class);
+  private static final Logger LOG = LogManager.getLogger(SshUtils.class);
 
   private static final String LOAD_PROFILE_COMMAND = "source /etc/profile";
   private static final String HOST_KEY_CHECKING_RULE = "StrictHostKeyChecking";
@@ -220,7 +220,7 @@ public final class SshUtils {
   private static String clearCertificateWillExpireWarning(String exportFileContentJson) {
     final String certificateWarningPattern = "== WARN: .* certificate will expire.*";
     if (RegexParser.isMatched(certificateWarningPattern, exportFileContentJson)) {
-      log.warn(RegexParser.parse(certificateWarningPattern, exportFileContentJson, 0));
+      LOG.warn(RegexParser.parse(certificateWarningPattern, exportFileContentJson, 0));
     }
     return exportFileContentJson.replaceAll(certificateWarningPattern, StringUtils.EMPTY);
   }
