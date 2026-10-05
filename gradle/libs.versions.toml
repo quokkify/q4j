@@ -21,6 +21,7 @@ htmlcleaner = "2.29"
 guava = "33.7.1-jre"
 reflections = "0.10.2"
 classgraph = "4.8.196"
+archunit = "1.4.1"
 jjwt = "0.13.0"
 bouncy-castle = "1.86"
 morphia = "2.5.3"
@@ -91,6 +92,8 @@ guava = { module = "com.google.guava:guava", version.ref = "guava" }
 reflections = { module = "org.reflections:reflections", version.ref = "reflections" }
 # ClassGraph
 classgraph = { module = "io.github.classgraph:classgraph", version.ref = "classgraph" }
+# ArchUnit
+archunit = { module = "com.tngtech.archunit:archunit", version.ref = "archunit" }
 # JJWT
 jjwt-api = { module = "io.jsonwebtoken:jjwt-api", version.ref = "jjwt" }
 jjwt-impl = { module = "io.jsonwebtoken:jjwt-impl", version.ref = "jjwt" }

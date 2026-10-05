@@ -87,18 +87,19 @@ dev.quokkify:<artifact>:<version>
 
 ### 🧱 Foundation
 
-| Artifact     | Purpose                                                          |
-| ------------ | ---------------------------------------------------------------- |
-| `core`       | Shared types, formatting, generators, and utility APIs           |
-| `config`     | Typed configuration and locale providers                         |
-| `testng`     | TestNG listeners, retries, annotations, and lifecycle extensions |
-| `awaitility` | Polling and timeout abstractions                                 |
-| `reflection` | Classpath scanning and reflection utilities                      |
-| `files`      | Files, archives, locking, and local resources                    |
-| `html`       | HTML parsing and generated browser-compatibility models          |
-| `jwt`        | JWT models, generators, and formatting                           |
-| `crypto`     | Encryption, key, and digital-signature utilities                 |
-| `ssh`        | SSH execution and port forwarding                                |
+| Artifact       | Purpose                                                          |
+| -------------- | ---------------------------------------------------------------- |
+| `core`         | Shared types, formatting, generators, and utility APIs           |
+| `config`       | Typed configuration and locale providers                         |
+| `testng`       | TestNG listeners, retries, annotations, and lifecycle extensions |
+| `architecture` | Pluggable architecture rules verified as a build gate            |
+| `awaitility`   | Polling and timeout abstractions                                 |
+| `reflection`   | Classpath scanning and reflection utilities                      |
+| `files`        | Files, archives, locking, and local resources                    |
+| `html`         | HTML parsing and generated browser-compatibility models          |
+| `jwt`          | JWT models, generators, and formatting                           |
+| `crypto`       | Encryption, key, and digital-signature utilities                 |
+| `ssh`          | SSH execution and port forwarding                                |
 
 ### 🗂️ Data formats
 

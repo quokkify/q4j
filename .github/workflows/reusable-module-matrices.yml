@@ -40,6 +40,7 @@ jobs:
           script: |
             const commonModules = [
               { name: 'testng', module: ':testng-extensions', slug: 'testng-extensions' },
+              { name: 'architecture', module: ':architecture', slug: 'architecture' },
               { name: 'core', module: ':common-utils:core', slug: 'common-utils-core' },
               { name: 'jackson-support', module: ':common-utils:jackson:parent', slug: 'common-utils-jackson-parent' },
               { name: 'jackson-csv', module: ':common-utils:jackson:csv', slug: 'common-utils-jackson-csv' },

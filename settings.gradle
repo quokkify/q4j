@@ -4,6 +4,7 @@ rootProject.name = "q4j"
 // TEST EXTENSIONS
 // ============================================================================
 include(":testng-extensions")            // Extensions for TestNG (used as testImplementation)
+include(":architecture")                 // Architecture verification gate (ArchUnit / ClassGraph rules)
 
 // ============================================================================
 // INTEGRATIONS WITH EXTERNAL LIBRARIES / SERVICES

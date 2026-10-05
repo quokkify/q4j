@@ -1,5 +1,6 @@
 ext.modules = [
     ':testng-extensions': [artifactId: 'testng', displayName: 'Q4J TestNG', description: 'TestNG listeners, retry policies, annotations, and test lifecycle extensions.'],
+    ':architecture': [artifactId: 'architecture', displayName: 'Q4J Architecture', description: 'Pluggable architecture rules and a build gate that verifies them with ArchUnit and ClassGraph.'],
 
     ':integrations:rest-assured': [artifactId: 'rest-assured', displayName: 'Q4J REST Assured', description: 'REST Assured helpers for API testing, validation, and request configuration.'],
     ':integrations:selenide': [artifactId: 'selenide', displayName: 'Q4J Selenide', description: 'Selenide components and workflows for browser-based test automation.'],

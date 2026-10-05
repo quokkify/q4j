@@ -95,7 +95,7 @@ public class SingleThreadInParallelTest {
     suite.setName("Single thread fixture");
     XmlTest test = new XmlTest(suite);
     test.setName("Fixture");
-    test.setXmlClasses(List.of(new XmlClass(Fixture.class)));
+    test.setXmlClasses(List.of(new XmlClass(FixtureTest.class)));
     AtomicReference<XmlSuite.ParallelMode> suiteMode = new AtomicReference<>();
     TestNG testng = new TestNG(false);
     testng.setUseDefaultListeners(false);
@@ -116,7 +116,7 @@ public class SingleThreadInParallelTest {
     testng.addListener(new IAnnotationTransformer() {
       @Override
       public void transform(ITestAnnotation annotation, Class testClass, Constructor testConstructor, Method testMethod) {
-        if (Objects.nonNull(testMethod) && Fixture.class.equals(testMethod.getDeclaringClass())) {
+        if (Objects.nonNull(testMethod) && FixtureTest.class.equals(testMethod.getDeclaringClass())) {
           annotation.setEnabled(true);
         }
       }
@@ -128,7 +128,7 @@ public class SingleThreadInParallelTest {
   }
 
   // Disabled so the outer run skips it; runFixtureSuite enables it for the nested TestNG run only.
-  public static class Fixture {
+  public static class FixtureTest {
 
     @Test(enabled = false)
     public void concurrent(ITestContext context) throws InterruptedException {
