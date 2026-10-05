@@ -1,0 +1,6 @@
+dev.quokkify.architecture.fixtures.services.PoliteGreeting
+dev.quokkify.architecture.fixtures.services.MissingGreeting
+dev.quokkify.architecture.fixtures.services.AbstractGreeting
+dev.quokkify.architecture.fixtures.services.HiddenGreeting
+dev.quokkify.architecture.fixtures.services.NamedGreeting
+dev.quokkify.architecture.fixtures.services.Farewell
