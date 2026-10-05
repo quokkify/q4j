@@ -1,5 +1,6 @@
 package dev.quokkify.architecture.contract;
 
+import java.nio.file.Path;
 import java.util.List;
 
 import dev.quokkify.architecture.exceptions.ArchitectureRunnerError;
@@ -19,6 +20,24 @@ public class ArchitectureContextTest {
   }
 
   @Test
+  public void absentSourcePropertyLeavesTheGroupUnconfigured() {
+    assertThat(ArchitectureContext.parseRoots(null)).isNull();
+    assertThat(ArchitectureContext.parseRoots("")).isEmpty();
+    assertThat(ArchitectureContext.parseRoots("src/main/java, build/x")).containsExactly(
+        Path.of("src/main/java"), Path.of("build/x"));
+  }
+
+  @Test
+  public void missingSourceRootCannotBeVerified() {
+    try (ArchitectureContext context = new ArchitectureContext(
+        List.of("dev.quokkify"), List.of(Path.of("does/not/exist")), List.of())) {
+      assertThatThrownBy(() -> context.mainSources().units())
+          .isInstanceOf(ArchitectureRunnerError.class)
+          .hasMessageContaining("does not exist");
+    }
+  }
+
+  @Test
   public void contextWithoutPackagesCannotRun() {
     assertThatThrownBy(() -> new ArchitectureContext(List.of()))
         .as("a context covering nothing would let every rule pass without verifying anything")
@@ -33,5 +52,6 @@ public class ArchitectureContextTest {
 
     assertThatThrownBy(context::scan).isInstanceOf(IllegalStateException.class);
     assertThatThrownBy(context::all).isInstanceOf(IllegalStateException.class);
+    assertThatThrownBy(context::mainSources).isInstanceOf(IllegalStateException.class);
   }
 }

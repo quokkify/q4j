@@ -18,7 +18,8 @@ import io.github.classgraph.ClassInfo;
  *
  * <p>Support classes such as {@code *Steps} and {@code *Base} helpers declare no test methods and are therefore
  * not affected. The compiled test classes must be on the verification classpath; when no class declaring
- * {@code @Test} is found at all, the rule cannot run and aborts the verification.
+ * {@code @Test} is found at all, the rule cannot run and aborts the verification, unless the context states
+ * through {@link ArchitectureContext#testSources()} that the project has no test sources.
  */
 public class TestClassNamingRule implements ArchitectureRule {
 
@@ -45,6 +46,9 @@ public class TestClassNamingRule implements ArchitectureRule {
         .filter(TestClassNamingRule::isVerifiable)
         .filter(TestClassNamingRule::declaresTest)
         .toList();
+    if (testClasses.isEmpty() && hasNoTestSources(context)) {
+      return;
+    }
     if (testClasses.isEmpty()) {
       // Not a violation but an inability to verify, so it must fail the build regardless of this severity.
       throw new ArchitectureRunnerError("""
@@ -56,6 +60,10 @@ public class TestClassNamingRule implements ArchitectureRule {
         .map(testClass -> "%s declares @Test but is not named *%s".formatted(testClass.getName(), TEST_CLASS_SUFFIX))
         .toList();
     checkViolations(EXPECTED_CONTRACT, violations);
+  }
+
+  private static boolean hasNoTestSources(ArchitectureContext context) {
+    return context.testSources().isConfigured() && context.testSources().roots().isEmpty();
   }
 
   private static boolean isVerifiable(ClassInfo testClass) {

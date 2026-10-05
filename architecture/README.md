@@ -4,6 +4,7 @@ Build gate for architecture and project contracts that would otherwise only be c
 
 - ✅ One runner, rules discovered through the `ServiceLoader`
 - ✅ Shared ArchUnit and ClassGraph model, scanned once per run
+- ✅ JavaParser source model for rules that read method bodies
 - ✅ Severity per rule, gate threshold per build
 - ✅ A rule that cannot run fails the build instead of passing silently
 
@@ -51,6 +52,8 @@ val verifyArchitecture by tasks.registering(JavaExec::class) {
     mainClass = "dev.quokkify.architecture.ArchitectureRunner"
     classpath = architecture + sourceSets.main.get().runtimeClasspath + sourceSets.test.get().output
     systemProperty("architecture.packages", "com.example")
+    systemProperty("architecture.main.sources", file("src/main/java").absolutePath)
+    systemProperty("architecture.test.sources", file("src/test/java").absolutePath)
 }
 
 tasks.check { dependsOn(verifyArchitecture) }
@@ -62,13 +65,16 @@ Q4J applies itself the same way: see `verifyArchitecture` in [`gradle/architectu
 
 ## 🎛️ Properties
 
-| Property                | Default    | Meaning                                                                        |
-| ----------------------- | ---------- | ------------------------------------------------------------------------------ |
-| `architecture.packages` | _required_ | Comma separated root packages to scan                                          |
-| `architecture.fail.on`  | `WARNING`  | Least severe finding that fails the run: `INFO`, `WARNING`, `ERROR` or `NEVER` |
+| Property                    | Default    | Meaning                                                                        |
+| --------------------------- | ---------- | ------------------------------------------------------------------------------ |
+| `architecture.packages`     | _required_ | Comma separated root packages to scan                                          |
+| `architecture.fail.on`      | `WARNING`  | Least severe finding that fails the run: `INFO`, `WARNING`, `ERROR` or `NEVER` |
+| `architecture.main.sources` | _unset_    | Comma separated main source roots for `mainSources()`; empty means none        |
+| `architecture.test.sources` | _unset_    | Comma separated test source roots for `testSources()`; empty means none        |
 
 An unknown `architecture.fail.on` value, a missing package list, and an empty rule set all abort the run.
-A typo in CI therefore cannot silently disable the gate.
+A typo in CI therefore cannot silently disable the gate. A rule that reads a source group whose property is
+unset aborts too, while an empty value states that the project has no such sources.
 
 ---
 
@@ -88,11 +94,12 @@ The whole report is logged as one event at the worst severity found:
 
 ```text
 ============================================================
-Architecture verification (1 rules)
+Architecture verification (2 rules)
 ============================================================
+[PASS]  No console output in main code
 [PASS]  Test class naming
 ============================================================
-Architecture verification: 1 passed, 0 error(s), 0 warning(s), 0 info in 412 ms
+Architecture verification: 2 passed, 0 error(s), 0 warning(s), 0 info in 412 ms
 ============================================================
 Gate: fail on WARNING -> passed
 ```
@@ -135,8 +142,32 @@ public class NoServiceDependsOnStepsRule implements ArchitectureRule {
 Throw `ArchitectureRunnerError` when a selector is unexpectedly empty or the classpath misses what the rule
 reads. A rule that cannot run proves nothing and must never turn into a green `WARNING`.
 
-`ArchitectureContext` offers `all()` (ArchUnit `JavaClasses`) and `scan()` (ClassGraph `ScanResult`). Both
-are built lazily, once per run, and shared by every rule. Rules only read them.
+| Accessor                         | Backed by  | Use it for                                                  |
+| -------------------------------- | ---------- | ----------------------------------------------------------- |
+| `all()`                          | ArchUnit   | dependencies and layering between classes                   |
+| `scan()`                         | ClassGraph | class, method and annotation metadata                       |
+| `mainSources()`, `testSources()` | JavaParser | content of classes and methods: calls, literals, statements |
+
+Every model is built lazily, once per run, and shared by every rule. Rules only read them. A source file that
+does not parse aborts the run instead of being skipped, and so do sources of which none lies under
+`architecture.packages`. Rules run concurrently on one shared tree: read it, never mutate it, and do not call
+`Node.toString()` on it.
+
+A source rule walks the syntax tree of each compilation unit:
+
+```java
+@Override
+public void verify(ArchitectureContext context) {
+  List<String> violations = context.mainSources().units().stream()
+      .flatMap(unit -> unit.findAll(MethodCallExpr.class).stream())
+      .filter(call -> call.getNameAsString().equals("sleep"))
+      .map(call -> "line %d calls %s".formatted(call.getBegin().orElseThrow().line, call))
+      .toList();
+  checkViolations("Main code must not sleep; wait for a condition instead.", violations);
+}
+```
+
+Calls are matched syntactically: JavaParser runs without a symbol solver, so a rule sees names, not resolved types.
 
 Rule names are part of the report contract: the report is sorted by `name()`, not by classpath order.
 
@@ -147,7 +178,10 @@ Rule names are part of the report contract: the report is sorted by `name()`, no
 | Rule                  | Severity | Protects                                                                                      |
 | --------------------- | -------- | --------------------------------------------------------------------------------------------- |
 | `TestClassNamingRule` | `ERROR`  | A class declaring TestNG `@Test` must be named `*Test`, or name based selection never runs it |
+| `NoConsoleOutputRule` | `ERROR`  | Main code must log through a logger, not `System.out`, `System.err` or `printStackTrace()`    |
 
 Q4J applies the rules listed in [`tools/architecture`](../tools/architecture/META-INF/services) to every
-module with tests: each module's `check` runs its own `verifyArchitecture`, so every CI build job verifies the
-module it builds. `:architecture` itself is skipped, since its test fixtures violate the rules on purpose.
+module: each module's `check` runs its own `verifyArchitecture` on its compiled classes and on the authored
+sources of its source sets (`main` as main sources, every other source set as test sources; generated sources
+under `build/` are not verified), so every CI build job verifies the module it builds. `:architecture` itself is
+skipped, since its test fixtures violate the rules on purpose.

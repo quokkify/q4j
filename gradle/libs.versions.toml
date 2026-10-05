@@ -22,6 +22,7 @@ guava = "33.7.1-jre"
 reflections = "0.10.2"
 classgraph = "4.8.196"
 archunit = "1.4.1"
+javaparser = "3.27.0"
 jjwt = "0.13.0"
 bouncy-castle = "1.86"
 morphia = "2.5.3"
@@ -94,6 +95,8 @@ reflections = { module = "org.reflections:reflections", version.ref = "reflectio
 classgraph = { module = "io.github.classgraph:classgraph", version.ref = "classgraph" }
 # ArchUnit
 archunit = { module = "com.tngtech.archunit:archunit", version.ref = "archunit" }
+# JavaParser
+javaparser-core = { module = "com.github.javaparser:javaparser-core", version.ref = "javaparser" }
 # JJWT
 jjwt-api = { module = "io.jsonwebtoken:jjwt-api", version.ref = "jjwt" }
 jjwt-impl = { module = "io.jsonwebtoken:jjwt-impl", version.ref = "jjwt" }

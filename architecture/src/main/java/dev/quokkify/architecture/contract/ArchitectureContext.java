@@ -1,5 +1,6 @@
 package dev.quokkify.architecture.contract;
 
+import java.nio.file.Path;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -19,9 +20,10 @@ import io.github.classgraph.ScanResult;
  * any particular project: the consumer names its root packages through {@link #PACKAGES_PROPERTY} or the
  * constructor, and every rule reads the same selection.
  *
- * <p>Both the ArchUnit {@link JavaClasses} and the ClassGraph {@link ScanResult} are created lazily on
- * first use and then cached, so a full classpath scan happens at most once per verification run
- * regardless of how many rules are registered.
+ * <p>Three models are offered: the ArchUnit {@link JavaClasses} and the ClassGraph {@link ScanResult} read
+ * bytecode, while {@link #mainSources()} and {@link #testSources()} hold JavaParser syntax trees for rules that
+ * verify the content of classes and methods. Each is created lazily on first use and then cached, so a scan or
+ * a parse happens at most once per verification run regardless of how many rules are registered.
  *
  * <p>This class is safe to share between concurrently evaluated rules, which is how
  * {@code ArchitectureRunner} uses it. Each cache has its own lock, so a rule waiting for the ArchUnit
@@ -40,7 +42,19 @@ public class ArchitectureContext implements AutoCloseable {
    */
   public static final String PACKAGES_PROPERTY = "architecture.packages";
 
+  /**
+   * Comma separated main source roots, for example {@code -Darchitecture.main.sources=src/main/java}.
+   */
+  public static final String MAIN_SOURCES_PROPERTY = "architecture.main.sources";
+
+  /**
+   * Comma separated test source roots, for example {@code -Darchitecture.test.sources=src/test/java}.
+   */
+  public static final String TEST_SOURCES_PROPERTY = "architecture.test.sources";
+
   private final List<String> packages;
+  private final JavaSources mainSources;
+  private final JavaSources testSources;
 
   private final Object javaClassesLock = new Object();
   private final Object scanResultLock = new Object();
@@ -56,17 +70,48 @@ public class ArchitectureContext implements AutoCloseable {
    * @throws ArchitectureRunnerError when no package is given, since a rule could then verify nothing
    */
   public ArchitectureContext(Collection<String> packages) {
-    this.packages = requirePackages(packages);
+    this(packages, null, null);
   }
 
   /**
-   * Creates a context from {@link #PACKAGES_PROPERTY}.
+   * Creates a context covering the given root packages, with the source roots read by source based rules.
    *
-   * @return context covering the configured packages
-   * @throws ArchitectureRunnerError when the property is missing or names no package
+   * @param packages        root packages to verify, at least one
+   * @param mainSourceRoots main source roots, empty when there are none, {@code null} when not configured
+   * @param testSourceRoots test source roots, empty when there are none, {@code null} when not configured
+   * @throws ArchitectureRunnerError when no package is given, since a rule could then verify nothing
+   */
+  public ArchitectureContext(Collection<String> packages, List<Path> mainSourceRoots, List<Path> testSourceRoots) {
+    this.packages = requirePackages(packages);
+    this.mainSources = new JavaSources(MAIN_SOURCES_PROPERTY, mainSourceRoots, this.packages);
+    this.testSources = new JavaSources(TEST_SOURCES_PROPERTY, testSourceRoots, this.packages);
+  }
+
+  /**
+   * Creates a context from {@link #PACKAGES_PROPERTY}, {@link #MAIN_SOURCES_PROPERTY} and
+   * {@link #TEST_SOURCES_PROPERTY}. A source property that is absent leaves that group unconfigured.
+   *
+   * @return context covering the configured packages and sources
+   * @throws ArchitectureRunnerError when the package property is missing or names no package
    */
   public static ArchitectureContext fromSystemProperties() {
-    return new ArchitectureContext(parsePackages(System.getProperty(PACKAGES_PROPERTY)));
+    return new ArchitectureContext(
+        parsePackages(System.getProperty(PACKAGES_PROPERTY)),
+        parseRoots(System.getProperty(MAIN_SOURCES_PROPERTY)),
+        parseRoots(System.getProperty(TEST_SOURCES_PROPERTY)));
+  }
+
+  /**
+   * Splits a comma separated list of source roots.
+   *
+   * @param configured comma separated directories, may be {@code null}
+   * @return the roots, or {@code null} when the property is absent, which leaves the group unconfigured
+   */
+  static List<Path> parseRoots(String configured) {
+    if (Objects.isNull(configured)) {
+      return null;
+    }
+    return parsePackages(configured).stream().map(Path::of).toList();
   }
 
   /**
@@ -93,6 +138,26 @@ public class ArchitectureContext implements AutoCloseable {
    */
   public List<String> packages() {
     return packages;
+  }
+
+  /**
+   * Returns the main sources, parsed with JavaParser on first use.
+   *
+   * @return main source model
+   */
+  public JavaSources mainSources() {
+    requireOpen();
+    return mainSources;
+  }
+
+  /**
+   * Returns the test sources, parsed with JavaParser on first use.
+   *
+   * @return test source model
+   */
+  public JavaSources testSources() {
+    requireOpen();
+    return testSources;
   }
 
   /**

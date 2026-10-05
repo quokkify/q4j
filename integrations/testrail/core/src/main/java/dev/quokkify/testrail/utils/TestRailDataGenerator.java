@@ -99,8 +99,7 @@ public final class TestRailDataGenerator {
         TestRailHelper.resetTestResultsToRetestForAllTestsForExecute();
       }
     } catch (Throwable e) {
-      LOG.error("Error initializing TestRail data. Message and stack trace: {}", e.getMessage());
-      e.printStackTrace();
+      LOG.error("Error initializing TestRail data", e);
       throw e;
     }
   }

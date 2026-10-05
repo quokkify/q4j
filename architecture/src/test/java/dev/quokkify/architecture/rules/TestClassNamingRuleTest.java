@@ -55,6 +55,14 @@ public class TestClassNamingRuleTest {
   }
 
   @Test
+  public void projectDeclaringNoTestSourcesHasNothingToVerify() {
+    try (ArchitectureContext context = new ArchitectureContext(
+        List.of(FIXTURES + "empty"), List.of(), List.of())) {
+      assertThatCode(() -> rule.verify(context)).doesNotThrowAnyException();
+    }
+  }
+
+  @Test
   public void testClassNamingIsMandatory() {
     assertThat(rule.severity()).isEqualTo(RuleSeverity.ERROR);
   }

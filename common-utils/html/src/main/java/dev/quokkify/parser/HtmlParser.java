@@ -47,8 +47,7 @@ public class HtmlParser {
       XPath xpath = XPathFactory.newInstance().newXPath();
       return (Node) xpath.evaluate(xpathLocator, doc, XPathConstants.NODE);
     } catch (XPathExpressionException | ParserConfigurationException e) {
-      LOG.error(e);
-      e.printStackTrace();
+      LOG.error("Cannot evaluate XPath '{}'", xpathLocator, e);
     }
     return null;
   }
