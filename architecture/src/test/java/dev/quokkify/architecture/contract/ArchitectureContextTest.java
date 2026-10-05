@@ -91,6 +91,19 @@ public class ArchitectureContextTest {
   }
 
   @Test
+  public void oneClassGroupWithoutTheOtherCannotRun() {
+    try (ArchitectureContext context = ArchitectureContext.builder(PACKAGES)
+        .mainClasses(List.of(ClassDirs.main()))
+        .build()) {
+      assertThatThrownBy(context::all)
+          .as("ALL would silently miss the test classes")
+          .isInstanceOf(ArchitectureRunnerError.class)
+          .hasMessageContaining(ArchitectureContext.TEST_CLASSES_PROPERTY);
+      assertThatThrownBy(context::scan).isInstanceOf(ArchitectureRunnerError.class);
+    }
+  }
+
+  @Test
   public void unconfiguredClassDirectoriesCannotSeparateMainFromTest() {
     try (ArchitectureContext context = new ArchitectureContext(PACKAGES)) {
       assertThatThrownBy(context::mainClasses)

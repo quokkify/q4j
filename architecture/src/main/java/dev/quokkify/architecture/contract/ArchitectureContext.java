@@ -26,10 +26,13 @@ import io.github.classgraph.ScanResult;
  * any particular project: the consumer names its root packages through {@link #PACKAGES_PROPERTY} or the
  * constructor, and every rule reads the same selection.
  *
- * <p>Three models are offered: the ArchUnit {@link JavaClasses} and the ClassGraph {@link ScanResult} read
- * bytecode, while {@link #mainSources()} and {@link #testSources()} hold JavaParser syntax trees for rules that
- * verify the content of classes and methods. Each is created lazily on first use and then cached, so a scan or
- * a parse happens at most once per verification run regardless of how many rules are registered.
+ * <p>Three models are offered. The ArchUnit {@link JavaClasses} of {@link #all()}, with its
+ * {@link #mainClasses()} and {@link #testClasses()} views, and the ClassGraph {@link ScanResult} read bytecode;
+ * {@link #mainSources()} and {@link #testSources()} hold JavaParser syntax trees for rules that verify the
+ * content of classes and methods. Each is created lazily on first use and then cached, so a scan or a parse
+ * happens at most once per verification run regardless of how many rules are registered. With class
+ * directories configured, only those directories are verified; with sources configured as well, generated
+ * classes are left out of the ArchUnit models.
  *
  * <p>This class is safe to share between concurrently evaluated rules, which is how
  * {@code ArchitectureRunner} uses it. Each cache has its own lock, so a rule waiting for the ArchUnit
@@ -67,6 +70,8 @@ public class ArchitectureContext implements AutoCloseable {
    * Comma separated test class directories, for example {@code -Darchitecture.test.classes=build/classes/java/test}.
    */
   public static final String TEST_CLASSES_PROPERTY = "architecture.test.classes";
+
+  private static final String PACKAGE_INFO = "package-info";
 
   private final List<String> packages;
   private final List<Path> mainClassDirs;
@@ -211,6 +216,7 @@ public class ArchitectureContext implements AutoCloseable {
    * @throws ArchitectureRunnerError when no main class directory was configured
    */
   public List<Path> mainClassDirs() {
+    requireOpen();
     return requireClassDirs(mainClassDirs, MAIN_CLASSES_PROPERTY);
   }
 
@@ -221,6 +227,7 @@ public class ArchitectureContext implements AutoCloseable {
    * @throws ArchitectureRunnerError when no test class directory was configured
    */
   public List<Path> testClassDirs() {
+    requireOpen();
     return requireClassDirs(testClassDirs, TEST_CLASSES_PROPERTY);
   }
 
@@ -253,6 +260,7 @@ public class ArchitectureContext implements AutoCloseable {
     requireOpen();
     synchronized (scanResultLock) {
       if (Objects.isNull(scanResult)) {
+        requireBothOrNoClassDirs();
         ClassGraph classGraph = new ClassGraph();
         if (hasClassDirs()) {
           classGraph.overrideClasspath(existingClassDirs());
@@ -287,6 +295,7 @@ public class ArchitectureContext implements AutoCloseable {
   }
 
   private JavaClasses importClasses() {
+    requireBothOrNoClassDirs();
     JavaClasses imported = hasClassDirs()
         ? new ClassFileImporter()
             .importPaths(existingClassDirs())
@@ -296,7 +305,29 @@ public class ArchitectureContext implements AutoCloseable {
     if (!mainSources.isConfigured() || !testSources.isConfigured()) {
       return imported;
     }
+    requireJavaOnly(imported);
     return imported.that(declaredIn(authoredTypeNames()));
+  }
+
+  /**
+   * Only Java sources are parsed, so a class compiled from Kotlin, Groovy or Scala would look generated and be
+   * dropped. Such a class aborts the run instead of disappearing from every bytecode rule.
+   */
+  private static void requireJavaOnly(JavaClasses imported) {
+    List<String> foreign = imported.stream()
+        .filter(javaClass -> javaClass.getSource()
+            .flatMap(source -> source.getFileName())
+            .filter(fileName -> !fileName.endsWith(".java"))
+            .isPresent())
+        .map(JavaClass::getName)
+        .sorted()
+        .toList();
+    if (!foreign.isEmpty()) {
+      throw new ArchitectureRunnerError("""
+          %d class(es) were not compiled from Java, for example %s. Only Java sources are parsed, so these \
+          classes cannot be told apart from generated code. Leave the source properties unset for this project.\
+          """.formatted(foreign.size(), foreign.get(0)));
+    }
   }
 
   /**
@@ -316,8 +347,21 @@ public class ArchitectureContext implements AutoCloseable {
       while (topLevel.getEnclosingClass().isPresent()) {
         topLevel = topLevel.getEnclosingClass().get();
       }
-      return authored.contains(topLevel.getName());
+      return authored.contains(topLevel.getName()) || PACKAGE_INFO.equals(topLevel.getSimpleName());
     });
+  }
+
+  /**
+   * Main classes without test classes, or the reverse, would leave {@link ClassScope#ALL} silently missing one
+   * half of the project.
+   */
+  private void requireBothOrNoClassDirs() {
+    if (Objects.isNull(mainClassDirs) != Objects.isNull(testClassDirs)) {
+      throw new ArchitectureRunnerError("""
+          Only one of -D%s and -D%s is set. Set both, an empty value meaning that the project has no such \
+          classes, or neither to import the packages from the classpath.\
+          """.formatted(MAIN_CLASSES_PROPERTY, TEST_CLASSES_PROPERTY));
+    }
   }
 
   private boolean hasClassDirs() {

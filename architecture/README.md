@@ -51,7 +51,7 @@ com.example.architecture.NoServiceDependsOnStepsRule
 val verifyArchitecture by tasks.registering(JavaExec::class) {
     group = "verification"
     mainClass = "dev.quokkify.architecture.ArchitectureRunner"
-    classpath = architecture + sourceSets.main.get().runtimeClasspath + sourceSets.test.get().output
+    classpath = architecture + sourceSets.test.get().runtimeClasspath
     systemProperty("architecture.packages", "com.example")
     systemProperty("architecture.main.classes", sourceSets.main.get().output.classesDirs.asPath.replace(File.pathSeparator, ","))
     systemProperty("architecture.test.classes", sourceSets.test.get().output.classesDirs.asPath.replace(File.pathSeparator, ","))
@@ -61,6 +61,10 @@ val verifyArchitecture by tasks.registering(JavaExec::class) {
 
 tasks.check { dependsOn(verifyArchitecture) }
 ```
+
+The test runtime classpath covers the main classes, the test classes and every dependency. The dependencies are
+needed even though they are not verified: a rule sees the deprecations and supertypes of a library class only
+when that class resolves. Pass only class directories that exist; a missing one is skipped.
 
 Q4J applies itself the same way: see `verifyArchitecture` in [`gradle/architecture.gradle`](../gradle/architecture.gradle).
 
@@ -155,9 +159,12 @@ reads. A rule that cannot run proves nothing and must never turn into a green `W
 | `mainSources()`, `testSources()` | JavaParser | content of classes and methods: calls, literals, statements |
 
 When class directories are set, the ArchUnit and ClassGraph models contain only those directories: the runner,
-your dependencies and anything else on the classpath are never verified. When main and test sources are set
+your dependencies and anything else on the classpath are never verified. Set both groups, or neither: one
+without the other aborts the run, since `ALL` would silently miss half of the project. When main and test sources are set
 too, the ArchUnit models also drop every class whose top level type has no authored Java source, so generated
-code (QueryDSL, annotation processors) is not verified either.
+code (QueryDSL, annotation processors) is not verified either. Only Java sources are parsed, so a project
+with Kotlin, Groovy or Scala classes under the verified packages aborts instead of losing them; leave the source
+properties unset there.
 
 Every model is built lazily, once per run, and shared by every rule. Rules only read them. A source file that
 does not parse aborts the run instead of being skipped, and so do sources of which none lies under
@@ -214,10 +221,14 @@ public class NoDeprecatedApiRule extends TaikaiArchitectureRule {
 - `scope()` picks the classes: `MAIN` (the default, like Taikai's own), `TEST` or `ALL`. The adapter supplies
   them, so `configure` must not set a namespace or classes.
 - A single Taikai rule that matches no class holds, for example the `serialVersionUID` convention in a module
-  without serializable classes. A scope that imports no class at all aborts the run, unless its class
+  without serializable classes. A selector that never matches, such as a mistyped logger type, therefore passes
+  too; override `allowsRulesMatchingNothing()` to make every rule of a set find something. A scope that imports no class at all aborts the run, unless its class
   directories are configured as empty.
-- The adapter never changes the global ArchUnit configuration: Taikai's `failOnEmpty` write is neutralised, so
-  your `archunit.properties` and concurrently evaluated rules keep their behaviour.
+- The adapter never changes the global ArchUnit configuration: Taikai is built in a thread local ArchUnit scope,
+  so your `archunit.properties` and concurrently evaluated rules keep their behaviour.
+- Taikai settings the adapter cannot honour abort the run instead of being ignored: a namespace set in
+  `configure`, or a Taikai rule importing `ONLY_TESTS` or `WITH_TESTS` outside the scope. Exclusions, of a rule
+  or of the whole set, are applied.
 - One adapter rule is one report entry with one severity. Split rule sets that need different severities into
   separate classes.
 

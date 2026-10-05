@@ -24,12 +24,13 @@ public class NoConsoleOutputRuleTest {
     try (ArchitectureContext context = mainContextFor("violating")) {
       assertThatThrownBy(() -> rule.verify(context))
           .isInstanceOf(AssertionError.class)
-          .as("System.out, a statically imported out, System.err::println, printStackTrace() and dumpStack()")
-          .hasMessageContaining("Found 5 Taikai violation(s)")
+          .as("System.out, a statically imported out, System.err::println, printStackTrace(), dumpStack() and a reference")
+          .hasMessageContaining("Found 6 Taikai violation(s)")
           .hasMessageContaining(NoisyComponent.class.getName() + ".run() calls java.lang.System.out")
           .hasMessageContaining(NoisyComponent.class.getName() + ".run() calls java.lang.System.err")
           .hasMessageContaining("java.lang.IllegalStateException.printStackTrace()")
-          .hasMessageContaining("java.lang.Thread.dumpStack()");
+          .hasMessageContaining("java.lang.Thread.dumpStack()")
+          .hasMessageContaining("references method <java.lang.Throwable.printStackTrace()>");
     }
   }
 

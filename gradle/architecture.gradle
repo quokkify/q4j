@@ -42,7 +42,10 @@ subprojects {
         group = 'verification'
         description = 'Verifies the architecture rules registered in tools/architecture against this module.'
         mainClass = 'dev.quokkify.architecture.ArchitectureRunner'
-        classpath = files(runnerSettings) + configurations.architectureRunner + mainClasses + testClasses
+        // The module's runtime classpath only resolves what its classes reference, such as the supertypes and
+        // annotations of a dependency; the verified classes are still limited to the class directories below.
+        classpath = files(runnerSettings) + configurations.architectureRunner + mainClasses + testClasses +
+            files({ sourceSets.collect { it.runtimeClasspath } })
         systemProperty 'architecture.packages', 'dev.quokkify'
         inputs.files(mainSources.asFileTree.matching { include '**/*.java' })
             .withPropertyName('mainSources')

@@ -22,6 +22,7 @@ public class NoisyComponent {
       failure.printStackTrace();
     }
     Thread.dumpStack();
+    List.of(new IllegalStateException("fixture")).forEach(Throwable::printStackTrace);
   }
 
   private void work() {

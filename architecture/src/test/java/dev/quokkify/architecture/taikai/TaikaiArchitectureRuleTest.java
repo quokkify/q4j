@@ -10,8 +10,13 @@ import dev.quokkify.architecture.contract.RuleSeverity;
 import dev.quokkify.architecture.exceptions.ArchitectureRunnerError;
 import dev.quokkify.architecture.fixtures.taikai.violating.LowercaseLogger;
 
+import com.enofex.taikai.Namespace;
 import com.enofex.taikai.Taikai;
+import com.enofex.taikai.TaikaiRule;
 import com.tngtech.archunit.ArchConfiguration;
+import com.tngtech.archunit.core.domain.JavaClasses;
+import com.tngtech.archunit.core.importer.ClassFileImporter;
+import com.tngtech.archunit.lang.syntax.ArchRuleDefinition;
 import org.testng.annotations.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -79,6 +84,79 @@ public class TaikaiArchitectureRuleTest {
       }
     } finally {
       configuration.setProperty(FAIL_ON_EMPTY_SHOULD, previous);
+    }
+  }
+
+  @Test
+  public void exclusionsOfTheWholeSetAreHonoured() {
+    TaikaiArchitectureRule excluding = new LoggerNamingRule(RuleSeverity.ERROR) {
+
+      @Override
+      protected void configure(Taikai.Builder builder) {
+        super.configure(builder);
+        builder.excludeClasses(LowercaseLogger.class);
+      }
+    };
+
+    try (ArchitectureContext context = contextFor("violating")) {
+      assertThatCode(() -> excluding.verify(context)).doesNotThrowAnyException();
+    }
+  }
+
+  @Test
+  public void namespaceSetInsideTheRuleSetCannotRun() {
+    TaikaiArchitectureRule namespaced = new LoggerNamingRule(RuleSeverity.ERROR) {
+
+      @Override
+      protected void configure(Taikai.Builder builder) {
+        super.configure(builder);
+        builder.classes((JavaClasses) null).namespace("com.example");
+      }
+    };
+
+    try (ArchitectureContext context = contextFor("clean")) {
+      assertThatThrownBy(() -> namespaced.verify(context))
+          .isInstanceOf(ArchitectureRunnerError.class)
+          .hasMessageContaining("sets a Taikai namespace");
+    }
+  }
+
+  @Test
+  public void testOnlyTaikaiRuleOutsideTheScopeCannotRun() {
+    TaikaiArchitectureRule testOnly = new TestRule(RuleSeverity.ERROR) {
+
+      @Override
+      protected void configure(Taikai.Builder builder) {
+        builder.addRule(TaikaiRule.of(
+            ArchRuleDefinition.classes().should().bePublic(),
+            TaikaiRule.Configuration.of(Namespace.IMPORT.ONLY_TESTS)));
+      }
+    };
+
+    try (ArchitectureContext context = contextFor("clean")) {
+      assertThatThrownBy(() -> testOnly.verify(context))
+          .as("a rule meant for tests must not run against main classes and match nothing")
+          .isInstanceOf(ArchitectureRunnerError.class)
+          .hasMessageContaining("ONLY_TESTS");
+    }
+  }
+
+  @Test
+  public void taikaiRuleBoundToNoClassCannotRun() {
+    TaikaiArchitectureRule bound = new TestRule(RuleSeverity.ERROR) {
+
+      @Override
+      protected void configure(Taikai.Builder builder) {
+        builder.addRule(TaikaiRule.of(
+            ArchRuleDefinition.classes().should().bePublic(),
+            TaikaiRule.Configuration.of(new ClassFileImporter().importPackages(FIXTURES + "missing"))));
+      }
+    };
+
+    try (ArchitectureContext context = contextFor("clean")) {
+      assertThatThrownBy(() -> bound.verify(context))
+          .isInstanceOf(ArchitectureRunnerError.class)
+          .hasMessageContaining("bound to an empty set of classes");
     }
   }
 
