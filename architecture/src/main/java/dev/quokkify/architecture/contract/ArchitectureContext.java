@@ -259,6 +259,9 @@ public class ArchitectureContext implements AutoCloseable {
   public ScanResult scan() {
     requireOpen();
     synchronized (scanResultLock) {
+      // Checked again under the lock: close() may have run between the first check and here, and a scan
+      // created after it would never be closed.
+      requireOpen();
       if (Objects.isNull(scanResult)) {
         requireBothOrNoClassDirs();
         ClassGraph classGraph = new ClassGraph();

@@ -8,6 +8,7 @@ import dev.quokkify.architecture.exceptions.ArchitectureRunnerError;
 import dev.quokkify.architecture.exceptions.ArchitectureViolationException;
 import dev.quokkify.architecture.fixtures.naming.compliant.CompliantSteps;
 import dev.quokkify.architecture.fixtures.naming.compliant.CompliantTest;
+import dev.quokkify.architecture.fixtures.naming.violating.InheritingCase;
 import dev.quokkify.architecture.fixtures.naming.violating.MisnamedClassLevelCase;
 import dev.quokkify.architecture.fixtures.naming.violating.MisnamedMethodCase;
 
@@ -38,9 +39,11 @@ public class TestClassNamingRuleTest {
     try (ArchitectureContext context = contextFor("violating")) {
       assertThatThrownBy(() -> rule.verify(context))
           .isInstanceOf(ArchitectureViolationException.class)
-          .hasMessageContaining("Violations (2)")
+          .hasMessageContaining("Violations (3)")
           .hasMessageContaining(MisnamedMethodCase.class.getName())
-          .hasMessageContaining(MisnamedClassLevelCase.class.getName());
+          .hasMessageContaining(MisnamedClassLevelCase.class.getName())
+          .as("a subclass runs the tests it inherits, so its name matters too")
+          .hasMessageContaining(InheritingCase.class.getName());
     }
   }
 

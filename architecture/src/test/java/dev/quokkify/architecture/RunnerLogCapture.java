@@ -25,6 +25,11 @@ import org.apache.logging.log4j.core.layout.PatternLayout;
  * events. Additivity is a property of the shared logger, so it is reference counted: switched off by the
  * first open capture and restored by the last one to close.
  *
+ * <p>Only events logged on the thread that opened the capture are seen. The runner evaluates each rule on its
+ * own virtual thread, so an event logged from inside a rule body finds no sink and is dropped, and while a
+ * capture is open it does not reach the console either. The report itself is logged on the calling thread and
+ * is captured. Capture by logger name instead before writing a test that asserts what a rule logs.
+ *
  * <p>Captures are not nestable on one thread: opening a second capture on the same thread replaces the sink
  * of the first. No test needs that today.
  */

@@ -38,7 +38,7 @@ dependencies {
 ```
 
 **2. Register rules** in `src/<sourceSet>/resources/META-INF/services/dev.quokkify.architecture.contract.ArchitectureRule`.
-The published jar registers none, so every rule is opt in.
+The published jar registers none, so every rule is opt-in.
 
 ```text
 dev.quokkify.architecture.rules.TestClassNamingRule
@@ -117,7 +117,7 @@ Gate: fail on WARNING -> passed
 
 ## ✍️ Writing a rule
 
-1. Implement `ArchitectureRule` with a public no argument constructor.
+1. Implement `ArchitectureRule` with a public no-argument constructor.
 2. List its class name in your `META-INF/services/dev.quokkify.architecture.contract.ArchitectureRule`.
 
 ```java
@@ -240,7 +240,7 @@ Rule names are part of the report contract: the report is sorted by `name()`, no
 
 | Rule                  | Severity | Protects                                                                                              |
 | --------------------- | -------- | ----------------------------------------------------------------------------------------------------- |
-| `TestClassNamingRule` | `ERROR`  | A class declaring TestNG `@Test` must be named `*Test`, or name based selection never runs it         |
+| `TestClassNamingRule` | `ERROR`  | A class declaring TestNG `@Test` must be named `*Test`, or name-based selection never runs it         |
 | `NoConsoleOutputRule` | `ERROR`  | Taikai and ArchUnit: main code logs instead of `System.out`/`err`, `printStackTrace()`, `dumpStack()` |
 | `JavaConventionsRule` | `ERROR`  | Taikai: `equals`/`hashCode` together, `serialVersionUID`, package and interface naming, `LOG` loggers |
 | `NoDeprecatedApiRule` | `INFO`   | Taikai: reports use of deprecated APIs without blocking dependency updates                            |
