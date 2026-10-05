@@ -34,13 +34,15 @@ import org.testng.xml.XmlTest;
  *
  * <p>
  * List of environment variables that should be provided in child projects:
- * SUITE_NAME, TEST_THREAD_COUNT, TEST_PARALLEL_MODE, DATA_PROVIDER_THREAD_COUNT.
+ * SUITE_NAME, TEST_THREAD_COUNT, TEST_PARALLEL_MODE, DATA_PROVIDER_THREAD_COUNT,
+ * SINGLE_THREAD_TESTS_IN_PARALLEL.
  * Used default values if not overridden.
  * </p>
  */
 public class SuiteListener implements IAlterSuiteListener, IInvokedMethodListener {
 
   private static final int SINGLE_THREAD_COUNT = 1;
+  private static final int GENERATED_TESTS_COUNT = 2;
   private static final TestNGExtension CONFIG = ConfigRegistry.get(TestNGExtension.class);
 
   @Override
@@ -142,6 +144,9 @@ public class SuiteListener implements IAlterSuiteListener, IInvokedMethodListene
   /**
    * Generate xml suite from provided classes with tests.
    * Contains tests for multiply threads and single threads.
+   * The single thread test starts after the multiply threads test has finished, unless
+   * SINGLE_THREAD_TESTS_IN_PARALLEL is enabled: then both tests run at the same time,
+   * while single thread tests are still executed one by one.
    *
    * @param tests provided xml classes with tests
    * @return generated xml suite as {@link XmlSuite}
@@ -150,6 +155,10 @@ public class SuiteListener implements IAlterSuiteListener, IInvokedMethodListene
     XmlSuite newSuite = new XmlSuite();
     newSuite.setName(getSuiteName());
     newSuite.setDataProviderThreadCount(getDataProviderThreadCount());
+    if (Boolean.TRUE.equals(CONFIG.singleThreadTestsInParallel())) {
+      newSuite.setParallel(XmlSuite.ParallelMode.TESTS);
+      newSuite.setThreadCount(GENERATED_TESTS_COUNT);
+    }
     XmlTest multiThreadTest = generateGroupXmlTest(newSuite, tests, ThreadGroup.MULTIPLY_THREADS);
     multiThreadTest.setName("Concurrency");
     multiThreadTest.setParallel(getTestParallelMode());

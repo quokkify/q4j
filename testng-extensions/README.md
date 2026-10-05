@@ -14,13 +14,14 @@ dependencies {
 
 ## Environment variables
 
-| Variable            | Default         | Description                                       |
-| ------------------- | --------------- | ------------------------------------------------- |
-| `RETRY_COUNT`       | `2`             | Number of retries for failed tests                |
-| `TEST_THREAD_COUNT` | `5`             | Parallel thread count                             |
-| `TEST_GROUP`        | —               | Group name filter (used by `SingleGroupListener`) |
-| `SUITE_NAME`        | `Default suite` | TestNG suite name                                 |
-| `EXECUTION_MODE`    | `LOCAL`         | Execution environment: `LOCAL`/`CI`/`DIND`        |
+| Variable                          | Default         | Description                                                        |
+| --------------------------------- | --------------- | ------------------------------------------------------------------ |
+| `RETRY_COUNT`                     | `2`             | Number of retries for failed tests                                 |
+| `TEST_THREAD_COUNT`               | `5`             | Parallel thread count                                              |
+| `TEST_GROUP`                      | —               | Group name filter (used by `SingleGroupListener`)                  |
+| `SUITE_NAME`                      | `Default suite` | TestNG suite name                                                  |
+| `EXECUTION_MODE`                  | `LOCAL`         | Execution environment: `LOCAL`/`CI`/`DIND`                         |
+| `SINGLE_THREAD_TESTS_IN_PARALLEL` | `false`         | Run `@SingleThread` tests alongside the parallel tests (see below) |
 
 Config is read from environment variables or `testng.properties`:
 
@@ -28,6 +29,20 @@ Config is read from environment variables or `testng.properties`:
 RETRY_COUNT=3
 TEST_THREAD_COUNT=10
 EXECUTION_MODE=CI
+```
+
+## Running `@SingleThread` tests alongside parallel tests
+
+`SuiteListener` splits the suite into two `<test>` blocks: `Concurrency` (parallel, `TEST_THREAD_COUNT`
+threads) and `Sequential` (`@SingleThread` tests, one thread). By default `Sequential` starts only after
+`Concurrency` has finished.
+
+Set `SINGLE_THREAD_TESTS_IN_PARALLEL=true` to run both blocks at the same time. `@SingleThread` tests
+still run one by one on a single thread; they no longer wait for the parallel tests to finish. Enable it
+only when `@SingleThread` tests do not conflict with the parallel ones.
+
+```properties
+SINGLE_THREAD_TESTS_IN_PARALLEL=true
 ```
 
 ## Initialization in BaseTest

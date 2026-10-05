@@ -19,6 +19,10 @@ public interface TestNGExtension extends Config, Reloadable, Mutable {
   @Key("TEST_GROUP")
   String testGroup();
 
+  @Key("SINGLE_THREAD_TESTS_IN_PARALLEL")
+  @DefaultValue("false")
+  Boolean singleThreadTestsInParallel();
+
   @Key("SUITE_NAME")
   @DefaultValue("Default suite")
   String suiteName();
