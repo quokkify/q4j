@@ -3,10 +3,12 @@ package dev.quokkify.architecture.taikai;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Set;
 
 import dev.quokkify.architecture.contract.ArchitectureContext;
 import dev.quokkify.architecture.contract.ArchitectureRule;
 import dev.quokkify.architecture.contract.ClassScope;
+import dev.quokkify.architecture.contract.RuleScope;
 import dev.quokkify.architecture.exceptions.ArchitectureRunnerError;
 
 import com.enofex.taikai.Namespace;
@@ -53,6 +55,20 @@ public abstract class TaikaiArchitectureRule implements ArchitectureRule {
    */
   protected ClassScope scope() {
     return ClassScope.MAIN;
+  }
+
+  /**
+   * Derives the reported scopes from {@link #scope()}, so the report cannot disagree with the verified classes.
+   *
+   * @return {@link RuleScope#MAIN}, {@link RuleScope#TEST} or both
+   */
+  @Override
+  public final Set<RuleScope> scopes() {
+    return switch (scope()) {
+      case MAIN -> Set.of(RuleScope.MAIN);
+      case TEST -> Set.of(RuleScope.TEST);
+      case ALL -> Set.of(RuleScope.MAIN, RuleScope.TEST);
+    };
   }
 
   /**

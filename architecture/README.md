@@ -85,8 +85,10 @@ Q4J applies itself the same way: see `verifyArchitecture` in [`gradle/architectu
 | `architecture.test.resources` | _unset_    | Comma separated test resource directories for `resources()`; empty means none  |
 | `architecture.main.sources`   | _unset_    | Comma separated main source roots for `mainSources()`; empty means none        |
 | `architecture.test.sources`   | _unset_    | Comma separated test source roots for `testSources()`; empty means none        |
+| `architecture.module`         | _unset_    | Name of the verified module shown in the report header, such as `:core`        |
+| `architecture.color`          | `auto`     | Colored report: `auto` on a terminal, `always` or `never`                      |
 
-An unknown `architecture.fail.on` value, a missing package list, and an empty rule set all abort the run.
+An unknown `architecture.fail.on` or `architecture.color` value, a missing package list, and an empty rule set all abort the run.
 A typo in CI therefore cannot silently disable the gate. A rule that reads a source group whose property is
 unset aborts too, and so does a rule that reads resources while a resource property is unset; an empty value
 states that the project has no such sources or resources.
@@ -112,19 +114,38 @@ stricter CI job. In Q4J, pass the threshold as a Gradle property:
 ./gradlew check -Parchitecture.fail.on=WARNING
 ```
 
-The whole report is logged as one event at the worst severity found:
+The whole report is logged as one event at the worst severity found. It first lists the shared models the run
+built, each with its build time; a build nested in another, such as the ArchUnit import parsing the sources, is
+listed on its own. Each rule then shows what it verifies (`MAIN`, `TEST`, `RESOURCES`, or `-` when undeclared),
+its declared severity and the time of its own work. Rules run in parallel, and a rule waiting for a model that
+another rule is building is not charged with that wait, so the rule times do not add up to the total.
 
 ```text
 ============================================================
-Architecture verification (2 rules)
+Architecture verification of :common-utils:core (3 rules)
 ============================================================
-[PASS]  No console output in main code
-[PASS]  Test class naming
+Shared models, built once (rule times below exclude them):
+  ArchUnit classes         355 ms
+  JavaParser main sources   82 ms
+  ClassGraph classes        20 ms
+------------------------------------------------------------
+[PASS]  No console output in main code    MAIN       ERROR    19 ms
+[WARN]  No deprecated API usage (Taikai)  MAIN+TEST  WARNING  34 ms
+    Architecture Violation [Priority: MEDIUM] - Rule 'No classes should use deprecated APIs' ...
+[PASS]  Test class naming                 TEST       ERROR     2 ms
 ============================================================
-Architecture verification: 2 passed, 0 error(s), 0 warning(s), 0 info in 412 ms
+Architecture verification: 2 passed, 0 error(s), 1 warning(s), 0 info in 498 ms
 ============================================================
 Gate: fail on ERROR -> passed
 ```
+
+This plain layout carries no escape sequences, so a CI log stays greppable. On a terminal the report is colored
+and marks each rule with `✔`, `✘`, `⚠` or `ℹ`, or with ASCII symbols when standard output is not UTF-8. A build
+tool that pipes the runner output cannot be detected as a terminal, so it sets `architecture.color` itself: Q4J
+passes `never` for `--console=plain`, when `NO_COLOR` is set, or on CI (`CI` set) unless a `--console` mode
+asks for color, and `always` otherwise. Give the runner logger
+a `%msg%n` layout to print the report without a timestamp prefix, as
+[`tools/architecture/log4j2.xml`](../tools/architecture/log4j2.xml) does.
 
 ---
 
@@ -133,6 +154,8 @@ Gate: fail on ERROR -> passed
 1. Implement `ArchitectureRule` with a public no-argument constructor, or extend `TaikaiArchitectureRule`.
 2. List its class name in your `META-INF/services/dev.quokkify.architecture.contract.ArchitectureRule`.
 3. Read one of the shared models from the `ArchitectureContext`, and report what you find.
+4. Declare what the rule verifies in `scopes()`: `MAIN`, `TEST`, `RESOURCES` or a combination. The report shows
+   it next to the rule; an undeclared scope shows as `-`. A `TaikaiArchitectureRule` derives it from `scope()`.
 
 | Throw                                               | Meaning                | Effect                                   |
 | --------------------------------------------------- | ---------------------- | ---------------------------------------- |

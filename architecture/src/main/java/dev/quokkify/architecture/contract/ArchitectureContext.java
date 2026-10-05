@@ -96,6 +96,8 @@ public class ArchitectureContext implements AutoCloseable {
   private final JavaSources mainSources;
   private final JavaSources testSources;
 
+  private final ModelClock clock = new ModelClock();
+
   private final Object javaClassesLock = new Object();
   private final Object scanResultLock = new Object();
   private final Object resourcesLock = new Object();
@@ -122,8 +124,10 @@ public class ArchitectureContext implements AutoCloseable {
     this.testClassDirs = copyOrNull(builder.testClasses);
     this.mainResourceDirs = copyOrNull(builder.mainResources);
     this.testResourceDirs = copyOrNull(builder.testResources);
-    this.mainSources = new JavaSources(MAIN_SOURCES_PROPERTY, builder.mainSources, this.packages);
-    this.testSources = new JavaSources(TEST_SOURCES_PROPERTY, builder.testSources, this.packages);
+    this.mainSources = new JavaSources(
+        MAIN_SOURCES_PROPERTY, builder.mainSources, this.packages, clock, "JavaParser main sources");
+    this.testSources = new JavaSources(
+        TEST_SOURCES_PROPERTY, builder.testSources, this.packages, clock, "JavaParser test sources");
   }
 
   /**
@@ -226,12 +230,24 @@ public class ArchitectureContext implements AutoCloseable {
    */
   public JavaClasses all() {
     requireOpen();
-    synchronized (javaClassesLock) {
-      if (Objects.isNull(javaClasses)) {
-        javaClasses = importClasses();
+    return clock.access(() -> {
+      synchronized (javaClassesLock) {
+        if (Objects.isNull(javaClasses)) {
+          javaClasses = clock.build("ArchUnit classes", this::importClasses);
+        }
+        return javaClasses;
       }
-      return javaClasses;
-    }
+    });
+  }
+
+  /**
+   * Returns the clock measuring how long the shared models take to build and how long each thread waits for
+   * them, which the runner uses to report rule times without that wait.
+   *
+   * @return clock of this context
+   */
+  public ModelClock modelClock() {
+    return clock;
   }
 
   /**
@@ -286,6 +302,10 @@ public class ArchitectureContext implements AutoCloseable {
    */
   public ScanResult scan() {
     requireOpen();
+    return clock.access(this::scanOnce);
+  }
+
+  private ScanResult scanOnce() {
     synchronized (scanResultLock) {
       // Checked again under the lock: close() may have run between the first check and here, and a scan
       // created after it would never be closed.
@@ -296,7 +316,7 @@ public class ArchitectureContext implements AutoCloseable {
         if (hasClassDirs()) {
           classGraph.overrideClasspath(existingClassDirs());
         }
-        scanResult = classGraph
+        scanResult = clock.build("ClassGraph classes", () -> classGraph
             .acceptPackages(packages.toArray(String[]::new))
             .enableClassInfo()
             .enableMethodInfo()
@@ -305,7 +325,7 @@ public class ArchitectureContext implements AutoCloseable {
             .enableAnnotationInfo()
             .ignoreMethodVisibility()
             .ignoreFieldVisibility()
-            .scan();
+            .scan());
       }
       return scanResult;
     }
@@ -325,14 +345,16 @@ public class ArchitectureContext implements AutoCloseable {
    */
   public ResourceList resources() {
     requireOpen();
-    synchronized (resourcesLock) {
-      // Checked again under the lock, as in scan(): a scan created after close() would never be closed.
-      requireOpen();
-      if (Objects.isNull(resources)) {
-        resources = scanResources();
+    return clock.access(() -> {
+      synchronized (resourcesLock) {
+        // Checked again under the lock, as in scan(): a scan created after close() would never be closed.
+        requireOpen();
+        if (Objects.isNull(resources)) {
+          resources = clock.build("ClassGraph resources", this::scanResources);
+        }
+        return resources;
       }
-      return resources;
-    }
+    });
   }
 
   /**

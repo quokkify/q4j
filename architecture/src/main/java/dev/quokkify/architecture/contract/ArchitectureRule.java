@@ -1,6 +1,7 @@
 package dev.quokkify.architecture.contract;
 
 import java.util.List;
+import java.util.Set;
 
 import dev.quokkify.architecture.exceptions.ArchitectureViolationException;
 
@@ -32,6 +33,16 @@ public interface ArchitectureRule {
    * @return rule severity, never {@code null}
    */
   RuleSeverity severity();
+
+  /**
+   * Returns which parts of the project this rule verifies, shown next to the rule in the report. Defaults to
+   * none, which the report shows as undeclared, so a rule written before scopes existed keeps working.
+   *
+   * @return verified scopes, empty when undeclared, never {@code null}
+   */
+  default Set<RuleScope> scopes() {
+    return Set.of();
+  }
 
   /**
    * Verifies this contract against the project, throwing when it is violated.

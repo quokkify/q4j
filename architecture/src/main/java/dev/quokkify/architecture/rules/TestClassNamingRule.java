@@ -1,10 +1,12 @@
 package dev.quokkify.architecture.rules;
 
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Stream;
 
 import dev.quokkify.architecture.contract.ArchitectureContext;
 import dev.quokkify.architecture.contract.ArchitectureRule;
+import dev.quokkify.architecture.contract.RuleScope;
 import dev.quokkify.architecture.contract.RuleSeverity;
 import dev.quokkify.architecture.exceptions.ArchitectureRunnerError;
 
@@ -39,6 +41,11 @@ public class TestClassNamingRule implements ArchitectureRule {
   @Override
   public RuleSeverity severity() {
     return RuleSeverity.ERROR;
+  }
+
+  @Override
+  public Set<RuleScope> scopes() {
+    return Set.of(RuleScope.TEST);
   }
 
   @Override
