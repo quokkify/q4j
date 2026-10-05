@@ -1,0 +1,1 @@
+{"id":"388d13558cef5d9ac4cec2165ef9da2e.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.CsvParserTest.testParseCsvFileToObjectHeader","name":"Verify parse CSV file with header to record model","status":"passed","testResultsByEnv":{"ubuntu-24-04":"9f41bd5190f2eff30b16a22c9120124e"}}
