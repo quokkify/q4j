@@ -93,15 +93,34 @@ public void inspectRecentLogLines() throws Exception {
 }
 ````
 
+## Serializing identical commands
+
+Parallel tests that send the same command to the same host can collide (two migrations, two restarts of one service).
+Pass a target name and a queue timeout to run identical commands on that target one at a time, while different
+commands, or the same command on another target, still run in parallel:
+
+```java
+@Test
+public void reindexSearch() {
+    String output = SshUtils.executeCommand(shell, "staging-01", "bin/rake search:reindex", Duration.ofMinutes(5));
+    assertThat(output).contains("done");
+}
+```
+
+Commands are compared after trimming surrounding whitespace and normalizing line endings. A caller that waits longer
+than the timeout gets a `CommandLockTimeoutException`; an interrupted caller gets an `IllegalStateException` with the
+interrupt flag restored. Lock entries are dropped as soon as the last caller for a key finishes.
+
 ## Key API
 
-| Method                                             | Returns   | Notes                                 |
-| -------------------------------------------------- | --------- | ------------------------------------- |
-| `SshUtils.createSession(config)`                   | `Session` | Opens JSch session                    |
-| `SshUtils.setPortForwarding(session, config)`      | `void`    | Binds local port to remote port       |
-| `SshUtils.deletePortForwarding(session, port)`     | `void`    | Releases local port binding           |
-| `SshUtils.closeSession(session)`                   | `void`    | Disconnects and frees resources       |
-| `SshUtils.executeCommand(shell, command)`          | `String`  | Returns stdout of the command         |
-| `SshUtils.getTextMatchesInFile(shell, path, text)` | `String`  | grep result for `text` in remote file |
-| `SshUtils.getLastRowsFromFile(shell, path, n)`     | `String`  | tail -n result from remote file       |
-| `SshUtils.executeRubyCommand(shell, command)`      | `String`  | Runs command via ruby interpreter     |
+| Method                                                     | Returns   | Notes                                                |
+| ---------------------------------------------------------- | --------- | ---------------------------------------------------- |
+| `SshUtils.createSession(config)`                           | `Session` | Opens JSch session                                   |
+| `SshUtils.setPortForwarding(session, config)`              | `void`    | Binds local port to remote port                      |
+| `SshUtils.deletePortForwarding(session, port)`             | `void`    | Releases local port binding                          |
+| `SshUtils.closeSession(session)`                           | `void`    | Disconnects and frees resources                      |
+| `SshUtils.executeCommand(shell, command)`                  | `String`  | Returns stdout of the command                        |
+| `SshUtils.executeCommand(shell, target, command, timeout)` | `String`  | Same, queued behind an identical command on `target` |
+| `SshUtils.getTextMatchesInFile(shell, path, text)`         | `String`  | grep result for `text` in remote file                |
+| `SshUtils.getLastRowsFromFile(shell, path, n)`             | `String`  | tail -n result from remote file                      |
+| `SshUtils.executeRubyCommand(shell, command)`              | `String`  | Runs command via ruby interpreter                    |

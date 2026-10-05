@@ -1,6 +1,8 @@
 package dev.quokkify.util;
 
 import java.io.IOException;
+import java.time.Duration;
+import java.util.Objects;
 
 import dev.quokkify.config.SshPortForwardConfig;
 import dev.quokkify.model.ConstantFormat;
@@ -24,6 +26,7 @@ public final class SshUtils {
 
   private static final String LOAD_PROFILE_COMMAND = "source /etc/profile";
   private static final String HOST_KEY_CHECKING_RULE = "StrictHostKeyChecking";
+  private static final CommandLockManager COMMAND_LOCKS = new CommandLockManager();
 
   private SshUtils() {
   }
@@ -109,6 +112,39 @@ public final class SshUtils {
       return clearCertificateWillExpireWarning(string);
     } catch (IOException e) {
       throw new RuntimeException("Failed to execute command safely", e);
+    }
+  }
+
+  /**
+   * Execute shell command, waiting while an identical command runs on the same target.
+   *
+   * <p>Calls with the same {@code target} and the same command (ignoring surrounding whitespace and
+   * line-ending style) run one at a time; any other combination runs in parallel.</p>
+   *
+   * @param shell        command line interface
+   * @param target       name of the remote target, such as a host or environment
+   * @param command      command to execute
+   * @param queueTimeout maximum time to wait for an identical running command to finish
+   * @return result of executed command
+   * @throws CommandLockTimeoutException if the identical command is still running after {@code queueTimeout}
+   * @throws IllegalStateException       if the thread is interrupted while waiting; the interrupt flag is restored
+   */
+  public static String executeCommand(Shell shell, String target, String command, Duration queueTimeout) {
+    Objects.requireNonNull(shell, "shell");
+    CommandLockManager.CommandLockKey key = CommandLockManager.CommandLockKey.of(target, command);
+    try (CommandLockManager.LockHandle ignored = acquireCommandLock(key, queueTimeout)) {
+      return executeCommand(shell, command);
+    }
+  }
+
+  private static CommandLockManager.LockHandle acquireCommandLock(CommandLockManager.CommandLockKey key,
+      Duration queueTimeout) {
+    try {
+      return COMMAND_LOCKS.acquire(key, queueTimeout);
+    } catch (InterruptedException e) {
+      Thread.currentThread().interrupt();
+      throw new IllegalStateException("Interrupted while waiting to execute command on target '%s': %s"
+          .formatted(key.target(), key.normalizedCommand()), e);
     }
   }
 
