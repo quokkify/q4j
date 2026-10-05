@@ -1,0 +1,1 @@
+{"id":"549646902fd43857631d4568c13a1465.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.TableModelContractTest.resolvesDisplayedHeader","name":"Resolve typed columns by displayed headers rather than enum ordinal","status":"passed","testResultsByEnv":{"ubuntu-24-04":"d9fdaf9939da13d6b75a036791b887bc"}}
