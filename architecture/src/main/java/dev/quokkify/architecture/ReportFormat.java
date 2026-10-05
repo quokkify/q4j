@@ -7,7 +7,10 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
+import java.util.stream.Collectors;
 
+import dev.quokkify.architecture.contract.RuleScope;
 import dev.quokkify.architecture.contract.RuleSeverity;
 import dev.quokkify.architecture.exceptions.ArchitectureRunnerError;
 
@@ -39,7 +42,8 @@ final class ReportFormat {
   private static final String SEPARATOR = "=".repeat(60);
   private static final String PLAIN_INDENT = "    ";
   private static final String TAG_FORMAT = "%-7s";
-  private static final int RICH_RULE_WIDTH = 64;
+  private static final int RICH_RULE_WIDTH = 72;
+  private static final String UNDECLARED_SCOPE = "-";
 
   private static final String RESET = "\u001B[0m";
   private static final String BOLD = "\u001B[1m";
@@ -47,6 +51,7 @@ final class ReportFormat {
   private static final String RED = "\u001B[31m";
   private static final String GREEN = "\u001B[32m";
   private static final String YELLOW = "\u001B[33m";
+  private static final String BLUE = "\u001B[34m";
   private static final String CYAN = "\u001B[36m";
 
   private final String module;
@@ -138,6 +143,7 @@ final class ReportFormat {
 
   private List<String> plain(int total, List<Row> rows, ArchitectureRunner.Report report, long elapsed) {
     int nameWidth = nameWidth(rows);
+    int scopeWidth = scopeWidth(rows);
     int timeWidth = timeWidth(rows);
     List<String> lines = new ArrayList<>();
     lines.add(SEPARATOR);
@@ -147,8 +153,8 @@ final class ReportFormat {
     lines.add(SEPARATOR);
     for (Row row : rows) {
       String tag = row.passed() ? "[PASS]" : "[%s]".formatted(row.severity().getLabel());
-      lines.add("%s %s  %-7s  %s".formatted(TAG_FORMAT.formatted(tag), pad(row.name(), nameWidth),
-          row.severity().name(), duration(row.millis(), timeWidth)).stripTrailing());
+      lines.add("%s %s  %s  %-7s  %s".formatted(TAG_FORMAT.formatted(tag), pad(row.name(), nameWidth),
+          pad(row.scope(), scopeWidth), row.severity().name(), duration(row.millis(), timeWidth)).stripTrailing());
       if (!row.passed()) {
         row.message().lines().map(PLAIN_INDENT::concat).forEach(lines::add);
       }
@@ -165,6 +171,7 @@ final class ReportFormat {
 
   private List<String> rich(int total, List<Row> rows, ArchitectureRunner.Report report, long elapsed) {
     int nameWidth = nameWidth(rows);
+    int scopeWidth = scopeWidth(rows);
     int timeWidth = timeWidth(rows);
     String dot = " %s ".formatted(symbols.dot());
     List<String> lines = new ArrayList<>();
@@ -175,15 +182,16 @@ final class ReportFormat {
     for (Row row : rows) {
       String accent = accent(row);
       String name = row.passed() ? pad(row.name(), nameWidth) : paint(accent + BOLD, pad(row.name(), nameWidth));
-      lines.add("  %s %s  %s  %s".formatted(paint(accent, symbol(row)), name,
-          paint(DIM, "%-7s".formatted(row.severity().name())), paint(DIM, duration(row.millis(), timeWidth))));
+      lines.add("  %s %s  %s  %s  %s".formatted(paint(accent, symbol(row)), name,
+          paint(BLUE, pad(row.scope(), scopeWidth)), paint(DIM, "%-7s".formatted(row.severity().name())),
+          paint(DIM, duration(row.millis(), timeWidth))));
       if (!row.passed()) {
         row.message().lines()
             .map(line -> "    %s %s".formatted(paint(accent, symbols.bar()), line))
             .forEach(lines::add);
       }
     }
-    lines.add(paint(DIM, "  " + symbols.rule().repeat(Math.min(RICH_RULE_WIDTH, nameWidth + timeWidth + 16))));
+    lines.add(paint(DIM, "  " + symbols.rule().repeat(Math.min(RICH_RULE_WIDTH, nameWidth + scopeWidth + timeWidth + 18))));
     List<String> counts = List.of(
         count(GREEN, passed(rows, report), "passed", "passed"),
         count(RED, report.errors(), "error", "errors"),
@@ -241,6 +249,10 @@ final class ReportFormat {
     return rows.stream().mapToInt(row -> row.name().length()).max().orElse(0);
   }
 
+  private static int scopeWidth(List<Row> rows) {
+    return rows.stream().mapToInt(row -> row.scope().length()).max().orElse(0);
+  }
+
   private static int timeWidth(List<Row> rows) {
     return rows.stream().mapToInt(row -> Long.toString(row.millis()).length()).max().orElse(1);
   }
@@ -258,13 +270,24 @@ final class ReportFormat {
    *
    * @param name     rule name
    * @param severity declared rule severity
+   * @param scopes   declared verified scopes, empty when undeclared
    * @param message  the finding, or {@code null} when the rule passed
    * @param millis   time from submitting the rule until it completed, in milliseconds
    */
-  record Row(String name, RuleSeverity severity, String message, long millis) {
+  record Row(String name, RuleSeverity severity, Set<RuleScope> scopes, String message, long millis) {
 
     boolean passed() {
       return Objects.isNull(message);
+    }
+
+    /**
+     * Joins the scopes in declaration order, for example {@code MAIN+TEST}, whatever order the rule returned.
+     */
+    String scope() {
+      if (Objects.isNull(scopes) || scopes.isEmpty()) {
+        return UNDECLARED_SCOPE;
+      }
+      return scopes.stream().sorted().map(RuleScope::name).collect(Collectors.joining("+"));
     }
   }
 

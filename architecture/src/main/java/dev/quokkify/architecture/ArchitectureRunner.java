@@ -214,11 +214,12 @@ public final class ArchitectureRunner {
         }
         ArchitectureRule rule = outcome.rule();
         if (Objects.isNull(outcome.finding())) {
-          rows.add(new ReportFormat.Row(rule.name(), rule.severity(), null, outcome.millis()));
+          rows.add(new ReportFormat.Row(rule.name(), rule.severity(), rule.scopes(), null, outcome.millis()));
           continue;
         }
         RuleSeverity severity = rule.severity();
-        rows.add(new ReportFormat.Row(rule.name(), severity, describe(outcome.finding()), outcome.millis()));
+        rows.add(new ReportFormat.Row(
+            rule.name(), severity, rule.scopes(), describe(outcome.finding()), outcome.millis()));
         violated.merge(severity, 1, Integer::sum);
         if (Objects.isNull(worst) || severity.compareTo(worst) > 0) {
           worst = severity;

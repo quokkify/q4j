@@ -2,7 +2,9 @@ package dev.quokkify.architecture;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
+import dev.quokkify.architecture.contract.RuleScope;
 import dev.quokkify.architecture.contract.RuleSeverity;
 import dev.quokkify.architecture.exceptions.ArchitectureRunnerError;
 
@@ -20,8 +22,8 @@ public class ReportFormatTest {
   private static final String FINDING = "contract broken: SomeClass";
 
   private static final List<ReportFormat.Row> ROWS = List.of(
-      new ReportFormat.Row("Green rule", RuleSeverity.ERROR, null, 312),
-      new ReportFormat.Row("Loose rule with a longer name", RuleSeverity.WARNING, FINDING, 7));
+      new ReportFormat.Row("Green rule", RuleSeverity.ERROR, Set.of(RuleScope.TEST, RuleScope.MAIN), null, 312),
+      new ReportFormat.Row("Loose rule with a longer name", RuleSeverity.WARNING, Set.of(), FINDING, 7));
   private static final ArchitectureRunner.Report REPORT = new ArchitectureRunner.Report(0, 1, 0);
 
   @Test
@@ -31,10 +33,19 @@ public class ReportFormatTest {
     assertThat(lines).noneMatch(line -> line.contains(ESCAPE));
     assertThat(lines).contains("Architecture verification of :common-utils:core (2 rules)");
     assertThat(lines).contains(
-        "[PASS]  Green rule                     ERROR    312 ms",
-        "[WARN]  Loose rule with a longer name  WARNING    7 ms",
+        "[PASS]  Green rule                     MAIN+TEST  ERROR    312 ms",
+        "[WARN]  Loose rule with a longer name  -          WARNING    7 ms",
         "    " + FINDING,
         "Architecture verification: 1 passed, 0 error(s), 1 warning(s), 0 info in 1045 ms");
+  }
+
+  @Test
+  public void resourceScopeIsShownForResourceRules() {
+    List<ReportFormat.Row> rows = List.of(
+        new ReportFormat.Row("Service registrations resolve", RuleSeverity.ERROR, Set.of(RuleScope.RESOURCES), null, 1));
+
+    assertThat(new ReportFormat("", false, true).render(1, rows, new ArchitectureRunner.Report(0, 0, 0), 1))
+        .contains("[PASS]  Service registrations resolve  RESOURCES  ERROR    1 ms");
   }
 
   @Test
