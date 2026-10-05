@@ -188,14 +188,14 @@ public class ArchitectureRunnerTest {
   }
 
   @Test
-  public void gateThresholdDefaultsToWarningAndAcceptsEverySeverity() {
+  public void gateThresholdDefaultsToErrorAndAcceptsEverySeverity() {
     assertThat(ArchitectureRunner.parseFailOn("ERROR")).contains(RuleSeverity.ERROR);
     assertThat(ArchitectureRunner.parseFailOn("WARNING")).contains(RuleSeverity.WARNING);
     assertThat(ArchitectureRunner.parseFailOn(" info ")).contains(RuleSeverity.INFO);
     assertThat(ArchitectureRunner.parseFailOn("never")).isEmpty();
     assertThat(ArchitectureRunner.failOnThreshold())
-        .as("errors and warnings must both fail the build by default")
-        .contains(RuleSeverity.WARNING);
+        .as("only errors fail the build by default; warnings fail where a build opts in")
+        .contains(RuleSeverity.ERROR);
   }
 
   @Test
@@ -211,11 +211,11 @@ public class ArchitectureRunnerTest {
     ArchitectureRunner.Report warningOnly = new ArchitectureRunner.Report(0, 1, 0);
 
     assertThat(warningOnly.hasFindingAtOrAbove(ArchitectureRunner.DEFAULT_FAIL_ON))
-        .as("a warning must fail the default gate")
-        .isTrue();
-    assertThat(warningOnly.hasFindingAtOrAbove(RuleSeverity.ERROR))
-        .as("lowering the gate to ERROR must let the same finding through")
+        .as("a warning must not fail the default gate")
         .isFalse();
+    assertThat(warningOnly.hasFindingAtOrAbove(RuleSeverity.WARNING))
+        .as("opting in with fail.on=WARNING must fail on the same finding")
+        .isTrue();
     assertThat(warningOnly.hasFindingAtOrAbove(RuleSeverity.INFO)).isTrue();
   }
 

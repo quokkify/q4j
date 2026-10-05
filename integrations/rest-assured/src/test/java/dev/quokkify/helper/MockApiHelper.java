@@ -28,8 +28,8 @@ public class MockApiHelper {
 
   public static ReqresUserPojo.Response createUser() {
     ReqresUserPojo.Request requestPojo = new ReqresUserPojo.Request(
-        RandomStringUtils.randomAlphabetic(10),
-        RandomStringUtils.randomAlphabetic(8)
+        RandomStringUtils.insecure().nextAlphabetic(10),
+        RandomStringUtils.insecure().nextAlphabetic(8)
     );
     ValidatableResponse validatableResponse = MOCK_API_SERVICE.createUser(requestPojo)
         .statusCode(HttpStatus.SC_CREATED);

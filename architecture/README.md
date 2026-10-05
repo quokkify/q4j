@@ -75,7 +75,7 @@ Q4J applies itself the same way: see `verifyArchitecture` in [`gradle/architectu
 | Property                    | Default    | Meaning                                                                        |
 | --------------------------- | ---------- | ------------------------------------------------------------------------------ |
 | `architecture.packages`     | _required_ | Comma separated root packages to scan                                          |
-| `architecture.fail.on`      | `WARNING`  | Least severe finding that fails the run: `INFO`, `WARNING`, `ERROR` or `NEVER` |
+| `architecture.fail.on`      | `ERROR`    | Least severe finding that fails the run: `INFO`, `WARNING`, `ERROR` or `NEVER` |
 | `architecture.main.classes` | _unset_    | Comma separated main class directories for `mainClasses()`; empty means none   |
 | `architecture.test.classes` | _unset_    | Comma separated test class directories for `testClasses()`; empty means none   |
 | `architecture.main.sources` | _unset_    | Comma separated main source roots for `mainSources()`; empty means none        |
@@ -92,12 +92,19 @@ unset aborts too, while an empty value states that the project has no such sourc
 | Severity  | Log level | Fails the default gate |
 | --------- | --------- | ---------------------- |
 | `INFO`    | `INFO`    | no                     |
-| `WARNING` | `WARN`    | **yes**                |
+| `WARNING` | `WARN`    | no, opt in             |
 | `ERROR`   | `ERROR`   | **yes**                |
 
 A rule declares how serious its contract is. Whether the build fails is decided once, at the end, by comparing
 the worst finding with `architecture.fail.on`. The same rule set can then run as a hard gate in one job and as
 a report in another.
+
+Only `ERROR` fails by default. A `WARNING` is reported and fails only where a build opts in, for example a
+stricter CI job. In Q4J, pass the threshold as a Gradle property:
+
+```bash
+./gradlew check -Parchitecture.fail.on=WARNING
+```
 
 The whole report is logged as one event at the worst severity found:
 
@@ -110,7 +117,7 @@ Architecture verification (2 rules)
 ============================================================
 Architecture verification: 2 passed, 0 error(s), 0 warning(s), 0 info in 412 ms
 ============================================================
-Gate: fail on WARNING -> passed
+Gate: fail on ERROR -> passed
 ```
 
 ---
@@ -203,7 +210,7 @@ public class NoDeprecatedApiRule extends TaikaiArchitectureRule {
 
   @Override
   public RuleSeverity severity() {
-    return RuleSeverity.INFO;
+    return RuleSeverity.WARNING;
   }
 
   @Override
@@ -238,12 +245,12 @@ Rule names are part of the report contract: the report is sorted by `name()`, no
 
 ## 📚 Shipped rules
 
-| Rule                  | Severity | Protects                                                                                              |
-| --------------------- | -------- | ----------------------------------------------------------------------------------------------------- |
-| `TestClassNamingRule` | `ERROR`  | A class declaring TestNG `@Test` must be named `*Test`, or name-based selection never runs it         |
-| `NoConsoleOutputRule` | `ERROR`  | Taikai and ArchUnit: main code logs instead of `System.out`/`err`, `printStackTrace()`, `dumpStack()` |
-| `JavaConventionsRule` | `ERROR`  | Taikai: `equals`/`hashCode` together, `serialVersionUID`, package and interface naming, `LOG` loggers |
-| `NoDeprecatedApiRule` | `INFO`   | Taikai: reports use of deprecated APIs without blocking dependency updates                            |
+| Rule                  | Severity  | Protects                                                                                              |
+| --------------------- | --------- | ----------------------------------------------------------------------------------------------------- |
+| `TestClassNamingRule` | `ERROR`   | A class declaring TestNG `@Test` must be named `*Test`, or name-based selection never runs it         |
+| `NoConsoleOutputRule` | `ERROR`   | Taikai and ArchUnit: main code logs instead of `System.out`/`err`, `printStackTrace()`, `dumpStack()` |
+| `JavaConventionsRule` | `ERROR`   | Taikai: `equals`/`hashCode` together, `serialVersionUID`, package and interface naming, `LOG` loggers |
+| `NoDeprecatedApiRule` | `WARNING` | Taikai: reports use of deprecated APIs; fails only with `fail.on=WARNING`                             |
 
 Q4J applies the rules listed in [`tools/architecture`](../tools/architecture/META-INF/services) to every
 module with compiled classes: each module's `check` runs its own `verifyArchitecture` on the class directories

@@ -41,8 +41,8 @@ import org.apache.logging.log4j.Logger;
  * completion, so the output depends neither on the classpath order nor on which rule finishes first.
  *
  * <p>Whether the build fails is a separate decision, taken once at the end by comparing the worst finding
- * against the gate threshold from {@link #FAIL_ON_PROPERTY}. By default both errors and warnings fail;
- * {@code -Darchitecture.fail.on=ERROR} lets warnings through and {@code NEVER} reports without failing.
+ * against the gate threshold from {@link #FAIL_ON_PROPERTY}. By default only errors fail;
+ * {@code -Darchitecture.fail.on=WARNING} fails on warnings too and {@code NEVER} reports without failing.
  *
  * <p>To add a rule, implement {@link ArchitectureRule} and list it in
  * {@code META-INF/services/dev.quokkify.architecture.contract.ArchitectureRule}.
@@ -57,10 +57,10 @@ public final class ArchitectureRunner {
   static final String FAIL_ON_PROPERTY = "architecture.fail.on";
 
   /**
-   * Both errors and warnings fail the build unless the threshold is lowered. A finding that genuinely must
-   * not block anyone belongs at {@link RuleSeverity#INFO}.
+   * Only errors fail the build by default. Warnings are reported and fail only where a build opts in with
+   * {@code -Darchitecture.fail.on=WARNING}.
    */
-  static final RuleSeverity DEFAULT_FAIL_ON = RuleSeverity.WARNING;
+  static final RuleSeverity DEFAULT_FAIL_ON = RuleSeverity.ERROR;
 
   private static final String NEVER = "NEVER";
 
@@ -76,9 +76,9 @@ public final class ArchitectureRunner {
   /**
    * Runs every registered rule and fails the build when a finding reaches the gate threshold.
    *
-   * <p>The threshold comes from {@link #FAIL_ON_PROPERTY} and defaults to {@link #DEFAULT_FAIL_ON}, so both
-   * errors and warnings fail the build. Passing {@code -Darchitecture.fail.on=ERROR} lets warnings through,
-   * {@code INFO} fails on anything, and {@code NEVER} turns the run into a report.
+   * <p>The threshold comes from {@link #FAIL_ON_PROPERTY} and defaults to {@link #DEFAULT_FAIL_ON}, so only
+   * errors fail the build. Passing {@code -Darchitecture.fail.on=WARNING} fails on warnings too, {@code INFO}
+   * fails on anything, and {@code NEVER} turns the run into a report.
    *
    * @param args ignored
    * @throws ArchitectureViolationException when a finding reaches the threshold

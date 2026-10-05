@@ -11,6 +11,7 @@ import dev.quokkify.testrail.tickets.TicketSource;
 
 import com.atlassian.jira.rest.client.api.domain.Issue;
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.Strings;
 
 public class JiraTicketSource implements TicketSource {
 
@@ -45,6 +46,6 @@ public class JiraTicketSource implements TicketSource {
   }
 
   private static String jiraIssueUrl() {
-    return StringUtils.appendIfMissing(CONFIG.jiraUrl(), "/") + "browse/";
+    return Strings.CS.appendIfMissing(CONFIG.jiraUrl(), "/") + "browse/";
   }
 }

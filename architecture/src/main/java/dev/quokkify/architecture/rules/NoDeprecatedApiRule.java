@@ -9,10 +9,10 @@ import com.enofex.taikai.Taikai;
 /**
  * Reports the use of deprecated APIs, through Taikai's {@code noUsageOfDeprecatedAPIs}.
  *
- * <p>A deprecation usually arrives with a dependency update rather than with a code change. Failing every build
- * of the repository on such an update would block the update itself, so this is {@link RuleSeverity#INFO}: the
- * report lists every deprecated call, and a job can still turn it into a gate with
- * {@code -Darchitecture.fail.on=INFO}.
+ * <p>A deprecation should be fixed, but it usually arrives with a dependency update, and some cannot be avoided,
+ * such as an SPI method whose required signature uses a deprecated type. This is therefore a
+ * {@link RuleSeverity#WARNING}: reported on every run, and failing only where a build opts in with
+ * {@code -Darchitecture.fail.on=WARNING}.
  */
 public class NoDeprecatedApiRule extends TaikaiArchitectureRule {
 
@@ -23,7 +23,7 @@ public class NoDeprecatedApiRule extends TaikaiArchitectureRule {
 
   @Override
   public RuleSeverity severity() {
-    return RuleSeverity.INFO;
+    return RuleSeverity.WARNING;
   }
 
   @Override
