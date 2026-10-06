@@ -2,6 +2,29 @@
 
 ## [0.10.0](https://github.com/quokkify/q4j/compare/v0.9.0...v0.10.0) (2026-10-06)
 
+<!-- project-toolkit:rich-block:start -->
+### 💡 Usage Examples
+<!-- project-toolkit:rich-release-notes pr=690 -->
+#### **rest-assured:** add an architecture rule for HttpStatus constants (#690)
+```text
+# tools/architecture/META-INF/services/dev.quokkify.architecture.contract.ArchitectureRule
+dev.quokkify.architecture.restassured.HttpStatusConstantRule
+```
+
+```text
+[ERROR] HTTP statuses use HttpStatus constants  TEST  ERROR  1 ms
+    Violations (3):
+        - .../test/api/HealthTest.java line 14: verifyResponseStatusCode(...) passes 200; use HttpStatus.SC_OK
+        - .../test/api/ProductAuthorizationTest.java line 14: verifyResponseStatusCode(...) passes 401; use HttpStatus.SC_UNAUTHORIZED
+```
+
+### 🔄 Migration
+<!-- project-toolkit:rich-release-notes pr=691 -->
+#### **testng:** keep TestNG group filters in SuiteListener (#691)
+With included groups set, `@Before*` / `@After*` configuration methods that have no group and no `alwaysRun = true` no longer run. This is standard TestNG behaviour that `SuiteListener` used to hide. Add `alwaysRun = true` to shared setup and teardown methods that must run for every group.
+
+🤖 Generated with [Claude Code](https://claude.com/claude-code)
+<!-- project-toolkit:rich-block:end -->
 
 ### ✨ Features
 
