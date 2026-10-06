@@ -1,0 +1,1 @@
+{"id":"e93b425d2c89d0430931e152d0c4b251.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.architecture.rules.ServiceRegistrationRuleTest.everyProviderTheServiceLoaderWouldRejectIsReported","name":"everyProviderTheServiceLoaderWouldRejectIsReported","status":"passed","testResultsByEnv":{"ubuntu-24-04":"2ffcae1947f0a6137fe3772e7bd67b92"}}
