@@ -1,0 +1,187 @@
+name: Reusable module pipeline
+
+on:
+  workflow_call:
+    inputs:
+      runs-on:
+        description: Runner labels as JSON array
+        required: true
+        type: string
+      self-hosted:
+        description: Whether self-hosted runner is selected
+        required: true
+        type: boolean
+      group:
+        description: Module group (data or integrations)
+        required: true
+        type: string
+      name:
+        description: Short module name
+        required: true
+        type: string
+      module:
+        description: Gradle project path
+        required: true
+        type: string
+      slug:
+        description: Artifact-safe module identifier
+        required: true
+        type: string
+      run-tests:
+        description: Whether the module has tests to run after the build
+        required: false
+        type: boolean
+        default: false
+      profile:
+        description: Docker compose profile for tests, or none
+        required: false
+        type: string
+        default: none
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    name: Build
+    runs-on: ${{ fromJson(inputs.runs-on) }}
+    env:
+      CI: "true"
+    steps:
+      - name: 🔨Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: 🔨Prepare Java/Gradle
+        uses: quokkify/ci-kit/actions/setup-java-gradle@06c7bdce2f444734d95c61ef6485dd3d9543b226 # v3.0.3
+
+      - name: 🧱 Build (check, no tests)
+        uses: ./.github/actions/gradle-retry
+        with:
+          command: "./gradlew ${{ inputs.module }}:check -x ${{ inputs.module }}:test --warning-mode all --console=plain"
+
+      - name: 📊 Upload Gradle Problems report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: gradle-problems-build-${{ inputs.group }}-${{ inputs.slug }}
+          retention-days: 3
+          if-no-files-found: ignore
+          path: build/reports/problems/problems-report.html
+
+  test:
+    name: Test
+    needs: build
+    if: ${{ inputs.run-tests }}
+    runs-on: ${{ fromJson(inputs.runs-on) }}
+    env:
+      CI: "true"
+      COMPOSE_PROJECT_NAME: ci-${{ github.run_id }}-${{ inputs.slug }}
+      EXECUTION_MODE: ${{ inputs.self-hosted && 'DIND' || 'CI' }}
+      GRID_CDP_ENABLE: ${{ inputs.group == 'integrations' && 'true' || 'false' }}
+      MODULE_PATH: ${{ inputs.module }}
+      QUOKKIFY_TEST_PROFILE: ${{ inputs.profile }}
+      SUITE_TITLE: ${{ inputs.group == 'data' && 'Data' || 'Integrations' }} ${{ inputs.name }}
+    steps:
+      - name: 🔨Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: 🔨Prepare Java/Gradle
+        uses: quokkify/ci-kit/actions/setup-java-gradle@06c7bdce2f444734d95c61ef6485dd3d9543b226 # v3.0.3
+
+      - name: 🟢 Start Infra with health lifecycle
+        if: ${{ inputs.profile != 'none' }}
+        uses: quokkify/ci-kit/actions/compose-up@06c7bdce2f444734d95c61ef6485dd3d9543b226 # v3.0.3
+        with:
+          compose-files: |
+            tools/environment/docker/docker-compose.yml
+            tools/environment/docker/docker-compose.ci.yml
+          profiles: ${{ inputs.profile }}
+          additional-compose-args: --quiet-pull
+          before-compose-hook: tools/environment/scripts/infra/before_compose.sh
+          after-health-hook: tools/environment/scripts/infra/after_health.sh
+          timeout-seconds: "120"
+
+      - name: 🚀 Run tests
+        run: |
+          for env_file in selenium-grid mock-server mongo redis nginx reportportal kafka rabbitmq; do
+            if [[ -f "tools/environment/.${env_file}.env" ]]; then
+              set -a
+              # shellcheck source=/dev/null
+              source "tools/environment/.${env_file}.env"
+              set +a
+            fi
+          done
+          if [[ -n "${KAFKA_BOOTSTRAP_SERVERS:-}" ]]; then
+            export KAFKA_SERVER_ADDRESS="${KAFKA_BOOTSTRAP_SERVERS}"
+          fi
+          if [[ "${QUOKKIFY_TEST_PROFILE}" == "web" ]]; then
+            if [[ -n "${NGINX_BASE_URL:-}" ]]; then
+              export BASE_URL="${NGINX_BASE_URL}"
+            else
+              echo "NGINX_BASE_URL is not set for web profile" >&2
+              exit 1
+            fi
+          fi
+
+          GRADLE_RETRY_COMMAND="./gradlew ${MODULE_PATH}:test --warning-mode all --console=plain" bash tools/scripts/ci/gradle-retry.sh
+        shell: bash
+
+      - name: 🧾 Allure CI env fragment
+        if: always()
+        run: |
+          module_dir="${MODULE_PATH#:}"
+          module_dir="${module_dir//:/\/}"
+          mkdir -p "$module_dir/build/allure-results"
+          bash tools/scripts/ci/write-allure-ci-env-fragment.sh "${SUITE_TITLE}" "$module_dir/build/allure-results"
+        shell: bash
+
+      - name: 🛑 Stop Infra
+        if: ${{ inputs.profile != 'none' && always() }}
+        run: ./tools/environment/scripts/infra/stop_app.sh
+        shell: bash
+
+      - name: 📦 Stage dedicated Allure results
+        if: always()
+        run: |
+          results_path="${MODULE_PATH#:}"
+          results_path="${results_path//:/\/}"
+          rm -rf allure-artifact
+          mkdir -p "allure-artifact/${results_path}/build"
+          cp -a "${results_path}/build/allure-results" "allure-artifact/${results_path}/build/"
+        shell: bash
+
+      - name: 📊 Upload dedicated Allure results
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: allure-results-${{ inputs.group }}-${{ inputs.slug }}
+          retention-days: 3
+          if-no-files-found: error
+          path: "allure-artifact"
+
+      - name: 📦 Pack docker compose logs as artifact
+        if: ${{ inputs.profile != 'none' && always() }}
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        with:
+          name: docker-logs-${{ inputs.group }}-${{ inputs.slug }}
+          retention-days: 3
+          path: logs
+
+      - name: 📦 Pack test results as artifact
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: test-report-${{ inputs.group }}-${{ inputs.slug }}
+          retention-days: 3
+          path: |
+            **/build/reports
+            **/build/test-results
+
+      - name: 📊 Upload Gradle Problems report
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        if: always()
+        with:
+          name: gradle-problems-test-${{ inputs.group }}-${{ inputs.slug }}
+          retention-days: 3
+          if-no-files-found: ignore
+          path: build/reports/problems/problems-report.html
