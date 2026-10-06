@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.10.0](https://github.com/quokkify/q4j/compare/v0.9.0...v0.10.0) (2026-10-06)
+
+
+### ✨ Features
+
+* **rest-assured:** add an architecture rule for HttpStatus constants ([#690](https://github.com/quokkify/q4j/issues/690)) ([561769e](https://github.com/quokkify/q4j/commit/561769ed8a0d2ac7affa25339440889e7e245a60))
+
+
+### 🐛 Bug Fixes
+
+* **testng:** keep TestNG group filters in SuiteListener ([#691](https://github.com/quokkify/q4j/issues/691)) ([7a90b19](https://github.com/quokkify/q4j/commit/7a90b19f5c807ccfef0ab1ac1d8e3e4bb68a29df))
+
 ## [0.9.0](https://github.com/quokkify/q4j/compare/v0.8.0...v0.9.0) (2026-10-05)
 
 <!-- project-toolkit:rich-block:start -->
