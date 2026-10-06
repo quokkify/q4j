@@ -16,9 +16,11 @@ import dev.quokkify.listener.lifecycle.SuiteListener;
 import org.assertj.core.api.Assertions;
 import org.testng.IAlterSuiteListener;
 import org.testng.IAnnotationTransformer;
+import org.testng.IConfigurationListener;
 import org.testng.ITestListener;
 import org.testng.ITestResult;
 import org.testng.TestNG;
+import org.testng.annotations.BeforeClass;
 import org.testng.annotations.ITestAnnotation;
 import org.testng.annotations.Test;
 import org.testng.xml.XmlClass;
@@ -29,6 +31,8 @@ import org.testng.xml.XmlTest;
 public class SuiteListenerGroupsTest {
 
   private static final String API_GROUP = "api";
+  private static final String CONFIG_PREFIX = "config:";
+  private static final List<Class<?>> FIXTURES = List.of(FixtureTest.class, InheritedApiTest.class);
 
   @Test(description = "Included groups of the original test are applied to the generated tests")
   public void testIncludedGroupsSurvive() {
@@ -38,7 +42,7 @@ public class SuiteListenerGroupsTest {
     List<XmlTest> generated = alter(suite);
 
     Assertions.assertThat(generated).extracting(XmlTest::getName).containsExactly("Concurrency", "Sequential");
-    Assertions.assertThat(includedMethods(generated)).containsExactlyInAnyOrder("api", "apiSingleThread");
+    Assertions.assertThat(includedMethods(generated)).containsExactlyInAnyOrder("api", "apiSingleThread", "inheritedApi");
     Assertions.assertThat(generated).allSatisfy(test -> {
       Assertions.assertThat(test.getIncludedGroups()).as("Included groups of %s", test.getName()).containsExactly(API_GROUP);
       Assertions.assertThat(test.getExcludedGroups()).as("Excluded groups of %s", test.getName()).isEmpty();
@@ -69,7 +73,7 @@ public class SuiteListenerGroupsTest {
     new SuiteListener().alter(suites);
 
     Assertions.assertThat(includedMethods(suites.get(0).getTests()))
-        .containsExactlyInAnyOrder("api", "apiSingleThread", "plain", "plainSingleThread");
+        .containsExactlyInAnyOrder("api", "apiSingleThread", "inheritedApi", "plain", "plainSingleThread");
     Assertions.assertThat(suites.get(0).getGroups()).as("Generated suite groups").isNull();
     Assertions.assertThat(suites.get(0).getTests()).allSatisfy(test -> {
       Assertions.assertThat(test.getXmlGroups()).as("Groups of %s", test.getName()).isNull();
@@ -83,15 +87,17 @@ public class SuiteListenerGroupsTest {
   public void testExcludedGroupMethodsDoNotRun() {
     List<String> executed = run(testng -> testng.setExcludedGroups(API_GROUP));
 
-    Assertions.assertThat(executed).containsExactlyInAnyOrder("plain", "plainSingleThread");
+    Assertions.assertThat(testMethods(executed)).containsExactlyInAnyOrder("plain", "plainSingleThread");
+    Assertions.assertThat(executed).contains(CONFIG_PREFIX + "alwaysRunSetUp", CONFIG_PREFIX + "plainSetUp");
   }
 
   @SingleThread
-  @Test(description = "Only methods of a group included via TestNG#setGroups run")
+  @Test(description = "Only methods of a group included via TestNG#setGroups run, alwaysRun configuration still runs")
   public void testOnlyIncludedGroupMethodsRun() {
     List<String> executed = run(testng -> testng.setGroups(API_GROUP));
 
-    Assertions.assertThat(executed).containsExactlyInAnyOrder("api", "apiSingleThread");
+    Assertions.assertThat(testMethods(executed)).containsExactlyInAnyOrder("api", "apiSingleThread", "inheritedApi");
+    Assertions.assertThat(executed).contains(CONFIG_PREFIX + "alwaysRunSetUp").doesNotContain(CONFIG_PREFIX + "plainSetUp");
   }
 
   @SingleThread
@@ -99,7 +105,9 @@ public class SuiteListenerGroupsTest {
   public void testAllMethodsRunWithoutGroups() {
     List<String> executed = run(testng -> { });
 
-    Assertions.assertThat(executed).containsExactlyInAnyOrder("api", "apiSingleThread", "plain", "plainSingleThread");
+    Assertions.assertThat(testMethods(executed))
+        .containsExactlyInAnyOrder("api", "apiSingleThread", "inheritedApi", "plain", "plainSingleThread");
+    Assertions.assertThat(executed).contains(CONFIG_PREFIX + "alwaysRunSetUp", CONFIG_PREFIX + "plainSetUp");
   }
 
   private static XmlSuite fixtureSuite() {
@@ -107,7 +115,7 @@ public class SuiteListenerGroupsTest {
     suite.setName("Groups fixture");
     XmlTest test = new XmlTest(suite);
     test.setName("Fixture");
-    test.setXmlClasses(List.of(new XmlClass(FixtureTest.class)));
+    test.setXmlClasses(List.of(new XmlClass(FixtureTest.class), new XmlClass(InheritedApiTest.class)));
     return suite;
   }
 
@@ -124,6 +132,10 @@ public class SuiteListenerGroupsTest {
         .flatMap(xmlClass -> xmlClass.getIncludedMethods().stream())
         .map(XmlInclude::getName)
         .toList();
+  }
+
+  private static List<String> testMethods(List<String> executed) {
+    return executed.stream().filter(name -> !name.startsWith(CONFIG_PREFIX)).toList();
   }
 
   private static List<String> run(Consumer<TestNG> groupSelection) {
@@ -143,10 +155,16 @@ public class SuiteListenerGroupsTest {
         executed.add(result.getMethod().getMethodName());
       }
     });
+    testng.addListener(new IConfigurationListener() {
+      @Override
+      public void onConfigurationSuccess(ITestResult result) {
+        executed.add(CONFIG_PREFIX + result.getMethod().getMethodName());
+      }
+    });
     testng.addListener(new IAnnotationTransformer() {
       @Override
       public void transform(ITestAnnotation annotation, Class testClass, Constructor testConstructor, Method testMethod) {
-        if (Objects.nonNull(testMethod) && FixtureTest.class.equals(testMethod.getDeclaringClass())) {
+        if (Objects.nonNull(testMethod) && FIXTURES.contains(testMethod.getDeclaringClass())) {
           annotation.setEnabled(true);
         }
       }
@@ -160,6 +178,14 @@ public class SuiteListenerGroupsTest {
 
   // Disabled so the outer run skips it; run enables it for the nested TestNG run only.
   public static class FixtureTest {
+
+    @BeforeClass(alwaysRun = true)
+    public void alwaysRunSetUp() {
+    }
+
+    @BeforeClass
+    public void plainSetUp() {
+    }
 
     @Test(enabled = false, groups = API_GROUP)
     public void api() {
@@ -177,6 +203,17 @@ public class SuiteListenerGroupsTest {
     @SingleThread
     @Test(enabled = false)
     public void plainSingleThread() {
+    }
+  }
+
+  @Test(groups = API_GROUP)
+  public abstract static class GroupedApiBase {
+  }
+
+  public static class InheritedApiTest extends GroupedApiBase {
+
+    @Test(enabled = false)
+    public void inheritedApi() {
     }
   }
 }

@@ -40,6 +40,15 @@ import org.testng.xml.XmlTest;
  * SINGLE_THREAD_TESTS_IN_PARALLEL.
  * Used default values if not overridden.
  * </p>
+ *
+ * <p>
+ * TestNG group filters of the original suites and tests are merged and applied to the generated tests.
+ * Known limits: methods in other classes that are targets of dependsOnGroups or dependsOnMethods are not
+ * added when the group filter drops them, XML {@code <define>} meta-groups and groups changed by an
+ * {@link org.testng.IAnnotationTransformer} are not used to select test methods.
+ * SingleGroupListener must run before this listener, because this listener keeps only included methods
+ * of the original suites.
+ * </p>
  */
 public class SuiteListener implements IAlterSuiteListener, IInvokedMethodListener {
 
@@ -137,30 +146,48 @@ public class SuiteListener implements IAlterSuiteListener, IInvokedMethodListene
     if (includedGroups.isEmpty() && excludedGroups.isEmpty()) {
       return tests;
     }
+    List<Pattern> included = compileGroupPatterns(includedGroups);
+    List<Pattern> excluded = compileGroupPatterns(excludedGroups);
     return tests.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream()
-        .filter(method -> isMethodSelectedByGroups(method, includedGroups, excludedGroups))
+        .filter(method -> isMethodSelectedByGroups(method, included, excluded))
         .toList()));
   }
 
   /**
    * Check is method selected by provided groups.
-   * Method groups are the groups of its {@link Test} annotation and of the class level {@link Test} annotation.
+   * Method groups are the groups of its {@link Test} annotation and of the first class level {@link Test}
+   * annotation found in the class hierarchy, as TestNG resolves them.
    *
    * @param method         provided test method
    * @param includedGroups included group patterns, all groups are included if empty
    * @param excludedGroups excluded group patterns
    * @return method selection status as {@link Boolean}
    */
-  protected boolean isMethodSelectedByGroups(Method method, List<String> includedGroups, List<String> excludedGroups) {
-    Test classTest = method.getDeclaringClass().getAnnotation(Test.class);
+  protected boolean isMethodSelectedByGroups(Method method, List<Pattern> includedGroups, List<Pattern> excludedGroups) {
     List<String> groups = Stream.concat(
         Arrays.stream(method.getAnnotation(Test.class).groups()),
-        Objects.isNull(classTest) ? Stream.empty() : Arrays.stream(classTest.groups())).toList();
+        Arrays.stream(getClassLevelGroups(method.getDeclaringClass()))).toList();
     return (includedGroups.isEmpty() || matchesAnyGroup(groups, includedGroups)) && !matchesAnyGroup(groups, excludedGroups);
   }
 
-  private boolean matchesAnyGroup(List<String> groups, List<String> patterns) {
-    return groups.stream().anyMatch(group -> patterns.stream().anyMatch(pattern -> Pattern.matches(pattern, group)));
+  private String[] getClassLevelGroups(Class<?> testClass) {
+    for (Class<?> current = testClass; current != null && current != Object.class; current = current.getSuperclass()) {
+      Test classTest = current.getAnnotation(Test.class);
+      if (Objects.nonNull(classTest)) {
+        return classTest.groups();
+      }
+    }
+    return new String[0];
+  }
+
+  private List<Pattern> compileGroupPatterns(List<String> groups) {
+    return groups.stream()
+        .map(group -> Pattern.compile(group.contains("\\$") ? group : group.replace("$", "\\$")))
+        .toList();
+  }
+
+  private boolean matchesAnyGroup(List<String> groups, List<Pattern> patterns) {
+    return groups.stream().anyMatch(group -> patterns.stream().anyMatch(pattern -> pattern.matcher(group).matches()));
   }
 
   /**
