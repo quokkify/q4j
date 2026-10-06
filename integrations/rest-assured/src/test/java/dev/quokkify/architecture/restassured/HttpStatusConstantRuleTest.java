@@ -1,4 +1,4 @@
-package dev.quokkify.architecture.rules;
+package dev.quokkify.architecture.restassured;
 
 import java.net.URISyntaxException;
 import java.nio.file.Path;
@@ -51,6 +51,18 @@ public class HttpStatusConstantRuleTest {
           .hasMessageContaining("Violations (1)")
           .hasMessageContaining("passes 404; use HttpStatus.SC_NOT_FOUND")
           .hasMessageNotContaining("500");
+    }
+  }
+
+  @Test
+  public void classLevelApiGroupMarksTheWholeClassAndNonStatusMethodsAreIgnored() {
+    try (ArchitectureContext context = contextFor("class-grouped")) {
+      assertThatThrownBy(() -> new HttpStatusConstantRule("api").verify(context))
+          .isInstanceOf(ArchitectureViolationException.class)
+          .hasMessageContaining("Violations (1)")
+          .hasMessageContaining("expectStatus(...) passes 503; use HttpStatus.SC_SERVICE_UNAVAILABLE")
+          .as("a timeout setter whose name merely contains status is not a status check")
+          .hasMessageNotContaining("300");
     }
   }
 

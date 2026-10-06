@@ -85,20 +85,20 @@ public class OrderApiVerification extends BaseApiVerification<OrderApiVerificati
 
 ## Architecture rule: HTTP status constants
 
-`dev.quokkify.architecture.rules.HttpStatusConstantRule` is an
+`dev.quokkify.architecture.restassured.HttpStatusConstantRule` is an
 [architecture](../../architecture/README.md) rule for projects that use this module. In API tests it reports
-every call to a method whose name contains `status`, such as `verifyResponseStatusCode`, that passes an
-integer literal between 100 and 599. The report names the `org.apache.http.HttpStatus` constant to use:
+every call to a method whose name ends in `Status` or `StatusCode`, such as `verifyResponseStatusCode`, that
+passes an integer literal between 100 and 599 as a direct argument. The report names the `org.apache.http.HttpStatus` constant to use:
 
 ```text
-src/test/java/com/example/test/api/HealthTest.java line 14: verifyResponseStatusCode(...) passes 200; use HttpStatus.SC_OK
+/work/project/src/test/java/com/example/test/api/HealthTest.java line 14: verifyResponseStatusCode(...) passes 200; use HttpStatus.SC_OK
 ```
 
 The compiler inlines `HttpStatus.SC_OK` into `200`, so the rule reads the test sources. The runner therefore
 needs `architecture.test.sources`.
 
 An API test is a test source in a package with a segment named after the marker, such as `com.example.test.api`,
-or a method annotated with `@Test(groups = ...)` whose groups include the marker. The marker defaults to `api`;
+or a class or method annotated with `@Test(groups = ...)` whose groups include the marker as a string literal. The marker defaults to `api`;
 set `-Darchitecture.api.package` on the runner or the `ARCHITECTURE_API_PACKAGE` environment variable to change
 it. If test sources exist but none matches the marker, the run aborts instead of passing.
 
@@ -106,8 +106,10 @@ Register the rule next to the other rules of the project:
 
 ```text
 # META-INF/services/dev.quokkify.architecture.contract.ArchitectureRule
-dev.quokkify.architecture.rules.HttpStatusConstantRule
+dev.quokkify.architecture.restassured.HttpStatusConstantRule
 ```
+
+The runner classpath must hold `org.apache.http.HttpStatus`, which this module brings through REST Assured.
 
 ---
 
