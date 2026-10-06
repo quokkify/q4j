@@ -1,1 +1,0 @@
-{"id":"5210118829a2a32c4724ce5eebf43910.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.architecture.rules.NoConsoleOutputRuleTest.everyConsoleWriteIsReportedWithItsLocation","name":"everyConsoleWriteIsReportedWithItsLocation","status":"passed","testResultsByEnv":{"ubuntu-24-04":"0f8cfe9a3626f2090af9812ec379c57e"}}
