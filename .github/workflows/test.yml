@@ -55,81 +55,9 @@ jobs:
       CI: "true"
     strategy:
       fail-fast: false
-      max-parallel: 4
+      max-parallel: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' && 4 || 16 }}
       matrix:
         include: ${{ fromJson(needs.module-matrices.outputs.common_modules) }}
-
-    steps:
-      - name: 🔨Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-
-      - name: 🔨Prepare Java/Gradle
-        uses: quokkify/ci-kit/actions/setup-java-gradle@06c7bdce2f444734d95c61ef6485dd3d9543b226 # v3.0.3
-
-      - name: 🧱 Build (check, no tests)
-        uses: ./.github/actions/gradle-retry
-        with:
-          command: "./gradlew ${{ matrix.module }}:check -x ${{ matrix.module }}:test --warning-mode all --console=plain"
-
-      - name: 📊 Upload Gradle Problems report
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: always()
-        with:
-          name: gradle-problems-${{ github.job }}-${{ matrix.slug }}
-          retention-days: 3
-          if-no-files-found: ignore
-          path: build/reports/problems/problems-report.html
-
-  build-data:
-    name: "Build data • ${{ matrix.name }}"
-    needs: [detect-runner, module-matrices, build-common]
-    runs-on: ${{ fromJson(needs.detect-runner.outputs.runs_on) }}
-    if: ${{ github.event_name != 'pull_request_target' }}
-    permissions:
-      contents: read
-    env:
-      CI: "true"
-    strategy:
-      fail-fast: false
-      max-parallel: 4
-      matrix:
-        include: ${{ fromJson(needs.module-matrices.outputs.data_build_modules) }}
-
-    steps:
-      - name: 🔨Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-
-      - name: 🔨Prepare Java/Gradle
-        uses: quokkify/ci-kit/actions/setup-java-gradle@06c7bdce2f444734d95c61ef6485dd3d9543b226 # v3.0.3
-
-      - name: 🧱 Build (check, no tests)
-        uses: ./.github/actions/gradle-retry
-        with:
-          command: "./gradlew ${{ matrix.module }}:check -x ${{ matrix.module }}:test --warning-mode all --console=plain"
-
-      - name: 📊 Upload Gradle Problems report
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: always()
-        with:
-          name: gradle-problems-${{ github.job }}-${{ matrix.slug }}
-          retention-days: 3
-          if-no-files-found: ignore
-          path: build/reports/problems/problems-report.html
-
-  build-integrations:
-    name: "Build integrations • ${{ matrix.name }}"
-    needs: [detect-runner, module-matrices, build-common]
-    runs-on: ${{ fromJson(needs.detect-runner.outputs.runs_on) }}
-    if: ${{ github.event_name != 'pull_request_target' }}
-    permissions:
-      contents: read
-    env:
-      CI: "true"
-    strategy:
-      fail-fast: false
-      max-parallel: 4
-      matrix:
-        include: ${{ fromJson(needs.module-matrices.outputs.integrations_build_modules) }}
 
     steps:
       - name: 🔨Checkout
@@ -165,7 +93,7 @@ jobs:
       EXECUTION_MODE: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' && 'DIND' || 'CI' }}
     strategy:
       fail-fast: false
-      max-parallel: 4
+      max-parallel: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' && 4 || 16 }}
       matrix:
         include: ${{ fromJson(needs.module-matrices.outputs.common_modules) }}
 
@@ -230,336 +158,272 @@ jobs:
           if-no-files-found: ignore
           path: build/reports/problems/problems-report.html
 
-  test-data:
-    name: "Data • ${{ matrix.name }}"
-    needs: [detect-runner, module-matrices, build-data, test-common]
-    runs-on: ${{ fromJson(needs.detect-runner.outputs.runs_on) }}
+  data-utils-sql:
+    name: "Data • sql"
+    needs: [detect-runner, build-common]
     if: ${{ github.event_name != 'pull_request_target' }}
-    permissions:
-      contents: read
-    env:
-      CI: "true"
-      COMPOSE_PROJECT_NAME: ci-${{ github.run_id }}-${{ matrix.slug }}
-      EXECUTION_MODE: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' && 'DIND' || 'CI' }}
-    strategy:
-      fail-fast: false
-      max-parallel: 4
-      matrix:
-        include: ${{ fromJson(needs.module-matrices.outputs.data_test_modules) }}
+    uses: ./.github/workflows/reusable-module-pipeline.yml
+    with:
+      runs-on: ${{ needs.detect-runner.outputs.runs_on }}
+      self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
+      group: data
+      name: sql
+      module: ":data-utils:sql"
+      slug: data-utils-sql
+      run-tests: true
+      profile: none
 
-    steps:
-      - name: 🔨Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
-
-      - name: 🔨Prepare Java/Gradle
-        uses: quokkify/ci-kit/actions/setup-java-gradle@06c7bdce2f444734d95c61ef6485dd3d9543b226 # v3.0.3
-
-      - name: 🟢 Start Infra with health lifecycle
-        if: ${{ matrix.profile != 'none' }}
-        uses: quokkify/ci-kit/actions/compose-up@06c7bdce2f444734d95c61ef6485dd3d9543b226 # v3.0.3
-        with:
-          compose-files: |
-            tools/environment/docker/docker-compose.yml
-            tools/environment/docker/docker-compose.ci.yml
-          profiles: ${{ matrix.profile }}
-          additional-compose-args: --quiet-pull
-          before-compose-hook: tools/environment/scripts/infra/before_compose.sh
-          after-health-hook: tools/environment/scripts/infra/after_health.sh
-          timeout-seconds: "120"
-
-      - name: 🚀 Run tests
-        run: |
-          export MODULE_PATH='${{ matrix.module }}'
-          if [[ -f tools/environment/.selenium-grid.env ]]; then
-            set -a
-            source tools/environment/.selenium-grid.env
-            set +a
-          fi
-          if [[ -f tools/environment/.mock-server.env ]]; then
-            set -a
-            source tools/environment/.mock-server.env
-            set +a
-          fi
-          if [[ -f tools/environment/.mongo.env ]]; then
-            set -a
-            source tools/environment/.mongo.env
-            set +a
-          fi
-          if [[ -f tools/environment/.redis.env ]]; then
-            set -a
-            source tools/environment/.redis.env
-            set +a
-          fi
-          if [[ -f tools/environment/.nginx.env ]]; then
-            set -a
-            source tools/environment/.nginx.env
-            set +a
-          fi
-          if [[ -f tools/environment/.reportportal.env ]]; then
-            set -a
-            source tools/environment/.reportportal.env
-            set +a
-          fi
-          if [[ -f tools/environment/.kafka.env ]]; then
-            set -a
-            source tools/environment/.kafka.env
-            set +a
-          fi
-          if [[ -f tools/environment/.rabbitmq.env ]]; then
-            set -a
-            source tools/environment/.rabbitmq.env
-            set +a
-          fi
-          if [[ -n "${KAFKA_BOOTSTRAP_SERVERS:-}" ]]; then
-            export KAFKA_SERVER_ADDRESS="${KAFKA_BOOTSTRAP_SERVERS}"
-          fi
-          if [[ "${{ matrix.profile }}" == "web" ]]; then
-            if [[ -n "${NGINX_BASE_URL:-}" ]]; then
-              export BASE_URL="${NGINX_BASE_URL}"
-            else
-              echo "NGINX_BASE_URL is not set for web profile" >&2
-              exit 1
-            fi
-          fi
-
-          GRADLE_RETRY_COMMAND="./gradlew ${{ matrix.module }}:test --warning-mode all --console=plain" bash tools/scripts/ci/gradle-retry.sh
-        shell: bash
-
-      - name: 🧾 Allure CI env fragment
-        if: always()
-        env:
-          MODULE_PATH: ${{ matrix.module }}
-          QUOKKIFY_TEST_PROFILE: ${{ matrix.profile }}
-        run: |
-          module_dir="${MODULE_PATH#:}"
-          module_dir="${module_dir//:/\/}"
-          module_dir="${module_dir:-.}"
-          mkdir -p "$module_dir/build/allure-results"
-          bash tools/scripts/ci/write-allure-ci-env-fragment.sh "Data ${{ matrix.name }}" "$module_dir/build/allure-results"
-        shell: bash
-
-      - name: 📦 Stage dedicated Allure results
-        if: always()
-        run: |
-          rm -rf allure-artifact
-          mkdir -p "allure-artifact/${{ matrix.results_path }}/build"
-          cp -a "${{ matrix.results_path }}/build/allure-results" "allure-artifact/${{ matrix.results_path }}/build/"
-        shell: bash
-
-      - name: 🛑 Stop Infra
-        if: ${{ matrix.profile != 'none' && always() }}
-        run: ./tools/environment/scripts/infra/stop_app.sh
-        shell: bash
-
-      - name: 📦 Stage dedicated Allure results
-        if: always()
-        run: |
-          rm -rf allure-artifact
-          mkdir -p "allure-artifact/${{ matrix.results_path }}/build"
-          cp -a "${{ matrix.results_path }}/build/allure-results" "allure-artifact/${{ matrix.results_path }}/build/"
-        shell: bash
-
-      - name: 📊 Upload dedicated Allure results
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: always()
-        with:
-          name: allure-results-data-${{ matrix.slug }}
-          retention-days: 3
-          if-no-files-found: error
-          path: "allure-artifact"
-
-      - name: 📦 Pack docker compose logs as artifact
-        if: ${{ matrix.profile != 'none' && always() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: docker-logs-data-${{ matrix.slug }}
-          retention-days: 3
-          path: logs
-
-      - name: 📦 Pack test results as artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: always()
-        with:
-          name: test-report-data-${{ matrix.slug }}
-          retention-days: 3
-          path: |
-            **/build/reports
-            **/build/test-results
-
-      - name: 📊 Upload Gradle Problems report
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: always()
-        with:
-          name: gradle-problems-${{ github.job }}-${{ matrix.slug }}
-          retention-days: 3
-          if-no-files-found: ignore
-          path: build/reports/problems/problems-report.html
-
-  test-integrations:
-    name: "Integrations • ${{ matrix.name }}"
-    needs: [detect-runner, module-matrices, build-integrations, test-common]
-    runs-on: ${{ fromJson(needs.detect-runner.outputs.runs_on) }}
+  data-utils-nosql:
+    name: "Data • nosql"
+    needs: [detect-runner, build-common]
     if: ${{ github.event_name != 'pull_request_target' }}
-    permissions:
-      contents: read
-    env:
-      CI: "true"
-      COMPOSE_PROJECT_NAME: ci-${{ github.run_id }}-${{ matrix.slug }}
-      EXECUTION_MODE: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' && 'DIND' || 'CI' }}
-      GRID_CDP_ENABLE: "true"
-    strategy:
-      fail-fast: false
-      max-parallel: 4
-      matrix:
-        include: ${{ fromJson(needs.module-matrices.outputs.integrations_test_modules) }}
+    uses: ./.github/workflows/reusable-module-pipeline.yml
+    with:
+      runs-on: ${{ needs.detect-runner.outputs.runs_on }}
+      self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
+      group: data
+      name: nosql
+      module: ":data-utils:nosql"
+      slug: data-utils-nosql
 
-    steps:
-      - name: 🔨Checkout
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+  data-utils-nosql-morphia:
+    name: "Data • morphia"
+    needs: [detect-runner, build-common]
+    if: ${{ github.event_name != 'pull_request_target' }}
+    uses: ./.github/workflows/reusable-module-pipeline.yml
+    with:
+      runs-on: ${{ needs.detect-runner.outputs.runs_on }}
+      self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
+      group: data
+      name: morphia
+      module: ":data-utils:nosql:morphia"
+      slug: data-utils-nosql-morphia
+      run-tests: true
+      profile: storage
 
-      - name: 🔨Prepare Java/Gradle
-        uses: quokkify/ci-kit/actions/setup-java-gradle@06c7bdce2f444734d95c61ef6485dd3d9543b226 # v3.0.3
+  data-utils-nosql-redis:
+    name: "Data • redis"
+    needs: [detect-runner, build-common]
+    if: ${{ github.event_name != 'pull_request_target' }}
+    uses: ./.github/workflows/reusable-module-pipeline.yml
+    with:
+      runs-on: ${{ needs.detect-runner.outputs.runs_on }}
+      self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
+      group: data
+      name: redis
+      module: ":data-utils:nosql:redis"
+      slug: data-utils-nosql-redis
+      run-tests: true
+      profile: redis
 
-      - name: 🟢 Start Infra with health lifecycle
-        if: ${{ matrix.profile != 'none' }}
-        uses: quokkify/ci-kit/actions/compose-up@06c7bdce2f444734d95c61ef6485dd3d9543b226 # v3.0.3
-        with:
-          compose-files: |
-            tools/environment/docker/docker-compose.yml
-            tools/environment/docker/docker-compose.ci.yml
-          profiles: ${{ matrix.profile }}
-          additional-compose-args: --quiet-pull
-          before-compose-hook: tools/environment/scripts/infra/before_compose.sh
-          after-health-hook: tools/environment/scripts/infra/after_health.sh
-          timeout-seconds: "120"
+  integrations-rest-assured:
+    name: "Integrations • rest-assured"
+    needs: [detect-runner, build-common]
+    if: ${{ github.event_name != 'pull_request_target' }}
+    uses: ./.github/workflows/reusable-module-pipeline.yml
+    with:
+      runs-on: ${{ needs.detect-runner.outputs.runs_on }}
+      self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
+      group: integrations
+      name: rest-assured
+      module: ":integrations:rest-assured"
+      slug: integrations-rest-assured
+      run-tests: true
+      profile: mock
 
-      - name: 🚀 Run tests
-        run: |
-          export MODULE_PATH='${{ matrix.module }}'
-          if [[ -f tools/environment/.selenium-grid.env ]]; then
-            set -a
-            source tools/environment/.selenium-grid.env
-            set +a
-          fi
-          if [[ -f tools/environment/.mock-server.env ]]; then
-            set -a
-            source tools/environment/.mock-server.env
-            set +a
-          fi
-          if [[ -f tools/environment/.mongo.env ]]; then
-            set -a
-            source tools/environment/.mongo.env
-            set +a
-          fi
-          if [[ -f tools/environment/.redis.env ]]; then
-            set -a
-            source tools/environment/.redis.env
-            set +a
-          fi
-          if [[ -f tools/environment/.nginx.env ]]; then
-            set -a
-            source tools/environment/.nginx.env
-            set +a
-          fi
-          if [[ -f tools/environment/.reportportal.env ]]; then
-            set -a
-            source tools/environment/.reportportal.env
-            set +a
-          fi
-          if [[ -f tools/environment/.kafka.env ]]; then
-            set -a
-            source tools/environment/.kafka.env
-            set +a
-          fi
-          if [[ -f tools/environment/.rabbitmq.env ]]; then
-            set -a
-            source tools/environment/.rabbitmq.env
-            set +a
-          fi
-          if [[ -n "${KAFKA_BOOTSTRAP_SERVERS:-}" ]]; then
-            export KAFKA_SERVER_ADDRESS="${KAFKA_BOOTSTRAP_SERVERS}"
-          fi
-          if [[ "${{ matrix.profile }}" == "web" ]]; then
-            if [[ -n "${NGINX_BASE_URL:-}" ]]; then
-              export BASE_URL="${NGINX_BASE_URL}"
-            else
-              echo "NGINX_BASE_URL is not set for web profile" >&2
-              exit 1
-            fi
-          fi
+  integrations-selenide:
+    name: "Integrations • selenide"
+    needs: [detect-runner, build-common]
+    if: ${{ github.event_name != 'pull_request_target' }}
+    uses: ./.github/workflows/reusable-module-pipeline.yml
+    with:
+      runs-on: ${{ needs.detect-runner.outputs.runs_on }}
+      self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
+      group: integrations
+      name: selenide
+      module: ":integrations:selenide"
+      slug: integrations-selenide
+      run-tests: true
+      profile: web
 
-          GRADLE_RETRY_COMMAND="./gradlew ${{ matrix.module }}:test --warning-mode all --console=plain" bash tools/scripts/ci/gradle-retry.sh
-        shell: bash
+  integrations-selenide-proxy:
+    name: "Integrations • selenide-proxy"
+    needs: [detect-runner, build-common]
+    if: ${{ github.event_name != 'pull_request_target' }}
+    uses: ./.github/workflows/reusable-module-pipeline.yml
+    with:
+      runs-on: ${{ needs.detect-runner.outputs.runs_on }}
+      self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
+      group: integrations
+      name: selenide-proxy
+      module: ":integrations:selenide-proxy"
+      slug: integrations-selenide-proxy
 
-      - name: 🧾 Allure CI env fragment
-        if: always()
-        env:
-          MODULE_PATH: ${{ matrix.module }}
-          QUOKKIFY_TEST_PROFILE: ${{ matrix.profile }}
-        run: |
-          module_dir="${MODULE_PATH#:}"
-          module_dir="${module_dir//:/\/}"
-          module_dir="${module_dir:-.}"
-          mkdir -p "$module_dir/build/allure-results"
-          bash tools/scripts/ci/write-allure-ci-env-fragment.sh "Integrations ${{ matrix.name }}" "$module_dir/build/allure-results"
-        shell: bash
+  integrations-selenide-grid:
+    name: "Integrations • selenide-grid"
+    needs: [detect-runner, build-common]
+    if: ${{ github.event_name != 'pull_request_target' }}
+    uses: ./.github/workflows/reusable-module-pipeline.yml
+    with:
+      runs-on: ${{ needs.detect-runner.outputs.runs_on }}
+      self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
+      group: integrations
+      name: selenide-grid
+      module: ":integrations:selenide-grid"
+      slug: integrations-selenide-grid
+      run-tests: true
+      profile: web
 
-      - name: 📦 Stage dedicated Allure results
-        if: always()
-        run: |
-          rm -rf allure-artifact
-          mkdir -p "allure-artifact/${{ matrix.results_path }}/build"
-          cp -a "${{ matrix.results_path }}/build/allure-results" "allure-artifact/${{ matrix.results_path }}/build/"
-        shell: bash
+  integrations-tyrus:
+    name: "Integrations • tyrus"
+    needs: [detect-runner, build-common]
+    if: ${{ github.event_name != 'pull_request_target' }}
+    uses: ./.github/workflows/reusable-module-pipeline.yml
+    with:
+      runs-on: ${{ needs.detect-runner.outputs.runs_on }}
+      self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
+      group: integrations
+      name: tyrus
+      module: ":integrations:tyrus"
+      slug: integrations-tyrus
+      run-tests: true
+      profile: none
 
-      - name: 🛑 Stop Infra
-        if: ${{ matrix.profile != 'none' && always() }}
-        run: ./tools/environment/scripts/infra/stop_app.sh
-        shell: bash
+  integrations-kafka:
+    name: "Integrations • kafka"
+    needs: [detect-runner, build-common]
+    if: ${{ github.event_name != 'pull_request_target' }}
+    uses: ./.github/workflows/reusable-module-pipeline.yml
+    with:
+      runs-on: ${{ needs.detect-runner.outputs.runs_on }}
+      self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
+      group: integrations
+      name: kafka
+      module: ":integrations:kafka"
+      slug: integrations-kafka
+      run-tests: true
+      profile: messaging
 
-      - name: 📦 Stage dedicated Allure results
-        if: always()
-        run: |
-          rm -rf allure-artifact
-          mkdir -p "allure-artifact/${{ matrix.results_path }}/build"
-          cp -a "${{ matrix.results_path }}/build/allure-results" "allure-artifact/${{ matrix.results_path }}/build/"
-        shell: bash
+  integrations-rabbitmq:
+    name: "Integrations • rabbitmq"
+    needs: [detect-runner, build-common]
+    if: ${{ github.event_name != 'pull_request_target' }}
+    uses: ./.github/workflows/reusable-module-pipeline.yml
+    with:
+      runs-on: ${{ needs.detect-runner.outputs.runs_on }}
+      self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
+      group: integrations
+      name: rabbitmq
+      module: ":integrations:rabbitmq"
+      slug: integrations-rabbitmq
+      run-tests: true
+      profile: rabbitmq
 
-      - name: 📊 Upload dedicated Allure results
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: always()
-        with:
-          name: allure-results-integrations-${{ matrix.slug }}
-          retention-days: 3
-          if-no-files-found: error
-          path: "allure-artifact"
+  integrations-jira-core:
+    name: "Integrations • jira-core"
+    needs: [detect-runner, build-common]
+    if: ${{ github.event_name != 'pull_request_target' }}
+    uses: ./.github/workflows/reusable-module-pipeline.yml
+    with:
+      runs-on: ${{ needs.detect-runner.outputs.runs_on }}
+      self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
+      group: integrations
+      name: jira-core
+      module: ":integrations:jira:jira-core"
+      slug: integrations-jira-core
 
-      - name: 📦 Pack docker compose logs as artifact
-        if: ${{ matrix.profile != 'none' && always() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        with:
-          name: docker-logs-integrations-${{ matrix.slug }}
-          retention-days: 3
-          path: logs
+  integrations-jira-testng:
+    name: "Integrations • jira-testng"
+    needs: [detect-runner, build-common]
+    if: ${{ github.event_name != 'pull_request_target' }}
+    uses: ./.github/workflows/reusable-module-pipeline.yml
+    with:
+      runs-on: ${{ needs.detect-runner.outputs.runs_on }}
+      self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
+      group: integrations
+      name: jira-testng
+      module: ":integrations:jira:testng"
+      slug: integrations-jira-testng
 
-      - name: 📦 Pack test results as artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: always()
-        with:
-          name: test-report-integrations-${{ matrix.slug }}
-          retention-days: 3
-          path: |
-            **/build/reports
-            **/build/test-results
+  integrations-jira-testrail:
+    name: "Integrations • jira-testrail"
+    needs: [detect-runner, build-common]
+    if: ${{ github.event_name != 'pull_request_target' }}
+    uses: ./.github/workflows/reusable-module-pipeline.yml
+    with:
+      runs-on: ${{ needs.detect-runner.outputs.runs_on }}
+      self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
+      group: integrations
+      name: jira-testrail
+      module: ":integrations:jira:testrail"
+      slug: integrations-jira-testrail
 
-      - name: 📊 Upload Gradle Problems report
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
-        if: always()
-        with:
-          name: gradle-problems-${{ github.job }}-${{ matrix.slug }}
-          retention-days: 3
-          if-no-files-found: ignore
-          path: build/reports/problems/problems-report.html
+  integrations-testrail-core:
+    name: "Integrations • testrail-core"
+    needs: [detect-runner, build-common]
+    if: ${{ github.event_name != 'pull_request_target' }}
+    uses: ./.github/workflows/reusable-module-pipeline.yml
+    with:
+      runs-on: ${{ needs.detect-runner.outputs.runs_on }}
+      self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
+      group: integrations
+      name: testrail-core
+      module: ":integrations:testrail:testrail-core"
+      slug: integrations-testrail-core
+
+  integrations-testrail-testng:
+    name: "Integrations • testrail-testng"
+    needs: [detect-runner, build-common]
+    if: ${{ github.event_name != 'pull_request_target' }}
+    uses: ./.github/workflows/reusable-module-pipeline.yml
+    with:
+      runs-on: ${{ needs.detect-runner.outputs.runs_on }}
+      self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
+      group: integrations
+      name: testrail-testng
+      module: ":integrations:testrail:testng"
+      slug: integrations-testrail-testng
+
+  integrations-reportportal-core:
+    name: "Integrations • reportportal-core"
+    needs: [detect-runner, build-common]
+    if: ${{ github.event_name != 'pull_request_target' }}
+    uses: ./.github/workflows/reusable-module-pipeline.yml
+    with:
+      runs-on: ${{ needs.detect-runner.outputs.runs_on }}
+      self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
+      group: integrations
+      name: reportportal-core
+      module: ":integrations:reportportal:reportportal-core"
+      slug: integrations-reportportal-core
+
+  integrations-reportportal-testng:
+    name: "Integrations • reportportal-testng"
+    needs: [detect-runner, build-common]
+    if: ${{ github.event_name != 'pull_request_target' }}
+    uses: ./.github/workflows/reusable-module-pipeline.yml
+    with:
+      runs-on: ${{ needs.detect-runner.outputs.runs_on }}
+      self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
+      group: integrations
+      name: reportportal-testng
+      module: ":integrations:reportportal:testng"
+      slug: integrations-reportportal-testng
+      run-tests: true
+      profile: reporting
+
+  integrations-reportportal-testrail:
+    name: "Integrations • reportportal-testrail"
+    needs: [detect-runner, build-common]
+    if: ${{ github.event_name != 'pull_request_target' }}
+    uses: ./.github/workflows/reusable-module-pipeline.yml
+    with:
+      runs-on: ${{ needs.detect-runner.outputs.runs_on }}
+      self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
+      group: integrations
+      name: reportportal-testrail
+      module: ":integrations:reportportal:testrail"
+      slug: integrations-reportportal-testrail
 
   # Temporarily disabled; keep the full job for a future re-enable.
   # stability-tests:
@@ -667,7 +531,30 @@ jobs:
 
   tests-complete:
     name: Tests pipeline complete
-    needs: [test-data, test-integrations]
+    needs:
+      [
+        build-common,
+        test-common,
+        data-utils-sql,
+        data-utils-nosql,
+        data-utils-nosql-morphia,
+        data-utils-nosql-redis,
+        integrations-rest-assured,
+        integrations-selenide,
+        integrations-selenide-proxy,
+        integrations-selenide-grid,
+        integrations-tyrus,
+        integrations-kafka,
+        integrations-rabbitmq,
+        integrations-jira-core,
+        integrations-jira-testng,
+        integrations-jira-testrail,
+        integrations-testrail-core,
+        integrations-testrail-testng,
+        integrations-reportportal-core,
+        integrations-reportportal-testng,
+        integrations-reportportal-testrail,
+      ]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     permissions:
@@ -675,9 +562,13 @@ jobs:
     steps:
       - name: Validate stage results
         shell: bash
+        env:
+          NEEDS: ${{ toJSON(needs) }}
         run: |
-          if [[ "${{ needs.test-data.result }}" != "success" || "${{ needs.test-integrations.result }}" != "success" ]]; then
-            echo "Test stages are not successful."
+          failed="$(jq -r 'to_entries[] | select(.value.result != "success") | "\(.key): \(.value.result)"' <<<"$NEEDS")"
+          if [[ -n "$failed" ]]; then
+            echo "Test stages are not successful:"
+            echo "$failed"
             exit 1
           fi
           echo "All test stages completed successfully."
