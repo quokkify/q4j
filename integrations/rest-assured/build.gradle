@@ -11,7 +11,10 @@ dependencies {
     api libs.json.schema.validator
     api libs.allure.rest.assured
 
+    compileOnly project(":architecture")
+
     testImplementation libs.allure.testng
+    testImplementation project(":architecture")
     testImplementation libs.mockito.core
 
     implementation platform(libs.jackson.bom)
