@@ -10,7 +10,9 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
 import java.util.function.Predicate;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import dev.quokkify.annotation.SingleThread;
 import dev.quokkify.config.ConfigRegistry;
@@ -48,7 +50,15 @@ public class SuiteListener implements IAlterSuiteListener, IInvokedMethodListene
   @Override
   public void alter(List<XmlSuite> suites) {
     Map<XmlClass, List<Method>> classesWithTests = getClassesWithTestsFromSuites(suites);
-    XmlSuite suite = generateSuite(classesWithTests);
+    List<String> includedGroups = collectGroups(suites, XmlSuite::getIncludedGroups, XmlTest::getIncludedGroups);
+    List<String> excludedGroups = collectGroups(suites, XmlSuite::getExcludedGroups, XmlTest::getExcludedGroups);
+    XmlSuite suite = generateSuite(filterTestsByGroups(classesWithTests, includedGroups, excludedGroups));
+    if (!includedGroups.isEmpty()) {
+      suite.setIncludedGroups(includedGroups);
+    }
+    if (!excludedGroups.isEmpty()) {
+      suite.setExcludedGroups(excludedGroups);
+    }
     suites.clear();
     suites.add(suite);
     IAlterSuiteListener.super.alter(suites);
@@ -88,6 +98,69 @@ public class SuiteListener implements IAlterSuiteListener, IInvokedMethodListene
     } catch (IOException ignored) {
       return null;
     }
+  }
+
+  /**
+   * Collect TestNG group filters of the original suites and their tests.
+   * Groups of all original suites and tests are merged, so the generated tests
+   * apply the union of the original group selection.
+   *
+   * @param suites      original suites {@link List}&lt;{@link XmlSuite}&gt;
+   * @param suiteGroups suite groups getter
+   * @param testGroups  test groups getter
+   * @return distinct group names or patterns as {@link List}&lt;{@link String}&gt;
+   */
+  protected List<String> collectGroups(List<XmlSuite> suites,
+                                       Function<XmlSuite, List<String>> suiteGroups,
+                                       Function<XmlTest, List<String>> testGroups) {
+    return suites.stream()
+        .flatMap(xmlSuite -> Stream.concat(
+            suiteGroups.apply(xmlSuite).stream(),
+            xmlSuite.getTests().stream().flatMap(xmlTest -> testGroups.apply(xmlTest).stream())))
+        .distinct()
+        .toList();
+  }
+
+  /**
+   * Keep only test methods selected by provided groups.
+   * TestNG runs explicitly included methods regardless of group filters,
+   * so the generated tests must list only methods that pass the group selection.
+   *
+   * @param tests          provided xml classes with tests
+   * @param includedGroups included group patterns, all groups are included if empty
+   * @param excludedGroups excluded group patterns
+   * @return xml classes with selected tests
+   */
+  protected Map<XmlClass, List<Method>> filterTestsByGroups(Map<XmlClass, List<Method>> tests,
+                                                            List<String> includedGroups,
+                                                            List<String> excludedGroups) {
+    if (includedGroups.isEmpty() && excludedGroups.isEmpty()) {
+      return tests;
+    }
+    return tests.entrySet().stream().collect(Collectors.toMap(Map.Entry::getKey, entry -> entry.getValue().stream()
+        .filter(method -> isMethodSelectedByGroups(method, includedGroups, excludedGroups))
+        .toList()));
+  }
+
+  /**
+   * Check is method selected by provided groups.
+   * Method groups are the groups of its {@link Test} annotation and of the class level {@link Test} annotation.
+   *
+   * @param method         provided test method
+   * @param includedGroups included group patterns, all groups are included if empty
+   * @param excludedGroups excluded group patterns
+   * @return method selection status as {@link Boolean}
+   */
+  protected boolean isMethodSelectedByGroups(Method method, List<String> includedGroups, List<String> excludedGroups) {
+    Test classTest = method.getDeclaringClass().getAnnotation(Test.class);
+    List<String> groups = Stream.concat(
+        Arrays.stream(method.getAnnotation(Test.class).groups()),
+        Objects.isNull(classTest) ? Stream.empty() : Arrays.stream(classTest.groups())).toList();
+    return (includedGroups.isEmpty() || matchesAnyGroup(groups, includedGroups)) && !matchesAnyGroup(groups, excludedGroups);
+  }
+
+  private boolean matchesAnyGroup(List<String> groups, List<String> patterns) {
+    return groups.stream().anyMatch(group -> patterns.stream().anyMatch(pattern -> Pattern.matches(pattern, group)));
   }
 
   /**
