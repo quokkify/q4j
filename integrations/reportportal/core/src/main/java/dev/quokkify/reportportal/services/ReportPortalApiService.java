@@ -1,32 +1,61 @@
 package dev.quokkify.reportportal.services;
 
-import dev.quokkify.filter.CustomExternalServiceLogFilter;
+import java.time.Duration;
+
 import dev.quokkify.reportportal.configs.ReportPortalConfig;
 import dev.quokkify.reportportal.model.ReportPortalItem;
-import dev.quokkify.service.ApiService;
-import dev.quokkify.util.JsonConverter;
 
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
-import io.restassured.response.ValidatableResponse;
-import io.restassured.specification.RequestSpecification;
-import org.apache.commons.lang3.StringUtils;
+import feign.Feign;
+import feign.FeignException;
+import feign.Request;
+import feign.RequestInterceptor;
+import feign.Retryer;
+import feign.jackson.JacksonDecoder;
+import feign.jackson.JacksonEncoder;
+import feign.okhttp.OkHttpClient;
 
-public class ReportPortalApiService extends ApiService {
+public class ReportPortalApiService {
 
-  private static final String ITEM_UUID_PATH = "/api/v1/%s/item/uuid/%s";
+  private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(10);
+  private static final Duration READ_TIMEOUT = Duration.ofSeconds(30);
 
-  public ReportPortalItem getItemByUuid(String projectName, String itemUuid) {
-    ValidatableResponse response = get(buildSpec(), ITEM_UUID_PATH.formatted(projectName, itemUuid));
-    return JsonConverter.fromString(response.extract().asString(), ReportPortalItem.class);
+  private final ReportPortalFeignApi api;
+
+  public ReportPortalApiService() {
+    this(ReportPortalConfig.RP_ENDPOINT, ReportPortalConfig.RP_API_KEY);
   }
 
-  private static RequestSpecification buildSpec() {
-    return RestAssured.given()
-        .filter(new CustomExternalServiceLogFilter())
-        .baseUri(StringUtils.stripEnd(ReportPortalConfig.RP_ENDPOINT, "/"))
-        .auth().preemptive().oauth2(ReportPortalConfig.RP_API_KEY)
-        .contentType(ContentType.JSON)
-        .accept(ContentType.JSON);
+  ReportPortalApiService(String endpoint, String apiKey) {
+    this(endpoint, apiKey, new Request.Options(CONNECT_TIMEOUT, READ_TIMEOUT, true));
+  }
+
+  ReportPortalApiService(String endpoint, String apiKey, Request.Options options) {
+    this.api = Feign.builder()
+        .client(new OkHttpClient())
+        .encoder(new JacksonEncoder())
+        .decoder(new JacksonDecoder())
+        .options(options)
+        .retryer(Retryer.NEVER_RETRY)
+        .requestInterceptor(bearerAuthInterceptor(apiKey))
+        .target(ReportPortalFeignApi.class, stripTrailingSlash(endpoint));
+  }
+
+  public ReportPortalItem getItemByUuid(String projectName, String itemUuid) {
+    try {
+      return api.getItemByUuid(projectName, itemUuid);
+    } catch (FeignException.NotFound ignored) {
+      return new ReportPortalItem(null, null, null);
+    } catch (FeignException e) {
+      throw new RuntimeException(
+          "HTTP request failed: GET /api/v1/%s/item/uuid/%s".formatted(projectName, itemUuid), e);
+    }
+  }
+
+  private static RequestInterceptor bearerAuthInterceptor(String apiKey) {
+    return template -> template.header("Authorization", "Bearer " + apiKey);
+  }
+
+  private static String stripTrailingSlash(String endpoint) {
+    return endpoint.replaceFirst("/+$", "");
   }
 }

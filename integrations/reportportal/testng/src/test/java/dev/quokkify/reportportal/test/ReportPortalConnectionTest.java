@@ -1,27 +1,28 @@
 package dev.quokkify.reportportal.test;
 
+import java.io.ByteArrayOutputStream;
 import java.nio.charset.StandardCharsets;
+import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
+import java.util.UUID;
 
 import dev.quokkify.model.JsonPojo;
 import dev.quokkify.reportportal.config.ReportPortalConnectionConfig;
 
+import feign.Response;
+import feign.RetryableException;
 import io.qameta.allure.TmsLink;
-import io.restassured.RestAssured;
-import io.restassured.http.ContentType;
-import io.restassured.path.json.JsonPath;
-import io.restassured.specification.RequestSpecification;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import org.awaitility.Awaitility;
 import org.testng.annotations.Test;
 
+import static dev.quokkify.reportportal.test.ReportPortalTestSupport.API;
+import static dev.quokkify.reportportal.test.ReportPortalTestSupport.bodyOf;
+import static dev.quokkify.reportportal.test.ReportPortalTestSupport.finishAndDeleteLaunch;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ReportPortalConnectionTest {
-
-  private static final Logger LOG = LoggerFactory.getLogger(ReportPortalConnectionTest.class);
 
   private static final byte[] MINIMAL_PNG = Base64.getDecoder().decode(
       "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=");
@@ -29,15 +30,10 @@ public class ReportPortalConnectionTest {
   @TmsLink("RP_CONN_1")
   @Test(description = "Verify ReportPortal endpoint and token can access project list")
   public void shouldConnectToReportPortalApi() {
-    JsonPojo result = new JsonPojo(
-        buildSpec()
-            .queryParam("page.page", 1)
-            .queryParam("page.size", 1)
-            .when().get("/api/v1/project/list")
-            .then().extract().asString());
+    JsonPojo result = new JsonPojo(bodyOf(API.getProjects()));
 
-    assertThat(result.json().has("content"))
-        .as("Project list response should contain 'content' key")
+    assertThat(result.at("/content").isArray())
+        .as("Project list response should contain 'content' array")
         .isTrue();
   }
 
@@ -53,16 +49,13 @@ public class ReportPortalConnectionTest {
           .setField("message", "Integration test: text log verification")
           .asJson();
 
-      JsonPath jsonPath = buildSpec()
-          .body(logBody)
-          .when().post("/api/v1/" + ReportPortalConnectionConfig.PROJECT_NAME + "/log")
-          .then().extract().jsonPath();
+      JsonPojo response = new JsonPojo(bodyOf(API.sendLog(ReportPortalConnectionConfig.PROJECT_NAME, logBody)));
 
-      assertThat(jsonPath.getString("id"))
+      assertThat(response.at("/id").asText())
           .as("First log entry should contain an ID")
           .isNotBlank();
     } finally {
-      finishTestLaunch(launchUuid);
+      finishAndDeleteLaunch(launchUuid);
     }
   }
 
@@ -71,16 +64,14 @@ public class ReportPortalConnectionTest {
   public void shouldAttachTxtFileToReportPortal() {
     String launchUuid = startTestLaunch();
     try {
-      int statusCode = sendMultipartLog(launchUuid,
+      String logUuid = sendMultipartLog(launchUuid,
           "Integration test: file attachment",
           "Integration test file attachment content.\n".getBytes(StandardCharsets.UTF_8),
           "test-attachment.txt", "text/plain");
 
-      assertThat(statusCode)
-          .as("File attachment should return 2xx")
-          .isBetween(200, 299);
+      assertAttachmentStored(logUuid, "text/plain");
     } finally {
-      finishTestLaunch(launchUuid);
+      finishAndDeleteLaunch(launchUuid);
     }
   }
 
@@ -89,29 +80,25 @@ public class ReportPortalConnectionTest {
   public void shouldAttachPngScreenshotToReportPortal() {
     String launchUuid = startTestLaunch();
     try {
-      int statusCode = sendMultipartLog(launchUuid,
+      String logUuid = sendMultipartLog(launchUuid,
           "Integration test: screenshot attachment",
           MINIMAL_PNG, "screenshot.png", "image/png");
 
-      assertThat(statusCode)
-          .as("Screenshot attachment should return 2xx")
-          .isBetween(200, 299);
+      assertAttachmentStored(logUuid, "image/png");
     } finally {
-      finishTestLaunch(launchUuid);
+      finishAndDeleteLaunch(launchUuid);
     }
   }
 
   @TmsLink("RP_NEG_1")
   @Test(description = "Verify ReportPortal rejects requests with an invalid API token")
   public void shouldRejectRequestWithInvalidToken() {
-    int statusCode = RestAssured.given()
-        .baseUri(ReportPortalConnectionConfig.ENDPOINT)
-        .contentType(ContentType.JSON)
-        .header("Authorization", "Bearer INVALID_TOKEN_VALUE_XYZ")
-        .queryParam("page.page", 1)
-        .queryParam("page.size", 1)
-        .when().get("/api/v1/project/list")
-        .then().extract().statusCode();
+    ReportPortalTestApi api =
+        ReportPortalTestApi.create(ReportPortalConnectionConfig.ENDPOINT, "INVALID_TOKEN_VALUE_XYZ");
+    int statusCode;
+    try (Response response = api.getProjects()) {
+      statusCode = response.status();
+    }
 
     assertThat(statusCode)
         .as("Invalid token should be rejected with 401 or 403")
@@ -121,68 +108,61 @@ public class ReportPortalConnectionTest {
   @TmsLink("RP_NEG_2")
   @Test(description = "Verify connection failure is raised for an unreachable ReportPortal endpoint")
   public void shouldRaiseErrorForUnreachableEndpoint() {
-    assertThatThrownBy(() ->
-        RestAssured.given()
-            .baseUri("http://localhost:19999")
-            .when().get("/api/v1/project/list"))
-        .as("Expected an exception for an unreachable endpoint")
-        .isInstanceOf(Exception.class);
-  }
+    ReportPortalTestApi api = ReportPortalTestApi.create("http://localhost:19999", "any");
 
-  private static RequestSpecification buildSpec() {
-    return RestAssured.given()
-        .baseUri(ReportPortalConnectionConfig.ENDPOINT)
-        .contentType(ContentType.JSON)
-        .header("Authorization", "Bearer " + ReportPortalConnectionConfig.API_KEY);
+    assertThatThrownBy(api::getProjects)
+        .as("Expected a connection failure for an unreachable endpoint")
+        .isInstanceOf(RetryableException.class);
   }
 
   private static String startTestLaunch() {
-    String body = new JsonPojo()
-        .setField("name", "test-coverage-run")
-        .setField("startTime", Instant.now().toString())
-        .setField("mode", "DEBUG")
-        .asJson();
-
-    JsonPojo response = new JsonPojo(
-        buildSpec()
-            .body(body)
-            .when().post("/api/v1/" + ReportPortalConnectionConfig.PROJECT_NAME + "/launch")
-            .then().extract().asString());
-
-    assertThat(response.json().has("id"))
-        .as("Start launch response should contain 'id'")
-        .isTrue();
-    return response.json().get("id").asText();
+    return ReportPortalTestSupport.startLaunch("test-coverage-run");
   }
 
-  private static void finishTestLaunch(String launchUuid) {
-    try {
-      buildSpec()
-          .body(new JsonPojo()
-              .setField("endTime", Instant.now().toString())
-              .setField("status", "PASSED")
-              .asJson())
-          .when().put("/api/v1/" + ReportPortalConnectionConfig.PROJECT_NAME + "/launch/" + launchUuid + "/finish");
-    } catch (Exception e) {
-      LOG.debug("Failed to finish test launch {}: {}", launchUuid, e.getMessage());
-    }
-  }
-
-  private static int sendMultipartLog(String launchUuid, String message,
+  private static String sendMultipartLog(String launchUuid, String message,
       byte[] fileBytes, String fileName, String fileContentType) {
     String jsonPart = new JsonPojo()
         .setField("launchUuid", launchUuid)
         .setField("time", Instant.now().toString())
         .setField("level", "INFO")
         .setField("message", message)
+        .setField("file", new JsonPojo().setField("name", fileName))
         .asJsonArray();
 
-    return RestAssured.given()
-        .baseUri(ReportPortalConnectionConfig.ENDPOINT)
-        .header("Authorization", "Bearer " + ReportPortalConnectionConfig.API_KEY)
-        .multiPart("json_request_part", jsonPart, "application/json")
-        .multiPart("file", fileName, fileBytes, fileContentType)
-        .when().post("/api/v1/" + ReportPortalConnectionConfig.PROJECT_NAME + "/log")
-        .then().extract().statusCode();
+    String boundary = UUID.randomUUID().toString();
+    ByteArrayOutputStream body = new ByteArrayOutputStream();
+    writePart(body, boundary, "name=\"json_request_part\"", "application/json",
+        jsonPart.getBytes(StandardCharsets.UTF_8));
+    writePart(body, boundary, "name=\"file\"; filename=\"" + fileName + "\"", fileContentType, fileBytes);
+    body.writeBytes(("--" + boundary + "--\r\n").getBytes(StandardCharsets.UTF_8));
+
+    JsonPojo response = new JsonPojo(bodyOf(
+        API.sendMultipartLog(ReportPortalConnectionConfig.PROJECT_NAME, boundary, body.toByteArray())));
+    String logUuid = response.at("/responses/0/id").asText();
+    assertThat(logUuid)
+        .as("Multipart log response should contain created log ID, got: %s", response.asJson())
+        .isNotBlank();
+    return logUuid;
+  }
+
+  private static void assertAttachmentStored(String logUuid, String expectedContentType) {
+    Awaitility.await()
+        .atMost(Duration.ofSeconds(30))
+        .pollInterval(Duration.ofMillis(500))
+        .untilAsserted(() -> {
+          JsonPojo log = new JsonPojo(bodyOf(API.getLog(ReportPortalConnectionConfig.PROJECT_NAME, logUuid)));
+          assertThat(log.at("/binaryContent/contentType").asText())
+              .as("Attachment should be stored for log %s", logUuid)
+              .isEqualTo(expectedContentType);
+        });
+  }
+
+  private static void writePart(ByteArrayOutputStream body, String boundary, String disposition,
+      String contentType, byte[] content) {
+    body.writeBytes(("--" + boundary + "\r\n"
+        + "Content-Disposition: form-data; " + disposition + "\r\n"
+        + "Content-Type: " + contentType + "\r\n\r\n").getBytes(StandardCharsets.UTF_8));
+    body.writeBytes(content);
+    body.writeBytes("\r\n".getBytes(StandardCharsets.UTF_8));
   }
 }

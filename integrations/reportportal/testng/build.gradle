@@ -10,6 +10,31 @@ dependencies {
     implementation libs.allure.testng
     api "org.apache.commons:commons-lang3"
 
-    testImplementation project(":integrations:rest-assured")
+    testImplementation project(":common-utils:jackson:json")
+    testImplementation libs.feign.core
+    testImplementation libs.feign.okhttp
+    testImplementation libs.awaitility
     testImplementation libs.mockito.core
+}
+
+def reportPortalStack = rootProject.file("tools/environment/docker/docker-compose.yml")
+
+def agentE2eTest = tasks.register("agentE2eTest", Test) {
+    description = "Reports a sample TestNG run to a live ReportPortal through ReportPortalListener."
+    group = "verification"
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    filter {
+        includeTestsMatching "dev.quokkify.reportportal.test.ReportPortalAgentEndToEndTest"
+    }
+    systemProperty "RUN_REPORT_PORTAL", "true"
+    systemProperty "RP_LAUNCH_MODE", "DEFAULT"
+    inputs.file(reportPortalStack).withPathSensitivity(PathSensitivity.NONE).withPropertyName("reportPortalStack")
+}
+
+tasks.named("test") {
+    exclude "dev/quokkify/reportportal/e2e/sample/**"
+    exclude "dev/quokkify/reportportal/test/ReportPortalAgentEndToEndTest*"
+    finalizedBy agentE2eTest
+    inputs.file(reportPortalStack).withPathSensitivity(PathSensitivity.NONE).withPropertyName("reportPortalStack")
 }
