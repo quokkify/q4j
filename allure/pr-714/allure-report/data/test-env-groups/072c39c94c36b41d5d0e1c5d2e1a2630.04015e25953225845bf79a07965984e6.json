@@ -1,0 +1,1 @@
+{"id":"072c39c94c36b41d5d0e1c5d2e1a2630.04015e25953225845bf79a07965984e6","fullName":"dev.quokkify.test.CustomExternalServiceLogFilterTest.filter_withErrorStatus_callsProcessFilter","name":"Filter logs request/response when status code is 400 or above","status":"passed","testResultsByEnv":{"ubuntu-24-04":"8669c0550b0514f74473bc0acf3224cb"}}
