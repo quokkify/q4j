@@ -1,5 +1,61 @@
 # Changelog
 
+## [0.11.0](https://github.com/quokkify/q4j/compare/v0.10.0...v0.11.0) (2026-10-08)
+
+<!-- project-toolkit:rich-block:start -->
+### ✨ Highlights
+<!-- project-toolkit:rich-release-notes pr=516 -->
+The ReportPortal integration no longer depends on RestAssured. `reportportal-core` now talks to ReportPortal through a Feign client with explicit timeouts (10s connect, 30s read) and no hidden retries. HTTP failures now name the failing endpoint instead of surfacing as a bare status code.
+
+`reportportal-testng` is verified end to end against a live ReportPortal: a real TestNG run goes through `ReportPortalListener` and is checked down to launch statistics, step statuses, attachments and TMS descriptions.
+
+### 💡 Usage Examples
+<!-- project-toolkit:rich-release-notes pr=516 -->
+```java
+ReportPortalApiService service = new ReportPortalApiService(); // REPORTPORTAL_ENDPOINT, REPORTPORTAL_API_KEY
+
+ReportPortalItem item = service.getItemByUuid("quokkify", itemUuid);
+if (item.id() == null) {
+  // unknown item: 404 is still mapped to an empty item, other HTTP errors throw
+}
+```
+
+### 🔄 Migration
+<!-- project-toolkit:rich-release-notes pr=516 -->
+`reportportal-core` no longer exposes RestAssured transitively. If your tests used RestAssured, or the `dev.quokkify` REST helpers, through this dependency, declare the module explicitly:
+
+```kotlin
+dependencies {
+    testImplementation("dev.quokkify:rest-assured:0.10.0")
+}
+```
+<!-- project-toolkit:rich-block:end -->
+
+### ✨ Features
+
+* **reportportal:** migrate client to Feign ([#516](https://github.com/quokkify/q4j/issues/516)) ([69a630c](https://github.com/quokkify/q4j/commit/69a630c7fe584d4245fd6e378ec0cbb8d673b2da))
+
+
+### 🐛 Bug Fixes
+
+* **compose:** give ReportPortal analyzer its own writable storage ([#720](https://github.com/quokkify/q4j/issues/720)) ([59d9e8b](https://github.com/quokkify/q4j/commit/59d9e8b83a1487af3d6d4a80295f4a7eebe7beab))
+* **compose:** replace bitnamilegacy images with official rabbitmq and postgres ([#717](https://github.com/quokkify/q4j/issues/717)) ([ccc33d1](https://github.com/quokkify/q4j/commit/ccc33d1360e0865ebc6fc321af9d7a619c79b9aa))
+
+
+### 📦 Dependencies
+
+* **docker-compose:** update myoung34/github-runner docker tag to v2.338.0 ([#706](https://github.com/quokkify/q4j/issues/706)) ([820da79](https://github.com/quokkify/q4j/commit/820da79bef1d9e5b571799013c9e716f3a979497))
+* **docker-compose:** update postgres docker tag to v18 ([#719](https://github.com/quokkify/q4j/issues/719)) ([4ed581b](https://github.com/quokkify/q4j/commit/4ed581b433c5ae66c96c814e7bc02ba5cdbc8704))
+* **docker-compose:** update rabbitmq docker tag to v4.3.5 ([#718](https://github.com/quokkify/q4j/issues/718)) ([bc37fab](https://github.com/quokkify/q4j/commit/bc37fab49356c5dc2cbb97a79b18f3cb93ad67cb))
+* **gradle-wrapper:** update gradle to v9.8.1 ([#704](https://github.com/quokkify/q4j/issues/704)) ([f375edb](https://github.com/quokkify/q4j/commit/f375edb6b3622e6d512a2a0b61144dab81eb723e))
+* **gradle:** update com.enofex:taikai to v1.68.0 ([#716](https://github.com/quokkify/q4j/issues/716)) ([6712850](https://github.com/quokkify/q4j/commit/67128500c294c7c984d2d2e030c862ab6149f1e2))
+* **gradle:** update io.github.classgraph:classgraph to v4.8.197 ([#705](https://github.com/quokkify/q4j/issues/705)) ([0fffe16](https://github.com/quokkify/q4j/commit/0fffe164b863a48d6795b51b5691d226350900be))
+
+
+### 📚 Documentation
+
+* **modules:** update q4j module documentation to v0.10.0 ([#713](https://github.com/quokkify/q4j/issues/713)) ([51aeaab](https://github.com/quokkify/q4j/commit/51aeaab731163f6a955448798d6400cf3b83fb8c))
+
 ## [0.10.0](https://github.com/quokkify/q4j/compare/v0.9.0...v0.10.0) (2026-10-06)
 
 <!-- project-toolkit:rich-block:start -->
