@@ -1,1 +1,1 @@
-{"id":"f1fc22bd949d55c3dec5a2f1ee154381.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.RedisSmokeTest.shouldStoreAndReadBasicTypes","name":"shouldStoreAndReadBasicTypes","status":"passed","testResultsByEnv":{"ubuntu-24-04":"f6003c8aa1fec63128d2133a900c6462"}}
+{"id":"f1fc22bd949d55c3dec5a2f1ee154381.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.RedisSmokeTest.shouldStoreAndReadBasicTypes","name":"shouldStoreAndReadBasicTypes","status":"passed","testResultsByEnv":{"ubuntu-24-04":"14b14c420d1866e1f2b67da46b70df2b"}}
