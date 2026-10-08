@@ -1,0 +1,1 @@
+{"id":"27727a9ac71c900992229f721814f6c4.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.util.CommandLockManagerTest.failedCloseFromNonOwnerThreadCanBeRetriedByOwner","name":"failedCloseFromNonOwnerThreadCanBeRetriedByOwner","status":"passed","testResultsByEnv":{"ubuntu-24-04":"080657ab895399c00e97ea95816ec8fa"}}
