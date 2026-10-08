@@ -1,5 +1,7 @@
 package dev.quokkify.reportportal.services;
 
+import java.time.Duration;
+
 import dev.quokkify.reportportal.configs.ReportPortalConfig;
 import dev.quokkify.reportportal.model.ReportPortalItem;
 
@@ -14,8 +16,8 @@ import feign.okhttp.OkHttpClient;
 
 public class ReportPortalApiService {
 
-  private static final int CONNECT_TIMEOUT_MILLIS = 10_000;
-  private static final int READ_TIMEOUT_MILLIS = 30_000;
+  private static final Duration CONNECT_TIMEOUT = Duration.ofSeconds(10);
+  private static final Duration READ_TIMEOUT = Duration.ofSeconds(30);
 
   private final ReportPortalFeignApi api;
 
@@ -28,7 +30,7 @@ public class ReportPortalApiService {
         .client(new OkHttpClient())
         .encoder(new JacksonEncoder())
         .decoder(new JacksonDecoder())
-        .options(new Request.Options(CONNECT_TIMEOUT_MILLIS, READ_TIMEOUT_MILLIS))
+        .options(new Request.Options(CONNECT_TIMEOUT, READ_TIMEOUT, true))
         .retryer(Retryer.NEVER_RETRY)
         .requestInterceptor(bearerAuthInterceptor(apiKey))
         .target(ReportPortalFeignApi.class, stripTrailingSlash(endpoint));
@@ -37,6 +39,8 @@ public class ReportPortalApiService {
   public ReportPortalItem getItemByUuid(String projectName, String itemUuid) {
     try {
       return api.getItemByUuid(projectName, itemUuid);
+    } catch (FeignException.NotFound ignored) {
+      return new ReportPortalItem(null, null, null);
     } catch (FeignException e) {
       throw new RuntimeException(
           "HTTP request failed: GET /api/v1/%s/item/uuid/%s".formatted(projectName, itemUuid), e);
@@ -44,11 +48,7 @@ public class ReportPortalApiService {
   }
 
   private static RequestInterceptor bearerAuthInterceptor(String apiKey) {
-    return template -> {
-      template.header("Authorization", "Bearer " + apiKey);
-      template.header("Content-Type", "application/json");
-      template.header("Accept", "application/json");
-    };
+    return template -> template.header("Authorization", "Bearer " + apiKey);
   }
 
   private static String stripTrailingSlash(String endpoint) {

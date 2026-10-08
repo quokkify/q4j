@@ -47,6 +47,16 @@ public class ReportPortalApiServiceTest {
   }
 
   @Test
+  public void getItemByUuid_returnsEmptyItemWhenNotFound() {
+    server.createContext("/api/v1/project/item/uuid/missing", exchange -> respond(exchange, 404, "{\"errorCode\":4041}"));
+    server.start();
+
+    ReportPortalItem item = service.getItemByUuid("project", "missing");
+
+    assertThat(item).isEqualTo(new ReportPortalItem(null, null, null));
+  }
+
+  @Test
   public void getItemByUuid_mapsHttpFailureWithEndpointContext() {
     server.createContext("/api/v1/project/item/uuid/missing", exchange -> respond(exchange, 503, "unavailable"));
     server.start();
