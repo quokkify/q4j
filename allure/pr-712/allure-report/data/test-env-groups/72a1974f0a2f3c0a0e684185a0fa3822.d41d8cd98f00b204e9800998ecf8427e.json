@@ -1,1 +1,1 @@
-{"id":"72a1974f0a2f3c0a0e684185a0fa3822.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.architecture.restassured.HttpStatusConstantRuleTest.constantsPass","name":"constantsPass","status":"passed","testResultsByEnv":{"ubuntu-24-04":"0feddb6925e922a90cd2aa26f717720c"}}
+{"id":"72a1974f0a2f3c0a0e684185a0fa3822.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.architecture.restassured.HttpStatusConstantRuleTest.constantsPass","name":"constantsPass","status":"passed","testResultsByEnv":{"ubuntu-24-04":"3451c8b9203245c09f2728586d12a7ef"}}

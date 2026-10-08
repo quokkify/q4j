@@ -1,1 +1,1 @@
-{"id":"501d36e721883e10f0c561b93ad8dd7d.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.XmlParserTest.testParseXmlFileToObject","name":"Verify parse xml file to object","status":"passed","testResultsByEnv":{"ubuntu-24-04":"1729808c24518e5f8532e2939a8773f5"}}
+{"id":"501d36e721883e10f0c561b93ad8dd7d.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.XmlParserTest.testParseXmlFileToObject","name":"Verify parse xml file to object","status":"passed","testResultsByEnv":{"ubuntu-24-04":"4cbaeb52cb7ca8a406ad89be0fa00933"}}
