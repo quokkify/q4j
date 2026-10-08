@@ -17,6 +17,22 @@ dependencies {
     testImplementation libs.mockito.core
 }
 
+def agentE2eTest = tasks.register("agentE2eTest", Test) {
+    description = "Reports a sample TestNG run to a live ReportPortal through ReportPortalListener."
+    group = "verification"
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    filter {
+        includeTestsMatching "dev.quokkify.reportportal.test.ReportPortalAgentEndToEndTest"
+    }
+    systemProperty "RUN_REPORT_PORTAL", "true"
+    systemProperty "RP_LAUNCH_MODE", "DEFAULT"
+    outputs.upToDateWhen { false }
+    outputs.doNotCacheIf("Reports to a live ReportPortal") { true }
+}
+
 tasks.named("test") {
     exclude "dev/quokkify/reportportal/e2e/sample/**"
+    exclude "dev/quokkify/reportportal/test/ReportPortalAgentEndToEndTest*"
+    finalizedBy agentE2eTest
 }

@@ -1,20 +1,19 @@
 package dev.quokkify.reportportal.test;
 
-import java.io.File;
 import java.io.IOException;
-import java.nio.charset.StandardCharsets;
+import java.net.URL;
+import java.net.URLClassLoader;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
 import java.time.Instant;
 import java.util.Comparator;
-import java.util.List;
 import java.util.UUID;
-import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
 
 import dev.quokkify.model.JsonPojo;
 import dev.quokkify.reportportal.config.ReportPortalConnectionConfig;
+import dev.quokkify.reportportal.configs.ReportPortalConfig;
 import dev.quokkify.reportportal.e2e.sample.ReportedSampleTest;
 import dev.quokkify.reportportal.listeners.ReportPortalListener;
 
@@ -35,15 +34,17 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class ReportPortalAgentEndToEndTest {
 
   private static final Logger LOG = LoggerFactory.getLogger(ReportPortalAgentEndToEndTest.class);
-  private static final Duration CHILD_RUN_TIMEOUT = Duration.ofMinutes(3);
 
   @TmsLink("RP_E2E_1")
   @Test(description = "ReportPortalListener reports a TestNG run as a launch with step statuses and TMS description")
-  public void shouldReportTestNgRunThroughAgent() throws IOException, InterruptedException {
+  public void shouldReportTestNgRunThroughAgent() throws IOException {
+    assertThat(ReportPortalConfig.RUN_REPORT_PORTAL)
+        .as("Run this test via the :integrations:reportportal:testng:agentE2eTest task")
+        .isTrue();
     String launchName = "q4j-agent-e2e-" + UUID.randomUUID();
 
     try {
-      runSampleSuiteInChildJvm(launchName);
+      runSampleSuite(launchName);
 
       Awaitility.await()
           .atMost(Duration.ofSeconds(60))
@@ -104,39 +105,21 @@ public class ReportPortalAgentEndToEndTest {
     return step(steps, name).path("status").asText();
   }
 
-  private static void runSampleSuiteInChildJvm(String launchName) throws IOException, InterruptedException {
-    Path workDir = Files.createTempDirectory("rp-agent-e2e");
-    File output = workDir.resolve("child.log").toFile();
-    List<String> command = List.of(
-        Path.of(System.getProperty("java.home"), "bin", "java").toString(),
-        "-cp", System.getProperty("java.class.path"),
-        "-DRUN_REPORT_PORTAL=true",
-        "-DRP_PROJECT_NAME=" + PROJECT,
-        "-DRP_LAUNCH_NAME=" + launchName,
-        "-DRP_LAUNCH_MODE=DEFAULT",
-        "-Drp.endpoint=" + ReportPortalConnectionConfig.ENDPOINT,
-        TestNG.class.getName(),
-        "-usedefaultlisteners", "false",
-        "-d", workDir.resolve("testng-output").toString(),
-        "-listener", ReportPortalListener.class.getName(),
-        "-testclass", ReportedSampleTest.class.getName());
-
-    ProcessBuilder builder = new ProcessBuilder(command)
-        .redirectErrorStream(true)
-        .redirectOutput(output);
-    builder.environment().put("RP_API_KEY", ReportPortalConnectionConfig.API_KEY);
+  private static void runSampleSuite(String launchName) throws IOException {
+    System.setProperty("rpLaunchName", launchName);
+    System.setProperty("rp.project", PROJECT);
+    System.setProperty("rp.endpoint", ReportPortalConnectionConfig.ENDPOINT);
+    System.setProperty("rp.api.key", ReportPortalConnectionConfig.API_KEY);
+    Path outputDir = Files.createTempDirectory("rp-agent-e2e");
     try {
-      Process process = builder.start();
-      boolean finished = process.waitFor(CHILD_RUN_TIMEOUT.toMillis(), TimeUnit.MILLISECONDS);
-      if (!finished) {
-        process.destroyForcibly().waitFor();
-      }
-      assertThat(finished)
-          .as("Child TestNG run should finish within %s, output:%n%s", CHILD_RUN_TIMEOUT,
-              Files.readString(output.toPath(), StandardCharsets.UTF_8))
-          .isTrue();
+      TestNG testNg = new TestNG(false);
+      testNg.setServiceLoaderClassLoader(new URLClassLoader(new URL[0], ClassLoader.getPlatformClassLoader()));
+      testNg.setOutputDirectory(outputDir.toString());
+      testNg.setTestClasses(new Class<?>[] {ReportedSampleTest.class});
+      testNg.addListener(new ReportPortalListener());
+      testNg.run();
     } finally {
-      deleteRecursively(workDir);
+      deleteRecursively(outputDir);
     }
   }
 

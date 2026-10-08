@@ -5,7 +5,7 @@ import org.testng.SkipException;
 import org.testng.annotations.Test;
 
 /**
- * Executed only in a child JVM by {@code ReportPortalAgentEndToEndTest}; excluded from the module test task.
+ * Executed only by a nested TestNG run in {@code ReportPortalAgentEndToEndTest}; excluded from test tasks.
  */
 public class ReportedSampleTest {
 
