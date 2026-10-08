@@ -1,0 +1,1 @@
+{"id":"cc91d8cb483fb14ba1918de96a7d4e77.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.architecture.contract.ModelClockTest.waitForAModelAnotherThreadBuildsIsNotChargedToTheWaitingBuild","name":"waitForAModelAnotherThreadBuildsIsNotChargedToTheWaitingBuild","status":"passed","testResultsByEnv":{"ubuntu-24-04":"5f3f051cff62d466f4499821ce21fbf7"}}
