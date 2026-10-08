@@ -1,0 +1,1 @@
+{"id":"9afc9ae834b97054646eb22c7dc298a2.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.reportportal.test.ReportPortalConnectionTest.shouldAttachTxtFileToReportPortal","name":"Verify text file attachment can be sent to ReportPortal","status":"passed","testResultsByEnv":{"ubuntu-24-04":"261ea17b97bfec6c46f8467533c32b40"}}
