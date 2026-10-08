@@ -11,6 +11,7 @@ import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import dev.quokkify.model.JsonPojo;
 import dev.quokkify.reportportal.model.ReportPortalItem;
 
 import com.sun.net.httpserver.HttpExchange;
@@ -27,7 +28,11 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ReportPortalApiServiceTest {
 
-  private static final String ITEM_JSON = "{\"id\":12,\"launchId\":34,\"path\":\"suite.test\"}";
+  private static final String ITEM_JSON = new JsonPojo()
+      .setField("id", 12)
+      .setField("launchId", 34)
+      .setField("path", "suite.test")
+      .asJson();
 
   private HttpServer server;
   private String baseUrl;
@@ -79,7 +84,7 @@ public class ReportPortalApiServiceTest {
 
   @Test
   public void getItemByUuid_returnsEmptyItemWhenNotFound() {
-    server.createContext("/api/v1/project/item/uuid/missing", exchange -> respond(exchange, 404, "{\"errorCode\":4041}"));
+    server.createContext("/api/v1/project/item/uuid/missing", exchange -> respond(exchange, 404, errorJson(4041)));
     server.start();
 
     ReportPortalItem item = service.getItemByUuid("project", "missing");
@@ -100,7 +105,7 @@ public class ReportPortalApiServiceTest {
 
   @Test
   public void getItemByUuid_throwsOnUnauthorizedInsteadOfReturningEmptyItem() {
-    server.createContext("/api/v1/project/item/uuid/item-uuid", exchange -> respond(exchange, 401, "{\"error\":\"unauthorized\"}"));
+    server.createContext("/api/v1/project/item/uuid/item-uuid", exchange -> respond(exchange, 401, errorJson(4003)));
     server.start();
 
     assertThatThrownBy(() -> service.getItemByUuid("project", "item-uuid"))
@@ -154,6 +159,10 @@ public class ReportPortalApiServiceTest {
     slashedEndpointService.getItemByUuid("team a", "item-uuid");
 
     assertThat(rawPath).hasValue("/api/v1/team%20a/item/uuid/item-uuid");
+  }
+
+  private static String errorJson(int errorCode) {
+    return new JsonPojo().setField("errorCode", errorCode).asJson();
   }
 
   private static void respond(HttpExchange exchange, int status, String body) throws IOException {

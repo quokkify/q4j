@@ -6,10 +6,9 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.time.Duration;
+import java.time.Instant;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Stream;
@@ -19,9 +18,12 @@ import dev.quokkify.reportportal.config.ReportPortalConnectionConfig;
 import dev.quokkify.reportportal.e2e.sample.ReportedSampleTest;
 import dev.quokkify.reportportal.listeners.ReportPortalListener;
 
-import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+import feign.Response;
 import io.qameta.allure.TmsLink;
 import org.awaitility.Awaitility;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.testng.TestNG;
 import org.testng.annotations.Test;
 
@@ -32,6 +34,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 public class ReportPortalAgentEndToEndTest {
 
+  private static final Logger LOG = LoggerFactory.getLogger(ReportPortalAgentEndToEndTest.class);
   private static final Duration CHILD_RUN_TIMEOUT = Duration.ofMinutes(3);
 
   @TmsLink("RP_E2E_1")
@@ -39,32 +42,68 @@ public class ReportPortalAgentEndToEndTest {
   public void shouldReportTestNgRunThroughAgent() throws IOException, InterruptedException {
     String launchName = "q4j-agent-e2e-" + UUID.randomUUID();
 
-    runSampleSuiteInChildJvm(launchName);
+    try {
+      runSampleSuiteInChildJvm(launchName);
 
-    Awaitility.await()
-        .atMost(Duration.ofSeconds(60))
-        .pollInterval(Duration.ofSeconds(1))
-        .untilAsserted(() -> assertReportedLaunch(launchName));
+      Awaitility.await()
+          .atMost(Duration.ofSeconds(60))
+          .pollInterval(Duration.ofSeconds(1))
+          .untilAsserted(() -> assertReportedLaunch(launchName));
+    } finally {
+      deleteLaunch(launchName);
+    }
+  }
+
+  private static void deleteLaunch(String launchName) {
+    try {
+      JsonPojo launches = json(API.findLaunches(PROJECT, launchName));
+      if (launches.at("/content/0/id").isMissingNode()) {
+        return;
+      }
+      long launchId = launches.requiredAt("/content/0/id").asLong();
+      if ("IN_PROGRESS".equals(launches.at("/content/0/status").asText())) {
+        String stopBody = new JsonPojo()
+            .setField("endTime", Instant.now().toString())
+            .setField("status", "STOPPED")
+            .asJson();
+        try (Response ignored = API.stopLaunch(PROJECT, launchId, stopBody)) {
+          LOG.debug("Stopped launch {}", launchId);
+        }
+      }
+      try (Response response = API.deleteLaunch(PROJECT, launchId)) {
+        LOG.debug("Deleted launch {} with status {}", launchId, response.status());
+      }
+    } catch (Exception e) {
+      LOG.warn("Failed to delete launch '{}': {}", launchName, e.getMessage());
+    }
   }
 
   private static void assertReportedLaunch(String launchName) {
-    JsonNode launch = json(API.findLaunches(PROJECT, launchName)).json().path("content").path(0);
-    assertThat(launch.path("status").asText()).as("Launch status").isEqualTo("FAILED");
-    JsonNode executions = launch.path("statistics").path("executions");
-    assertThat(executions.path("total").asInt()).as("Total executions").isEqualTo(3);
-    assertThat(executions.path("passed").asInt()).as("Passed executions").isEqualTo(1);
-    assertThat(executions.path("failed").asInt()).as("Failed executions").isEqualTo(1);
-    assertThat(executions.path("skipped").asInt()).as("Skipped executions").isEqualTo(1);
+    JsonPojo launches = json(API.findLaunches(PROJECT, launchName));
+    assertThat(launches.at("/content/0/status").asText()).as("Launch status").isEqualTo("FAILED");
+    assertThat(launches.at("/content/0/statistics/executions/total").asInt()).as("Total executions").isEqualTo(3);
+    assertThat(launches.at("/content/0/statistics/executions/passed").asInt()).as("Passed executions").isEqualTo(1);
+    assertThat(launches.at("/content/0/statistics/executions/failed").asInt()).as("Failed executions").isEqualTo(1);
+    assertThat(launches.at("/content/0/statistics/executions/skipped").asInt()).as("Skipped executions").isEqualTo(1);
 
-    Map<String, JsonNode> steps = stepsByName(launch.path("id").asLong());
-    assertThat(steps).containsOnlyKeys("passingTest", "failingTest", "skippedTest");
-    assertThat(steps.get("passingTest").path("status").asText()).isEqualTo("PASSED");
-    assertThat(steps.get("failingTest").path("status").asText()).isEqualTo("FAILED");
-    assertThat(steps.get("skippedTest").path("status").asText()).isEqualTo("SKIPPED");
-    assertThat(steps.get("passingTest").path("description").asText())
+    JsonPojo steps = json(API.getSteps(PROJECT, launches.requiredAt("/content/0/id").asLong()));
+    assertThat(steps.requiredAt("/content").size()).as("Reported steps").isEqualTo(3);
+    assertThat(stepStatus(steps, "passingTest")).isEqualTo("PASSED");
+    assertThat(stepStatus(steps, "failingTest")).isEqualTo("FAILED");
+    assertThat(stepStatus(steps, "skippedTest")).isEqualTo("SKIPPED");
+    assertThat(step(steps, "passingTest").path("description").asText())
         .as("ParamOverrideTestNgService should add the TMS link and description")
         .contains("**Test Case ID:** [RP_E2E_SAMPLE]")
         .contains("**Description:** Sample passing test");
+  }
+
+  private static ObjectNode step(JsonPojo steps, String name) {
+    return steps.findFirstObjectByFieldValue("name", name)
+        .orElseThrow(() -> new AssertionError("Step '%s' is not reported, got: %s".formatted(name, steps.asJson())));
+  }
+
+  private static String stepStatus(JsonPojo steps, String name) {
+    return step(steps, name).path("status").asText();
   }
 
   private static void runSampleSuiteInChildJvm(String launchName) throws IOException, InterruptedException {
@@ -109,12 +148,5 @@ public class ReportPortalAgentEndToEndTest {
         Files.deleteIfExists(path);
       }
     }
-  }
-
-  private static Map<String, JsonNode> stepsByName(long launchId) {
-    JsonPojo steps = json(API.getSteps(PROJECT, launchId));
-    Map<String, JsonNode> byName = new HashMap<>();
-    steps.json().path("content").forEach(step -> byName.put(step.path("name").asText(), step));
-    return byName;
   }
 }

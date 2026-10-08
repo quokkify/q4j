@@ -84,9 +84,9 @@ final class ReportPortalTestSupport {
 
   private static String createdId(Response response, String operation) {
     JsonPojo created = json(response);
-    String id = created.json().path("id").asText();
+    String id = created.at("/id").asText();
     assertThat(id)
-        .as("%s response should contain 'id', got: %s", operation, created.json())
+        .as("%s response should contain 'id', got: %s", operation, created.asJson())
         .isNotBlank();
     return id;
   }

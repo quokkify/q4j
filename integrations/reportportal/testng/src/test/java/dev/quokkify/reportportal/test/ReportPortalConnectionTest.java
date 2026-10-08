@@ -32,8 +32,8 @@ public class ReportPortalConnectionTest {
   public void shouldConnectToReportPortalApi() {
     JsonPojo result = new JsonPojo(bodyOf(API.getProjects()));
 
-    assertThat(result.json().has("content"))
-        .as("Project list response should contain 'content' key")
+    assertThat(result.at("/content").isArray())
+        .as("Project list response should contain 'content' array")
         .isTrue();
   }
 
@@ -51,7 +51,7 @@ public class ReportPortalConnectionTest {
 
       JsonPojo response = new JsonPojo(bodyOf(API.sendLog(ReportPortalConnectionConfig.PROJECT_NAME, logBody)));
 
-      assertThat(response.json().path("id").asText())
+      assertThat(response.at("/id").asText())
           .as("First log entry should contain an ID")
           .isNotBlank();
     } finally {
@@ -138,9 +138,9 @@ public class ReportPortalConnectionTest {
 
     JsonPojo response = new JsonPojo(bodyOf(
         API.sendMultipartLog(ReportPortalConnectionConfig.PROJECT_NAME, boundary, body.toByteArray())));
-    String logUuid = response.json().path("responses").path(0).path("id").asText();
+    String logUuid = response.at("/responses/0/id").asText();
     assertThat(logUuid)
-        .as("Multipart log response should contain created log ID, got: %s", response.json())
+        .as("Multipart log response should contain created log ID, got: %s", response.asJson())
         .isNotBlank();
     return logUuid;
   }
@@ -151,7 +151,7 @@ public class ReportPortalConnectionTest {
         .pollInterval(Duration.ofMillis(500))
         .untilAsserted(() -> {
           JsonPojo log = new JsonPojo(bodyOf(API.getLog(ReportPortalConnectionConfig.PROJECT_NAME, logUuid)));
-          assertThat(log.json().path("binaryContent").path("contentType").asText())
+          assertThat(log.at("/binaryContent/contentType").asText())
               .as("Attachment should be stored for log %s", logUuid)
               .isEqualTo(expectedContentType);
         });

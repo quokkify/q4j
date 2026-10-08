@@ -42,7 +42,7 @@ public class ReportPortalApiServiceTest {
     try {
       String itemUuid = ReportPortalTestSupport.startStep(launchUuid, "getItemByUuid probe");
       long launchId = ReportPortalTestSupport.json(
-          ReportPortalTestSupport.API.getLaunch(ReportPortalTestSupport.PROJECT, launchUuid)).json().path("id").asLong();
+          ReportPortalTestSupport.API.getLaunch(ReportPortalTestSupport.PROJECT, launchUuid)).requiredAt("/id").asLong();
 
       ReportPortalItem item = Awaitility.await()
           .atMost(Duration.ofSeconds(30))

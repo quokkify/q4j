@@ -27,6 +27,13 @@ interface ReportPortalTestApi {
   @RequestLine("GET /api/v1/{project}/launch?filter.eq.name={name}&page.size=10")
   Response findLaunches(@Param("project") String project, @Param("name") String name);
 
+  @RequestLine("PUT /api/v1/{project}/launch/{launchId}/stop")
+  @Headers("Content-Type: application/json")
+  Response stopLaunch(@Param("project") String project, @Param("launchId") long launchId, String body);
+
+  @RequestLine("DELETE /api/v1/{project}/launch/{launchId}")
+  Response deleteLaunch(@Param("project") String project, @Param("launchId") long launchId);
+
   @RequestLine("POST /api/v1/{project}/item")
   @Headers("Content-Type: application/json")
   Response startItem(@Param("project") String project, String body);
