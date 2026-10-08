@@ -1,0 +1,1 @@
+{"id":"3e5ed5bd405e89bd24f007c2460f173d.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.architecture.rules.RuleCatalogTest.everyShippedRuleCanBeRegisteredThroughTheServiceLoader","name":"everyShippedRuleCanBeRegisteredThroughTheServiceLoader","status":"passed","testResultsByEnv":{"ubuntu-24-04":"e1b0e6c02dd59c0d2e701f42c79bf13a"}}

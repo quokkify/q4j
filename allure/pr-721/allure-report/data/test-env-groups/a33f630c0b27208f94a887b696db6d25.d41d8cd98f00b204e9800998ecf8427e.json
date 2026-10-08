@@ -1,0 +1,1 @@
+{"id":"a33f630c0b27208f94a887b696db6d25.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.SqlConverterTest.checkLimitAndOffsetReplacement","name":"Limit/Offset: placeholders should be replaced with numeric values in Executable SQL","status":"passed","testResultsByEnv":{"ubuntu-24-04":"2a337a6702e63668015f433ecb54cfc2"}}
