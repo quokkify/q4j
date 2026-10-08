@@ -31,7 +31,7 @@ jobs:
           ref: ${{ github.event.release.tag_name || inputs.release_tag }}
 
       - name: Set up Java and Gradle
-        uses: quokkify/ci-kit/actions/setup-java-gradle@06c7bdce2f444734d95c61ef6485dd3d9543b226 # v3.0.3
+        uses: quokkify/ci-kit/actions/setup-java-gradle@310e115d2d172ab777afa7700cd596d25117b708 # v3.1.0
         with:
           java-version: "21"
           distribution: temurin
