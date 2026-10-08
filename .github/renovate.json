@@ -59,12 +59,18 @@
   ],
   "packageRules": [
     {
-      "description": "Update all Q4J module documentation examples together",
+      "description": "Update all Q4J module documentation examples together and merge them without a stability wait or dashboard approval, as docs commits.",
       "matchManagers": ["custom.regex"],
       "matchDatasources": ["maven"],
       "matchPackageNames": ["/^dev\\.quokkify:/"],
       "groupName": "Q4J module documentation",
-      "groupSlug": "module-documentation"
+      "groupSlug": "module-documentation",
+      "semanticCommitType": "docs",
+      "semanticCommitScope": null,
+      "minimumReleaseAge": null,
+      "dependencyDashboardApproval": false,
+      "prCreation": "immediate",
+      "automerge": true
     },
     {
       "description": "Keep standalone-chromium on the custom Selenium regex manager only",
