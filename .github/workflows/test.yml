@@ -64,7 +64,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/ci-kit/actions/setup-java-gradle@310e115d2d172ab777afa7700cd596d25117b708 # v3.1.0
+        uses: quokkify/ci-kit/actions/setup-java-gradle@15491eafc277b21ba1378748ecae37206a900b3a # v3.1.1
 
       - name: 🧱 Build (check, no tests)
         uses: ./.github/actions/gradle-retry
@@ -102,7 +102,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/ci-kit/actions/setup-java-gradle@310e115d2d172ab777afa7700cd596d25117b708 # v3.1.0
+        uses: quokkify/ci-kit/actions/setup-java-gradle@15491eafc277b21ba1378748ecae37206a900b3a # v3.1.1
 
       - name: 🚀 Run tests
         run: ./gradlew ${{ matrix.module }}:test --no-daemon --warning-mode all --console=plain --stacktrace
@@ -445,10 +445,10 @@ jobs:
   #       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
   #
   #     - name: 🔨Prepare Java/Gradle
-  #       uses: quokkify/ci-kit/actions/setup-java-gradle@310e115d2d172ab777afa7700cd596d25117b708 # v3.1.0
+  #       uses: quokkify/ci-kit/actions/setup-java-gradle@15491eafc277b21ba1378748ecae37206a900b3a # v3.1.1
   #
   #     - name: 🟢 Start Infra with health lifecycle
-  #       uses: quokkify/ci-kit/actions/compose-up@310e115d2d172ab777afa7700cd596d25117b708 # v3.1.0
+  #       uses: quokkify/ci-kit/actions/compose-up@15491eafc277b21ba1378748ecae37206a900b3a # v3.1.1
   #       with:
   #         compose-files: |
   #           tools/environment/docker/docker-compose.yml

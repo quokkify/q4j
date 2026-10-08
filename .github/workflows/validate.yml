@@ -20,7 +20,7 @@ jobs:
     timeout-minutes: 5
     steps:
       - name: Check out repository
-        uses: quokkify/ci-kit/actions/checkout@v3.1.0
+        uses: quokkify/ci-kit/actions/checkout@v3.1.1
         with:
           fetch-depth: 0
           persist-credentials: false
@@ -206,7 +206,7 @@ jobs:
 
   app-java:
     name: "App Java"
-    uses: quokkify/ci-kit/.github/workflows/java-ci.yml@v3.1.0
+    uses: quokkify/ci-kit/.github/workflows/java-ci.yml@v3.1.1
     with:
       working-directory: "."
       # The canonical test.yml owns q4j's configured integration matrix and infrastructure lifecycle.
@@ -217,7 +217,7 @@ jobs:
 
   app-node:
     name: "App Node"
-    uses: quokkify/ci-kit/.github/workflows/node-ci.yml@v3.1.0
+    uses: quokkify/ci-kit/.github/workflows/node-ci.yml@v3.1.1
     with:
       working-directory: "."
       install-command: "true"
@@ -226,7 +226,7 @@ jobs:
 
   app-python:
     name: "App Python"
-    uses: quokkify/ci-kit/.github/workflows/python-ci.yml@v3.1.0
+    uses: quokkify/ci-kit/.github/workflows/python-ci.yml@v3.1.1
     with:
       working-directory: "."
       install-command: "true"
