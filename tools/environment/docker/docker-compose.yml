@@ -142,7 +142,7 @@ services:
       POSTGRES_PASSWORD: ${REPORTPORTAL_POSTGRES_PASSWORD:-rppass}
       POSTGRES_DB: ${REPORTPORTAL_POSTGRES_DB:-reportportal}
     volumes:
-      - reportportal-postgres:/var/lib/postgresql/data
+      - reportportal-postgres-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $$POSTGRES_DB -U $$POSTGRES_USER"]
       interval: 10s
@@ -526,4 +526,4 @@ services:
 volumes:
   reportportal-opensearch:
   reportportal-storage:
-  reportportal-postgres:
+  reportportal-postgres-data:
