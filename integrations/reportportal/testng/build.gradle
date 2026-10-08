@@ -16,3 +16,7 @@ dependencies {
     testImplementation libs.awaitility
     testImplementation libs.mockito.core
 }
+
+tasks.named("test") {
+    exclude "dev/quokkify/reportportal/e2e/sample/**"
+}

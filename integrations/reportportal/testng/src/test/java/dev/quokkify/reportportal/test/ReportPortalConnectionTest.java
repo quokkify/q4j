@@ -1,8 +1,6 @@
 package dev.quokkify.reportportal.test;
 
 import java.io.ByteArrayOutputStream;
-import java.io.IOException;
-import java.io.UncheckedIOException;
 import java.nio.charset.StandardCharsets;
 import java.time.Duration;
 import java.time.Instant;
@@ -14,25 +12,20 @@ import dev.quokkify.reportportal.config.ReportPortalConnectionConfig;
 
 import feign.Response;
 import feign.RetryableException;
-import feign.Util;
 import io.qameta.allure.TmsLink;
 import org.awaitility.Awaitility;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.testng.annotations.Test;
 
+import static dev.quokkify.reportportal.test.ReportPortalTestSupport.API;
+import static dev.quokkify.reportportal.test.ReportPortalTestSupport.bodyOf;
+import static dev.quokkify.reportportal.test.ReportPortalTestSupport.finishLaunch;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 public class ReportPortalConnectionTest {
 
-  private static final Logger LOG = LoggerFactory.getLogger(ReportPortalConnectionTest.class);
-
   private static final byte[] MINIMAL_PNG = Base64.getDecoder().decode(
       "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mNkYAAAAAYAAjCB0C8AAAAASUVORK5CYII=");
-
-  private static final ReportPortalTestApi API =
-      ReportPortalTestApi.create(ReportPortalConnectionConfig.ENDPOINT, ReportPortalConnectionConfig.API_KEY);
 
   @TmsLink("RP_CONN_1")
   @Test(description = "Verify ReportPortal endpoint and token can access project list")
@@ -62,7 +55,7 @@ public class ReportPortalConnectionTest {
           .as("First log entry should contain an ID")
           .isNotBlank();
     } finally {
-      finishTestLaunch(launchUuid);
+      finishLaunch(launchUuid);
     }
   }
 
@@ -78,7 +71,7 @@ public class ReportPortalConnectionTest {
 
       assertAttachmentStored(logUuid, "text/plain");
     } finally {
-      finishTestLaunch(launchUuid);
+      finishLaunch(launchUuid);
     }
   }
 
@@ -93,7 +86,7 @@ public class ReportPortalConnectionTest {
 
       assertAttachmentStored(logUuid, "image/png");
     } finally {
-      finishTestLaunch(launchUuid);
+      finishLaunch(launchUuid);
     }
   }
 
@@ -123,30 +116,7 @@ public class ReportPortalConnectionTest {
   }
 
   private static String startTestLaunch() {
-    String body = new JsonPojo()
-        .setField("name", "test-coverage-run")
-        .setField("startTime", Instant.now().toString())
-        .setField("mode", "DEBUG")
-        .asJson();
-
-    JsonPojo response = new JsonPojo(bodyOf(API.startLaunch(ReportPortalConnectionConfig.PROJECT_NAME, body)));
-
-    assertThat(response.json().has("id"))
-        .as("Start launch response should contain 'id'")
-        .isTrue();
-    return response.json().get("id").asText();
-  }
-
-  private static void finishTestLaunch(String launchUuid) {
-    String body = new JsonPojo()
-        .setField("endTime", Instant.now().toString())
-        .setField("status", "PASSED")
-        .asJson();
-    try (Response ignored = API.finishLaunch(ReportPortalConnectionConfig.PROJECT_NAME, launchUuid, body)) {
-      LOG.debug("Finished test launch {}", launchUuid);
-    } catch (Exception e) {
-      LOG.debug("Failed to finish test launch {}: {}", launchUuid, e.getMessage());
-    }
+    return ReportPortalTestSupport.startLaunch("test-coverage-run");
   }
 
   private static String sendMultipartLog(String launchUuid, String message,
@@ -194,13 +164,5 @@ public class ReportPortalConnectionTest {
         + "Content-Type: " + contentType + "\r\n\r\n").getBytes(StandardCharsets.UTF_8));
     body.writeBytes(content);
     body.writeBytes("\r\n".getBytes(StandardCharsets.UTF_8));
-  }
-
-  private static String bodyOf(Response response) {
-    try (response) {
-      return Util.toString(response.body().asReader(StandardCharsets.UTF_8));
-    } catch (IOException e) {
-      throw new UncheckedIOException(e);
-    }
   }
 }

@@ -26,11 +26,15 @@ public class ReportPortalApiService {
   }
 
   ReportPortalApiService(String endpoint, String apiKey) {
+    this(endpoint, apiKey, new Request.Options(CONNECT_TIMEOUT, READ_TIMEOUT, true));
+  }
+
+  ReportPortalApiService(String endpoint, String apiKey, Request.Options options) {
     this.api = Feign.builder()
         .client(new OkHttpClient())
         .encoder(new JacksonEncoder())
         .decoder(new JacksonDecoder())
-        .options(new Request.Options(CONNECT_TIMEOUT, READ_TIMEOUT, true))
+        .options(options)
         .retryer(Retryer.NEVER_RETRY)
         .requestInterceptor(bearerAuthInterceptor(apiKey))
         .target(ReportPortalFeignApi.class, stripTrailingSlash(endpoint));

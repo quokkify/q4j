@@ -21,6 +21,23 @@ interface ReportPortalTestApi {
   @Headers("Content-Type: application/json")
   Response finishLaunch(@Param("project") String project, @Param("launchUuid") String launchUuid, String body);
 
+  @RequestLine("GET /api/v1/{project}/launch/uuid/{launchUuid}")
+  Response getLaunch(@Param("project") String project, @Param("launchUuid") String launchUuid);
+
+  @RequestLine("GET /api/v1/{project}/launch?filter.eq.name={name}&page.size=10")
+  Response findLaunches(@Param("project") String project, @Param("name") String name);
+
+  @RequestLine("POST /api/v1/{project}/item")
+  @Headers("Content-Type: application/json")
+  Response startItem(@Param("project") String project, String body);
+
+  @RequestLine("PUT /api/v1/{project}/item/{itemUuid}")
+  @Headers("Content-Type: application/json")
+  Response finishItem(@Param("project") String project, @Param("itemUuid") String itemUuid, String body);
+
+  @RequestLine("GET /api/v1/{project}/item?filter.eq.launchId={launchId}&filter.eq.type=STEP&page.size=50")
+  Response getSteps(@Param("project") String project, @Param("launchId") long launchId);
+
   @RequestLine("POST /api/v1/{project}/log")
   @Headers("Content-Type: application/json")
   Response sendLog(@Param("project") String project, String body);
