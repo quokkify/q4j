@@ -17,6 +17,8 @@ dependencies {
     testImplementation libs.mockito.core
 }
 
+def reportPortalStack = rootProject.file("tools/environment/docker/docker-compose.yml")
+
 def agentE2eTest = tasks.register("agentE2eTest", Test) {
     description = "Reports a sample TestNG run to a live ReportPortal through ReportPortalListener."
     group = "verification"
@@ -27,12 +29,12 @@ def agentE2eTest = tasks.register("agentE2eTest", Test) {
     }
     systemProperty "RUN_REPORT_PORTAL", "true"
     systemProperty "RP_LAUNCH_MODE", "DEFAULT"
-    outputs.upToDateWhen { false }
-    outputs.doNotCacheIf("Reports to a live ReportPortal") { true }
+    inputs.file(reportPortalStack).withPathSensitivity(PathSensitivity.NONE).withPropertyName("reportPortalStack")
 }
 
 tasks.named("test") {
     exclude "dev/quokkify/reportportal/e2e/sample/**"
     exclude "dev/quokkify/reportportal/test/ReportPortalAgentEndToEndTest*"
     finalizedBy agentE2eTest
+    inputs.file(reportPortalStack).withPathSensitivity(PathSensitivity.NONE).withPropertyName("reportPortalStack")
 }
