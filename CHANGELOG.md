@@ -2,6 +2,34 @@
 
 ## [0.11.0](https://github.com/quokkify/q4j/compare/v0.10.0...v0.11.0) (2026-10-08)
 
+<!-- project-toolkit:rich-block:start -->
+### ✨ Highlights
+<!-- project-toolkit:rich-release-notes pr=516 -->
+The ReportPortal integration no longer depends on RestAssured. `reportportal-core` now talks to ReportPortal through a Feign client with explicit timeouts (10s connect, 30s read) and no hidden retries. HTTP failures now name the failing endpoint instead of surfacing as a bare status code.
+
+`reportportal-testng` is verified end to end against a live ReportPortal: a real TestNG run goes through `ReportPortalListener` and is checked down to launch statistics, step statuses, attachments and TMS descriptions.
+
+### 💡 Usage Examples
+<!-- project-toolkit:rich-release-notes pr=516 -->
+```java
+ReportPortalApiService service = new ReportPortalApiService(); // REPORTPORTAL_ENDPOINT, REPORTPORTAL_API_KEY
+
+ReportPortalItem item = service.getItemByUuid("quokkify", itemUuid);
+if (item.id() == null) {
+  // unknown item: 404 is still mapped to an empty item, other HTTP errors throw
+}
+```
+
+### 🔄 Migration
+<!-- project-toolkit:rich-release-notes pr=516 -->
+`reportportal-core` no longer exposes RestAssured transitively. If your tests used RestAssured, or the `dev.quokkify` REST helpers, through this dependency, declare the module explicitly:
+
+```kotlin
+dependencies {
+    testImplementation("dev.quokkify:rest-assured:0.10.0")
+}
+```
+<!-- project-toolkit:rich-block:end -->
 
 ### ✨ Features
 
