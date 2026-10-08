@@ -107,6 +107,8 @@ REPORTPORTAL_ENDPOINT=${endpoint}
 REPORTPORTAL_PROJECT_NAME=${project_target}
 REPORTPORTAL_API_KEY=${token}
 ENV
+cp integrations/reportportal/testng/src/test/resources/local_resources/reportportal-test.properties \
+  integrations/reportportal/testng/src/test/resources/local_resources/reportportal.properties
 
 info "[reporting] endpoint: ${endpoint}"
 info "[reporting] project: ${project_target}"
