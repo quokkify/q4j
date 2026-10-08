@@ -490,6 +490,23 @@ services:
         fi
     restart: "no"
 
+  reportportal-analyzer-storage-init:
+    profiles: [reporting]
+    image: busybox:1.38.0@sha256:fd7dc98638c8e305f4dc34e979f1c0fdfdcaeb0fbf8fcff77ae834b6da3d7e6e
+    user: "0:0"
+    command: ["sh", "-ec", "chown 65532:65532 /data"]
+    volumes:
+      - reportportal-analyzer-storage:/data
+    network_mode: none
+    read_only: true
+    security_opt:
+      - no-new-privileges:true
+    cap_drop:
+      - ALL
+    cap_add:
+      - CHOWN
+    restart: "no"
+
   reportportal-analyzer:
     profiles: [reporting]
     image: reportportal/service-auto-analyzer:5.15.5@sha256:c449b93629a5f28ed87790197709033e9c412fd361ee8f0360fce0c2653d8407
@@ -503,12 +520,14 @@ services:
       DATASTORE_TYPE: filesystem
       FILESYSTEM_DEFAULT_PATH: /data/storage/analyzer
     depends_on:
+      reportportal-analyzer-storage-init:
+        condition: service_completed_successfully
       reportportal-opensearch:
         condition: service_healthy
       reportportal-rabbitmq:
         condition: service_healthy
     volumes:
-      - reportportal-storage:/data/storage
+      - reportportal-analyzer-storage:/data/storage/analyzer
     healthcheck:
       test:
         [
@@ -526,4 +545,5 @@ services:
 volumes:
   reportportal-opensearch:
   reportportal-storage:
+  reportportal-analyzer-storage:
   reportportal-pgdata:
