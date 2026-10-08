@@ -23,7 +23,7 @@ jobs:
         run: |
           set -euo pipefail
 
-          pattern='^(feat|fix|perf|refactor|docs|test|ci|chore|build|style|revert)\([a-z0-9][a-z0-9.-]*\)!?: .+'
+          pattern='^(feat|fix|perf|refactor|docs|test|ci|chore|build|style|revert|deps)\([a-z0-9][a-z0-9._-]*\)!?: .+'
 
           if [[ "$PR_TITLE" =~ $pattern ]]; then
             echo "PR title is conventional: $PR_TITLE"
@@ -43,7 +43,7 @@ jobs:
             ci(release): validate PR titles
 
           Allowed types:
-            feat, fix, perf, refactor, docs, test, ci, chore, build, style, revert
+            feat, fix, perf, refactor, docs, test, ci, chore, build, style, revert, deps
           MSG
           echo "Actual title: $PR_TITLE" >&2
           exit 1
