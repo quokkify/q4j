@@ -1,0 +1,1 @@
+{"id":"e3da9ef62ed7445fb22084ae074fb8cd.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.architecture.rules.TestClassNamingRuleTest.noTestClassOnTheClasspathMeansTheRuleCannotRun","name":"noTestClassOnTheClasspathMeansTheRuleCannotRun","status":"passed","testResultsByEnv":{"ubuntu-24-04":"d16d837aeb2b990c5b74d86015a58e8f"}}
