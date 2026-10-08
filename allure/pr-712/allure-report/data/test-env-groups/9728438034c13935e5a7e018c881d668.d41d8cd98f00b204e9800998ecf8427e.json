@@ -1,1 +1,1 @@
-{"id":"9728438034c13935e5a7e018c881d668.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.NoSqlFactoryTest.rejectNullMorphiaConfig","name":"Reject a null Morphia configuration","status":"passed","testResultsByEnv":{"ubuntu-24-04":"7fadfa3a947d464a7d97171c8c6f0f20"}}
+{"id":"9728438034c13935e5a7e018c881d668.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.NoSqlFactoryTest.rejectNullMorphiaConfig","name":"Reject a null Morphia configuration","status":"passed","testResultsByEnv":{"ubuntu-24-04":"2c1759e8150147c3460cac7e6b98d9ce"}}
