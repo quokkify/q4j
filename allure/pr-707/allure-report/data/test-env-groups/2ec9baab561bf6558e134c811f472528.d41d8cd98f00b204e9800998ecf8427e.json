@@ -1,0 +1,1 @@
+{"id":"2ec9baab561bf6558e134c811f472528.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.reportportal.test.ReportPortalConnectionTest.shouldAttachPngScreenshotToReportPortal","name":"Verify screenshot (PNG) attachment can be sent to ReportPortal","status":"passed","testResultsByEnv":{"ubuntu-24-04":"a019f07718d810cbb2e24a5528091025"}}
