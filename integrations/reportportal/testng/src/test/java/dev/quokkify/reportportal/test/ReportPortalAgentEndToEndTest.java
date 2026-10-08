@@ -50,11 +50,11 @@ public class ReportPortalAgentEndToEndTest {
           .pollInterval(Duration.ofSeconds(1))
           .untilAsserted(() -> assertReportedLaunch(launchName));
     } finally {
-      deleteLaunch(launchName);
+      deleteLaunchByName(launchName);
     }
   }
 
-  private static void deleteLaunch(String launchName) {
+  private static void deleteLaunchByName(String launchName) {
     try {
       JsonPojo launches = json(API.findLaunches(PROJECT, launchName));
       if (launches.at("/content/0/id").isMissingNode()) {
@@ -70,9 +70,7 @@ public class ReportPortalAgentEndToEndTest {
           LOG.debug("Stopped launch {}", launchId);
         }
       }
-      try (Response response = API.deleteLaunch(PROJECT, launchId)) {
-        LOG.debug("Deleted launch {} with status {}", launchId, response.status());
-      }
+      ReportPortalTestSupport.deleteLaunch(launchId);
     } catch (Exception e) {
       LOG.warn("Failed to delete launch '{}': {}", launchName, e.getMessage());
     }

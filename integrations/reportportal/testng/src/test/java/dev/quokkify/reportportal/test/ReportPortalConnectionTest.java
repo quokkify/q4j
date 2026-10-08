@@ -18,7 +18,7 @@ import org.testng.annotations.Test;
 
 import static dev.quokkify.reportportal.test.ReportPortalTestSupport.API;
 import static dev.quokkify.reportportal.test.ReportPortalTestSupport.bodyOf;
-import static dev.quokkify.reportportal.test.ReportPortalTestSupport.finishLaunch;
+import static dev.quokkify.reportportal.test.ReportPortalTestSupport.finishAndDeleteLaunch;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -55,7 +55,7 @@ public class ReportPortalConnectionTest {
           .as("First log entry should contain an ID")
           .isNotBlank();
     } finally {
-      finishLaunch(launchUuid);
+      finishAndDeleteLaunch(launchUuid);
     }
   }
 
@@ -71,7 +71,7 @@ public class ReportPortalConnectionTest {
 
       assertAttachmentStored(logUuid, "text/plain");
     } finally {
-      finishLaunch(launchUuid);
+      finishAndDeleteLaunch(launchUuid);
     }
   }
 
@@ -86,7 +86,7 @@ public class ReportPortalConnectionTest {
 
       assertAttachmentStored(logUuid, "image/png");
     } finally {
-      finishLaunch(launchUuid);
+      finishAndDeleteLaunch(launchUuid);
     }
   }
 

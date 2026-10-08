@@ -54,7 +54,7 @@ public class ReportPortalApiServiceTest {
       assertThat(item.path()).as("Item path must be populated").isNotBlank();
       ReportPortalTestSupport.finishStep(launchUuid, itemUuid);
     } finally {
-      ReportPortalTestSupport.finishLaunch(launchUuid);
+      ReportPortalTestSupport.finishAndDeleteLaunch(launchUuid);
     }
   }
 }
