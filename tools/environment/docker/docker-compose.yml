@@ -76,7 +76,7 @@ services:
 
   rabbitmq:
     profiles: [rabbitmq]
-    image: rabbitmq:4.1.8-management@sha256:19c5ee40801d36eaa46020c9e2ff802c4ef7e74839a00b0f8bd43f935f845778
+    image: rabbitmq:4.3.5-management@sha256:57bddb6fbc3498b5d8b5a14dc6f4506073ebcf94c66ba2a7678c335faa8dd631
     user: rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
@@ -152,7 +152,7 @@ services:
 
   reportportal-rabbitmq:
     profiles: [reporting]
-    image: rabbitmq:4.1.8-management@sha256:19c5ee40801d36eaa46020c9e2ff802c4ef7e74839a00b0f8bd43f935f845778
+    image: rabbitmq:4.3.5-management@sha256:57bddb6fbc3498b5d8b5a14dc6f4506073ebcf94c66ba2a7678c335faa8dd631
     user: rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: ${REPORTPORTAL_RABBITMQ_USER:-rabbitmq}
