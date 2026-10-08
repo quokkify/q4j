@@ -1,0 +1,1 @@
+{"id":"317f01c2ce04b13d54c8f0cd966df905.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.SqlConverterTest.checkInWithStringCollection","name":"IN: simple string collection should expand into ('a','b','c')","status":"passed","testResultsByEnv":{"ubuntu-24-04":"b9eea11191c8124d13ac56e741edc8d2"}}
