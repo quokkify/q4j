@@ -1,0 +1,1 @@
+{"id":"fd706424aff735f941bc44b616a76a93.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.model.JsonPojoTest.testRemoveAtMissingPathIsNoOp","name":"Verify remove node by missing json pointer is no-op","status":"passed","testResultsByEnv":{"ubuntu-24-04":"52a2915d6fb22a795045323ec89c8eb7"}}
