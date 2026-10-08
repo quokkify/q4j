@@ -76,14 +76,13 @@ services:
 
   rabbitmq:
     profiles: [rabbitmq]
-    image: bitnamilegacy/rabbitmq:4.1.3-debian-12-r1@sha256:9e635efba43143807c003fd52cd741e88ae1b45e4f5739105c8bf8f6f94912fe
+    image: rabbitmq:4.1.8-management@sha256:19c5ee40801d36eaa46020c9e2ff802c4ef7e74839a00b0f8bd43f935f845778
+    user: rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: ${RABBITMQ_USER:-guest}
       RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-guest}
-      RABBITMQ_MANAGEMENT_ALLOW_WEB_ACCESS: "true"
-      RABBITMQ_DISK_FREE_ABSOLUTE_LIMIT: 50MB
-      RABBITMQ_PLUGINS: >
-        rabbitmq_management
+    volumes:
+      - ../assets/rabbitmq/q4j.conf:/etc/rabbitmq/conf.d/20-q4j.conf:ro
     healthcheck:
       test: ["CMD", "rabbitmqctl", "status"]
       interval: 30s
@@ -137,13 +136,13 @@ services:
 
   reportportal-postgres:
     profiles: [reporting]
-    image: bitnamilegacy/postgresql:17.5.0-debian-12-r20@sha256:42a8200d35971f931b869ef5252d996e137c6beb4b8f1b6d2181dc7d1b6f62e0
+    image: postgres:17.11@sha256:2d2b8998d31037bf721cfdf764d76ba74171b4fab3431b7f72c27c56ddbdf9e3
     environment:
       POSTGRES_USER: ${REPORTPORTAL_POSTGRES_USER:-rpuser}
       POSTGRES_PASSWORD: ${REPORTPORTAL_POSTGRES_PASSWORD:-rppass}
       POSTGRES_DB: ${REPORTPORTAL_POSTGRES_DB:-reportportal}
     volumes:
-      - reportportal-postgres:/bitnami/postgresql
+      - reportportal-postgres-data:/var/lib/postgresql/data
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -d $$POSTGRES_DB -U $$POSTGRES_USER"]
       interval: 10s
@@ -153,18 +152,14 @@ services:
 
   reportportal-rabbitmq:
     profiles: [reporting]
-    image: bitnamilegacy/rabbitmq:4.1.3-debian-12-r1@sha256:9e635efba43143807c003fd52cd741e88ae1b45e4f5739105c8bf8f6f94912fe
+    image: rabbitmq:4.1.8-management@sha256:19c5ee40801d36eaa46020c9e2ff802c4ef7e74839a00b0f8bd43f935f845778
+    user: rabbitmq
     environment:
       RABBITMQ_DEFAULT_USER: ${REPORTPORTAL_RABBITMQ_USER:-rabbitmq}
       RABBITMQ_DEFAULT_PASS: ${REPORTPORTAL_RABBITMQ_PASSWORD:-rabbitmq}
-      RABBITMQ_MANAGEMENT_ALLOW_WEB_ACCESS: "true"
-      RABBITMQ_DISK_FREE_ABSOLUTE_LIMIT: 50MB
-      RABBITMQ_PLUGINS: >
-        rabbitmq_consistent_hash_exchange
-        rabbitmq_management
-        rabbitmq_auth_backend_ldap
-        rabbitmq_shovel
-        rabbitmq_shovel_management
+    volumes:
+      - ../assets/rabbitmq/q4j.conf:/etc/rabbitmq/conf.d/20-q4j.conf:ro
+      - ../assets/rabbitmq/reportportal.enabled_plugins:/etc/rabbitmq/enabled_plugins:ro
     healthcheck:
       test: ["CMD", "rabbitmqctl", "status"]
       interval: 30s
@@ -531,4 +526,4 @@ services:
 volumes:
   reportportal-opensearch:
   reportportal-storage:
-  reportportal-postgres:
+  reportportal-postgres-data:
