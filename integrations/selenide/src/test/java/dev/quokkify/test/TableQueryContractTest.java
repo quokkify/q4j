@@ -1,5 +1,6 @@
 package dev.quokkify.test;
 
+import java.math.BigDecimal;
 import java.time.Duration;
 import java.util.stream.IntStream;
 
@@ -9,9 +10,11 @@ import dev.quokkify.elements.table.TableColumnException;
 import dev.quokkify.elements.table.TableLayout;
 import dev.quokkify.elements.table.TableRow;
 
+import com.codeborne.selenide.Condition;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.WebElementCondition;
 import com.codeborne.selenide.ex.ElementNotFound;
 import com.codeborne.selenide.ex.UIAssertionError;
 import org.assertj.core.api.Assertions;
@@ -27,6 +30,7 @@ import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Condition.exactTextCaseSensitive;
 import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Condition.hidden;
+import static com.codeborne.selenide.Condition.matchText;
 import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Condition.visible;
 import static com.codeborne.selenide.Selenide.$;
@@ -92,10 +96,12 @@ public class TableQueryContractTest extends BaseTest {
     austria.shouldHave(size(2));
     austria.get(0).shouldHave(text("Alfreds"));
     austria.get(1).shouldHave(text("Alpine"));
-    table.rows("Company", "Berglunds").shouldHave(size(1));
-    table.row(1).self().shouldHave(text("glund"));
-    austria.filterBy(text("Al")).shouldHave(size(2));
-    table.rows("Country", "Germany").filterBy(text("20")).shouldHave(size(1));
+    table.column("Company").filterBy(text("glund")).shouldHave(size(1));
+    table.row(1).cell("Company").shouldHave(text("glund"));
+    table.column("Company").filterBy(matchText("Al.*")).shouldHave(size(2));
+    table.rows("Country", "Germany").shouldHave(size(1));
+    table.row("Country", "Germany").cell("Employees").shouldHave(greaterThan(15));
+    table.column("Employees").filterBy(greaterThan(15)).shouldHave(size(1));
   }
 
   @Test(description = "Required queries wait natively and unique queries reject zero or duplicates")
@@ -161,7 +167,7 @@ public class TableQueryContractTest extends BaseTest {
         "const body = document.querySelector('#query-classic tbody');"
             + "body.prepend(body.lastElementChild);");
 
-    Assertions.assertThat(captured.findElements(By.xpath("./td")).get(COMPANY).getText())
+    Assertions.assertThat(captured.findElements(TableLayout.html().cells()).get(COMPANY).getText())
         .isEqualTo("Berglunds");
   }
 
@@ -243,6 +249,13 @@ public class TableQueryContractTest extends BaseTest {
         .isInstanceOf(TableColumnException.class)
         .hasMessageContaining("Company")
         .hasMessageContaining("ambiguous");
+  }
+
+  private static WebElementCondition greaterThan(int threshold) {
+    return Condition.match("greater than " + threshold, cell -> {
+      String text = cell.getText().trim();
+      return !text.isEmpty() && new BigDecimal(text).compareTo(BigDecimal.valueOf(threshold)) > 0;
+    });
   }
 
   private static Table queryClassic() {

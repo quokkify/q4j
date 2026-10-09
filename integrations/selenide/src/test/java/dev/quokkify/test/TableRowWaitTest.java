@@ -17,11 +17,12 @@ import org.openqa.selenium.By;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static com.codeborne.selenide.CollectionCondition.itemWithText;
 import static com.codeborne.selenide.CollectionCondition.size;
 import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Condition.exist;
+import static com.codeborne.selenide.Condition.matchText;
 import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Condition.textCaseSensitive;
 import static com.codeborne.selenide.Selenide.$;
 
 public class TableRowWaitTest extends BaseTest {
@@ -119,8 +120,13 @@ public class TableRowWaitTest extends BaseTest {
     openDelayedTablePage();
     Table customers = customers();
 
-    customers.column("Company").findBy(textCaseSensitive("Ernst")).shouldBe(exist, TIMEOUT);
-    customers.row("Company", "Ernst Handel").cell("Country").shouldHave(exactText("Austria"), TIMEOUT);
+    customers.headers().shouldHave(itemWithText("Country"), TIMEOUT);
+    int country = customers.headers().texts().indexOf("Country");
+
+    customers.column("Company").findBy(matchText("Ernst.*"))
+        .closest("tr")
+        .$$("td").get(country)
+        .shouldHave(exactText("Austria"), TIMEOUT);
   }
 
   @TmsLink("UI_ID_15")
