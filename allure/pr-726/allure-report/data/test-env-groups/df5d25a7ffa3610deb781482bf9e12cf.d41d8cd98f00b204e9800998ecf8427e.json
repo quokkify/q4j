@@ -1,0 +1,1 @@
+{"id":"df5d25a7ffa3610deb781482bf9e12cf.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.SuiteListenerGroupsTest.testOnlyIncludedGroupMethodsRun","name":"Only methods of a group included via TestNG#setGroups run, alwaysRun configuration still runs","status":"passed","testResultsByEnv":{"ubuntu-24-04":"3aa809dae5daf24ce1f2686ba92ffcb8"}}
