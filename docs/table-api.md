@@ -121,11 +121,13 @@ the table root and the list of displayed headers.
 - `cell(header)` and `column(header)` wait, with Selenide's default timeout, until the requested header is
   displayed. If it never appears they throw `TableColumnException` (`not found`) with the headers displayed at
   that moment (`[]` if none mounted). An ambiguous header throws as soon as the requested header is displayed.
-- Inside a `row(column, value)` lookup it surfaces, unwrapped, only after the `should*` timeout, so a typo in a
-  column name costs one full timeout.
-- Inside `rows(column, value).shouldHave(...)` it surfaces immediately, without waiting for the timeout
-  (Selenide collection checks do not retry exceptions thrown by a `filterBy` condition).
-- While no headers are mounted yet (empty header list), a row lookup keeps waiting instead of failing.
+- Inside a `row(column, value)` or `rows(column, value)` lookup, a column that is not displayed (or no headers
+  mounted yet) does not throw: the lookup keeps waiting, so a late-rendered column is picked up within the
+  `should*` timeout. A typo in the column name therefore fails only after that timeout, with Selenide's
+  `ElementNotFound` for `row(...)` or the collection assertion error for `rows(...)`, not with
+  `TableColumnException`; the message contains the condition (for example `Region = "x"`).
+- An ambiguous column inside a `row(column, value)` or `rows(column, value)` lookup throws `TableColumnException`
+  (`ambiguous`) immediately, without waiting for the timeout.
 
 ### `column(header)`
 

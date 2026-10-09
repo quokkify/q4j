@@ -106,6 +106,25 @@ public class TableTest extends BaseTest {
   }
 
   @Test
+  public void rowLookupWaitsForLateColumn() {
+    Table t = openQueryClassic();
+
+    renameEmployeesHeaderTemporarily();
+    t.row("Employees", "20").cell("Company").shouldHave(exactText("Berglunds"), Duration.ofSeconds(2));
+    renameEmployeesHeaderTemporarily();
+    t.rows("Employees", "20").shouldHave(size(1), Duration.ofSeconds(2));
+  }
+
+  @Test
+  public void missingColumnInRowLookupFailsWithElementNotFound() {
+    Table t = openQueryClassic();
+
+    assertThatThrownBy(() -> t.row("Region", "x").self().should(exist, Duration.ofMillis(500)))
+        .isInstanceOf(ElementNotFound.class)
+        .hasMessageContaining("Region");
+  }
+
+  @Test
   public void missingRowFailsWithElementNotFound() {
     Table customers = openDelayedCustomers();
 
@@ -193,6 +212,12 @@ public class TableTest extends BaseTest {
   private static Table openQueryClassic() {
     openQueriesFixture();
     return Table.of($("#query-classic"), TableLayout.html());
+  }
+
+  private static void renameEmployeesHeaderTemporarily() {
+    Selenide.executeJavaScript("const th = document.querySelector('#query-classic thead tr').children[2];"
+        + "th.textContent = 'Staff';"
+        + "setTimeout(() => { th.textContent = 'Employees'; }, 300);");
   }
 
   private static Table openFlexCustomers() {
