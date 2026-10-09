@@ -15,11 +15,15 @@ public record TableLayout(By rows, By cells, By headers) {
     Objects.requireNonNull(headers, "headers");
   }
 
+  /**
+   * Native table markup: data rows from {@code <tbody>}, headers from the last {@code <thead>} row ({@code th} or
+   * {@code td}). Grouped headers work only when that last row lists every leaf column.
+   */
   public static TableLayout html() {
     return new TableLayout(
         By.xpath("./tbody/tr[td]"),
         By.xpath("./*[self::td or self::th]"),
-        By.xpath("./thead/tr/th"));
+        By.xpath("./thead/tr[last()]/*[self::th or self::td]"));
   }
 
   public static TableLayout aria() {
