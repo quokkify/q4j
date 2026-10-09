@@ -3,21 +3,26 @@ package dev.quokkify.test;
 import java.time.Duration;
 import java.time.Instant;
 
+import dev.quokkify.elements.table.HorizontalTable;
+import dev.quokkify.elements.table.Table;
+import dev.quokkify.elements.table.TableLayout;
+import dev.quokkify.elements.table.TableRow;
+
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.ex.ElementNotFound;
 import io.qameta.allure.TmsLink;
 import org.assertj.core.api.Assertions;
+import org.openqa.selenium.By;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static com.codeborne.selenide.CollectionCondition.itemWithText;
+import static com.codeborne.selenide.CollectionCondition.size;
 import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Condition.exist;
-import static com.codeborne.selenide.Condition.matchText;
 import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.textCaseSensitive;
 import static com.codeborne.selenide.Selenide.$;
-import static com.codeborne.selenide.Selenide.$$;
 
 public class TableRowWaitTest extends BaseTest {
 
@@ -39,11 +44,8 @@ public class TableRowWaitTest extends BaseTest {
   @Test(description = "Verify 'TABLE' row search waits for a row appearing with a delay")
   public void testTableRowAppearingWithDelayIsFound() {
     openDelayedTablePage();
-    SelenideElement table = $("#customers");
 
-    table.$$("tbody tr").findBy(text("Ernst Handel"))
-        .$$("td").get(columnIndex(table, "Country"))
-        .shouldHave(exactText("Austria"), TIMEOUT);
+    customers().row("Company", "Ernst Handel").cell("Country").shouldHave(exactText("Austria"), TIMEOUT);
   }
 
   @TmsLink("UI_ID_8")
@@ -52,7 +54,7 @@ public class TableRowWaitTest extends BaseTest {
     openDelayedTablePage();
     Instant start = Instant.now();
 
-    Assertions.assertThatThrownBy(() -> $("#customers").$$("tbody tr").findBy(text("Missing Company"))
+    Assertions.assertThatThrownBy(() -> customers().row("Company", "Missing Company").self()
             .should(exist, TIMEOUT))
         .isInstanceOf(ElementNotFound.class)
         .hasMessageContaining("Missing Company")
@@ -68,8 +70,7 @@ public class TableRowWaitTest extends BaseTest {
   public void testHorizontalTableRowAppearingWithDelayIsFound() {
     openDelayedTablePage();
 
-    $$("#horizontal-customers tr").findBy(text("Telephone 2")).$("td")
-        .shouldHave(exactText("555 77 855"), TIMEOUT);
+    horizontalCustomers().value("Telephone 2").shouldHave(exactText("555 77 855"), TIMEOUT);
   }
 
   @TmsLink("UI_ID_10")
@@ -79,8 +80,7 @@ public class TableRowWaitTest extends BaseTest {
   public void testDynamicHorizontalTableRowAppearingWithDelayIsFound(String iteration) {
     openDelayedTablePage();
 
-    $$("#horizontal-customers tr").findBy(text("Telephone 2")).$("td")
-        .shouldHave(exactText("555 77 855"), TIMEOUT);
+    horizontalCustomers().value("Telephone 2").shouldHave(exactText("555 77 855"), TIMEOUT);
   }
 
   @TmsLink("UI_ID_11")
@@ -88,10 +88,8 @@ public class TableRowWaitTest extends BaseTest {
       + "not just a table whose rows are appended while the container is already visible")
   public void testTableRowWaitSurvivesLateMountingContainer() {
     openLateMountingTablePage();
-    SelenideElement table = $("#late-customers");
 
-    table.$$("tr").findBy(text("Ernst Handel"))
-        .$$("td").get(columnIndex(table, "Country"))
+    lateCustomers("#late-customers").row("Company", "Ernst Handel").cell("Country")
         .shouldHave(exactText("Austria"), TIMEOUT);
   }
 
@@ -100,10 +98,8 @@ public class TableRowWaitTest extends BaseTest {
       + "(regression for the negative-index bug in getAllRowsElements() on an empty table)")
   public void testTableRowWaitSurvivesEmptyContainer() {
     openLateMountingTablePage();
-    SelenideElement table = $("#empty-customers");
 
-    table.$$("tr").findBy(text("Ernst Handel"))
-        .$$("td").get(columnIndex(table, "Country"))
+    lateCustomers("#empty-customers").row("Company", "Ernst Handel").cell("Country")
         .shouldHave(exactText("Austria"), TIMEOUT);
   }
 
@@ -111,38 +107,28 @@ public class TableRowWaitTest extends BaseTest {
   @Test(description = "Verify 'TABLE' row search by a map of expected values waits for a delayed row")
   public void testGetRowByMapWaitsForDelayedRow() {
     openDelayedTablePage();
-    SelenideElement table = $("#customers");
+    Table customers = customers();
 
-    table.$$("tbody tr")
-        .filterBy(text("Ernst Handel"))
-        .filterBy(text("Austria"))
-        .first()
-        .$$("td").get(columnIndex(table, "Contact"))
-        .shouldHave(exactText("Roland Mendel"), TIMEOUT);
+    customers.rows("Company", "Ernst Handel").filterBy(text("Austria")).shouldHave(size(1), TIMEOUT);
+    customers.row("Company", "Ernst Handel").cell("Contact").shouldHave(exactText("Roland Mendel"), TIMEOUT);
   }
 
   @TmsLink("UI_ID_14")
   @Test(description = "Verify 'TABLE' row search by pattern waits for a delayed row")
   public void testGetRowByPatternWaitsForDelayedRow() {
     openDelayedTablePage();
-    SelenideElement table = $("#customers");
+    Table customers = customers();
 
-    table.$$("tbody tr > td:nth-child(" + (columnIndex(table, "Company") + 1) + ")")
-        .findBy(matchText("Ernst.*"))
-        .closest("tr")
-        .$$("td").get(columnIndex(table, "Country"))
-        .shouldHave(exactText("Austria"), TIMEOUT);
+    customers.column("Company").findBy(textCaseSensitive("Ernst")).shouldBe(exist, TIMEOUT);
+    customers.row("Company", "Ernst Handel").cell("Country").shouldHave(exactText("Austria"), TIMEOUT);
   }
 
   @TmsLink("UI_ID_15")
   @Test(description = "Verify the default-timeout 'TABLE' getRow(column, value) overload also waits for a delayed row")
   public void testGetRowDefaultTimeoutOverloadWaits() {
     openDelayedTablePage();
-    SelenideElement table = $("#customers");
 
-    table.$$("tbody tr").findBy(text("Ernst Handel"))
-        .$$("td").get(columnIndex(table, "Country"))
-        .shouldHave(exactText("Austria"));
+    customers().row("Company", "Ernst Handel").cell("Country").shouldHave(exactText("Austria"));
   }
 
   @TmsLink("UI_ID_16")
@@ -151,8 +137,7 @@ public class TableRowWaitTest extends BaseTest {
   public void testHorizontalGetRowDefaultTimeoutOverloadWaits() {
     openDelayedTablePage();
 
-    $$("#horizontal-customers tr").findBy(text("Telephone 2")).$("td")
-        .shouldHave(exactText("555 77 855"));
+    horizontalCustomers().value("Telephone 2").shouldHave(exactText("555 77 855"));
   }
 
   @TmsLink("UI_ID_17")
@@ -162,7 +147,7 @@ public class TableRowWaitTest extends BaseTest {
     openDelayedTablePage();
     Instant start = Instant.now();
 
-    boolean rowExists = $("#customers").$$("tbody tr").findBy(text("Ernst Handel")).exists();
+    boolean rowExists = customers().row("Company", "Ernst Handel").self().exists();
 
     Assertions.assertThat(rowExists).as("Row should not be visible yet").isFalse();
     Assertions.assertThat(Duration.between(start, Instant.now()))
@@ -174,26 +159,17 @@ public class TableRowWaitTest extends BaseTest {
   @Test(description = "Verify 'DYNAMIC TABLE' row search uses Selenide waiting for a delayed row")
   public void testDynamicTableRowAppearingWithDelayIsFound() {
     openDelayedTablePage();
-    SelenideElement table = $("#customers");
 
-    table.$$("tbody tr > td:nth-child(" + (columnIndex(table, "Company") + 1) + ")")
-        .findBy(exactText("Ernst Handel"))
-        .closest("tr")
-        .$$("td").get(columnIndex(table, "Country"))
-        .shouldHave(exactText("Austria"), TIMEOUT);
+    customers().column("Company").findBy(exactText("Ernst Handel")).shouldBe(exist, TIMEOUT);
+    customers().row("Company", "Ernst Handel").cell("Country").shouldHave(exactText("Austria"), TIMEOUT);
   }
 
   @TmsLink("UI_ID_19")
   @Test(description = "Verify 'FLEX TABLE' row search uses Selenide waiting for a delayed row")
   public void testFlexTableRowAppearingWithDelayIsFound() {
     openDelayedTablePage();
-    SelenideElement table = $("#flex-customers");
-    int countryColumn = table.$(":scope > .flex-table-row").$$(":scope > div")
-        .shouldHave(itemWithText("Country")).texts().indexOf("Country");
 
-    table.$$(":scope > .flex-table-row:not(:first-child)").findBy(text("Ernst Handel"))
-        .$$(":scope > div").get(countryColumn)
-        .shouldHave(exactText("Austria"), TIMEOUT);
+    flexCustomers().row("Company", "Ernst Handel").cell("Country").shouldHave(exactText("Austria"), TIMEOUT);
   }
 
   @TmsLink("UI_ID_20")
@@ -201,8 +177,7 @@ public class TableRowWaitTest extends BaseTest {
   public void testDynamicTableMissingRowUsesCallerTimeout() {
     openDelayedTablePage();
 
-    assertCallerTimeout(() -> $("#customers").$$("tbody tr > td:nth-child(1)")
-        .findBy(exactText("Missing Company")).should(exist, SHORT_TIMEOUT));
+    assertCallerTimeout(() -> customers().row("Company", "Missing Company").self().should(exist, SHORT_TIMEOUT));
   }
 
   @TmsLink("UI_ID_21")
@@ -210,8 +185,8 @@ public class TableRowWaitTest extends BaseTest {
   public void testFlexTableMissingRowUsesCallerTimeout() {
     openDelayedTablePage();
 
-    assertCallerTimeout(() -> $("#flex-customers").$$(":scope > .flex-table-row:not(:first-child)")
-        .findBy(text("Missing Company")).should(exist, SHORT_TIMEOUT));
+    assertCallerTimeout(() -> flexCustomers().row("Company", "Missing Company").self()
+        .should(exist, SHORT_TIMEOUT));
   }
 
   @TmsLink("UI_ID_22")
@@ -219,8 +194,8 @@ public class TableRowWaitTest extends BaseTest {
   public void testUnmountedTableUsesCallerTimeout() {
     openLateMountingTablePage();
 
-    assertCallerTimeout(() -> $("#late-customers").$$("tr")
-        .findBy(text("Missing Company")).should(exist, SHORT_TIMEOUT));
+    assertCallerTimeout(() -> lateCustomers("#late-customers").row("Company", "Missing Company").self()
+        .should(exist, SHORT_TIMEOUT));
   }
 
   @TmsLink("UI_ID_23")
@@ -229,7 +204,7 @@ public class TableRowWaitTest extends BaseTest {
     openLateMountingTablePage();
     Instant start = Instant.now();
 
-    Assertions.assertThat($("#late-customers").$$("tr").findBy(text("Ernst Handel")).exists())
+    Assertions.assertThat(lateCustomers("#late-customers").row("Company", "Ernst Handel").self().exists())
         .isFalse();
     Assertions.assertThat(Duration.between(start, Instant.now())).isLessThan(NON_WAITING_TIMEOUT);
   }
@@ -237,63 +212,56 @@ public class TableRowWaitTest extends BaseTest {
   @Test(description = "Verify a returned TABLE row resolves itself again after the table root is replaced")
   public void testReturnedTableRowSurvivesTableReload() {
     openDelayedTablePage();
-    SelenideElement table = $("#customers");
-    SelenideElement row = table.$$("tbody tr").findBy(text("Ernst Handel"));
-    row.shouldBe(exist, TIMEOUT);
-    int countryColumn = columnIndex(table, "Country");
+    TableRow row = customers().row("Company", "Ernst Handel");
+    row.self().shouldBe(exist, TIMEOUT);
 
     Selenide.executeJavaScript("window.reloadClassicTable()");
 
-    row.$$("td").get(countryColumn).shouldHave(exactText("Austria reloaded"), TIMEOUT);
+    row.cell("Country").shouldHave(exactText("Austria reloaded"), TIMEOUT);
   }
 
   @Test(description = "Verify a returned DYNAMIC TABLE row resolves itself again after the table root is replaced")
   public void testReturnedDynamicTableRowSurvivesTableReload() {
     openDelayedTablePage();
-    SelenideElement table = $("#customers");
-    int companyColumn = columnIndex(table, "Company");
-    int countryColumn = columnIndex(table, "Country");
-    SelenideElement row = table.$$("tbody tr > td:nth-child(" + (companyColumn + 1) + ")")
-        .findBy(exactText("Ernst Handel")).closest("tr");
-    row.shouldBe(exist, TIMEOUT);
+    TableRow row = customers().row("Company", "Ernst Handel");
+    row.self().shouldBe(exist, TIMEOUT);
 
     Selenide.executeJavaScript("window.reloadClassicTable()");
 
-    row.$$("td").get(countryColumn).shouldHave(exactText("Austria reloaded"), TIMEOUT);
+    row.cell("Country").shouldHave(exactText("Austria reloaded"), TIMEOUT);
   }
 
   @Test(description = "Verify a returned FLEX TABLE row resolves itself again after the table root is replaced")
   public void testReturnedFlexTableRowSurvivesTableReload() {
     openDelayedTablePage();
-    SelenideElement row = $("#flex-customers").$$(":scope > .flex-table-row:not(:first-child)")
-        .findBy(text("Ernst Handel"));
-    row.shouldBe(exist, TIMEOUT);
+    TableRow row = flexCustomers().row("Company", "Ernst Handel");
+    row.self().shouldBe(exist, TIMEOUT);
 
     Selenide.executeJavaScript("window.reloadFlexTable()");
 
-    row.$$(":scope > div").get(2).shouldHave(exactText("Austria reloaded"), TIMEOUT);
+    row.cell(2).shouldHave(exactText("Austria reloaded"), TIMEOUT);
   }
 
   @Test(description = "Verify a returned HORIZONTAL TABLE row resolves itself again after the table root is replaced")
   public void testReturnedHorizontalTableRowSurvivesTableReload() {
     openDelayedTablePage();
-    SelenideElement row = $$("#horizontal-customers tr").findBy(text("Telephone 2"));
-    row.$("td").shouldHave(exactText("555 77 855"), TIMEOUT);
+    SelenideElement value = horizontalCustomers().value("Telephone 2");
+    value.shouldHave(exactText("555 77 855"), TIMEOUT);
 
     Selenide.executeJavaScript("window.reloadHorizontalTable()");
 
-    row.$("td").shouldHave(exactText("555 77 856"), TIMEOUT);
+    value.shouldHave(exactText("555 77 856"), TIMEOUT);
   }
 
   @Test(description = "Verify a returned DYNAMIC HORIZONTAL row resolves itself after the table root is replaced")
   public void testReturnedDynamicHorizontalTableRowSurvivesTableReload() {
     openDelayedTablePage();
-    SelenideElement row = $$("#horizontal-customers tr").findBy(text("Telephone 2"));
-    row.$("td").shouldHave(exactText("555 77 855"), TIMEOUT);
+    SelenideElement value = horizontalCustomers().value("Telephone 2");
+    value.shouldHave(exactText("555 77 855"), TIMEOUT);
 
     Selenide.executeJavaScript("window.reloadHorizontalTable()");
 
-    row.$("td").shouldHave(exactText("555 77 856"), TIMEOUT);
+    value.shouldHave(exactText("555 77 856"), TIMEOUT);
   }
 
   private void assertCallerTimeout(Runnable lookup) {
@@ -306,8 +274,23 @@ public class TableRowWaitTest extends BaseTest {
         .isBetween(SHORT_TIMEOUT, SHORT_TIMEOUT.plusSeconds(2));
   }
 
-  private static int columnIndex(SelenideElement table, String header) {
-    return table.$$("th").shouldHave(itemWithText(header)).texts().indexOf(header);
+  private static Table customers() {
+    return Table.of($("#customers"), TableLayout.html());
+  }
+
+  private static Table flexCustomers() {
+    return Table.of($("#flex-customers"), TableLayout.of(
+        By.cssSelector(":scope > .flex-table-row:not(:first-child)"), By.cssSelector(":scope > div"),
+        By.cssSelector(":scope > .flex-table-row:first-child > div")));
+  }
+
+  private static Table lateCustomers(String selector) {
+    return Table.of($(selector), TableLayout.of(
+        By.xpath("./tbody/tr[td]"), By.xpath("./td"), By.xpath("./tbody/tr[th]/th")));
+  }
+
+  private static HorizontalTable horizontalCustomers() {
+    return HorizontalTable.of($("#horizontal-customers"));
   }
 
   private void openDelayedTablePage() {

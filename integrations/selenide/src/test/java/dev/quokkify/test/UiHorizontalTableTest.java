@@ -4,6 +4,8 @@ import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import dev.quokkify.elements.table.HorizontalTable;
+
 import com.codeborne.selenide.Selenide;
 import io.qameta.allure.TmsLink;
 import org.assertj.core.api.Assertions;
@@ -11,8 +13,7 @@ import org.testng.annotations.Test;
 
 import static com.codeborne.selenide.CollectionCondition.size;
 import static com.codeborne.selenide.Condition.exactText;
-import static com.codeborne.selenide.Condition.text;
-import static com.codeborne.selenide.Selenide.$$;
+import static com.codeborne.selenide.Selenide.$;
 
 public class UiHorizontalTableTest extends BaseTest {
 
@@ -22,21 +23,18 @@ public class UiHorizontalTableTest extends BaseTest {
   @Test(description = "Verify local HORIZONTAL TABLE and DYNAMIC HORIZONTAL TABLE rows")
   public void testTable() {
     openPage();
+    HorizontalTable customers = customers();
 
-    $$("#horizontal-customers tr").findBy(text("Name")).$("td")
-        .shouldHave(exactText("Bill Gates"), TIMEOUT);
-    $$("#horizontal-customers tr").findBy(text("Telephone 1")).$("td")
-        .shouldHave(exactText("555 77 854"), TIMEOUT);
-    $$("#horizontal-customers tr").findBy(text("Telephone 2")).$("td")
-        .shouldHave(exactText("555 77 855"), TIMEOUT);
-    $$("#horizontal-customers tr").shouldHave(size(3), TIMEOUT);
+    customers.value("Name").shouldHave(exactText("Bill Gates"), TIMEOUT);
+    customers.value("Telephone 1").shouldHave(exactText("555 77 854"), TIMEOUT);
+    customers.value("Telephone 2").shouldHave(exactText("555 77 855"), TIMEOUT);
+    customers.headers().shouldHave(size(3), TIMEOUT);
     Map<String, String> expected = new LinkedHashMap<>();
     expected.put("Name", "Bill Gates");
     expected.put("Telephone 1", "555 77 854");
     expected.put("Telephone 2", "555 77 855");
     Map<String, String> actual = new LinkedHashMap<>();
-    $$("#horizontal-customers tr").asFixedIterable()
-        .forEach(row -> actual.put(row.$("th").text(), row.$("td").text()));
+    customers.headers().texts().forEach(header -> actual.put(header, customers.value(header).text()));
     Assertions.assertThat(actual)
         .containsExactlyEntriesOf(expected);
   }
@@ -45,8 +43,12 @@ public class UiHorizontalTableTest extends BaseTest {
   public void testMissingRow() {
     openPage();
 
-    Assertions.assertThat($$("#horizontal-customers tr").findBy(text("Missing Header")).exists())
+    Assertions.assertThat(customers().value("Missing Header").exists())
         .isFalse();
+  }
+
+  private static HorizontalTable customers() {
+    return HorizontalTable.of($("#horizontal-customers"));
   }
 
   private void openPage() {
