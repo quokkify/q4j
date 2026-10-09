@@ -40,6 +40,7 @@
 ### Task 1: `TableLayout`, `TableColumnException`, header resolution
 
 **Files:**
+
 - Create: `integrations/selenide/src/main/java/dev/quokkify/elements/table/TableLayout.java`
 - Create: `integrations/selenide/src/main/java/dev/quokkify/elements/table/TableColumnException.java`
 - Create: `integrations/selenide/src/main/java/dev/quokkify/elements/table/ColumnResolver.java` (package-private)
@@ -49,6 +50,7 @@
 Note: `integrations/selenide/src/test/java/dev/quokkify/elements/table/model/` already exists; the new tests go one level up, in `dev.quokkify.elements.table`.
 
 **Interfaces:**
+
 - Produces:
   - `public record TableLayout(By rows, By cells, By headers)` with `static TableLayout html()`, `static TableLayout aria()`, `static TableLayout of(By rows, By cells, By headers)`; compact constructor rejects nulls via `Objects.requireNonNull(x, "rows"|"cells"|"headers")`; package-private `static Optional<String> xpath(By by)` returns the expression for `By.xpath`, empty otherwise.
   - `public class TableColumnException extends RuntimeException` with `TableColumnException(String header, String reason, String table, List<String> displayedHeaders)`.
@@ -57,6 +59,7 @@ Note: `integrations/selenide/src/test/java/dev/quokkify/elements/table/model/` a
 - [ ] **Step 1: Write the failing tests**
 
 `TableLayoutTest` (TestNG, AssertJ):
+
 ```java
 @Test public void htmlLayoutUsesDirectChildXpath() {
   assertThat(TableLayout.html()).isEqualTo(new TableLayout(
@@ -77,7 +80,9 @@ Note: `integrations/selenide/src/test/java/dev/quokkify/elements/table/model/` a
       .isInstanceOf(NullPointerException.class).hasMessage("rows");
 }
 ```
+
 `ColumnResolverTest`:
+
 ```java
 @Test public void resolvesTrimmedExactHeader() {
   assertThat(ColumnResolver.indexOf(List.of("Country", " Company \n"), "Company", "#t")).isEqualTo(1);
@@ -122,12 +127,14 @@ git commit -m "feat(selenide): add TableLayout and column resolution"
 ### Task 2: `Table` and `TableRow`
 
 **Files:**
+
 - Create: `integrations/selenide/src/main/java/dev/quokkify/elements/table/Table.java`
 - Create: `integrations/selenide/src/main/java/dev/quokkify/elements/table/TableRow.java`
 - Create: `integrations/selenide/src/main/java/dev/quokkify/elements/table/ColumnValueCondition.java` (package-private)
 - Test: `integrations/selenide/src/test/java/dev/quokkify/test/TableTest.java` (extends `BaseTest`, browser)
 
 **Interfaces:**
+
 - Consumes: `TableLayout`, `ColumnResolver.indexOf`, `TableColumnException` (Task 1).
 - Produces:
   - `public final class Table`: `static Table of(SelenideElement root, TableLayout layout)`; `SelenideElement root()`; `ElementsCollection headers()` = `root.$$(layout.headers())`; `ElementsCollection rows()` = `root.$$(layout.rows())`; `TableRow row(int index)`; `TableRow row(String column, String value)`; `ElementsCollection rows(String column, String value)`; `ElementsCollection column(String header)`.
@@ -135,6 +142,7 @@ git commit -m "feat(selenide): add TableLayout and column resolution"
   - `final class ColumnValueCondition extends WebElementCondition` — constructor `(Table table, String column, String value)`, `toString()` / name = `<column> = "<value>"` (e.g. `Company = "Ernst Handel"`).
 
 Behaviour the implementer must follow (from the spec):
+
 - `row(column, value)` = `new TableRow(rows().findBy(new ColumnValueCondition(this, column, value)), layout)`; `rows(column, value)` = `rows().filterBy(...)` with the same condition.
 - `ColumnValueCondition.check(Driver, WebElement row)`: read `table.headers().texts()`; **if empty → `CheckResult.rejected`** (root or headers not mounted yet, keep waiting — Review Focus 1); otherwise `ColumnResolver.indexOf(...)` (throws on missing/ambiguous — Review Focus 5); read `row.findElements(layout.cells())`; if `index >= cells.size()` → rejected (Review Focus 2); else accepted iff `cells.get(index).getText().trim().equals(value)`.
 - `TableRow.cell(header)`: `headers().shouldHave(sizeGreaterThan(0))`, then `i = ColumnResolver.indexOf(headers().texts(), header, root.toString())`, return `cells().get(i)`.
@@ -195,6 +203,7 @@ public void readsFlexTable()                          // delayed-table #flex-cus
 public void columnRequiresXpathLayout()               // delayed-table #flex-customers
   assertThatThrownBy(() -> flex.column("Company")).isInstanceOf(UnsupportedOperationException.class);
 ```
+
 Fill `<outer row count from fixture>` by reading `tools/environment/assets/nginx/html/table-model-contract/edge-cases.html` `#nested-classic`.
 
 - [ ] **Step 2: Run tests to verify they fail**
@@ -220,13 +229,16 @@ git commit -m "feat(selenide): add thin Table and TableRow helpers"
 ### Task 3: `HorizontalTable`
 
 **Files:**
+
 - Create: `integrations/selenide/src/main/java/dev/quokkify/elements/table/HorizontalTable.java`
 - Test: `integrations/selenide/src/test/java/dev/quokkify/test/HorizontalTableTest.java` (extends `BaseTest`)
 
 **Interfaces:**
+
 - Produces: `public final class HorizontalTable`: `static HorizontalTable of(SelenideElement root)`; `ElementsCollection headers()` = `root.$$x(".//tr/th")`; `SelenideElement value(String header)` = `root.$$x(".//tr").findBy(<th has exact trimmed text header>).$x("./td")`. Condition: `Condition.match("header = \"" + header + "\"", tr -> tr.findElements(By.xpath("./th")).stream().anyMatch(th -> th.getText().trim().equals(header)))`.
 
 - [ ] **Step 1: Write the failing tests** (delayed-table `#horizontal-customers`, `TIMEOUT = 5s`):
+
 ```java
 public void readsValueByHeader()        h.value("Name").shouldHave(exactText("Bill Gates"));
 public void waitsForDelayedHeader()     h.value("Telephone 2").shouldHave(exactText("555 77 855"), TIMEOUT);
@@ -236,6 +248,7 @@ public void missingHeaderFails()        assertThatThrownBy(() -> h.value("Missin
                                           .isInstanceOf(ElementNotFound.class).hasMessageContaining("Missing Header");
 public void doesNotMatchHeaderPrefix()  h.value("Telephone").should(not(exist));
 ```
+
 - [ ] **Step 2: Run** `BROWSER 'dev.quokkify.test.HorizontalTableTest'` → compilation FAIL.
 - [ ] **Step 3: Implement** `HorizontalTable`.
 - [ ] **Step 4: Run** `COMPILE`, `BROWSER 'dev.quokkify.test.HorizontalTableTest'` → PASS.
@@ -248,9 +261,11 @@ public void doesNotMatchHeaderPrefix()  h.value("Telephone").should(not(exist));
 **Files (modify):** in `integrations/selenide/src/test/java/dev/quokkify/test/`: `UiTableTest`, `TableRowWaitTest`, `TableModelContractTest`, `TableQueryContractTest`, `TableAssertionsActionsContractTest`, `UiHorizontalTableTest`, `ReproHorizontalAsyncTest`.
 
 **Interfaces:**
+
 - Consumes: `Table`, `TableRow`, `TableLayout`, `HorizontalTable`, `TableColumnException` (Tasks 1–3).
 
 Rules:
+
 - Remove every private `columnIndex(...)`, `classicHeaders/Rows/Cells`, `gridHeaders/Rows/Cells`, `rows/cells` helper and the column-scoped `Condition.match` helper `cell(int, String, Predicate)`; replace call sites with `Table` / `TableRow` / `HorizontalTable`.
 - Keep test method names, `@Test` descriptions, `@TmsLink`, data providers, `@SingleThread`, and the three methods referenced by the `tableModelContractStability` task in `integrations/selenide/build.gradle`.
 - Where a test asserts a DOM fact on purpose (e.g. duplicate headers via `exactTexts`), switch to the helper's behaviour when it exists: duplicate header → `assertThatThrownBy(...).isInstanceOf(TableColumnException.class)`; missing header → same.
@@ -270,6 +285,7 @@ Expected: no output.
 ### Task 5: Remove the old table stack and dead test support
 
 **Files (delete):**
+
 - `integrations/selenide/src/main/java/dev/quokkify/elements/table/classic/` (whole directory)
 - `integrations/selenide/src/main/java/dev/quokkify/elements/table/horizontal/` (whole directory)
 - `integrations/selenide/src/main/java/dev/quokkify/elements/table/model/` (whole directory)
@@ -308,6 +324,7 @@ HorizontalTable and TableColumnException from dev.quokkify.elements.table."
 ### Task 6: Documentation
 
 **Files:**
+
 - Modify: `docs/table-api.md` (rewrite around the five types; examples from the spec's Public API section; documented limits: hidden rows count in indexes, `aria()` matches nested grids, `column()` needs XPath layouts, `cell(header)` resolves the index at call time, `html()` needs `<thead>`).
 - Modify: `integrations/selenide/README.md` — replace the "Table DOM model" section with a short usage example and a link to `docs/table-api.md`.
 - Modify: `integrations/selenide/docs/AUDIT.md`, `docs/selenide-upstream-evaluation-prompt.md` — replace references to removed types.

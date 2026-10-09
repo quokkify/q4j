@@ -23,17 +23,17 @@ contact.value("Phone").shouldHave(text("+43"));
 
 ### `Table`
 
-| Method | Meaning |
-|---|---|
-| `Table.of(root, layout)` | wraps a table-like element |
-| `headers()` | `ElementsCollection` of header cells |
-| `rows()` | `ElementsCollection` of data rows |
-| `row(int)` | row by 0-based index |
-| `row(column, value)` | first row whose cell in `column` has exact text `value` |
-| `row(SelenideElement)` | wraps a row element you found yourself, so `cell(header)` works on it |
-| `rows(column, value)` | all such rows |
-| `column(header)` | cells of that column across rows |
-| `root()` | the root `SelenideElement` |
+| Method                   | Meaning                                                               |
+| ------------------------ | --------------------------------------------------------------------- |
+| `Table.of(root, layout)` | wraps a table-like element                                            |
+| `headers()`              | `ElementsCollection` of header cells                                  |
+| `rows()`                 | `ElementsCollection` of data rows                                     |
+| `row(int)`               | row by 0-based index                                                  |
+| `row(column, value)`     | first row whose cell in `column` has exact text `value`               |
+| `row(SelenideElement)`   | wraps a row element you found yourself, so `cell(header)` works on it |
+| `rows(column, value)`    | all such rows                                                         |
+| `column(header)`         | cells of that column across rows                                      |
+| `root()`                 | the root `SelenideElement`                                            |
 
 ### `TableRow`
 
@@ -59,11 +59,11 @@ duplicate-label detection. `headers()` returns all `th`.
 `TableLayout` is an immutable record of three relative locators: `rows` and `headers` relative to the table
 root, `cells` relative to a row.
 
-| Factory | rows | cells | headers |
-|---|---|---|---|
-| `html()` | `./tbody/tr[td]` | `./*[self::td or self::th]` | `./thead/tr/th` |
-| `aria()` | `.//*[@role='row'][*[@role='cell' or @role='gridcell']]` | `./*[@role='cell' or @role='gridcell' or @role='rowheader']` | `.//*[@role='columnheader']` |
-| `of(By rows, By cells, By headers)` | caller-defined | caller-defined | caller-defined |
+| Factory                             | rows                                                     | cells                                                        | headers                      |
+| ----------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------ | ---------------------------- |
+| `html()`                            | `./tbody/tr[td]`                                         | `./*[self::td or self::th]`                                  | `./thead/tr/th`              |
+| `aria()`                            | `.//*[@role='row'][*[@role='cell' or @role='gridcell']]` | `./*[@role='cell' or @role='gridcell' or @role='rowheader']` | `.//*[@role='columnheader']` |
+| `of(By rows, By cells, By headers)` | caller-defined                                           | caller-defined                                               | caller-defined               |
 
 - `html()` uses direct-child XPath, so rows of nested tables are not counted. It needs a `<thead>`; a table
   whose header row sits inside `<tbody>` uses `of(...)`:
@@ -149,10 +149,10 @@ filtering, pagination, virtual scrolling, page-factory (`@FindBy`) injection.
 
 This is a breaking change; there is no deprecation period and no bridge to the old types.
 
-| Removed | Replacement |
-|---|---|
-| `table/classic/*`: `Table`, `DynamicTable`, `FlexTable`, `SelenideDataTable`, `Row`, `Cell`, bases | `Table` + `TableLayout.html()` / `of(...)` |
-| `table/horizontal/*` | `HorizontalTable` |
+| Removed                                                                                                                                                                               | Replacement                                                                                        |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `table/classic/*`: `Table`, `DynamicTable`, `FlexTable`, `SelenideDataTable`, `Row`, `Cell`, bases                                                                                    | `Table` + `TableLayout.html()` / `of(...)`                                                         |
+| `table/horizontal/*`                                                                                                                                                                  | `HorizontalTable`                                                                                  |
 | `table/model/*`: `TableModel<C>`, `TableDomAdapter`, `SelenideTableQuery`, row/column/table assertions, controls, typed refs, `RowData`, `RowConditions`, `ExpectedValue`, exceptions | `TableLayout`, `Table`, `TableRow`, `TableColumnException`, native Selenide conditions and actions |
-| `elements/base/BaseTable` | none |
-| `ex/TableRowException` | Selenide `ElementNotFound` |
+| `elements/base/BaseTable`                                                                                                                                                             | none                                                                                               |
+| `ex/TableRowException`                                                                                                                                                                | Selenide `ElementNotFound`                                                                         |
