@@ -1,0 +1,1 @@
+{"id":"39a9c35e534a278f283f6445d07a7340.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.util.CommandLockManagerTest.interruptedWaiterPropagatesInterruptionAndReleasesItsReference","name":"interruptedWaiterPropagatesInterruptionAndReleasesItsReference","status":"passed","testResultsByEnv":{"ubuntu-24-04":"fc5874433afd8b86f824b7d11e4c8b07"}}
