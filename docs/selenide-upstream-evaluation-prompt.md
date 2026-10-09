@@ -7,7 +7,8 @@ ADR-style verdict and end with exactly one decision: `NO-GO`, `RFC-FIRST`, or `R
 You are an upstream-evaluation agent for q4j's table work. Do not implement, fork, file an issue,
 or open a merge request. First inspect q4j's exact current public API, implementation, fixtures,
 tests, and release compatibility, including every public FQCN in
-`dev.quokkify.elements.table.model` and the legacy table packages. Then read the current Selenide
+`dev.quokkify.elements.table` (`Table`, `TableRow`, `TableLayout`, `HorizontalTable`,
+`TableColumnException`). Then read the current Selenide
 source, contribution rules, and maintainer guidance in selenide/selenide#1996.
 
 Respect every #547 constraint: do not revive #526 or #531; do not add React, Vue, Angular, or
@@ -18,18 +19,15 @@ research. Do not create a
 Selenide fork, issue, or implementation MR before maintainer agreement; and do not expand scope to
 sorting, filtering, or pagination.
 
-Separate Q4J-specific table models, DOM adapters, query semantics, assertions, actions, and typed
-header behavior from generic primitives that could be useful outside tables. Search current
+Separate Q4J-specific table layouts, column-by-header resolution, and column-scoped row lookup from generic primitives that could be useful outside tables. Search current
 Selenide APIs, issues, and pull requests before proposing anything. For every candidate classify it
 as exactly one of: `keep in q4j`, `clarify/document`, `improve compatibly`, `future major`,
 `propose RFC`, or `reject`.
 
-Treat Appium only as a future separately published external plugin/module boundary. The structural
-contracts (`TableModel`, `TableRow`, `TableCell`) are the extension contract; the current Selenide
-adapter and its query/assertion/action APIs remain Selenide/Selenium-specific. Do not propose or
+Treat Appium only as a future separately published external plugin/module boundary. The current
+`Table` helper and `TableLayout` are Selenide/Selenium-specific. Do not propose or
 implement an Appium type, dependency, driver setup, fixture, runtime code, or plugin discovery in
-q4j. Record that these contracts currently ship in `selenide` with Selenide dependencies, so
-neutral-artifact extraction is a future-major compatibility decision because 0.6.0 FQCNs cannot move.
+q4j.
 
 Require concrete cross-domain use cases for any upstream candidate. Prefer a maintainer
 brainstorm/RFC before implementation. Do not create a fork or implementation MR until Selenide
