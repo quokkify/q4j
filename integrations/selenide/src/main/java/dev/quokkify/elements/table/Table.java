@@ -11,7 +11,10 @@ import static com.codeborne.selenide.CollectionCondition.anyMatch;
 import static com.codeborne.selenide.CollectionCondition.itemWithText;
 
 /**
- * Thin header-aware view over a table-like element. All lookups are lazy Selenide collections and elements.
+ * Thin header-aware view over a table-like element. Returned elements and collections are lazy:
+ * {@code row(column, value)} and {@code rows(column, value)} re-resolve the column on every evaluation, while
+ * {@code cell(header)} and {@code column(header)} resolve the column index once, when called (call them again after
+ * columns are reordered).
  */
 public final class Table {
 
