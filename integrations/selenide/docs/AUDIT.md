@@ -24,8 +24,10 @@ See [`RUNBOOK.md`](RUNBOOK.md) for the working local recipe. Non-obvious points 
 
 ### F7 — Timing-sensitive tests flake under bulk/emulation (Medium)
 
-Two timing-sensitive tests of the removed table stack (a sub-0.5s bound on a non-waiting row check and a
-`PT2S` row lookup) failed on a full 64-test run and passed in isolation. Root cause is CPU
+`TableRowWaitTest.testDynamicHorizontalTableRowAppearingWithDelayIsFound` (sub-0.5s bound on a
+non-waiting row check) and `TableQueryContractTest.addressesClassicTableByIndexAndTypedKey`
+(a `PT2S` row lookup) failed on a full 64-test run and passed in isolation. Both methods remain, now
+exercising the thin `Table` / `HorizontalTable` helpers. Root cause is CPU
 contention under `selenideBrowserTestLock` plus amd64-on-arm64 Rosetta emulation. Consider wider
 `isRowExist` bounds and/or budgeting the 2s row lookup beyond wall-clock minimums; verify timing
 assertions are robust to slow CI runners.

@@ -106,6 +106,8 @@ timeout) and returns an element that is lazy by index. Call `cell(header)` again
 the table root and the list of displayed headers.
 
 - In `cell(header)` and `column(header)` a missing or ambiguous header throws immediately.
+  Both first wait for at least one header with Selenide's default timeout; if headers never mount, the failure
+  is a Selenide collection-size assertion, not `TableColumnException`.
 - Inside a `row(column, value)` lookup it surfaces, unwrapped, only after the `should*` timeout, so a typo in a
   column name costs one full timeout.
 - While no headers are mounted yet (empty header list), a row lookup keeps waiting instead of failing.
@@ -132,5 +134,3 @@ This is a breaking change; there is no deprecation period and no bridge to the o
 | `table/model/*`: `TableModel<C>`, `TableDomAdapter`, `SelenideTableQuery`, row/column/table assertions, controls, typed refs, `RowData`, `RowConditions`, `ExpectedValue`, exceptions | `TableLayout`, `Table`, `TableRow`, `TableColumnException`, native Selenide conditions and actions |
 | `elements/base/BaseTable` | none |
 | `ex/TableRowException` | Selenide `ElementNotFound` |
-
-`NumberFormatter` and `LocalDateUtils` in `common-utils/core` are unchanged.
