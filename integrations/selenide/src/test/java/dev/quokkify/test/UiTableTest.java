@@ -4,6 +4,7 @@ import java.time.Duration;
 
 import dev.quokkify.elements.table.Table;
 import dev.quokkify.elements.table.TableLayout;
+import dev.quokkify.elements.table.TableRow;
 
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.ex.ElementNotFound;
@@ -15,7 +16,6 @@ import static com.codeborne.selenide.CollectionCondition.exactTexts;
 import static com.codeborne.selenide.CollectionCondition.size;
 import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Condition.exist;
-import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
@@ -42,8 +42,9 @@ public class UiTableTest extends BaseTest {
     openPage();
     Table customers = customers();
 
-    customers.rows("Company", "Ernst Handel").filterBy(text("Austria")).shouldHave(size(1), TIMEOUT);
-    customers.row("Company", "Ernst Handel").cell("Contact").shouldHave(exactText("Roland Mendel"));
+    TableRow ernst = customers.row(customers.rows("Company", "Ernst Handel").shouldHave(size(1), TIMEOUT).first());
+    ernst.cell("Country").shouldHave(exactText("Austria"));
+    ernst.cell("Contact").shouldHave(exactText("Roland Mendel"));
   }
 
   @Test(description = "Verify DYNAMIC TABLE maps displayed headers and FLEX TABLE excludes its header row")

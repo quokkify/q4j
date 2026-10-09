@@ -56,6 +56,36 @@ public class TableTest extends BaseTest {
   }
 
   @Test
+  public void rowsLookupWaitsWhileHeadersMount() {
+    Table t = openQueryClassic();
+    Selenide.executeJavaScript("const table = document.getElementById('query-classic');"
+        + "const head = table.tHead; head.remove();"
+        + "setTimeout(() => table.insertBefore(head, table.tBodies[0]), 300);");
+
+    t.rows("Company", "Alfreds").shouldHave(size(1), Duration.ofSeconds(2));
+  }
+
+  @Test
+  public void cellWaitsForLateHeader() {
+    Table t = openQueryClassic();
+    TableRow berglunds = t.row("Company", "Berglunds");
+    Selenide.executeJavaScript("const tr = document.querySelector('#query-classic thead tr');"
+        + "const th = tr.children[2]; th.remove();"
+        + "setTimeout(() => tr.appendChild(th), 500);");
+
+    berglunds.cell("Employees").shouldHave(exactText("20"));
+  }
+
+  @Test
+  public void wrapsRowFoundByCaller() {
+    Table t = openQueryClassic();
+    TableRow berglunds = t.row(t.rows().findBy(text("Berglunds")));
+
+    berglunds.cell("Country").shouldHave(exactText("Germany"));
+    berglunds.cell("Employees").shouldHave(exactText("20"));
+  }
+
+  @Test
   public void missingHeaderThrowsTableColumnException() {
     Table t = openQueryClassic();
 

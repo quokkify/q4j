@@ -12,7 +12,6 @@ import dev.quokkify.elements.table.TableRow;
 
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.ex.ElementNotFound;
-import com.codeborne.selenide.ex.UIAssertionError;
 import org.openqa.selenium.By;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
@@ -281,7 +280,9 @@ public class TableModelContractTest extends BaseTest {
 
     headerless.headers().shouldHave(empty);
     assertThatThrownBy(() -> headerless.row(0).cell("Country"))
-        .isInstanceOf(UIAssertionError.class);
+        .isInstanceOf(TableColumnException.class)
+        .hasMessageContaining("not found")
+        .hasMessageContaining("[]");
     repeated.headers().shouldHave(exactTexts("Country", "Company", "Company", "Company"));
     repeated.rows().shouldHave(size(3));
     assertThatThrownBy(() -> repeated.row(0).cell("Company"))

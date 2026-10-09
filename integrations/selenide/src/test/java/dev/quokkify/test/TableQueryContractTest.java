@@ -216,10 +216,10 @@ public class TableQueryContractTest extends BaseTest {
   public void supportsMapShortcutsAndRowConditions() {
     Table customers = queryClassic();
 
-    customers.rows("Company", "Berglunds").filterBy(text("Germany")).shouldHave(size(1));
-    customers.row("Company", "Berglunds").cell("Employees").shouldHave(exactText("20"));
-    customers.rows("Company", "Alfreds").filterBy(text("Austria")).shouldHave(size(1));
-    TableRow alfreds = customers.row("Company", "Alfreds");
+    TableRow berglunds = customers.row(customers.rows("Company", "Berglunds").shouldHave(size(1)).first());
+    berglunds.cell("Country").shouldHave(exactText("Germany"));
+    berglunds.cell("Employees").shouldHave(exactText("20"));
+    TableRow alfreds = customers.row(customers.rows("Company", "Alfreds").shouldHave(size(1)).first());
     alfreds.cell("Company").shouldHave(exactTextCaseSensitive("Alfreds"));
     alfreds.cell("Country").shouldHave(exactTextCaseSensitive("Austria"));
   }

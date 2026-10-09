@@ -17,12 +17,10 @@ import org.openqa.selenium.By;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import static com.codeborne.selenide.CollectionCondition.itemWithText;
 import static com.codeborne.selenide.CollectionCondition.size;
 import static com.codeborne.selenide.Condition.exactText;
 import static com.codeborne.selenide.Condition.exist;
 import static com.codeborne.selenide.Condition.matchText;
-import static com.codeborne.selenide.Condition.text;
 import static com.codeborne.selenide.Selenide.$;
 
 public class TableRowWaitTest extends BaseTest {
@@ -110,8 +108,9 @@ public class TableRowWaitTest extends BaseTest {
     openDelayedTablePage();
     Table customers = customers();
 
-    customers.rows("Company", "Ernst Handel").filterBy(text("Austria")).shouldHave(size(1), TIMEOUT);
-    customers.row("Company", "Ernst Handel").cell("Contact").shouldHave(exactText("Roland Mendel"), TIMEOUT);
+    TableRow ernst = customers.row(customers.rows("Company", "Ernst Handel").shouldHave(size(1), TIMEOUT).first());
+    ernst.cell("Country").shouldHave(exactText("Austria"));
+    ernst.cell("Contact").shouldHave(exactText("Roland Mendel"));
   }
 
   @TmsLink("UI_ID_14")
@@ -120,12 +119,8 @@ public class TableRowWaitTest extends BaseTest {
     openDelayedTablePage();
     Table customers = customers();
 
-    customers.headers().shouldHave(itemWithText("Country"), TIMEOUT);
-    int country = customers.headers().texts().indexOf("Country");
-
-    customers.column("Company").findBy(matchText("Ernst.*"))
-        .closest("tr")
-        .$$("td").get(country)
+    customers.row(customers.column("Company").findBy(matchText("Ernst.*")).closest("tr"))
+        .cell("Country")
         .shouldHave(exactText("Austria"), TIMEOUT);
   }
 
