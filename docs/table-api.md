@@ -61,14 +61,16 @@ ignored.
 `TableLayout` is an immutable record of three relative locators: `rows` and `headers` relative to the table
 root, `cells` relative to a row.
 
-| Factory                             | rows                                                     | cells                                                        | headers                                      |
-| ----------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------ | -------------------------------------------- |
-| `html()`                            | `./tbody/tr[td]`                                         | `./*[self::td or self::th]`                                  | `./thead/tr[last()]/*[self::th or self::td]` |
-| `aria()`                            | `.//*[@role='row'][*[@role='cell' or @role='gridcell']]` | `./*[@role='cell' or @role='gridcell' or @role='rowheader']` | `.//*[@role='columnheader']`                 |
-| `of(By rows, By cells, By headers)` | caller-defined                                           | caller-defined                                               | caller-defined                               |
+| Factory                             | rows                                                     | cells                                                        | headers                                                                                                    |
+| ----------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| `html()`                            | `./tbody/tr[td]`                                         | `./*[self::td or self::th]`                                  | `./thead/tr[th][last()]/*[self::th or self::td] \| ./thead[not(tr/th)]/tr[last()]/*[self::th or self::td]` |
+| `aria()`                            | `.//*[@role='row'][*[@role='cell' or @role='gridcell']]` | `./*[@role='cell' or @role='gridcell' or @role='rowheader']` | `.//*[@role='columnheader']`                                                                               |
+| `of(By rows, By cells, By headers)` | caller-defined                                           | caller-defined                                               | caller-defined                                                                                             |
 
-- `html()` reads headers from the last `<thead>` row, as `th` or `td`. Grouped headers (a `colspan` row above
-  the leaf row) work only when that last row lists every leaf column.
+- `html()` reads headers, as `th` or `td`, from the last `<thead>` row that contains a `th`, so a filter row of
+  inputs under the header row is skipped; when no row has a `th`, the last `<thead>` row is used. Grouped
+  headers (a `colspan` row above the leaf row) work only when that row lists every leaf column; `rowspan` leaf
+  headers are not supported.
 - `html()` uses direct-child XPath, so rows of nested tables are not counted. It needs a `<thead>`; a table
   whose header row sits inside `<tbody>` uses `of(...)`:
 
@@ -153,7 +155,9 @@ predicate) so fewer rows are evaluated.
 - Values are compared by visible text; an `<input>` or `<select>` reads as `""`. Find such a row yourself and
   wrap it with `row(SelenideElement)`.
 - `colspan` / `rowspan` in the body are not supported.
-- Grouped headers require the last header row to list every leaf column.
+- Grouped headers require the header row to list every leaf column. A leaf header that spans both rows with
+  `rowspan` is missing from that row and shifts the columns silently; describe such a table with `of(...)` and an
+  explicit headers locator.
 
 ## Not covered
 
