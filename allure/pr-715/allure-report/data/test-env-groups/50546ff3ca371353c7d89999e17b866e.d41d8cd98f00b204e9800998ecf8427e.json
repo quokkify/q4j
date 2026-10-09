@@ -1,1 +1,1 @@
-{"id":"50546ff3ca371353c7d89999e17b866e.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.util.CommandLockManagerTest.nullArgumentsAreRejected","name":"nullArgumentsAreRejected","status":"passed","testResultsByEnv":{"ubuntu-24-04":"b5636b659add416a744527b0a6692973"}}
+{"id":"50546ff3ca371353c7d89999e17b866e.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.util.CommandLockManagerTest.nullArgumentsAreRejected","name":"nullArgumentsAreRejected","status":"passed","testResultsByEnv":{"ubuntu-24-04":"4600b3cf95cd96930a24105e66344495"}}
