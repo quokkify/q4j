@@ -112,9 +112,9 @@ public class TableTest extends BaseTest {
   public void rowLookupWaitsForLateColumn() {
     Table t = openQueryClassic();
 
-    Allure.step("Rename header Employees → Staff, restore after 300 ms", TableTest::renameEmployeesHeaderTemporarily);
+    renameEmployeesHeaderTemporarily();
     t.row("Employees", "20").cell("Company").shouldHave(exactText("Berglunds"), Duration.ofSeconds(2));
-    Allure.step("Rename header Employees → Staff, restore after 300 ms", TableTest::renameEmployeesHeaderTemporarily);
+    renameEmployeesHeaderTemporarily();
     t.rows("Employees", "20").shouldHave(size(1), Duration.ofSeconds(2));
   }
 
@@ -218,6 +218,17 @@ public class TableTest extends BaseTest {
 
     t.row(0).cell("Company").shouldHave(exactText("Ernst"), TIMEOUT);
     t.row(0).cell("Country").shouldHave(exactText("Austria"), TIMEOUT);
+    t.column("Country").shouldHave(exactTexts("Austria"), TIMEOUT);
+  }
+
+  @Test
+  public void headerRowWithFilterRowBelow() {
+    Table t = tableFromMarkup("Inject table with a filter input row under the header row", "<table id='t'><thead>"
+        + "<tr><th>Company</th><th>Country</th></tr>"
+        + "<tr><td><input></td><td><input></td></tr>"
+        + "</thead><tbody><tr><td>Ernst</td><td>Austria</td></tr></tbody></table>");
+
+    t.row("Company", "Ernst").cell("Country").shouldHave(exactText("Austria"), TIMEOUT);
   }
 
   @Test
@@ -266,6 +277,7 @@ public class TableTest extends BaseTest {
         + "<tr><th>Name</th><th>Status</th></tr></thead>"
         + "<tbody><tr><td><input value='Alpha'></td><td>Ready</td></tr></tbody></table>");
 
+    t.rows("Name", "Alpha").shouldHave(size(0));
     t.row($("#t input[value='Alpha']").closest("tr")).cell("Status").shouldHave(exactText("Ready"), TIMEOUT);
   }
 
@@ -286,9 +298,10 @@ public class TableTest extends BaseTest {
   }
 
   private static void renameEmployeesHeaderTemporarily() {
-    Selenide.executeJavaScript("const th = document.querySelector('#query-classic thead tr').children[2];"
-        + "th.textContent = 'Staff';"
-        + "setTimeout(() => { th.textContent = 'Employees'; }, 300);");
+    Allure.step("Rename header Employees → Staff, restore after 300 ms", () -> Selenide.executeJavaScript(
+        "const th = document.querySelector('#query-classic thead tr').children[2];"
+            + "th.textContent = 'Staff';"
+            + "setTimeout(() => { th.textContent = 'Employees'; }, 300);"));
   }
 
   private static Table openFlexCustomers() {
