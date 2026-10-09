@@ -1,5 +1,32 @@
 # Changelog
 
+## [0.12.0](https://github.com/quokkify/q4j/compare/v0.11.0...v0.12.0) (2026-10-09)
+
+
+### ⚠ BREAKING CHANGES
+
+* **selenide:** replace table stack with thin Table helper ([#729](https://github.com/quokkify/q4j/issues/729))
+
+### ✨ Features
+
+* **selenide:** replace table stack with thin Table helper ([#729](https://github.com/quokkify/q4j/issues/729)) ([11c2e49](https://github.com/quokkify/q4j/commit/11c2e4932057f91642c85d4491d8c042d274d465))
+
+
+### 🐛 Bug Fixes
+
+* **selenide:** handle grouped headers, filter rows and nested tables in table helper ([#730](https://github.com/quokkify/q4j/issues/730)) ([e05beec](https://github.com/quokkify/q4j/commit/e05beec4e4e8fe11c5f90709d347e78292ccfb53))
+* **selenide:** wait for late columns in table row lookups ([#728](https://github.com/quokkify/q4j/issues/728)) ([9292946](https://github.com/quokkify/q4j/commit/9292946d08e872874f6ec859303939b7808b7b19))
+
+
+### 📦 Dependencies
+
+* **docker-compose:** update rabbitmq docker tag to v4.3.6 ([#722](https://github.com/quokkify/q4j/issues/722)) ([3deada6](https://github.com/quokkify/q4j/commit/3deada6599dd9e7a07c9a95020309114c1e61ff9))
+
+
+### 📚 Documentation
+
+* **modules:** update q4j module documentation to v0.11.0 ([#724](https://github.com/quokkify/q4j/issues/724)) ([e2d6356](https://github.com/quokkify/q4j/commit/e2d6356f779bc6df317b661b183aa9eb4fd1b118))
+
 ## [0.11.0](https://github.com/quokkify/q4j/compare/v0.10.0...v0.11.0) (2026-10-08)
 
 <!-- project-toolkit:rich-block:start -->
