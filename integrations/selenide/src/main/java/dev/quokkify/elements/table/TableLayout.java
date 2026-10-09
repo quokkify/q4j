@@ -16,14 +16,16 @@ public record TableLayout(By rows, By cells, By headers) {
   }
 
   /**
-   * Native table markup: data rows from {@code <tbody>}, headers from the last {@code <thead>} row ({@code th} or
-   * {@code td}). Grouped headers work only when that last row lists every leaf column.
+   * Native table markup: data rows from {@code <tbody>}; headers ({@code th} or {@code td}) from the last
+   * {@code <thead>} row that contains a {@code th}, or from the last {@code <thead>} row when none does. Grouped
+   * headers work only when that row lists every leaf column ({@code rowspan} leaves are not supported).
    */
   public static TableLayout html() {
     return new TableLayout(
         By.xpath("./tbody/tr[td]"),
         By.xpath("./*[self::td or self::th]"),
-        By.xpath("./thead/tr[last()]/*[self::th or self::td]"));
+        By.xpath("./thead/tr[th][last()]/*[self::th or self::td]"
+            + " | ./thead[not(tr/th)]/tr[last()]/*[self::th or self::td]"));
   }
 
   public static TableLayout aria() {

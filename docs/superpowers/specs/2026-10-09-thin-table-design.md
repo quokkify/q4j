@@ -65,14 +65,16 @@ Immutable record describing the DOM shape with three relative locators:
 
 Factories:
 
-| Factory                             | rows                                                     | cells                                                        | headers                                      |
-| ----------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------ | -------------------------------------------- |
-| `html()`                            | `./tbody/tr[td]`                                         | `./*[self::td or self::th]`                                  | `./thead/tr[last()]/*[self::th or self::td]` |
-| `aria()`                            | `.//*[@role='row'][*[@role='cell' or @role='gridcell']]` | `./*[@role='cell' or @role='gridcell' or @role='rowheader']` | `.//*[@role='columnheader']`                 |
-| `of(By rows, By cells, By headers)` | caller-defined                                           | caller-defined                                               | caller-defined                               |
+| Factory                             | rows                                                     | cells                                                        | headers                                                                                                    |
+| ----------------------------------- | -------------------------------------------------------- | ------------------------------------------------------------ | ---------------------------------------------------------------------------------------------------------- |
+| `html()`                            | `./tbody/tr[td]`                                         | `./*[self::td or self::th]`                                  | `./thead/tr[th][last()]/*[self::th or self::td] \| ./thead[not(tr/th)]/tr[last()]/*[self::th or self::td]` |
+| `aria()`                            | `.//*[@role='row'][*[@role='cell' or @role='gridcell']]` | `./*[@role='cell' or @role='gridcell' or @role='rowheader']` | `.//*[@role='columnheader']`                                                                               |
+| `of(By rows, By cells, By headers)` | caller-defined                                           | caller-defined                                               | caller-defined                                                                                             |
 
-`html()` reads headers from the last `<thead>` row (`th` or `td`); grouped headers work only when that row
-lists every leaf column. `html()` uses direct-child XPath, so rows and cells of nested tables are never counted. Tables
+`html()` reads headers (`th` or `td`) from the last `<thead>` row that contains a `th`, or from the last
+`<thead>` row when none does; grouped headers work only when that row lists every leaf column (`rowspan`
+leaf headers are not supported; use `of(...)`). `html()` uses direct-child XPath, so rows and cells of nested
+tables are never counted. Tables
 whose header row sits inside `<tbody>` (no `<thead>`) use `of(...)`.
 `aria()` matches explicit `role` attributes only (implicit roles of `<table>` markup are covered
 by `html()`). Its row and header locators are descendant-based, so they also match nested ARIA
