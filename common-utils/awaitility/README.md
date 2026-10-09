@@ -8,7 +8,7 @@ Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.qu
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:awaitility:0.10.0")
+    testImplementation("dev.quokkify:awaitility:0.11.0")
 }
 ```
 
