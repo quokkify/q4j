@@ -2,6 +2,47 @@
 
 ## [0.12.0](https://github.com/quokkify/q4j/compare/v0.11.0...v0.12.0) (2026-10-09)
 
+<!-- project-toolkit:rich-block:start -->
+### ✨ Highlights
+<!-- project-toolkit:rich-release-notes pr=729 -->
+**Tables without a table framework.** The q4j table subsystem shrinks from ~3,900 lines to a 293-line helper that only adds what Selenide lacks — column by header text, row lookup scoped to one column, and header ambiguity checks — and returns plain lazy Selenide elements for everything else. The author plans to propose this minimal helper to the Selenide project itself (selenide/selenide#3430), so the API is intentionally shaped to fit Selenide's own conventions.
+
+### 💡 Usage Examples
+<!-- project-toolkit:rich-release-notes pr=729 -->
+```java
+Table customers = Table.of($("#customers"), TableLayout.html());
+
+customers.row("Company", "Ernst Handel").cell("Country").shouldHave(exactText("Austria"));
+customers.rows("Country", "Germany").shouldHave(size(1));
+customers.column("Company").shouldHave(exactTexts("Alfreds Futterkiste", "Ernst Handel"));
+
+// any custom match, then address cells by header
+customers.row(customers.column("Company").findBy(matchText("Ernst.*")).closest("tr"))
+    .cell("Country").shouldHave(exactText("Austria"));
+
+// div grid
+Table grid = Table.of($("#grid"), TableLayout.of(
+    By.cssSelector(":scope > .data-row"),
+    By.cssSelector(":scope > .cell"),
+    By.cssSelector(":scope > .header-row > .cell")));
+
+HorizontalTable.of($("#contact")).value("Telephone 2").shouldHave(exactText("555 77 855"));
+```
+
+### 🔄 Migration
+<!-- project-toolkit:rich-release-notes pr=729 -->
+| Removed | Use instead |
+| --- | --- |
+| `Table`, `DynamicTable`, `FlexTable`, `SelenideDataTable`, `Row`, `Cell` (`table.classic`) | `Table.of(root, TableLayout.html())` or `TableLayout.of(rows, cells, headers)`; `TableRow` |
+| `HorizontalTable`, `DynamicHorizontalTable`, `HorizontalRow` (`table.horizontal`) | `HorizontalTable.of(root).value(header)` |
+| `table.model` (adapters, queries, `RowConditions`, row/column/table assertions, controls, typed refs, `RowData`) | `TableLayout`, `Table`, `TableRow`; native Selenide conditions and actions on the returned elements |
+| enum columns (ordinal or displayed header) | header text: `row("Company", value)`, `cell("Country")` |
+| `@FindBy` on table fields | `Table customers = Table.of($("#customers"), TableLayout.html());` |
+| `TableRowException`, `TableRowNotFoundException`, `TableCellNotFoundException` | Selenide `ElementNotFound` |
+| `TableColumnNotFoundException`, `TableColumnAmbiguousException` | `TableColumnException` |
+
+Full details: `docs/table-api.md`.
+<!-- project-toolkit:rich-block:end -->
 
 ### ⚠ BREAKING CHANGES
 
