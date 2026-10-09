@@ -8,6 +8,8 @@ import org.openqa.selenium.By;
 
 public final class HorizontalTable {
 
+  private static final String OWN_ROWS = "./tr | ./tbody/tr | ./thead/tr | ./tfoot/tr";
+
   private final SelenideElement root;
 
   private HorizontalTable(SelenideElement root) {
@@ -19,12 +21,12 @@ public final class HorizontalTable {
   }
 
   public ElementsCollection headers() {
-    return root.$$x(".//tr/th");
+    return root.$$x("(" + OWN_ROWS + ")/th");
   }
 
   public SelenideElement value(String header) {
     WebElementCondition hasHeader = Condition.match("header = \"" + header + "\"",
         tr -> tr.findElements(By.xpath("./th")).stream().anyMatch(th -> th.getText().trim().equals(header)));
-    return root.$$x(".//tr").findBy(hasHeader).$x("./td");
+    return root.$$x(OWN_ROWS).findBy(hasHeader).$x("./td");
   }
 }

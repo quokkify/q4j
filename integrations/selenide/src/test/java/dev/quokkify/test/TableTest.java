@@ -9,6 +9,7 @@ import dev.quokkify.elements.table.TableRow;
 
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.ex.ElementNotFound;
+import io.qameta.allure.Allure;
 import org.openqa.selenium.By;
 import org.testng.annotations.Test;
 
@@ -58,9 +59,10 @@ public class TableTest extends BaseTest {
   @Test
   public void rowsLookupWaitsWhileHeadersMount() {
     Table t = openQueryClassic();
-    Selenide.executeJavaScript("const table = document.getElementById('query-classic');"
-        + "const head = table.tHead; head.remove();"
-        + "setTimeout(() => table.insertBefore(head, table.tBodies[0]), 300);");
+    Allure.step("Detach thead, re-insert it after 300 ms", () -> Selenide.executeJavaScript(
+        "const table = document.getElementById('query-classic');"
+            + "const head = table.tHead; head.remove();"
+            + "setTimeout(() => table.insertBefore(head, table.tBodies[0]), 300);"));
 
     t.rows("Company", "Alfreds").shouldHave(size(1), Duration.ofSeconds(2));
   }
@@ -69,9 +71,10 @@ public class TableTest extends BaseTest {
   public void cellWaitsForLateHeader() {
     Table t = openQueryClassic();
     TableRow berglunds = t.row("Company", "Berglunds");
-    Selenide.executeJavaScript("const tr = document.querySelector('#query-classic thead tr');"
-        + "const th = tr.children[2]; th.remove();"
-        + "setTimeout(() => tr.appendChild(th), 500);");
+    Allure.step("Remove header Employees, re-append it after 500 ms", () -> Selenide.executeJavaScript(
+        "const tr = document.querySelector('#query-classic thead tr');"
+            + "const th = tr.children[2]; th.remove();"
+            + "setTimeout(() => tr.appendChild(th), 500);"));
 
     berglunds.cell("Employees").shouldHave(exactText("20"));
   }
@@ -139,7 +142,8 @@ public class TableTest extends BaseTest {
     TableRow row = customers.row("Company", "Ernst Handel");
 
     row.cell("Country").shouldHave(exactText("Austria"), TIMEOUT);
-    Selenide.executeJavaScript("window.reloadClassicTable()");
+    Allure.step("Remount classic table with Country → Austria reloaded",
+        () -> Selenide.executeJavaScript("window.reloadClassicTable()"));
     row.cell("Country").shouldHave(exactText("Austria reloaded"), TIMEOUT);
   }
 
@@ -149,7 +153,8 @@ public class TableTest extends BaseTest {
     TableRow row = t.row("Company", "Berglunds");
 
     row.self().shouldHave(text("Germany"));
-    Selenide.executeJavaScript("window.remountQueryClassicWithReorderedHeaders()");
+    Allure.step("Remount query table with reordered headers",
+        () -> Selenide.executeJavaScript("window.remountQueryClassicWithReorderedHeaders()"));
     row.cell("Country").shouldHave(exactText("Germany"));
   }
 
@@ -204,6 +209,78 @@ public class TableTest extends BaseTest {
     assertThatThrownBy(() -> flex.column("Company")).isInstanceOf(UnsupportedOperationException.class);
   }
 
+  @Test
+  public void multiRowTheadKeepsColumnsAligned() {
+    Table t = tableFromMarkup("Inject table with grouped two-row thead", "<table id='t'><thead>"
+        + "<tr><th colspan='2'>Customer</th><th>Location</th></tr>"
+        + "<tr><th>Company</th><th>Contact</th><th>Country</th></tr>"
+        + "</thead><tbody><tr><td>Ernst</td><td>Roland</td><td>Austria</td></tr></tbody></table>");
+
+    t.row(0).cell("Company").shouldHave(exactText("Ernst"), TIMEOUT);
+    t.row(0).cell("Country").shouldHave(exactText("Austria"), TIMEOUT);
+    t.column("Country").shouldHave(exactTexts("Austria"), TIMEOUT);
+  }
+
+  @Test
+  public void headerRowWithFilterRowBelow() {
+    Table t = tableFromMarkup("Inject table with a filter input row under the header row", "<table id='t'><thead>"
+        + "<tr><th>Company</th><th>Country</th></tr>"
+        + "<tr><td><input></td><td><input></td></tr>"
+        + "</thead><tbody><tr><td>Ernst</td><td>Austria</td></tr></tbody></table>");
+
+    t.row("Company", "Ernst").cell("Country").shouldHave(exactText("Austria"), TIMEOUT);
+  }
+
+  @Test
+  public void theadWithTdCells() {
+    Table t = tableFromMarkup("Inject table whose thead uses td cells", "<table id='t'><thead>"
+        + "<tr><td>Company</td><td>Country</td></tr></thead>"
+        + "<tbody><tr><td>Ernst</td><td>Austria</td></tr></tbody></table>");
+
+    t.row("Company", "Ernst").cell("Country").shouldHave(exactText("Austria"), TIMEOUT);
+  }
+
+  @Test
+  public void rowsLookupWithDuplicateHeaderIsAmbiguous() {
+    Table t = tableFromMarkup("Inject table with two Company headers", "<table id='t'><thead>"
+        + "<tr><th>Company</th><th>Company</th></tr></thead>"
+        + "<tbody><tr><td>A</td><td>B</td></tr></tbody></table>");
+
+    assertThatThrownBy(() -> t.rows("Company", "A").shouldHave(size(1), Duration.ofMillis(500)))
+        .isInstanceOf(TableColumnException.class)
+        .hasMessageContaining("ambiguous");
+  }
+
+  @Test
+  public void valueWithQuotes() {
+    Table t = tableFromMarkup("Inject table with a name containing quotes", "<table id='t'><thead>"
+        + "<tr><th>Name</th><th>Status</th></tr></thead>"
+        + "<tbody><tr><td>O'Brien \"Jr\"</td><td>Ready</td></tr></tbody></table>");
+
+    t.row("Name", "O'Brien \"Jr\"").cell("Status").shouldHave(exactText("Ready"), TIMEOUT);
+  }
+
+  @Test
+  public void headerWithSortIconIsNotMatchedByLabel() {
+    Table t = tableFromMarkup("Inject table with a sort icon inside the Company header", "<table id='t'><thead>"
+        + "<tr><th>Company <span class='sort'>▲</span></th><th>Country</th></tr></thead>"
+        + "<tbody><tr><td>Ernst</td><td>Austria</td></tr></tbody></table>");
+
+    assertThatThrownBy(() -> t.row(0).cell("Company"))
+        .isInstanceOf(TableColumnException.class)
+        .hasMessageContaining("Company ▲");
+  }
+
+  @Test
+  public void inputCellValueViaCallerFoundRow() {
+    Table t = tableFromMarkup("Inject table whose Name cell holds an input", "<table id='t'><thead>"
+        + "<tr><th>Name</th><th>Status</th></tr></thead>"
+        + "<tbody><tr><td><input value='Alpha'></td><td>Ready</td></tr></tbody></table>");
+
+    t.rows("Name", "Alpha").shouldHave(size(0));
+    t.row($("#t input[value='Alpha']").closest("tr")).cell("Status").shouldHave(exactText("Ready"), TIMEOUT);
+  }
+
   private static Table openDelayedCustomers() {
     Selenide.open(APP_CONFIG.baseUrl() + "/table/delayed-table.html");
     return Table.of($("#customers"), TableLayout.html());
@@ -214,10 +291,17 @@ public class TableTest extends BaseTest {
     return Table.of($("#query-classic"), TableLayout.html());
   }
 
+  private static Table tableFromMarkup(String step, String html) {
+    Selenide.open(APP_CONFIG.baseUrl() + "/table/delayed-table.html");
+    Allure.step(step, () -> Selenide.executeJavaScript("document.body.innerHTML = arguments[0]", html));
+    return Table.of($("#t"), TableLayout.html());
+  }
+
   private static void renameEmployeesHeaderTemporarily() {
-    Selenide.executeJavaScript("const th = document.querySelector('#query-classic thead tr').children[2];"
-        + "th.textContent = 'Staff';"
-        + "setTimeout(() => { th.textContent = 'Employees'; }, 300);");
+    Allure.step("Rename header Employees → Staff, restore after 300 ms", () -> Selenide.executeJavaScript(
+        "const th = document.querySelector('#query-classic thead tr').children[2];"
+            + "th.textContent = 'Staff';"
+            + "setTimeout(() => { th.textContent = 'Employees'; }, 300);"));
   }
 
   private static Table openFlexCustomers() {
