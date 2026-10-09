@@ -30,6 +30,7 @@ contact.value("Phone").shouldHave(text("+43"));
 | `rows()` | `ElementsCollection` of data rows |
 | `row(int)` | row by 0-based index |
 | `row(column, value)` | first row whose cell in `column` has exact text `value` |
+| `row(SelenideElement)` | wraps a row element you found yourself, so `cell(header)` works on it |
 | `rows(column, value)` | all such rows |
 | `column(header)` | cells of that column across rows |
 | `root()` | the root `SelenideElement` |
@@ -37,6 +38,14 @@ contact.value("Phone").shouldHave(text("+43"));
 ### `TableRow`
 
 `cell(String header)`, `cell(int)`, `cells()`, `self()`.
+
+`Table.row(SelenideElement)` turns any (lazy) row element into a `TableRow`. The element must be a row of the
+same table that matches the layout's cells locator:
+
+```java
+customers.row(customers.column("Company").findBy(matchText("Ernst.*")).closest("tr"))
+    .cell("Country").shouldHave(exactText("Austria"));
+```
 
 ### `HorizontalTable`
 
@@ -60,9 +69,11 @@ root, `cells` relative to a row.
   whose header row sits inside `<tbody>` uses `of(...)`:
 
   ```java
-  TableLayout.of(By.xpath("./tbody/tr[td]"), By.xpath("./*[self::td or self::th]"), By.xpath("./tbody/tr[th]/th"))
+  TableLayout.of(By.xpath("./tbody/tr[td]"), By.xpath("./*[self::td or self::th]"), By.xpath("./tbody/tr[1]/th"))
   ```
 
+- `html()` needs `<tbody>` in the DOM: tables built through DOM APIs without a `<tbody>` yield no rows.
+  `<tfoot>` rows are not included.
 - `aria()` matches explicit `role` attributes only. Being descendant-based, it also matches nested ARIA grids;
   use `of(...)` for those.
 - Div grids are described with `of(...)`:
@@ -80,8 +91,10 @@ root, `cells` relative to a row.
 
 ### Matching
 
-- Headers are matched exactly and case-sensitively after trimming the displayed text.
-- `row(column, value)` and `rows(column, value)` compare the trimmed visible text (`getText()`) of the cell in
+- Headers are matched exactly and case-sensitively after whitespace normalization: every run of whitespace,
+  including the no-break space U+00A0, becomes one space and the result is trimmed. The requested header and
+  value are normalized the same way, so `"Company  Name"` on screen matches `"Company Name"`.
+- `row(column, value)` and `rows(column, value)` compare the normalized visible text (`getText()`) of the cell in
   that column only; a value in a neighbouring column is ignored. Hidden rows and cells read as `""` there,
   while `column(...).texts()` / `exactTexts(...)` still report hidden cell text (Selenide semantics).
 - A row with fewer cells than the column index does not match.
@@ -97,7 +110,7 @@ root, `cells` relative to a row.
 the table root is replaced keep working. `row(column, value)` re-resolves the column index on every evaluation,
 so it survives header reordering and waits for delayed rows through the normal `should*` timeout.
 
-`cell(header)` resolves the column index when it is called (waiting for the headers with Selenide's default
+`cell(header)` resolves the column index when it is called (waiting for the requested header with Selenide's default
 timeout) and returns an element that is lazy by index. Call `cell(header)` again after columns are reordered.
 
 ### Header errors
@@ -105,18 +118,27 @@ timeout) and returns an element that is lazy by index. Call `cell(header)` again
 `TableColumnException` is unchecked. Its message names the header, the reason (`not found` or `ambiguous`),
 the table root and the list of displayed headers.
 
-- In `cell(header)` and `column(header)` a missing or ambiguous header throws immediately.
-  Both first wait for at least one header with Selenide's default timeout; if headers never mount, the failure
-  is a Selenide collection-size assertion, not `TableColumnException`.
+- `cell(header)` and `column(header)` wait, with Selenide's default timeout, until the requested header is
+  displayed. If it never appears they throw `TableColumnException` (`not found`) with the headers displayed at
+  that moment (`[]` if none mounted). An ambiguous header throws as soon as the requested header is displayed.
 - Inside a `row(column, value)` lookup it surfaces, unwrapped, only after the `should*` timeout, so a typo in a
   column name costs one full timeout.
+- Inside `rows(column, value).shouldHave(...)` it surfaces immediately, without waiting for the timeout
+  (Selenide collection checks do not retry exceptions thrown by a `filterBy` condition).
 - While no headers are mounted yet (empty header list), a row lookup keeps waiting instead of failing.
 
 ### `column(header)`
 
 Works only for XPath layouts whose cells locator is a single child step starting with `./` (`html()`,
 `aria()`). A layout built with CSS `of(...)` throws `UnsupportedOperationException`; use `rows()` with
-`TableRow.cell(...)` instead. The column index is resolved once, when `column` is called.
+`TableRow.cell(...)` instead. A cells locator starting with `.//` is rejected the same way. The column index is
+resolved once, when `column` is called.
+
+### Cost
+
+Each row evaluation in `row(column, value)` / `rows(column, value)` makes several WebDriver calls (headers, the
+row's cells, the cell text); on very large tables prefer a narrow layout (for example rows limited by an XPath
+predicate) so fewer rows are evaluated.
 
 ## Not covered
 

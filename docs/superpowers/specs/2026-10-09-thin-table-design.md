@@ -89,6 +89,7 @@ ElementsCollection headers();
 ElementsCollection rows();
 TableRow row(int index);                       // 0-based among layout rows
 TableRow row(String column, String value);     // first row whose cell in `column` has exact text `value`
+TableRow row(SelenideElement row);             // wraps a caller-found (lazy) row of this table
 ElementsCollection rows(String column, String value);  // all such rows
 ElementsCollection column(String header);      // cells of that column across rows; XPath layouts only
 SelenideElement root();
@@ -97,6 +98,12 @@ SelenideElement root();
 `column(header)` works only when the layout's rows locator is XPath and its cells locator is a
 single XPath child step (`html()`, `aria()`); layouts built with CSS `of(...)` throw
 `UnsupportedOperationException`, and callers use `rows()` with `TableRow.cell(...)` instead.
+A cells locator starting with `.//` is rejected too. The column XPath is built as
+`(rows)/cellStep[i]`, so a union in the rows XPath keeps the cell step on every branch.
+
+`row(SelenideElement)` wraps a row element found by the caller (for example
+`column(...).findBy(...).closest("tr")`) so `cell(header)` works on it. The element must be a row of
+this table matching the layout's cells locator.
 
 ### `TableRow`
 
@@ -136,11 +143,14 @@ of displayed headers.
 
 ### Column resolution
 
-- A header is resolved by **exact** text after Selenide's usual whitespace trimming, case
-  sensitive.
+- A header is resolved by **exact**, case-sensitive text after whitespace normalization: every
+  run of whitespace including U+00A0 becomes one space, then the text is trimmed. The requested
+  header and the row-lookup value are normalized the same way.
 - `TableRow.cell(header)` and `Table.column(header)` resolve the column index when they are
-  called, waiting for the headers with Selenide's default timeout. The returned element or
-  collection is then lazy by index. Reordering columns after `cell(header)` was called is not
+  called, first waiting with Selenide's default timeout until the requested header is displayed
+  (`headers().shouldHave(itemWithText(header))`, or its normalized equivalent). On timeout they
+  throw `TableColumnException` (`not found`) with the currently displayed headers. The returned
+  element or collection is then lazy by index. Reordering columns after `cell(header)` was called is not
   tracked; callers call `cell(header)` again.
 - Zero matching headers → `TableColumnException` (`not found`).
   More than one → `TableColumnException` (`ambiguous`).
