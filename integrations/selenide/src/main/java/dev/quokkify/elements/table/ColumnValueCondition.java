@@ -31,7 +31,7 @@ final class ColumnValueCondition extends WebElementCondition {
     if (index >= cells.size()) {
       return CheckResult.rejected("row has " + cells.size() + " cells", cells.size());
     }
-    String actual = cells.get(index).getText().trim();
-    return new CheckResult(actual.equals(value), actual);
+    String actual = ColumnResolver.normalize(cells.get(index).getText());
+    return new CheckResult(actual.equals(ColumnResolver.normalize(value)), actual);
   }
 }

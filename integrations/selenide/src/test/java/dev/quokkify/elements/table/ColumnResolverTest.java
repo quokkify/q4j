@@ -15,6 +15,13 @@ public class ColumnResolverTest {
   }
 
   @Test
+  public void normalizesWhitespaceRuns() {
+    assertThat(ColumnResolver.indexOf(List.of("Country", "Company  Name"), "Company Name", "#t")).isEqualTo(1);
+    assertThat(ColumnResolver.indexOf(List.of("Country", "Company\u00A0\n Name"), " Company Name", "#t"))
+        .isEqualTo(1);
+  }
+
+  @Test
   public void isCaseSensitive() {
     assertThatThrownBy(() -> ColumnResolver.indexOf(List.of("company"), "Company", "#t"))
         .isInstanceOf(TableColumnException.class);
