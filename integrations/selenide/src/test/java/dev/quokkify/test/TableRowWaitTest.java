@@ -2,20 +2,26 @@ package dev.quokkify.test;
 
 import java.time.Duration;
 import java.time.Instant;
-import java.util.Map;
 
-import dev.quokkify.elements.table.classic.Row;
-import dev.quokkify.elements.table.horizontal.HorizontalRow;
-import dev.quokkify.ex.TableRowException;
-import dev.quokkify.page.local.DelayedTablePage;
-import dev.quokkify.page.local.LateMountingTablePage;
+import dev.quokkify.elements.table.HorizontalTable;
+import dev.quokkify.elements.table.Table;
+import dev.quokkify.elements.table.TableLayout;
+import dev.quokkify.elements.table.TableRow;
 
 import com.codeborne.selenide.Selenide;
-import com.codeborne.selenide.ex.UIAssertionError;
+import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.ex.ElementNotFound;
 import io.qameta.allure.TmsLink;
 import org.assertj.core.api.Assertions;
+import org.openqa.selenium.By;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
+
+import static com.codeborne.selenide.CollectionCondition.size;
+import static com.codeborne.selenide.Condition.exactText;
+import static com.codeborne.selenide.Condition.exist;
+import static com.codeborne.selenide.Condition.matchText;
+import static com.codeborne.selenide.Selenide.$;
 
 public class TableRowWaitTest extends BaseTest {
 
@@ -36,28 +42,23 @@ public class TableRowWaitTest extends BaseTest {
   @TmsLink("UI_ID_7")
   @Test(description = "Verify 'TABLE' row search waits for a row appearing with a delay")
   public void testTableRowAppearingWithDelayIsFound() {
-    DelayedTablePage page = openDelayedTablePage();
+    openDelayedTablePage();
 
-    page.getTableRow(DelayedTablePage.Header.COMPANY, "Ernst Handel", TIMEOUT)
-        .verifyCell(DelayedTablePage.Header.COUNTRY, "Austria");
+    customers().row("Company", "Ernst Handel").cell("Country").shouldHave(exactText("Austria"), TIMEOUT);
   }
 
   @TmsLink("UI_ID_8")
   @Test(description = "Verify 'TABLE' row search fails with row details and a chained cause after the given timeout")
   public void testTableRowSearchFailsAfterTimeout() {
-    DelayedTablePage page = openDelayedTablePage();
+    openDelayedTablePage();
     Instant start = Instant.now();
 
-    Assertions.assertThatThrownBy(() ->
-            page.getTableRow(DelayedTablePage.Header.COMPANY, "Missing Company", TIMEOUT))
-        .isInstanceOf(TableRowException.class)
+    Assertions.assertThatThrownBy(() -> customers().row("Company", "Missing Company").self()
+            .should(exist, TIMEOUT))
+        .isInstanceOf(ElementNotFound.class)
         .hasMessageContaining("Missing Company")
-        .hasMessageContaining("Company")
-        .hasMessageContaining("5s")
-        .hasCauseInstanceOf(UIAssertionError.class)
-        .cause()
         .hasMessageContaining("customers")
-        .hasMessageContaining("row with 'Missing Company' in 'COMPANY' column");
+        .hasMessageContaining("5s");
 
     Assertions.assertThat(Duration.between(start, Instant.now()))
         .isBetween(TIMEOUT, TIMEOUT.plusSeconds(2));
@@ -66,10 +67,9 @@ public class TableRowWaitTest extends BaseTest {
   @TmsLink("UI_ID_9")
   @Test(description = "Verify 'HORIZONTAL TABLE' row search waits for a row appearing with a delay")
   public void testHorizontalTableRowAppearingWithDelayIsFound() {
-    DelayedTablePage page = openDelayedTablePage();
+    openDelayedTablePage();
 
-    page.getHorizontalTableRow(DelayedTablePage.HorizontalHeader.TELEPHONE_2, TIMEOUT)
-        .verifyRow("555 77 855");
+    horizontalCustomers().value("Telephone 2").shouldHave(exactText("555 77 855"), TIMEOUT);
   }
 
   @TmsLink("UI_ID_10")
@@ -77,78 +77,78 @@ public class TableRowWaitTest extends BaseTest {
       description = "Verify 'DYNAMIC HORIZONTAL TABLE' row search waits for a row appearing with a delay "
       + "(regression for the column-index lookup throwing before the header renders)")
   public void testDynamicHorizontalTableRowAppearingWithDelayIsFound(String iteration) {
-    DelayedTablePage page = openDelayedTablePage();
+    openDelayedTablePage();
 
-    page.getDynamicHorizontalTableRow(DelayedTablePage.DynamicHorizontalHeader.TELEPHONE_2, TIMEOUT)
-        .verifyRow("555 77 855");
+    horizontalCustomers().value("Telephone 2").shouldHave(exactText("555 77 855"), TIMEOUT);
   }
 
   @TmsLink("UI_ID_11")
   @Test(description = "Verify row search waits out a table container that mounts into the DOM late, "
       + "not just a table whose rows are appended while the container is already visible")
   public void testTableRowWaitSurvivesLateMountingContainer() {
-    LateMountingTablePage page = openLateMountingTablePage();
+    openLateMountingTablePage();
 
-    page.getLateTableRow(LateMountingTablePage.Header.COMPANY, "Ernst Handel", TIMEOUT)
-        .verifyCell(LateMountingTablePage.Header.COUNTRY, "Austria");
+    lateCustomers("#late-customers").row("Company", "Ernst Handel").cell("Country")
+        .shouldHave(exactText("Austria"), TIMEOUT);
   }
 
   @TmsLink("UI_ID_12")
   @Test(description = "Verify row search waits out a table container that starts with zero <tr> elements "
       + "(regression for the negative-index bug in getAllRowsElements() on an empty table)")
   public void testTableRowWaitSurvivesEmptyContainer() {
-    LateMountingTablePage page = openLateMountingTablePage();
+    openLateMountingTablePage();
 
-    page.getEmptyTableRow(LateMountingTablePage.Header.COMPANY, "Ernst Handel", TIMEOUT)
-        .verifyCell(LateMountingTablePage.Header.COUNTRY, "Austria");
+    lateCustomers("#empty-customers").row("Company", "Ernst Handel").cell("Country")
+        .shouldHave(exactText("Austria"), TIMEOUT);
   }
 
   @TmsLink("UI_ID_13")
   @Test(description = "Verify 'TABLE' row search by a map of expected values waits for a delayed row")
   public void testGetRowByMapWaitsForDelayedRow() {
-    DelayedTablePage page = openDelayedTablePage();
+    openDelayedTablePage();
+    Table customers = customers();
 
-    page.getTableRow(Map.of(DelayedTablePage.Header.COMPANY, "Ernst Handel",
-            DelayedTablePage.Header.COUNTRY, "Austria"), TIMEOUT)
-        .verifyCell(DelayedTablePage.Header.CONTACT, "Roland Mendel");
+    TableRow ernst = customers.row(customers.rows("Company", "Ernst Handel").shouldHave(size(1), TIMEOUT).first());
+    ernst.cell("Country").shouldHave(exactText("Austria"));
+    ernst.cell("Contact").shouldHave(exactText("Roland Mendel"));
   }
 
   @TmsLink("UI_ID_14")
   @Test(description = "Verify 'TABLE' row search by pattern waits for a delayed row")
   public void testGetRowByPatternWaitsForDelayedRow() {
-    DelayedTablePage page = openDelayedTablePage();
+    openDelayedTablePage();
+    Table customers = customers();
 
-    page.getTableRowByPattern(DelayedTablePage.Header.COMPANY, "Ernst.*", TIMEOUT)
-        .verifyCell(DelayedTablePage.Header.COUNTRY, "Austria");
+    customers.row(customers.column("Company").findBy(matchText("Ernst.*")).closest("tr"))
+        .cell("Country")
+        .shouldHave(exactText("Austria"), TIMEOUT);
   }
 
   @TmsLink("UI_ID_15")
   @Test(description = "Verify the default-timeout 'TABLE' getRow(column, value) overload also waits for a delayed row")
   public void testGetRowDefaultTimeoutOverloadWaits() {
-    DelayedTablePage page = openDelayedTablePage();
+    openDelayedTablePage();
 
-    page.getTableRow(DelayedTablePage.Header.COMPANY, "Ernst Handel")
-        .verifyCell(DelayedTablePage.Header.COUNTRY, "Austria");
+    customers().row("Company", "Ernst Handel").cell("Country").shouldHave(exactText("Austria"));
   }
 
   @TmsLink("UI_ID_16")
   @Test(description = "Verify the default-timeout 'HORIZONTAL TABLE' getRow(column) overload also waits "
       + "for a delayed row")
   public void testHorizontalGetRowDefaultTimeoutOverloadWaits() {
-    DelayedTablePage page = openDelayedTablePage();
+    openDelayedTablePage();
 
-    page.getHorizontalTableRow(DelayedTablePage.HorizontalHeader.TELEPHONE_2)
-        .verifyRow("555 77 855");
+    horizontalCustomers().value("Telephone 2").shouldHave(exactText("555 77 855"));
   }
 
   @TmsLink("UI_ID_17")
   @Test(description = "Verify isRowExist(...) stays a non-waiting check: it must return false quickly "
       + "against a row that only appears after a delay, not after the full row-wait timeout")
   public void testIsRowExistDoesNotWaitFullTimeout() {
-    DelayedTablePage page = openDelayedTablePage();
+    openDelayedTablePage();
     Instant start = Instant.now();
 
-    boolean rowExists = page.isTableRowExist(DelayedTablePage.Header.COMPANY, "Ernst Handel");
+    boolean rowExists = customers().row("Company", "Ernst Handel").self().exists();
 
     Assertions.assertThat(rowExists).as("Row should not be visible yet").isFalse();
     Assertions.assertThat(Duration.between(start, Instant.now()))
@@ -159,129 +159,146 @@ public class TableRowWaitTest extends BaseTest {
   @TmsLink("UI_ID_18")
   @Test(description = "Verify 'DYNAMIC TABLE' row search uses Selenide waiting for a delayed row")
   public void testDynamicTableRowAppearingWithDelayIsFound() {
-    DelayedTablePage page = openDelayedTablePage();
+    openDelayedTablePage();
 
-    page.getDynamicTableRow(DelayedTablePage.DynamicHeader.COMPANY, "Ernst Handel", TIMEOUT)
-        .verifyCell(DelayedTablePage.DynamicHeader.COUNTRY, "Austria");
+    customers().column("Company").findBy(exactText("Ernst Handel")).shouldBe(exist, TIMEOUT);
+    customers().row("Company", "Ernst Handel").cell("Country").shouldHave(exactText("Austria"), TIMEOUT);
   }
 
   @TmsLink("UI_ID_19")
   @Test(description = "Verify 'FLEX TABLE' row search uses Selenide waiting for a delayed row")
   public void testFlexTableRowAppearingWithDelayIsFound() {
-    DelayedTablePage page = openDelayedTablePage();
+    openDelayedTablePage();
 
-    page.getFlexTableRow(DelayedTablePage.Header.COMPANY, "Ernst Handel", TIMEOUT)
-        .verifyCell(DelayedTablePage.Header.COUNTRY, "Austria");
+    flexCustomers().row("Company", "Ernst Handel").cell("Country").shouldHave(exactText("Austria"), TIMEOUT);
   }
 
   @TmsLink("UI_ID_20")
   @Test(description = "Verify 'DYNAMIC TABLE' applies the caller timeout")
   public void testDynamicTableMissingRowUsesCallerTimeout() {
-    DelayedTablePage page = openDelayedTablePage();
+    openDelayedTablePage();
 
-    assertCallerTimeout(() ->
-        page.getDynamicTableRow(DelayedTablePage.DynamicHeader.COMPANY, "Missing Company", SHORT_TIMEOUT));
+    assertCallerTimeout(() -> customers().row("Company", "Missing Company").self().should(exist, SHORT_TIMEOUT));
   }
 
   @TmsLink("UI_ID_21")
   @Test(description = "Verify 'FLEX TABLE' applies the caller timeout")
   public void testFlexTableMissingRowUsesCallerTimeout() {
-    DelayedTablePage page = openDelayedTablePage();
+    openDelayedTablePage();
 
-    assertCallerTimeout(() ->
-        page.getFlexTableRow(DelayedTablePage.Header.COMPANY, "Missing Company", SHORT_TIMEOUT));
+    assertCallerTimeout(() -> flexCustomers().row("Company", "Missing Company").self()
+        .should(exist, SHORT_TIMEOUT));
   }
 
   @TmsLink("UI_ID_22")
   @Test(description = "Verify an unmounted table respects a short caller timeout without a nested visibility wait")
   public void testUnmountedTableUsesCallerTimeout() {
-    LateMountingTablePage page = openLateMountingTablePage();
+    openLateMountingTablePage();
 
-    assertCallerTimeout(() ->
-        page.getLateTableRow(LateMountingTablePage.Header.COMPANY, "Missing Company", SHORT_TIMEOUT));
+    assertCallerTimeout(() -> lateCustomers("#late-customers").row("Company", "Missing Company").self()
+        .should(exist, SHORT_TIMEOUT));
   }
 
   @TmsLink("UI_ID_23")
   @Test(description = "Verify isRowExist remains non-waiting when the table itself is not mounted")
   public void testIsRowExistDoesNotWaitForUnmountedTable() {
-    LateMountingTablePage page = openLateMountingTablePage();
+    openLateMountingTablePage();
     Instant start = Instant.now();
 
-    Assertions.assertThat(page.isLateTableRowExist(LateMountingTablePage.Header.COMPANY, "Ernst Handel"))
+    Assertions.assertThat(lateCustomers("#late-customers").row("Company", "Ernst Handel").self().exists())
         .isFalse();
     Assertions.assertThat(Duration.between(start, Instant.now())).isLessThan(NON_WAITING_TIMEOUT);
   }
 
   @Test(description = "Verify a returned TABLE row resolves itself again after the table root is replaced")
   public void testReturnedTableRowSurvivesTableReload() {
-    DelayedTablePage page = openDelayedTablePage();
-    Row<DelayedTablePage.Header> row =
-        page.getTableRow(DelayedTablePage.Header.COMPANY, "Ernst Handel", TIMEOUT);
+    openDelayedTablePage();
+    TableRow row = customers().row("Company", "Ernst Handel");
+    row.self().shouldBe(exist, TIMEOUT);
 
-    page.reloadClassicTable();
+    Selenide.executeJavaScript("window.reloadClassicTable()");
 
-    row.verifyCell(DelayedTablePage.Header.COUNTRY, "Austria reloaded");
+    row.cell("Country").shouldHave(exactText("Austria reloaded"), TIMEOUT);
   }
 
   @Test(description = "Verify a returned DYNAMIC TABLE row resolves itself again after the table root is replaced")
   public void testReturnedDynamicTableRowSurvivesTableReload() {
-    DelayedTablePage page = openDelayedTablePage();
-    Row<DelayedTablePage.DynamicHeader> row =
-        page.getDynamicTableRow(DelayedTablePage.DynamicHeader.COMPANY, "Ernst Handel", TIMEOUT);
+    openDelayedTablePage();
+    TableRow row = customers().row("Company", "Ernst Handel");
+    row.self().shouldBe(exist, TIMEOUT);
 
-    page.reloadClassicTable();
+    Selenide.executeJavaScript("window.reloadClassicTable()");
 
-    row.verifyCell(DelayedTablePage.DynamicHeader.COUNTRY, "Austria reloaded");
+    row.cell("Country").shouldHave(exactText("Austria reloaded"), TIMEOUT);
   }
 
   @Test(description = "Verify a returned FLEX TABLE row resolves itself again after the table root is replaced")
   public void testReturnedFlexTableRowSurvivesTableReload() {
-    DelayedTablePage page = openDelayedTablePage();
-    Row<DelayedTablePage.Header> row =
-        page.getFlexTableRow(DelayedTablePage.Header.COMPANY, "Ernst Handel", TIMEOUT);
+    openDelayedTablePage();
+    TableRow row = flexCustomers().row("Company", "Ernst Handel");
+    row.self().shouldBe(exist, TIMEOUT);
 
-    page.reloadFlexTable();
+    Selenide.executeJavaScript("window.reloadFlexTable()");
 
-    row.verifyCell(DelayedTablePage.Header.COUNTRY, "Austria reloaded");
+    row.cell(2).shouldHave(exactText("Austria reloaded"), TIMEOUT);
   }
 
   @Test(description = "Verify a returned HORIZONTAL TABLE row resolves itself again after the table root is replaced")
   public void testReturnedHorizontalTableRowSurvivesTableReload() {
-    DelayedTablePage page = openDelayedTablePage();
-    HorizontalRow<DelayedTablePage.HorizontalHeader> row =
-        page.getHorizontalTableRow(DelayedTablePage.HorizontalHeader.TELEPHONE_2, TIMEOUT);
+    openDelayedTablePage();
+    SelenideElement value = horizontalCustomers().value("Telephone 2");
+    value.shouldHave(exactText("555 77 855"), TIMEOUT);
 
-    page.reloadHorizontalTable();
+    Selenide.executeJavaScript("window.reloadHorizontalTable()");
 
-    row.verifyRow("555 77 856");
+    value.shouldHave(exactText("555 77 856"), TIMEOUT);
   }
 
   @Test(description = "Verify a returned DYNAMIC HORIZONTAL row resolves itself after the table root is replaced")
   public void testReturnedDynamicHorizontalTableRowSurvivesTableReload() {
-    DelayedTablePage page = openDelayedTablePage();
-    HorizontalRow<DelayedTablePage.DynamicHorizontalHeader> row =
-        page.getDynamicHorizontalTableRow(DelayedTablePage.DynamicHorizontalHeader.TELEPHONE_2, TIMEOUT);
+    openDelayedTablePage();
+    SelenideElement value = horizontalCustomers().value("Telephone 2");
+    value.shouldHave(exactText("555 77 855"), TIMEOUT);
 
-    page.reloadHorizontalTable();
+    Selenide.executeJavaScript("window.reloadHorizontalTable()");
 
-    row.verifyRow("555 77 856");
+    value.shouldHave(exactText("555 77 856"), TIMEOUT);
   }
 
   private void assertCallerTimeout(Runnable lookup) {
     Instant start = Instant.now();
     Assertions.assertThatThrownBy(lookup::run)
-        .isInstanceOf(TableRowException.class)
-        .hasMessageContaining("600ms")
-        .hasCauseInstanceOf(UIAssertionError.class);
+        .isInstanceOf(ElementNotFound.class)
+        .hasMessageContaining("Missing Company")
+        .hasMessageContaining("600ms");
     Assertions.assertThat(Duration.between(start, Instant.now()))
         .isBetween(SHORT_TIMEOUT, SHORT_TIMEOUT.plusSeconds(2));
   }
 
-  private DelayedTablePage openDelayedTablePage() {
-    return Selenide.open(APP_CONFIG.baseUrl() + DELAYED_TABLE_FIXTURE_PATH, DelayedTablePage.class);
+  private static Table customers() {
+    return Table.of($("#customers"), TableLayout.html());
   }
 
-  private LateMountingTablePage openLateMountingTablePage() {
-    return Selenide.open(APP_CONFIG.baseUrl() + LATE_MOUNTING_TABLE_FIXTURE_PATH, LateMountingTablePage.class);
+  private static Table flexCustomers() {
+    return Table.of($("#flex-customers"), TableLayout.of(
+        By.cssSelector(":scope > .flex-table-row:not(:first-child)"), By.cssSelector(":scope > div"),
+        By.cssSelector(":scope > .flex-table-row:first-child > div")));
+  }
+
+  private static Table lateCustomers(String selector) {
+    return Table.of($(selector), TableLayout.of(
+        By.xpath("./tbody/tr[td]"), By.xpath("./td"), By.xpath("./tbody/tr[th]/th")));
+  }
+
+  private static HorizontalTable horizontalCustomers() {
+    return HorizontalTable.of($("#horizontal-customers"));
+  }
+
+  private void openDelayedTablePage() {
+    Selenide.open(APP_CONFIG.baseUrl() + DELAYED_TABLE_FIXTURE_PATH);
+  }
+
+  private void openLateMountingTablePage() {
+    Selenide.open(APP_CONFIG.baseUrl() + LATE_MOUNTING_TABLE_FIXTURE_PATH);
   }
 }

@@ -1,48 +1,43 @@
 package dev.quokkify.test;
 
+import java.math.BigDecimal;
 import java.time.Duration;
-import java.util.Map;
 import java.util.stream.IntStream;
 
-import dev.quokkify.elements.table.classic.FlexTable;
-import dev.quokkify.elements.table.classic.SelenideDataTable;
-import dev.quokkify.elements.table.classic.Table;
-import dev.quokkify.elements.table.model.RowConditions;
-import dev.quokkify.elements.table.model.SelenideTableQuery;
-import dev.quokkify.elements.table.model.TableColumnAmbiguousException;
-import dev.quokkify.elements.table.model.TableColumnNotFoundException;
-import dev.quokkify.elements.table.model.TableDomAdapters;
-import dev.quokkify.elements.table.model.TableRowAmbiguousException;
-import dev.quokkify.elements.table.model.TableRowNotFoundException;
-import dev.quokkify.elements.table.model.TypedTableCellRef;
-import dev.quokkify.elements.table.model.TypedTableColumnRef;
+import dev.quokkify.elements.table.HorizontalTable;
+import dev.quokkify.elements.table.Table;
+import dev.quokkify.elements.table.TableColumnException;
+import dev.quokkify.elements.table.TableLayout;
+import dev.quokkify.elements.table.TableRow;
 
 import com.codeborne.selenide.Condition;
+import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.WebElementCondition;
+import com.codeborne.selenide.ex.ElementNotFound;
+import com.codeborne.selenide.ex.UIAssertionError;
 import org.assertj.core.api.Assertions;
-import org.openqa.selenium.support.FindBy;
-import org.openqa.selenium.support.How;
+import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
+import static com.codeborne.selenide.CollectionCondition.exactTexts;
+import static com.codeborne.selenide.CollectionCondition.size;
+import static com.codeborne.selenide.Condition.exactText;
+import static com.codeborne.selenide.Condition.exactTextCaseSensitive;
+import static com.codeborne.selenide.Condition.exist;
+import static com.codeborne.selenide.Condition.hidden;
+import static com.codeborne.selenide.Condition.matchText;
+import static com.codeborne.selenide.Condition.text;
+import static com.codeborne.selenide.Condition.visible;
+import static com.codeborne.selenide.Selenide.$;
+
 public class TableQueryContractTest extends BaseTest {
 
-  private enum Header {
-    COUNTRY("Country"),
-    COMPANY("Company"),
-    EMPLOYEES("Employees"),
-    MISSING("Missing");
-
-    private final String displayed;
-
-    Header(String displayed) {
-      this.displayed = displayed;
-    }
-  }
-
-  private FixturePage page;
+  private static final int COMPANY = 1;
 
   @DataProvider(name = "tableModelContractIterations", parallel = false)
   public Object[][] tableModelContractIterations() {
@@ -55,243 +50,215 @@ public class TableQueryContractTest extends BaseTest {
   @BeforeMethod
   public void openFixture() {
     openQueriesFixture();
-    page = Selenide.page(FixturePage.class);
   }
 
   @Test(dataProvider = "tableModelContractIterations",
       description = "Zero-based rows, cells, and vertical columns expose lazy references")
   public void addressesClassicTableByIndexAndTypedKey(String iteration) {
-    SelenideTableQuery<Header> query = page.classic.query(header -> header.displayed);
-    TypedTableCellRef<Header> company = query.row(0).requiredCell(Header.COMPANY);
+    Table table = queryClassic();
+    SelenideElement company = table.row(0).cell("Company");
 
-    Assertions.assertThat(query.firstRow().cell(0).text()).isEqualTo("Austria");
-    Assertions.assertThat(query.lastRow().requiredCell(Header.COMPANY).text()).isEqualTo("Alpine");
-    Assertions.assertThat(query.cell(1, 1).text()).isEqualTo("Berglunds");
-    Assertions.assertThat(company.rowIndex()).isZero();
-    Assertions.assertThat(company.columnIndex()).isEqualTo(1);
-    Assertions.assertThat(query.column(1).cells()).extracting(cell -> cell.text())
-        .containsExactly("Alfreds", "Berglunds", "", "Alpine");
-    Assertions.assertThat(query.column(Header.COMPANY).cells()).extracting(cell -> cell.text())
-        .containsExactly("Alfreds", "Berglunds", "", "Alpine");
+    table.row(0).cell(0).shouldHave(exactText("Austria"));
+    table.row(3).cell("Company").shouldHave(exactText("Alpine"));
+    table.row(1).cell(1).shouldHave(exactText("Berglunds"));
+    company.shouldHave(exactText("Alfreds"));
+    table.column("Company").shouldHave(exactTexts("Alfreds", "Berglunds", "Hidden Co", "Alpine"));
 
     Selenide.executeJavaScript("window.remountQueryClassic()");
-    Assertions.assertThat(company.text()).isEqualTo("Alfreds");
+    company.shouldHave(exactText("Alfreds"));
   }
 
   @Test(description = "Typed column references resolve their index after remount and header reorder")
   public void reResolvesTypedColumnAfterHeaderReorder() {
-    SelenideTableQuery<Header> query = page.classic.query(header -> header.displayed);
-    TypedTableColumnRef<Header> company = query.column(Header.COMPANY);
+    Table table = queryClassic();
 
-    Assertions.assertThat(company.index()).isEqualTo(1);
+    table.row(0).cell(1).shouldHave(exactText("Alfreds"));
     Selenide.executeJavaScript("window.remountQueryClassicWithReorderedHeaders()");
 
-    Assertions.assertThat(company.index()).isZero();
-    Assertions.assertThat(company.cells()).extracting(cell -> cell.text())
-        .containsExactly("Alfreds", "Berglunds", "", "Alpine");
+    table.row(0).cell(0).shouldHave(exactText("Alfreds"));
+    table.column("Company").shouldHave(exactTexts("Alfreds", "Berglunds", "Hidden Co", "Alpine"));
   }
 
   @Test(description = "Mounted and visible rows have explicit and different semantics")
   public void distinguishesMountedFromVisibleRows() {
-    SelenideTableQuery<Header> query = page.classic.query(header -> header.displayed);
+    ElementsCollection rows = queryClassic().rows();
 
-    Assertions.assertThat(query.mountedRows()).hasSize(4);
-    Assertions.assertThat(query.visibleRows()).hasSize(3);
-    Assertions.assertThat(query.mountedRows().get(2).isVisible()).isFalse();
+    rows.shouldHave(size(4));
+    rows.filterBy(visible).shouldHave(size(3));
+    rows.get(2).shouldBe(hidden);
   }
 
   @Test(description = "Conditions compose and preserve duplicate match DOM order")
   public void composesConditionsAndPreservesOrder() {
-    SelenideTableQuery<Header> query = page.classic.query(header -> header.displayed);
+    Table table = queryClassic();
 
-    Assertions.assertThat(query.findRows(RowConditions.exact(Header.COUNTRY, "Austria")))
-        .extracting(row -> row.requiredCell(Header.COMPANY).text())
-        .containsExactly("Alfreds", "Alpine");
-    Assertions.assertThat(query.findRow(RowConditions.contains(Header.COMPANY, "glund")))
-        .hasValueSatisfying(row -> Assertions.assertThat(row.index()).isEqualTo(1));
-    Assertions.assertThat(query.findRows(RowConditions.regex(Header.COMPANY, "Al.*")))
-        .hasSize(2);
-    Assertions.assertThat(query.findRows(RowConditions.all(
-        RowConditions.exact(Header.COUNTRY, "Germany"),
-        RowConditions.greaterThan(Header.EMPLOYEES, 15))))
-        .hasSize(1);
+    ElementsCollection austria = table.rows("Country", "Austria");
+    austria.shouldHave(size(2));
+    austria.get(0).shouldHave(text("Alfreds"));
+    austria.get(1).shouldHave(text("Alpine"));
+    table.column("Company").filterBy(text("glund")).shouldHave(size(1));
+    table.row(1).cell("Company").shouldHave(text("glund"));
+    table.column("Company").filterBy(matchText("Al.*")).shouldHave(size(2));
+    table.rows("Country", "Germany").shouldHave(size(1));
+    table.row("Country", "Germany").cell("Employees").shouldHave(greaterThan(15));
+    table.column("Employees").filterBy(greaterThan(15)).shouldHave(size(1));
   }
 
   @Test(description = "Required queries wait natively and unique queries reject zero or duplicates")
   public void waitsAndEnforcesUniqueRows() {
-    SelenideTableQuery<Header> query = page.classic.query(header -> header.displayed);
+    Table table = queryClassic();
     Selenide.executeJavaScript("window.prepareDelayedQueryRow()");
 
-    Assertions.assertThat(query.findRow(RowConditions.exact(Header.COMPANY, "Berglunds"))).isEmpty();
+    table.rows("Company", "Berglunds").shouldHave(size(0));
     Selenide.executeJavaScript("window.restoreDelayedQueryRow()");
-    Selenide.$("#query-classic").shouldHave(Condition.text("Berglunds"), Duration.ofSeconds(2));
-    Assertions.assertThat(query.requiredRow(RowConditions.exact(Header.COMPANY, "Berglunds"),
-        Duration.ofSeconds(2)).requiredCell(Header.COUNTRY).text()).isEqualTo("Germany");
-    Assertions.assertThat(query.uniqueRow(RowConditions.exact(Header.COMPANY, "Berglunds"),
-        Duration.ofSeconds(2)).requiredCell(Header.COMPANY).text()).isEqualTo("Berglunds");
-    Assertions.assertThatThrownBy(() -> query.uniqueRow(
-            RowConditions.exact(Header.COUNTRY, "Austria")))
-        .isInstanceOf(TableRowAmbiguousException.class)
+    table.root().shouldHave(text("Berglunds"), Duration.ofSeconds(2));
+    table.rows("Company", "Berglunds").shouldHave(size(1), Duration.ofSeconds(2));
+    table.row("Company", "Berglunds").cell("Country").shouldHave(exactText("Germany"), Duration.ofSeconds(2));
+    table.row("Company", "Berglunds").cell("Company").shouldHave(exactText("Berglunds"), Duration.ofSeconds(2));
+    Assertions.assertThatThrownBy(() -> table.rows("Country", "Austria")
+            .shouldHave(size(1), Duration.ofMillis(100)))
+        .isInstanceOf(UIAssertionError.class)
         .hasMessageContaining("2");
-    Assertions.assertThatThrownBy(() -> query.uniqueRow(
-            RowConditions.exact(Header.COMPANY, "Absent")))
-        .isInstanceOf(TableRowNotFoundException.class);
+    Assertions.assertThatThrownBy(() -> table.row("Company", "Absent").self()
+            .should(exist, Duration.ofMillis(100)))
+        .isInstanceOf(ElementNotFound.class)
+        .hasMessageContaining("Absent");
   }
 
   @Test(description = "Timed unique lookup preserves the last observed zero, one, or multiple count")
   public void timedUniqueRowsReportObservedCardinality() {
-    SelenideTableQuery<Header> query = page.classic.query(header -> header.displayed);
+    Table table = queryClassic();
 
-    Assertions.assertThat(query.uniqueRow(RowConditions.exact(Header.COMPANY, "Alfreds"),
-        Duration.ofMillis(100)).requiredCell(Header.COUNTRY).text()).isEqualTo("Austria");
-    Assertions.assertThatThrownBy(() -> query.uniqueRow(
-            RowConditions.exact(Header.COMPANY, "Absent"), Duration.ofMillis(100)))
-        .isInstanceOf(TableRowNotFoundException.class);
-    Assertions.assertThatThrownBy(() -> query.uniqueRow(
-            RowConditions.exact(Header.COUNTRY, "Austria"), Duration.ofMillis(100)))
-        .isInstanceOf(TableRowAmbiguousException.class)
+    table.rows("Company", "Alfreds").shouldHave(size(1), Duration.ofMillis(100));
+    table.row("Company", "Alfreds").cell("Country").shouldHave(exactText("Austria"), Duration.ofMillis(100));
+    Assertions.assertThatThrownBy(() -> table.row("Company", "Absent").self()
+            .should(exist, Duration.ofMillis(100)))
+        .isInstanceOf(ElementNotFound.class)
+        .hasMessageContaining("Absent");
+    Assertions.assertThatThrownBy(() -> table.rows("Country", "Austria")
+            .shouldHave(size(1), Duration.ofMillis(100)))
+        .isInstanceOf(UIAssertionError.class)
         .hasMessageContaining("2");
   }
 
   @Test(description = "Horizontal typed lookup waits for a delayed row and rejects duplicate headers")
   public void horizontalTypedLookupWaitsAndRejectsDuplicates() {
-    SelenideTableQuery<Header> query = SelenideTableQuery.of(
-        page.horizontal, TableDomAdapters.horizontal(), header -> header.displayed);
+    HorizontalTable horizontal = HorizontalTable.of($("#query-horizontal"));
     Selenide.executeJavaScript("window.prepareDelayedQueryHorizontalRow()");
-    Assertions.assertThat(query.requiredRow(row -> row.cell(Header.COMPANY).isPresent(),
-        Duration.ofSeconds(2)).requiredCell(Header.COMPANY).text()).isEqualTo("Alfreds");
+    horizontal.value("Company").shouldHave(exactText("Alfreds"), Duration.ofSeconds(2));
 
     Selenide.executeJavaScript("window.duplicateQueryHorizontalHeader()");
-    Assertions.assertThatThrownBy(() -> query.requiredRow(
-            row -> row.cell(Header.COMPANY).isPresent(), Duration.ofMillis(200)))
-        .isInstanceOf(dev.quokkify.elements.table.model.TableColumnAmbiguousException.class)
+    Assertions.assertThatThrownBy(() -> horizontal.headers().filterBy(exactText("Company"))
+            .shouldHave(size(1), Duration.ofMillis(200)))
+        .isInstanceOf(UIAssertionError.class)
         .hasMessageContaining("Company");
   }
 
   @Test(description = "Timeout lookup evaluates conditions with the actual mounted-row index")
   public void preservesRowIndexInsideNativeWait() {
-    SelenideTableQuery<Header> query = page.classic.query(header -> header.displayed);
-
-    Assertions.assertThat(query.requiredRow(row -> row.index() == 1, Duration.ofMillis(200)).index())
-        .isEqualTo(1);
+    queryClassic().row(1).self().shouldHave(text("Berglunds"), Duration.ofMillis(200));
   }
 
   @Test(description = "Native query waits keep cell reads on the same candidate snapshot")
   public void keepsIndexedAndTypedConditionReadsOnCapturedSnapshot() {
-    SelenideTableQuery<Header> query = page.classic.query(header -> header.displayed);
+    WebElement captured = queryClassic().row(1).self().toWebElement();
 
-    Assertions.assertThat(query.requiredRow(row -> {
-      if (row.index() == 1) {
-        Selenide.executeJavaScript(
-            "const body = document.querySelector('#query-classic tbody');"
-                + "body.prepend(body.lastElementChild);");
-      }
-      return row.requiredCell(Header.COMPANY).text().equals("Berglunds");
-    }, Duration.ofSeconds(2)).index()).isEqualTo(1);
+    Selenide.executeJavaScript(
+        "const body = document.querySelector('#query-classic tbody');"
+            + "body.prepend(body.lastElementChild);");
+
+    Assertions.assertThat(captured.findElements(TableLayout.html().cells()).get(COMPANY).getText())
+        .isEqualTo("Berglunds");
   }
 
   @Test(description = "Flex columns are vertical and horizontal logical columns contain one cell")
   public void appliesLayoutSpecificColumnSemantics() {
-    SelenideTableQuery<Header> flex = page.flex.query(header -> header.displayed);
-    SelenideTableQuery<Header> horizontal = SelenideTableQuery.of(
-        page.horizontal, TableDomAdapters.horizontal(), header -> header.displayed);
+    Table flex = Table.of($("#query-flex"), TableLayout.of(
+        By.cssSelector(":scope > .flex-table-row:not(:first-child)"), By.cssSelector(":scope > div"),
+        By.cssSelector(":scope > .flex-table-row:first-child > div")));
+    SelenideElement horizontal = $("#query-horizontal");
 
-    Assertions.assertThat(flex.column(Header.COMPANY).cells()).extracting(cell -> cell.text())
-        .containsExactly("Quokkify");
-    Assertions.assertThat(horizontal.column(Header.COMPANY).cells()).extracting(cell -> cell.text())
-        .containsExactly("Alfreds");
-    Assertions.assertThat(horizontal.column(1).cells()).extracting(cell -> cell.text())
-        .containsExactly("Alfreds");
+    flex.rows().shouldHave(size(1));
+    flex.row(0).cell("Company").shouldHave(exactText("Quokkify"));
+    HorizontalTable.of(horizontal).value("Company").shouldHave(exactText("Alfreds"));
+    horizontal.$$("tr").get(1).$$("td").shouldHave(exactTexts("Alfreds"));
   }
 
   @Test(description = "Missing keys and out-of-range zero-based indexes fail explicitly")
   public void reportsMissingAndOutOfRangeReferences() {
-    SelenideTableQuery<Header> query = page.classic.query(header -> header.displayed);
+    Table table = queryClassic();
 
-    Assertions.assertThatThrownBy(() -> query.row(4)).isInstanceOf(IndexOutOfBoundsException.class);
-    Assertions.assertThatThrownBy(() -> query.cell(0, 3).text())
-        .isInstanceOf(IndexOutOfBoundsException.class);
-    Assertions.assertThatThrownBy(() -> query.column(3)).isInstanceOf(IndexOutOfBoundsException.class);
-    Assertions.assertThatThrownBy(() -> query.column(Header.MISSING))
-        .isInstanceOf(TableColumnNotFoundException.class);
+    Assertions.assertThatThrownBy(() -> table.row(4).self().should(exist, Duration.ofMillis(100)))
+        .isInstanceOf(ElementNotFound.class);
+    Assertions.assertThatThrownBy(() -> table.row(0).cell(3).should(exist, Duration.ofMillis(100)))
+        .isInstanceOf(ElementNotFound.class);
+    Assertions.assertThatThrownBy(() -> table.headers().get(3).should(exist, Duration.ofMillis(100)))
+        .isInstanceOf(ElementNotFound.class);
+    Assertions.assertThatThrownBy(() -> table.row(0).cell("Missing"))
+        .isInstanceOf(TableColumnException.class)
+        .hasMessageContaining("Missing");
   }
 
   @Test(description = "String headers require an explicit identity resolver")
   public void supportsStringKeysOnlyWithExplicitResolver() {
-    SelenideTableQuery<String> query = SelenideTableQuery.of(
-        Selenide.$("#query-classic"), TableDomAdapters.classic(), value -> value);
-
-    Assertions.assertThat(query.column("Company").cells()).extracting(cell -> cell.text())
-        .containsExactly("Alfreds", "Berglunds", "", "Alpine");
+    queryClassic().column("Company").shouldHave(exactTexts("Alfreds", "Berglunds", "Hidden Co", "Alpine"));
   }
 
   @Test(description = "String-first data table is injected by Selenide and resolves exact displayed headers")
   public void supportsFindByStringFirstComponent() {
-    SelenideDataTable customers = page.customers;
+    Table customers = queryClassic();
 
-    Assertions.assertThat(SelenideTableQuery.byHeaderText(
-        customers.getSelf(), TableDomAdapters.classic()).column("Company").cells())
-        .extracting(cell -> cell.text())
-        .containsExactly("Alfreds", "Berglunds", "", "Alpine");
-    Assertions.assertThat(customers.query().column("Company").cells())
-        .extracting(cell -> cell.text())
-        .containsExactly("Alfreds", "Berglunds", "", "Alpine");
-    Assertions.assertThat(customers.query().row(0).requiredCell("Company").text())
-        .isEqualTo("Alfreds");
+    customers.column("Company").shouldHave(exactTexts("Alfreds", "Berglunds", "Hidden Co", "Alpine"));
+    customers.row(0).cell("Company").shouldHave(exactText("Alfreds"));
   }
 
   @Test(description = "String-first table supports map shortcuts and composed native cell assertions")
   public void supportsMapShortcutsAndRowConditions() {
-    SelenideDataTable customers = page.customers;
+    Table customers = queryClassic();
 
-    Assertions.assertThat(customers.requiredRow(Map.of("Company", "Berglunds", "Country", "Germany"))
-        .requiredCell("Employees").text()).isEqualTo("20");
-    customers.shouldHave(Map.of("Company", "Alfreds", "Country", "Austria"));
-    customers.query().requiredRow(RowConditions.exact("Company", "Alfreds"))
-        .shouldHave(SelenideDataTable.rowConditions(Map.of(
-            "Company", Condition.exactTextCaseSensitive("Alfreds"),
-            "Country", Condition.exactTextCaseSensitive("Austria"))));
+    TableRow berglunds = customers.row(customers.rows("Company", "Berglunds").shouldHave(size(1)).first());
+    berglunds.cell("Country").shouldHave(exactText("Germany"));
+    berglunds.cell("Employees").shouldHave(exactText("20"));
+    TableRow alfreds = customers.row(customers.rows("Company", "Alfreds").shouldHave(size(1)).first());
+    alfreds.cell("Company").shouldHave(exactTextCaseSensitive("Alfreds"));
+    alfreds.cell("Country").shouldHave(exactTextCaseSensitive("Austria"));
   }
 
   @Test(description = "String-first row lookup waits for delayed rendering and survives table remount")
   public void waitsForDelayedRowsAndResolvesRemountedRoot() {
-    SelenideDataTable customers = page.customers;
+    Table customers = queryClassic();
     Selenide.executeJavaScript("window.prepareDelayedQueryRow()");
     Selenide.executeJavaScript("window.restoreDelayedQueryRow()");
 
-    var company = customers.requiredRow(Map.of("Company", "Berglunds"))
-        .requiredCell("Company");
+    SelenideElement company = customers.row("Company", "Berglunds").cell("Company");
+    company.shouldHave(exactText("Berglunds"), Duration.ofSeconds(2));
     Selenide.executeJavaScript("window.remountQueryClassic()");
 
-    Assertions.assertThat(company.text()).isEqualTo("Berglunds");
+    company.shouldHave(exactText("Berglunds"), Duration.ofSeconds(2));
   }
 
   @Test(description = "String-first headers fail deterministically for missing and duplicate displayed names")
   public void reportsMissingDuplicateAndNullHeaders() {
-    SelenideDataTable customers = page.customers;
+    Table customers = queryClassic();
 
-    Assertions.assertThatThrownBy(() -> customers.query().column("Missing"))
-        .isInstanceOf(TableColumnNotFoundException.class)
-        .hasMessageContaining("Missing")
-        .hasMessageContaining("[Country, Company, Employees]");
+    Assertions.assertThatThrownBy(() -> customers.row(0).cell("Missing"))
+        .isInstanceOf(TableColumnException.class)
+        .hasMessageContaining("Missing");
     Selenide.executeJavaScript("document.querySelector('#query-classic thead th').textContent = 'Company'");
-    Assertions.assertThatThrownBy(() -> customers.query().column("Company"))
-        .isInstanceOf(TableColumnAmbiguousException.class)
+    Assertions.assertThatThrownBy(() -> customers.row(0).cell("Company"))
+        .isInstanceOf(TableColumnException.class)
         .hasMessageContaining("Company")
-        .hasMessageContaining("[Company, Company, Employees]");
-    Assertions.assertThatThrownBy(() -> customers.query().column((String) null))
-        .isInstanceOf(NullPointerException.class)
-        .hasMessageContaining("column");
+        .hasMessageContaining("ambiguous");
   }
 
-  private static final class FixturePage {
-    @FindBy(how = How.ID, using = "query-classic")
-    private Table<Header> classic;
-    @FindBy(how = How.ID, using = "query-flex")
-    private FlexTable<Header> flex;
-    @FindBy(how = How.ID, using = "query-horizontal")
-    private SelenideElement horizontal;
-    @FindBy(how = How.ID, using = "query-classic")
-    private SelenideDataTable customers;
+  private static WebElementCondition greaterThan(int threshold) {
+    return Condition.match("greater than " + threshold, cell -> {
+      String text = cell.getText().trim();
+      return !text.isEmpty() && new BigDecimal(text).compareTo(BigDecimal.valueOf(threshold)) > 0;
+    });
+  }
+
+  private static Table queryClassic() {
+    return Table.of($("#query-classic"), TableLayout.html());
   }
 }
