@@ -1,190 +1,136 @@
-# Table API and extension boundary
+# Table API
 
-Status: accepted documentation for the `main` branch at `3d7020342`.
+A thin, header-aware helper over Selenide in `integrations/selenide`, package `dev.quokkify.elements.table`.
+It covers three things plain Selenide does not give: a column addressed by its displayed header, a row lookup
+scoped to one column, and a failure on ambiguous headers. Everything else (waiting, assertions, cell actions)
+is ordinary Selenide on the returned `SelenideElement` / `ElementsCollection`.
 
-This document describes the table API shipped by q4j. It is deliberately an API record, not a history of the table pull requests.
+Public types: `Table`, `TableRow`, `TableLayout`, `HorizontalTable`, `TableColumnException`.
 
-## Public type and dependency map
-
-The public structural contract is in `dev.quokkify.elements.table.model`:
-
-- `TableModel<C>` exposes displayed headers, currently mounted rows, typed-column lookup, and optional/required row lookup.
-- `TableRow<C>` exposes an optional cell and a required-cell convenience method.
-- `TableCell<C>` exposes its typed column key and current text.
-- `DisplayedHeaderResolver<C>` maps a caller-owned key to the header text displayed by the DOM.
-
-`SelenideDomTableModel<C>` is the Selenide implementation of `TableModel<C>`. It depends on
-`SelenideElement`, `ElementsCollection`, and Selenium `By`; those are intentionally not part of
-the neutral structural contract. `TableDomAdapter` is a Selenide/Selenium-specific description of
-relative root, row, cell, and header locators. `TableDomAdapters` supplies `classic()`, `flex()`,
-`horizontal()`, `ariaGrid()`, and `of(...)`.
-
-The additive Selenide navigation layer consists of `SelenideTableQuery`, row/column/cell
-references, `RowConditions`, and the table/row/column assertion and action handles. Legacy
-`Table`, `DynamicTable`, `FlexTable`, `HorizontalTable`, and their existing FQCNs remain
-available. `DomTableLayout` and its compatibility constructor bridge the old layout enum.
-
-## Consumer examples
-
-A built-in HTML table can be exposed from a page object without relying on enum ordinal order:
+## Usage
 
 ```java
-TableModel<Column> model = SelenideDomTableModel.of(
-    Selenide.$("#customers"),
-    TableDomAdapters.classic(),
-    DisplayedHeaderResolver.requiringNonNull(Column::displayed));
+Table customers = Table.of($("#customers"), TableLayout.html());
 
-TableRow<Column> row = model.requiredRow(
-    candidate -> candidate.cell(Column.COMPANY)
-        .map(cell -> cell.text().equals("Alfreds")).orElse(false),
-    "company", Duration.ofSeconds(2));
+customers.row("Company", "Ernst Handel").cell("Country").shouldHave(exactText("Austria"));
+customers.rows("Country", "Austria").shouldHave(size(2));
+customers.column("Company").shouldHave(exactTexts("Alfreds Futterkiste", "Ernst Handel"));
+customers.row(0).cell(1).shouldBe(visible);
 
-assertThat(row.requiredCell(Column.COUNTRY).text()).isEqualTo("Austria");
+HorizontalTable contact = HorizontalTable.of($("#horizontal-customers"));
+contact.value("Phone").shouldHave(text("+43"));
 ```
 
-A project-specific DOM shape uses relative locators. The selectors are evaluated below the current
-root, so nested tables are not accidentally included when the row selector is scoped:
+### `Table`
 
-```java
-TableDomAdapter grid = TableDomAdapters.of(
-    By.cssSelector(":scope > .data-row"),
-    By.cssSelector(":scope > .cell:not([hidden])"),
-    new TableHeaderRowLocator(
-        By.cssSelector(":scope > .header-row"),
-        By.cssSelector(":scope > .cell:not([hidden])")));
-TableModel<Column> customDom = SelenideDomTableModel.of(
-    Selenide.$("#project-grid"), grid,
-    DisplayedHeaderResolver.requiringNonNull(Column::displayed));
-```
+| Method | Meaning |
+|---|---|
+| `Table.of(root, layout)` | wraps a table-like element |
+| `headers()` | `ElementsCollection` of header cells |
+| `rows()` | `ElementsCollection` of data rows |
+| `row(int)` | row by 0-based index |
+| `row(column, value)` | first row whose cell in `column` has exact text `value` |
+| `rows(column, value)` | all such rows |
+| `column(header)` | cells of that column across rows |
+| `root()` | the root `SelenideElement` |
 
-A fully custom backend does not need Selenide or Selenium. Implement the three structural
-interfaces and keep any lookup, remount, or transport policy in that implementation:
+### `TableRow`
 
-```java
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
-import dev.quokkify.elements.table.model.TableCell;
-import dev.quokkify.elements.table.model.TableModel;
-import dev.quokkify.elements.table.model.TableRow;
+`cell(String header)`, `cell(int)`, `cells()`, `self()`.
 
-enum Column { COUNTRY, COMPANY }
+### `HorizontalTable`
 
-final class ApiModel implements TableModel<Column> {
-  private final List<ApiRow> dataRows = List.of(new ApiRow(Map.of(
-      Column.COUNTRY, "Austria", Column.COMPANY, "Alfreds")));
+Key/value tables where each `<tr>` holds a `<th>` label and a `<td>` value.
+`value(header)` returns the `td` of the row whose `th` has exact text `header`; it is lazy and fails with
+Selenide `ElementNotFound` for a missing label. Duplicate labels resolve to the first row; there is no
+duplicate-label detection. `headers()` returns all `th`.
 
-  @Override public List<String> displayedHeaders() { return List.of("Country", "Company"); }
-  @Override public List<ApiRow> rows() { return dataRows; }
-}
+## Layouts
 
-final class ApiRow implements TableRow<Column> {
-  private final Map<Column, String> values;
-  ApiRow(Map<Column, String> values) { this.values = Map.copyOf(values); }
-  @Override public Optional<ApiCell> cell(Column key) {
-    return Optional.ofNullable(values.get(key)).map(value -> new ApiCell(key, value));
-  }
-}
+`TableLayout` is an immutable record of three relative locators: `rows` and `headers` relative to the table
+root, `cells` relative to a row.
 
-record ApiCell(Column column, String text) implements TableCell<Column> {}
-```
+| Factory | rows | cells | headers |
+|---|---|---|---|
+| `html()` | `./tbody/tr[td]` | `./*[self::td or self::th]` | `./thead/tr/th` |
+| `aria()` | `.//*[@role='row'][*[@role='cell' or @role='gridcell']]` | `./*[@role='cell' or @role='gridcell' or @role='rowheader']` | `.//*[@role='columnheader']` |
+| `of(By rows, By cells, By headers)` | caller-defined | caller-defined | caller-defined |
 
-This backend-neutral example proves only the structural model contract. Header exclusion, nested
-DOM isolation, remount behavior, and timeout policy belong to the concrete backend and are not
-claims of this example. The compiling equivalent is exercised by
-`TableModelContractTest.supportsFullyCustomBackendContract`.
+- `html()` uses direct-child XPath, so rows of nested tables are not counted. It needs a `<thead>`; a table
+  whose header row sits inside `<tbody>` uses `of(...)`:
 
-## Semantics and compatibility
+  ```java
+  TableLayout.of(By.xpath("./tbody/tr[td]"), By.xpath("./*[self::td or self::th]"), By.xpath("./tbody/tr[th]/th"))
+  ```
 
-- In this neutral typed-key model, keys are resolved by displayed header text; enum ordinal is never
-  a column position. This documents the model's contract only and does not impose ordinal semantics
-  on custom adapters or unrelated APIs.
-- `displayedHeaders()` and `rows()` reflect the model's current view. A row or cell may be lazy.
-- Selenide-backed rows, columns, and cells retain locators/indexes, not raw `WebElement` objects;
-  each operation re-resolves the current root. Handles therefore remain usable after a root
-  replacement, provided the replacement still satisfies the adapter contract.
-- `rows()` and `row(predicate)` are non-waiting status reads. Selenide's `requiredRow(..., timeout)`
-  uses one Selenide condition loop and one caller-provided timeout across root and row discovery.
-- A missing row is `TableRowNotFoundException`; a missing displayed header is
-  `TableColumnNotFoundException`; a repeated displayed header is `TableColumnAmbiguousException`;
-  a missing required cell is `TableCellNotFoundException`. `uniqueRow` throws
-  `TableRowAmbiguousException` when more than one row matches and includes the observed match
-  count. Required-row diagnostics include the caller description and timeout; column-not-found
-  diagnostics include the requested key, its displayed name, and available headers. Optional row
-  and cell lookups return `Optional.empty()` for absence, while required variants throw the typed
-  not-found exception.
-- A mounted empty cell is present and has empty text. A missing cell is absent.
-- `findRow`/`requiredRow` select the first match; `findRows` preserves all matches in DOM order;
-  `uniqueRow` rejects both zero and multiple matches.
-- The built-in classic adapter accepts ordinary `<td>` data cells and semantic
-  `<th scope="row">` cells. Header-only rows are excluded. Relative selectors also exclude rows
-  owned by nested tables; a nested table can be selected separately as its own model root.
-- Flex, horizontal, and ARIA-grid adapters use their documented row/header semantics. Hidden cells
-  can be excluded by a custom adapter's locator. Non-rectangular rows remain deterministic: a
-  missing cell is absent rather than synthesized.
+- `aria()` matches explicit `role` attributes only. Being descendant-based, it also matches nested ARIA grids;
+  use `of(...)` for those.
+- Div grids are described with `of(...)`:
 
-Released `0.6.0` FQCNs and signatures are preserved. New consumers should prefer the structural
-interfaces and `TableDomAdapters.of(...)`; no existing legacy type is renamed or removed.
+  ```java
+  TableLayout.of(
+      By.cssSelector(":scope > .flex-table-row:not(:first-child)"),
+      By.cssSelector(":scope > div"),
+      By.cssSelector(":scope > .flex-table-row:first-child > div"))
+  ```
 
-## Compatibility boundary and future backend plugins
+- `rowspan` / `colspan` are not modelled: only physical DOM cells are addressed.
 
-The public structural contracts (`TableModel<C>`, `TableRow<C>`, and `TableCell<C>`) are the
-extension contract. The current Selenide browser integration is one backend adapter/plugin
-implementation: `TableDomAdapter`, `SelenideDomTableModel`, `SelenideTableQuery`, and all
-query/assertion/action APIs remain Selenide/Selenium-specific. `By`, `SelenideElement`, and
-Selenide's driver and wait policies are not framework-neutral contracts.
+## Behaviour and limits
 
-The intended future shape is a separately published external Appium plugin/module. It may depend
-on the structural contracts and provide its own backend implementation, queries, actions, and
-driver integration; it is not part of q4j or this change. The dependency direction is:
+### Matching
 
-```text
-future external Appium plugin/module ──depends on──▶ structural contracts
-current Selenide backend adapter       ──depends on──▶ structural contracts
-q4j core/Selenide implementation       ──must not depend on or discover──▶ Appium
-```
+- Headers are matched exactly and case-sensitively after trimming the displayed text.
+- `row(column, value)` and `rows(column, value)` compare the trimmed visible text (`getText()`) of the cell in
+  that column only; a value in a neighbouring column is ignored. Hidden rows and cells read as `""` there,
+  while `column(...).texts()` / `exactTexts(...)` still report hidden cell text (Selenide semantics).
+- A row with fewer cells than the column index does not match.
+- Hidden rows count in indexes like in any `ElementsCollection`.
+- `row(column, value)` returns the first match in DOM order. Check uniqueness explicitly:
+  `table.rows(column, value).shouldHave(size(1))`.
+- A missing row surfaces when the returned element is used, as Selenide `ElementNotFound` whose message
+  contains the condition, for example `Company = "Ernst Handel"`.
 
-No Appium dependency, type, driver setup, fixture, runtime implementation, plugin loading, or
-`ServiceLoader` mechanism is introduced by this PR. Existing 0.6.0 FQCNs and q4j table consumers
-remain unchanged.
+### Laziness and remount safety
 
-At present, the structural contracts are packaged in the `selenide` artifact and package,
-which also depends on Selenide. Consequently, a future external plugin may be forced to pull
-Selenide transitively; the boundary is structurally neutral but the published artifact is not yet
-dependency-neutral. Extracting the contracts to a neutral artifact/package is a future-major
-compatibility action because moving the 0.6.0 FQCNs now would break released callers.
+`Table`, `TableRow` and everything they return hold locators, not `WebElement`s, so references captured before
+the table root is replaced keep working. `row(column, value)` re-resolves the column index on every evaluation,
+so it survives header reordering and waits for delayed rows through the normal `should*` timeout.
 
-## Weakness and evidence matrix
+`cell(header)` resolves the column index when it is called (waiting for the headers with Selenide's default
+timeout) and returns an element that is lazy by index. Call `cell(header)` again after columns are reordered.
 
-| Weakness or ambiguity                                                 | Affected API                            | Consumer impact                                                | Compatibility risk                                   | Evidence                                                                                                                                             | Action                                                             |
-| --------------------------------------------------------------------- | --------------------------------------- | -------------------------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------ |
-| Header lookup by display text can be ambiguous                        | `TableModel.columnIndex`                | A duplicate heading cannot be addressed safely                 | Low; exception is additive behavior                  | Contract test covers repeated `Company`                                                                                                              | Keep; clarify                                                      |
-| Headerless typed lookup has no implicit position                      | `TableHeaderLocator`, `TableModel`      | Consumers must provide a different key strategy                | Low                                                  | Headerless adapter test expects typed lookup failure                                                                                                 | Clarify                                                            |
-| Sealed header strategy limits third-party header strategies           | `TableHeaderLocator`                    | Custom DOM uses the existing three shapes only                 | High if unsealed/changed after 0.6.0                 | Source audit; `of(...)` supports custom row/cell locators without a new strategy                                                                     | Defer to future major; use `TableModel` for a fully custom backend |
-| Adapter output can be non-rectangular                                 | `TableDomAdapter`, `TableRow.cell`      | Missing cells must be distinguished from empty cells           | Low                                                  | `TableModelContractTest.supportsCustomDivAdapter` asserts a mounted empty cell is present with empty text and a short-row cell is `Optional.empty()` | Keep; clarify                                                      |
-| Nested rows can leak if selectors are broad                           | `TableDomAdapter.mountedDataRowLocator` | Outer queries may count inner rows                             | Low                                                  | `TableModelContractTest.supportsCustomDivAdapter` and `customGridAdapter()` use direct-child selectors with nested fixture `#nested-custom-grid`     | Keep; clarify selector scope                                       |
-| DOM root/remount can stale cached elements                            | Selenide model and handles              | Previously returned handles could fail after refresh           | Medium                                               | `TableModelContractTest.customAdapterWaitsAndSurvivesRemount` and `remountCustomGrid()`                                                              | Keep; clarify guarantee                                            |
-| Timeout could be spent once per nested wait                           | `requiredRow(..., Duration)`            | Slow or surprising failure timing                              | Medium                                               | `TableModelContractTest.customAdapterWaitsAndSurvivesRemount` and `prepareCustomDelayed()`                                                           | Keep; clarify                                                      |
-| Legacy and neutral APIs duplicate some table traversal                | Legacy table classes vs neutral model   | Package discovery is harder                                    | Medium; removal breaks released callers              | README and bridge tests enumerate both surfaces                                                                                                      | Clarify; no removal                                                |
-| Selenide-specific handles could be mistaken for neutral API           | Query/assertion/action types            | Non-browser consumers may choose the wrong boundary            | Low                                                  | Type/dependency map and compile-only custom model example                                                                                            | Clarify                                                            |
-| Sorting/filtering/pagination/virtualization/pinned columns are absent | Structural model                        | Consumers need separate capabilities                           | High to add semantics prematurely                    | No production API or tests claim these behaviors                                                                                                     | Reject for this issue; defer                                       |
-| Structural contracts share the `selenide` artifact with Selenide      | `TableModel`, `TableRow`, `TableCell`   | A future external Appium plugin may pull Selenide transitively | High for an immediate move; 0.6.0 FQCNs are released | `integrations/selenide/build.gradle` publishes these contracts with Selenide integration dependencies                                                | Future-major extraction to a neutral artifact/package; no move now |
-| Appium backend is outside current scope                               | Structural extension contract           | Appium users need a separately published plugin/module         | Low; no q4j runtime dependency or discovery          | Architecture boundary above; no Appium implementation in this PR                                                                                     | Future external plugin/module only; no implementation in this task |
+### Header errors
 
-## Non-goals and deferred shapes
+`TableColumnException` is unchecked. Its message names the header, the reason (`not found` or `ambiguous`),
+the table root and the list of displayed headers.
 
-This issue does not add sorting, filtering, pagination, selection, editing, virtualization, infinite
-scrolling, pinned/frozen columns, merged cells, or expandable/tree/master-detail rows. Nested tables
-are supported only as isolated model roots; there is no nested-table expansion API. These shapes need
-separate contracts before a compatible API can be designed. It also does not implement or package
-an Appium backend: any Appium integration is a future external plugin/module boundary only, with no
-q4j runtime discovery mechanism.
+- In `cell(header)` and `column(header)` a missing or ambiguous header throws immediately.
+- Inside a `row(column, value)` lookup it surfaces, unwrapped, only after the `should*` timeout, so a typo in a
+  column name costs one full timeout.
+- While no headers are mounted yet (empty header list), a row lookup keeps waiting instead of failing.
 
-## Verification map
+### `column(header)`
 
-`TableModelContractTest` is hermetic and exercises ordinary `<td>` rows, semantic row headers,
-header-only exclusion, a direct-child custom div-grid adapter, hidden cells, a mounted empty cell
-and an omitted short-row cell,
-non-rectangular row, nested custom-grid isolation, delayed custom rendering, custom root remount,
-duplicate/headerless failures, and a fully custom backend. `TableQueryContractTest` and `TableAssertionsActionsContractTest` cover the
-Selenide-specific navigation and handles. No external site or Appium implementation is required.
+Works only for XPath layouts whose cells locator is a single child step starting with `./` (`html()`,
+`aria()`). A layout built with CSS `of(...)` throws `UnsupportedOperationException`; use `rows()` with
+`TableRow.cell(...)` instead. The column index is resolved once, when `column` is called.
+
+## Not covered
+
+Table-specific assertions or conditions, typed cell values, wrappers for controls inside cells, sorting,
+filtering, pagination, virtual scrolling, page-factory (`@FindBy`) injection.
+
+## Migration from the removed table stack
+
+This is a breaking change; there is no deprecation period and no bridge to the old types.
+
+| Removed | Replacement |
+|---|---|
+| `table/classic/*`: `Table`, `DynamicTable`, `FlexTable`, `SelenideDataTable`, `Row`, `Cell`, bases | `Table` + `TableLayout.html()` / `of(...)` |
+| `table/horizontal/*` | `HorizontalTable` |
+| `table/model/*`: `TableModel<C>`, `TableDomAdapter`, `SelenideTableQuery`, row/column/table assertions, controls, typed refs, `RowData`, `RowConditions`, `ExpectedValue`, exceptions | `TableLayout`, `Table`, `TableRow`, `TableColumnException`, native Selenide conditions and actions |
+| `elements/base/BaseTable` | none |
+| `ex/TableRowException` | Selenide `ElementNotFound` |
+
+`NumberFormatter` and `LocalDateUtils` in `common-utils/core` are unchanged.

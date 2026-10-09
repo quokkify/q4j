@@ -67,7 +67,7 @@ Factories:
 
 | Factory | rows | cells | headers |
 |---|---|---|---|
-| `html()` | `./tbody/tr[td]` | `./td \| ./th` | `./thead/tr/th` |
+| `html()` | `./tbody/tr[td]` | `./*[self::td or self::th]` | `./thead/tr/th` |
 | `aria()` | `.//*[@role='row'][*[@role='cell' or @role='gridcell']]` | `./*[@role='cell' or @role='gridcell' or @role='rowheader']` | `.//*[@role='columnheader']` |
 | `of(By rows, By cells, By headers)` | caller-defined | caller-defined | caller-defined |
 
@@ -90,9 +90,13 @@ ElementsCollection rows();
 TableRow row(int index);                       // 0-based among layout rows
 TableRow row(String column, String value);     // first row whose cell in `column` has exact text `value`
 ElementsCollection rows(String column, String value);  // all such rows
-ElementsCollection column(String header);      // cells of that column across rows
+ElementsCollection column(String header);      // cells of that column across rows; XPath layouts only
 SelenideElement root();
 ```
+
+`column(header)` works only when the layout's rows locator is XPath and its cells locator is a
+single XPath child step (`html()`, `aria()`); layouts built with CSS `of(...)` throw
+`UnsupportedOperationException`, and callers use `rows()` with `TableRow.cell(...)` instead.
 
 ### `TableRow`
 
@@ -178,11 +182,9 @@ of displayed headers.
   `TableModelContractTest`, `TableQueryContractTest`, `TableAssertionsActionsContractTest`,
   `UiHorizontalTableTest`, `ReproHorizontalAsyncTest`. All local `columnIndex()` copies and the
   column-scoped `Condition.match` helper go away. Test method names and `@TmsLink`s stay.
-- **Migrate page objects, steps and verifications:** `DelayedTablePage`, `LateMountingTablePage`,
-  `HtmlTablesPage`, `HtmlHorizontalTablePage`, `HtmlTablesPageSteps`,
-  `HtmlHorizontalTablePageSteps`, `HtmlTablesPageVerification`,
-  `HtmlHorizontalTablePageVerification`. Fields become `Table.of(...)` initialisers instead of
-  `@FindBy` table fields.
+- **Delete:** `DelayedTablePage`, `LateMountingTablePage`, `HtmlTablesPage`, `HtmlHorizontalTablePage`,
+  `HtmlTablesPageSteps`, `HtmlHorizontalTablePageSteps`, `HtmlTablesPageVerification`,
+  `HtmlHorizontalTablePageVerification`. Delete them: no tests use them after PR #726.
 - **New `TableTest`** on existing fixtures (`table/delayed-table.html`,
   `table-model-contract/*.html`), one test per behaviour:
   - row lookup matches only the given column (value present in another column is ignored);
