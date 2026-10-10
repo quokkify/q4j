@@ -8,7 +8,7 @@ Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.qu
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:testrail-core:0.11.0")
+    testImplementation("dev.quokkify:testrail-core:0.12.0")
 }
 ```
 
