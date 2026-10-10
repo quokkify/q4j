@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.12.1](https://github.com/quokkify/q4j/compare/v0.12.0...v0.12.1) (2026-10-10)
+
+
+### 📦 Dependencies
+
+* **busybox:** update busybox:1.38.0 docker digest to fd7dc98 ([#712](https://github.com/quokkify/q4j/issues/712)) ([f78a0b6](https://github.com/quokkify/q4j/commit/f78a0b6fb67bafb82673f4970db1efb503fb1066))
+* **docker-compose:** update docker docker tag to v29.9 ([#723](https://github.com/quokkify/q4j/issues/723)) ([d88aa2d](https://github.com/quokkify/q4j/commit/d88aa2de75fd81a208184fcec48ea21e38342981))
+* **docker-compose:** update zookeeper:3.9 docker digest to d0ae166 ([#734](https://github.com/quokkify/q4j/issues/734)) ([cd6d04e](https://github.com/quokkify/q4j/commit/cd6d04efb7331fd65f7e313692d11359671f5518))
+* **dockerfile:** update nginx:1.31.6 docker digest to 60f0d4e ([#735](https://github.com/quokkify/q4j/issues/735)) ([7ee076a](https://github.com/quokkify/q4j/commit/7ee076a1d96e243cd957ed8a88c624e39ad7afb5))
+* **github-actions:** update dorny/test-reporter digest to d1b5dff ([#715](https://github.com/quokkify/q4j/issues/715)) ([1ccc62e](https://github.com/quokkify/q4j/commit/1ccc62e7fcdcd04069738fcc0bc161fed6269633))
+* **gradle:** update feign monorepo to v13.17 ([#731](https://github.com/quokkify/q4j/issues/731)) ([80a4417](https://github.com/quokkify/q4j/commit/80a44177ea6e72ec72877d119e038cb6208d16be))
+* **gradle:** update io.atlassian.fugue:fugue to v7 ([#732](https://github.com/quokkify/q4j/issues/732)) ([e18f030](https://github.com/quokkify/q4j/commit/e18f030b59ea4fdc7c7a88cbb1b5c5e52b2f66d5))
+* **gradle:** update rest.assured to v6.1.0 ([#736](https://github.com/quokkify/q4j/issues/736)) ([4986b26](https://github.com/quokkify/q4j/commit/4986b267cafc2d47b704ba70b2617b994120529d))
+
 ## [0.12.0](https://github.com/quokkify/q4j/compare/v0.11.0...v0.12.0) (2026-10-09)
 
 <!-- project-toolkit:rich-block:start -->
