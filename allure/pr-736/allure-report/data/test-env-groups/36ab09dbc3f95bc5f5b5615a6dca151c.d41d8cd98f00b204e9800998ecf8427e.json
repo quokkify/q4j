@@ -1,0 +1,1 @@
+{"id":"36ab09dbc3f95bc5f5b5615a6dca151c.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.architecture.rules.NoConsoleOutputRuleTest.stackTraceRenderedIntoAChosenWriterIsAllowed","name":"stackTraceRenderedIntoAChosenWriterIsAllowed","status":"passed","testResultsByEnv":{"ubuntu-24-04":"c07f4db4aaa00e82e9fda1495559693f"}}
