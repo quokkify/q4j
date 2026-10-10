@@ -1,0 +1,1 @@
+{"id":"bd1b7c4eaddc4edb5ffe888959a9b469.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.util.CommandLockManagerTest.sameCommandOnDifferentTargetsRunsInParallel","name":"sameCommandOnDifferentTargetsRunsInParallel","status":"passed","testResultsByEnv":{"ubuntu-24-04":"5ecb232762bcbb663a3ceff686a1ef51"}}

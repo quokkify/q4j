@@ -1,0 +1,1 @@
+{"id":"34cc322a05aabed07e7bf2719f91a3e1.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.SingleThreadInParallelTest.testSingleThreadTestsRunAfterConcurrentTestsByDefault","name":"Single thread tests start after the concurrent tests by default","status":"passed","testResultsByEnv":{"ubuntu-24-04":"7f21d2e360910cceee67e5012d31f8d2"}}

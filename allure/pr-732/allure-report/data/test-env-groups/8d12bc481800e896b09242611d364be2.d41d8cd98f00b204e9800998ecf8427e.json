@@ -1,0 +1,1 @@
+{"id":"8d12bc481800e896b09242611d364be2.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.SuiteListenerGroupsTest.testIncludedGroupsSurvive","name":"Included groups of the original test are applied to the generated tests","status":"passed","testResultsByEnv":{"ubuntu-24-04":"9e08629514fddd14e21bd7e555d7fe54"}}
