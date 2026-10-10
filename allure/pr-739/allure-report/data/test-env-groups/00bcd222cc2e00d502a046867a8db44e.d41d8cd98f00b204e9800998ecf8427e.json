@@ -1,0 +1,1 @@
+{"id":"00bcd222cc2e00d502a046867a8db44e.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.SuiteListenerGroupsTest.testNoGroupsKeepGeneratedSuiteUnfiltered","name":"Generated tests have no group filters when the original suite has none","status":"passed","testResultsByEnv":{"ubuntu-24-04":"23e0a8db64ef9f331d5219da288ea905"}}
