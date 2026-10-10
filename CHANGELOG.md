@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.12.2](https://github.com/quokkify/q4j/compare/v0.12.1...v0.12.2) (2026-10-10)
+
+
+### 📚 Documentation
+
+* **modules:** update q4j module documentation to v0.12.0 ([#737](https://github.com/quokkify/q4j/issues/737)) ([369f069](https://github.com/quokkify/q4j/commit/369f06906896727f855526f2982c5a919e0fbc08))
+* **modules:** update q4j module documentation to v0.12.1 ([#739](https://github.com/quokkify/q4j/issues/739)) ([161696e](https://github.com/quokkify/q4j/commit/161696e86eab1063be737916997e5caa6b2a65ed))
+
 ## [0.12.1](https://github.com/quokkify/q4j/compare/v0.12.0...v0.12.1) (2026-10-10)
 
 
