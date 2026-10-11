@@ -56,6 +56,30 @@ duplicate-label detection. `headers()` returns the `th` of the table's own rows.
 (`./tr`, `./tbody/tr`, `./thead/tr`, `./tfoot/tr`) are read, so labels of a table nested in a value cell are
 ignored.
 
+## Recipe: tables in page objects (`@FindBy`)
+
+A `@FindBy Table` field stays `null`: wrap the helper in a project `Component` and reuse it on any page.
+
+```java
+public class OrdersTable extends Component {
+
+  public Table table() {
+    return Table.of(getSelf(), TableLayout.html());
+  }
+
+  public TableRow order(String id) {
+    return table().row("ID", id);
+  }
+}
+
+@FindBy(css = "table.orders")
+private OrdersTable orders;
+
+orders.order("A-1").cell("Status").shouldHave(exactText("New"));
+```
+
+Example: `OrdersTablePageObjectTest`.
+
 ## Layouts
 
 `TableLayout` is an immutable record of three relative locators: `rows` and `headers` relative to the table
@@ -162,7 +186,7 @@ predicate) so fewer rows are evaluated.
 ## Not covered
 
 Table-specific assertions or conditions, typed cell values, wrappers for controls inside cells, sorting,
-filtering, pagination, virtual scrolling, page-factory (`@FindBy`) injection.
+filtering, pagination, virtual scrolling, page-factory (`@FindBy`) injection (see the page-object recipe above).
 
 ## Migration from the removed table stack
 

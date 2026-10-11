@@ -142,6 +142,9 @@ customers.rows("Country", "Austria").shouldHave(size(2));
 customers.column("Company").shouldHave(exactTexts("Alfreds Futterkiste", "Ernst Handel"));
 ```
 
+For `@FindBy` page objects, wrap the helper in a small project component; see the page-object recipe in
+[`docs/table-api.md`](../../docs/table-api.md#recipe-tables-in-page-objects-findby).
+
 Layouts, behaviour, limits and the migration table from the removed table stack are in
 [`docs/table-api.md`](../../docs/table-api.md).
 
