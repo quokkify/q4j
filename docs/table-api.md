@@ -58,122 +58,27 @@ ignored.
 
 ## Recipe: tables in page objects (`@FindBy`)
 
-`Table` and `HorizontalTable` are plain helpers, not page-factory elements: Selenide leaves a `@FindBy Table`
-field `null`. Wrap them in a small `Component` of your own project. The `@FindBy` element becomes the table root,
-and the component rebuilds the helper on every call, so nothing is cached and remounts are safe.
-
-**1. One base component per table shape** (in your project, not in q4j):
+A `@FindBy Table` field stays `null`: wrap the helper in a project `Component` and reuse it on any page.
 
 ```java
-public class DataTable extends Component {
-
-  protected TableLayout layout() {
-    return TableLayout.html();
-  }
+public class OrdersTable extends Component {
 
   public Table table() {
-    return Table.of(getSelf(), layout());
+    return Table.of(getSelf(), TableLayout.html());
   }
-}
-
-public class KeyValueTable extends Component {
-
-  public SelenideElement value(String label) {
-    return HorizontalTable.of(getSelf()).value(label);
-  }
-}
-```
-
-Other markup is one override:
-
-```java
-public class InventoryGrid extends DataTable {
-
-  @Override
-  protected TableLayout layout() {
-    return TableLayout.aria();
-  }
-}
-```
-
-**2. A domain table that names its columns once:**
-
-```java
-public class OrdersTable extends DataTable {
 
   public TableRow order(String id) {
     return table().row("ID", id);
   }
-
-  public ElementsCollection ids() {
-    return table().column("ID");
-  }
-
-  public SelenideElement paidCheckbox(String id) {
-    return order(id).cell("Paid").$("input[type=checkbox]");
-  }
-
-  public void ship(String id) {
-    order(id).cell("Action").$("button").click();
-  }
-}
-```
-
-**3. Declare it with `@FindBy` on any page or inside another component**, with whatever locator that page needs
-(getters such as `activeOrders()`, `orders()` and `summary()` are omitted):
-
-```java
-@PageUrl("/orders")
-public class OrdersPage implements Page {
-
-  @FindBy(id = "active-orders")
-  private OrdersPanel activeOrders;
-
-  @FindBy(css = ".orders-panel")
-  private List<OrdersPanel> panels;
-
-  @FindBy(id = "summary")
-  private KeyValueTable summary;
-
-  public static class OrdersPanel extends Component {
-
-    @FindBy(css = "table.orders")
-    private OrdersTable orders;
-  }
 }
 
-@PageUrl("/customer")
-public class CustomerPage implements Page {
+@FindBy(css = "table.orders")
+private OrdersTable orders;
 
-  @FindBy(id = "profile")
-  private KeyValueTable profile;
-
-  @FindBy(css = "#customer-orders table")
-  private OrdersTable orders;
-}
+orders.order("A-1").cell("Status").shouldHave(exactText("New"));
 ```
 
-**4. Use it from steps, verifications or tests:**
-
-```java
-ordersPage.activeOrders().orders().ship("A-1");
-ordersPage.activeOrders().orders().order("A-1").cell("Status").shouldHave(exactText("Shipped"));
-ordersPage.summary().value("Shipped").shouldHave(exactText("1"));
-
-customerPage.orders().ids().shouldHave(exactTexts("A-2", "Z-9"));
-customerPage.orders().table().rows("Status", "New").shouldHave(size(1));
-```
-
-Guidelines:
-
-- Keep column names inside the domain component (`order(id)`, `ids()`); pages and steps should not repeat
-  header strings.
-- Add domain methods only for what tests need; anything else stays reachable through `table()`.
-- Controls inside cells are plain Selenide on the cell (`cell("Note").$("input").setValue(...)`).
-- The same component works under any `@FindBy` locator, in nested components and in `List<...>` fields; each
-  instance is scoped to its own root, so two tables on one page stay isolated.
-
-The recipe is exercised by `OrdersTablePageObjectTest` (page objects in `integrations/selenide/src/test/java/dev/quokkify/page/ux`).
+Example: `OrdersTablePageObjectTest`.
 
 ## Layouts
 
