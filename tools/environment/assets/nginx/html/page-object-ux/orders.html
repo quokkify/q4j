@@ -1,0 +1,107 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Orders page object UX fixture</title>
+    <style>
+      body { font-family: sans-serif; }
+      .orders-panel { border: 1px solid #d0d7de; border-radius: 8px; margin: 12px 0; padding: 12px; }
+      [role='grid'] { display: grid; gap: 4px; }
+      [role='row'] { display: grid; grid-template-columns: repeat(3, 160px); }
+    </style>
+  </head>
+  <body>
+    <section class="orders-panel" id="active-orders">
+      <h2 class="panel-title">Active orders</h2>
+      <input class="filter" placeholder="Filter by customer" />
+      <table class="orders">
+        <thead>
+          <tr><th>ID</th><th>Customer</th><th>Status</th><th>Qty</th><th>Paid</th><th>Note</th><th>Action</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <section class="orders-panel" id="archived-orders">
+      <h2 class="panel-title">Archived orders</h2>
+      <input class="filter" placeholder="Filter by customer" />
+      <table class="orders">
+        <thead>
+          <tr><th>ID</th><th>Customer</th><th>Status</th><th>Qty</th><th>Paid</th><th>Note</th><th>Action</th></tr>
+        </thead>
+        <tbody></tbody>
+      </table>
+    </section>
+
+    <div id="inventory" role="grid" aria-label="Inventory">
+      <div role="row"><div role="columnheader">SKU</div><div role="columnheader">Product</div><div role="columnheader">Stock</div></div>
+    </div>
+
+    <table id="summary">
+      <tr><th>Total orders</th><td></td></tr>
+      <tr><th>Shipped</th><td></td></tr>
+    </table>
+
+    <script>
+      const data = {
+        "active-orders": [
+          { id: "A-1", customer: "Alfreds Futterkiste", status: "New", qty: 3, paid: false },
+          { id: "A-2", customer: "Ernst Handel", status: "New", qty: 12, paid: true },
+          { id: "A-3", customer: "Island Trading", status: "Packed", qty: 25, paid: true }
+        ],
+        "archived-orders": [
+          { id: "Z-9", customer: "Ernst Handel", status: "Delivered", qty: 1, paid: true }
+        ]
+      };
+      const inventory = [["SKU-1", "Chai", "39"], ["SKU-2", "Chang", "0"]];
+
+      function renderSummary() {
+        const all = Object.values(data).flat();
+        const cells = document.querySelectorAll("#summary td");
+        cells[0].textContent = String(all.length);
+        cells[1].textContent = String(all.filter(order => order.status === "Shipped").length);
+      }
+
+      function renderPanel(panelId) {
+        const body = document.querySelector(`#${panelId} tbody`);
+        body.innerHTML = "";
+        data[panelId].forEach(order => {
+          const row = document.createElement("tr");
+          row.innerHTML = `<td>${order.id}</td><td>${order.customer}</td><td class="status">${order.status}</td>`
+            + `<td>${order.qty}</td><td><input type="checkbox" ${order.paid ? "checked" : ""}/></td>`
+            + `<td><input class="note" value=""/></td>`
+            + `<td><button type="button" ${order.status === "Shipped" || order.status === "Delivered" ? "disabled" : ""}>Ship</button></td>`;
+          row.querySelector("button").addEventListener("click", () => {
+            setTimeout(() => {
+              order.status = "Shipped";
+              renderPanel(panelId);
+              renderSummary();
+            }, 400);
+          });
+          body.appendChild(row);
+        });
+      }
+
+      document.querySelectorAll(".orders-panel .filter").forEach(filter => {
+        filter.addEventListener("input", () => {
+          const query = filter.value.toLowerCase();
+          filter.closest(".orders-panel").querySelectorAll("tbody tr").forEach(row => {
+            row.hidden = !row.children[1].textContent.toLowerCase().includes(query);
+          });
+        });
+      });
+
+      setTimeout(() => {
+        Object.keys(data).forEach(renderPanel);
+        const grid = document.getElementById("inventory");
+        inventory.forEach(([sku, product, stock]) => {
+          const row = document.createElement("div");
+          row.setAttribute("role", "row");
+          row.innerHTML = `<div role="gridcell">${sku}</div><div role="gridcell">${product}</div><div role="gridcell">${stock}</div>`;
+          grid.appendChild(row);
+        });
+        renderSummary();
+      }, 700);
+    </script>
+  </body>
+</html>
