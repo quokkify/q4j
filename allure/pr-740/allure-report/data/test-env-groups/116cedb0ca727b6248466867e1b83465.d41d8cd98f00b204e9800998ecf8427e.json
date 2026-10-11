@@ -1,0 +1,1 @@
+{"id":"116cedb0ca727b6248466867e1b83465.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.model.JsonPojoTest.testRequiredAtThrowsForAbsentPath","name":"Verify get required node by absent json pointer fails with jackson exception","status":"passed","testResultsByEnv":{"ubuntu-24-04":"af11a13701fb7225c7923dd27eee64bd"}}

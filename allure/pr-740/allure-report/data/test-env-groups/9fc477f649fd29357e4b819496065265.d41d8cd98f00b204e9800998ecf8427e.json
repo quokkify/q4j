@@ -1,0 +1,1 @@
+{"id":"9fc477f649fd29357e4b819496065265.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.SuiteListenerGroupsTest.testExcludedGroupMethodsDoNotRun","name":"Methods of a group excluded via TestNG#setExcludedGroups do not run","status":"passed","testResultsByEnv":{"ubuntu-24-04":"a8fb1db00f61385c2313f9f66581cdb4"}}
