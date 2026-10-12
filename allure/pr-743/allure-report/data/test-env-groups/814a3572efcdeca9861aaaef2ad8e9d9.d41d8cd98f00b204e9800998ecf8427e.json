@@ -1,1 +1,1 @@
-{"id":"814a3572efcdeca9861aaaef2ad8e9d9.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.util.CommandLockManagerTest.failingCommandReleasesItsKey","name":"failingCommandReleasesItsKey","status":"passed","testResultsByEnv":{"ubuntu-24-04":"324b9d03a3ca8401c71a71c7952124ca"}}
+{"id":"814a3572efcdeca9861aaaef2ad8e9d9.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.util.CommandLockManagerTest.failingCommandReleasesItsKey","name":"failingCommandReleasesItsKey","status":"passed","testResultsByEnv":{"ubuntu-24-04":"8d67de864d6fc8f6f0c719184b94c3c9"}}
