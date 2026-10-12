@@ -1,1 +1,1 @@
-{"id":"975ecac8d8f895c25bb05705a849b2bb.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.elements.table.TableLayoutTest.rejectsNullLocators","name":"rejectsNullLocators","status":"passed","testResultsByEnv":{"ubuntu-24-04":"4442a4cb83032d37e0740050a67ffd93"}}
+{"id":"975ecac8d8f895c25bb05705a849b2bb.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.elements.table.TableLayoutTest.rejectsNullLocators","name":"rejectsNullLocators","status":"passed","testResultsByEnv":{"ubuntu-24-04":"40b441ccf50a7c2f61087e5df0f17ba6"}}
