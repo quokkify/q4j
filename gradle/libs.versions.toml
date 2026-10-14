@@ -41,7 +41,7 @@ rabbitmq = "5.37.0"
 reportportal = "5.4.3"
 jjschema = "1.16"
 rest-assured = "6.1.0"
-selenide = "7.18.2"
+selenide = "7.19.0"
 feign = "13.17"
 tyrus = "2.2.2"
 
