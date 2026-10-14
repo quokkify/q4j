@@ -2,6 +2,29 @@
 
 ## [0.12.2](https://github.com/quokkify/q4j/compare/v0.12.1...v0.12.2) (2026-10-14)
 
+<!-- project-toolkit:rich-block:start -->
+### ✨ Highlights
+<!-- project-toolkit:rich-release-notes pr=750 -->
+**`column()` no longer looks in the wrong place.** With a two-step cell locator, `[n]` used to index spans inside each `td` instead of cells in the row:
+
+```java
+Table table = Table.of($("#customers"), TableLayout.of(
+    By.xpath("./tbody/tr"),
+    By.xpath("./td/span"),          // two steps: td → span
+    By.xpath("./thead/tr/th")));
+
+table.column("Company").shouldHave(exactTexts("Alfreds Futterkiste", "Ernst Handel"));
+
+// before: (./tbody/tr)/td/span[2] → [] → fails after the timeout with "actual: []"
+// now:    UnsupportedOperationException, right away:
+//         column() needs XPath row and single-step cell locators; use rows() and TableRow.cell()
+
+// the supported way for such layouts
+table.row("Company", "Ernst Handel").cell("Country").shouldHave(exactText("Austria"));
+```
+
+Predicates still work: `./td[./span]`, `./*[self::td or self::th]`.
+<!-- project-toolkit:rich-block:end -->
 
 ### 🐛 Bug Fixes
 
