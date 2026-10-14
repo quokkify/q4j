@@ -75,7 +75,7 @@ public class TestClassNamingRule implements ArchitectureRule {
   }
 
   private static boolean isVerifiable(ClassInfo testClass) {
-    return !testClass.isSynthetic() && !testClass.isAnonymousInnerClass() && !testClass.isAbstract();
+    return !testClass.isSynthetic() && !testClass.isAnonymousClass() && !testClass.isAbstract();
   }
 
   /**
@@ -84,7 +84,7 @@ public class TestClassNamingRule implements ArchitectureRule {
    * of an abstract test base declares tests as well, even without a {@code @Test} of its own.
    */
   private static boolean declaresTest(ClassInfo testClass) {
-    return Stream.concat(Stream.of(testClass), testClass.getSuperclasses().stream())
+    return Stream.concat(Stream.of(testClass), testClass.getAllSuperclasses().stream())
         .anyMatch(TestClassNamingRule::declaresTestItself);
   }
 

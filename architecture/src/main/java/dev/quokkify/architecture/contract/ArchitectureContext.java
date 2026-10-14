@@ -314,7 +314,9 @@ public class ArchitectureContext implements AutoCloseable {
         requireBothOrNoClassDirs();
         ClassGraph classGraph = new ClassGraph();
         if (hasClassDirs()) {
-          classGraph.overrideClasspath(existingClassDirs());
+          classGraph.enableClasspathEntries(existingClassDirs());
+        } else {
+          classGraph.enableNonSystemModules().enableClasspath();
         }
         scanResult = clock.build("ClassGraph classes", () -> classGraph
             .acceptPackages(packages.toArray(String[]::new))
@@ -398,9 +400,9 @@ public class ArchitectureContext implements AutoCloseable {
         .toList();
     if (existing.isEmpty()) {
       // ClassGraph rejects an empty classpath override.
-      return new ResourceList();
+      return ResourceList.emptyList();
     }
-    resourceScan = new ClassGraph().overrideClasspath(existing).scan();
+    resourceScan = new ClassGraph().enableClasspathEntries(existing).scan();
     return resourceScan.getAllResources().nonClassFilesOnly();
   }
 
