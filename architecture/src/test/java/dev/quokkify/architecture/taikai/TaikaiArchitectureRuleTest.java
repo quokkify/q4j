@@ -10,6 +10,7 @@ import dev.quokkify.architecture.contract.RuleSeverity;
 import dev.quokkify.architecture.exceptions.ArchitectureRunnerError;
 import dev.quokkify.architecture.fixtures.taikai.violating.LowercaseLogger;
 
+import com.enofex.taikai.ClassCriteria;
 import com.enofex.taikai.Namespace;
 import com.enofex.taikai.Taikai;
 import com.enofex.taikai.TaikaiRule;
@@ -17,6 +18,7 @@ import com.tngtech.archunit.ArchConfiguration;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.core.importer.ClassFileImporter;
 import com.tngtech.archunit.lang.syntax.ArchRuleDefinition;
+import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -95,6 +97,43 @@ public class TaikaiArchitectureRuleTest {
       protected void configure(Taikai.Builder builder) {
         super.configure(builder);
         builder.excludeClasses(LowercaseLogger.class);
+      }
+    };
+
+    try (ArchitectureContext context = contextFor("violating")) {
+      assertThatCode(() -> excluding.verify(context)).doesNotThrowAnyException();
+    }
+  }
+
+  @Test(dataProvider = "packagePatterns")
+  public void packagePatternExclusionsAreHonoured(String pattern) {
+    TaikaiArchitectureRule excluding = new LoggerNamingRule(RuleSeverity.ERROR) {
+
+      @Override
+      protected void configure(Taikai.Builder builder) {
+        super.configure(builder);
+        builder.excludeClasses(pattern);
+      }
+    };
+
+    try (ArchitectureContext context = contextFor("violating")) {
+      assertThatCode(() -> excluding.verify(context)).doesNotThrowAnyException();
+    }
+  }
+
+  @DataProvider
+  public Object[][] packagePatterns() {
+    return new Object[][] {{FIXTURES + "violating.."}, {FIXTURES + "violating.*"}};
+  }
+
+  @Test
+  public void criteriaExclusionsAreHonoured() {
+    TaikaiArchitectureRule excluding = new LoggerNamingRule(RuleSeverity.ERROR) {
+
+      @Override
+      protected void configure(Taikai.Builder builder) {
+        super.configure(builder);
+        builder.excludeClasses(ClassCriteria.simpleNameMatching("Lowercase.*"));
       }
     };
 
