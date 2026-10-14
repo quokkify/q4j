@@ -1,0 +1,1 @@
+{"id":"149c6ca5554228c2f33bedf181744f47.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.OrdersTablePageObjectTest.readsDelayedRowThroughNestedComponent","name":"Table inside a @FindBy Component reads a delayed row by column value","status":"passed","testResultsByEnv":{"ubuntu-24-04":"fe99f72ca921a9c2eefcaf8fc8d520eb"}}
