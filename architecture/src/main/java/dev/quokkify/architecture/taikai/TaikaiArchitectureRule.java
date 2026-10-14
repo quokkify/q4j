@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import java.util.regex.Pattern;
+import java.util.stream.Stream;
 
 import dev.quokkify.architecture.contract.ArchitectureContext;
 import dev.quokkify.architecture.contract.ArchitectureRule;
@@ -16,6 +18,7 @@ import com.enofex.taikai.Taikai;
 import com.enofex.taikai.TaikaiRule;
 import com.tngtech.archunit.ArchConfiguration;
 import com.tngtech.archunit.base.DescribedPredicate;
+import com.tngtech.archunit.core.domain.JavaClass;
 import com.tngtech.archunit.core.domain.JavaClasses;
 import com.tngtech.archunit.lang.FailureReport;
 
@@ -148,8 +151,9 @@ public abstract class TaikaiArchitectureRule implements ArchitectureRule {
 
   /**
    * Honours what a Taikai configurer attached to one rule, on top of the scope: its own classes, its import
-   * option and the exclusions of the rule and of the whole set. A rule that asks for classes outside the scope
-   * cannot be verified, so it aborts instead of silently matching nothing.
+   * option and the exclusions of the rule and of the whole set, given as names, package patterns or criteria.
+   * A rule that asks for classes outside the scope cannot be verified, so it aborts instead of silently
+   * matching nothing.
    */
   private JavaClasses classesOf(TaikaiRule rule, Taikai taikai, ArchitectureContext context, JavaClasses classes) {
     TaikaiRule.Configuration configuration = rule.configuration();
@@ -157,13 +161,36 @@ public abstract class TaikaiArchitectureRule implements ArchitectureRule {
     JavaClasses selected = Objects.nonNull(bound)
         ? requireNotEmpty(bound, rule)
         : classesForImport(configuration.namespaceImport(), rule, context, classes);
-    List<String> excluded = new ArrayList<>(configuration.excludedClasses());
-    excluded.addAll(taikai.excludedClasses());
-    if (excluded.isEmpty()) {
-      return selected;
+    List<Pattern> excluded = Stream.concat(configuration.excludedClasses().stream(),
+            taikai.excludedClasses().stream())
+        .map(TaikaiArchitectureRule::exclusionPattern)
+        .toList();
+    if (!excluded.isEmpty()) {
+      selected = selected.that(DescribedPredicate.describe("not excluded by Taikai",
+          javaClass -> excluded.stream().noneMatch(pattern -> pattern.matcher(javaClass.getName()).matches())));
     }
-    return selected.that(DescribedPredicate.describe("not excluded by Taikai",
-        javaClass -> !excluded.contains(javaClass.getName())));
+    for (DescribedPredicate<? super JavaClass> criteria : taikai.excludedCriteria()) {
+      selected = selected.that(DescribedPredicate.not(criteria));
+    }
+    return selected;
+  }
+
+  /**
+   * Reads an excluded class the way Taikai does: {@code com.example..} is the package with its subpackages,
+   * {@code com.example.*} the classes of the package itself, a name without wildcards one class, and anything
+   * else a regular expression over the fully qualified name.
+   */
+  private static Pattern exclusionPattern(String excluded) {
+    if (excluded.endsWith("..")) {
+      return Pattern.compile(Pattern.quote(excluded.substring(0, excluded.length() - 2)) + "(\\..+)?");
+    }
+    if (excluded.endsWith(".*")) {
+      return Pattern.compile(Pattern.quote(excluded.substring(0, excluded.length() - 2)) + "\\.[^.]+");
+    }
+    if (!excluded.contains("*") && !excluded.contains("..")) {
+      return Pattern.compile(Pattern.quote(excluded));
+    }
+    return Pattern.compile(excluded);
   }
 
   private JavaClasses classesForImport(Namespace.IMPORT namespaceImport, TaikaiRule rule, ArchitectureContext context,

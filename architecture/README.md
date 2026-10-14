@@ -272,7 +272,8 @@ Your own ArchUnit rule joins the same set through `addRule(TaikaiRule.of(...))`,
   so your `archunit.properties` and concurrently evaluated rules keep their behaviour.
 - Taikai settings the adapter cannot honour abort the run instead of being ignored: a namespace set in
   `configure`, or a Taikai rule importing `ONLY_TESTS` or `WITH_TESTS` outside the scope. Exclusions, of a rule
-  or of the whole set, are applied.
+  or of the whole set, are applied: class names, package patterns such as `com.example.generated..`, and
+  criteria such as `excludeClasses(ClassCriteria.inPackage("..generated.."))`.
 - One adapter rule is one report entry with one severity. Split rule sets that need different severities into
   separate classes.
 - Taikai's JUnit rules look for JUnit 5 annotations only. TestNG projects use `TestClassNamingRule` instead.
