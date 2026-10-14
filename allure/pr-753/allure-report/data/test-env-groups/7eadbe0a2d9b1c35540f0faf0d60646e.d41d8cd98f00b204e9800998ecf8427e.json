@@ -1,1 +1,1 @@
-{"id":"7eadbe0a2d9b1c35540f0faf0d60646e.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DatabaseNoSqlTest.checkInsert","name":"Check insert record into database","status":"passed","testResultsByEnv":{"ubuntu-24-04":"15483475d61e62af7d159267373a94a1"}}
+{"id":"7eadbe0a2d9b1c35540f0faf0d60646e.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DatabaseNoSqlTest.checkInsert","name":"Check insert record into database","status":"passed","testResultsByEnv":{"ubuntu-24-04":"8a7b4d08d7405e521497a2b2a0c11628"}}
