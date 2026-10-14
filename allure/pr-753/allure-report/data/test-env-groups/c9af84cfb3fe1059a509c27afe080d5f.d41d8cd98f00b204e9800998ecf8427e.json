@@ -1,1 +1,1 @@
-{"id":"c9af84cfb3fe1059a509c27afe080d5f.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.TableTest.missingRowFailsWithElementNotFound","name":"missingRowFailsWithElementNotFound","status":"passed","testResultsByEnv":{"ubuntu-24-04":"9200a55bc10655aa4321dbd1f1ec8872"}}
+{"id":"c9af84cfb3fe1059a509c27afe080d5f.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.TableTest.missingRowFailsWithElementNotFound","name":"missingRowFailsWithElementNotFound","status":"passed","testResultsByEnv":{"ubuntu-24-04":"ae45076862ca71b05fe97bb9984cca7c"}}
