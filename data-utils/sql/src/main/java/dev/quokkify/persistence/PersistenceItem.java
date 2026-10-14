@@ -90,12 +90,14 @@ public class PersistenceItem implements PersistenceUnitInfo {
   @Override
   public List<String> getManagedClassNames() {
     try (var scanResult = new ClassGraph()
+        .enableNonSystemModules()
+        .enableClasspath()
         .enableClassInfo()
         .enableAnnotationInfo()
         .ignoreClassVisibility()
         .acceptPackages("dev.quokkify")
         .scan()) {
-      return scanResult.getClassesImplementing(SqlEntityInterface.class.getName())
+      return scanResult.getAllClassesImplementing(SqlEntityInterface.class.getName())
           .filter(classInfo -> classInfo.hasAnnotation(Entity.class.getName()))
           .getNames();
     }

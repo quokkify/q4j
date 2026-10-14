@@ -92,7 +92,7 @@ public class ServiceRegistrationRule implements ArchitectureRule {
    */
   private static List<String> providerNames(Resource registration) {
     try {
-      return Arrays.stream(registration.getContentAsString().split("\r\n|\r|\n"))
+      return Arrays.stream(registration.loadAsString().split("\r\n|\r|\n"))
           .map(line -> line.contains(COMMENT) ? line.substring(0, line.indexOf(COMMENT)) : line)
           .map(String::trim)
           .filter(name -> !name.isEmpty())

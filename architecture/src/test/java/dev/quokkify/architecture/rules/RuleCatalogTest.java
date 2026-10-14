@@ -32,9 +32,10 @@ public class RuleCatalogTest {
   }
 
   private static List<Class<ArchitectureRule>> shippedRules() {
-    try (ScanResult scan = new ClassGraph().acceptPackages(RULES_PACKAGE).enableClassInfo().scan()) {
-      return scan.getClassesImplementing(ArchitectureRule.class).stream()
-          .filter(rule -> !rule.isAbstract() && !rule.isInterface() && !rule.isAnonymousInnerClass())
+    try (ScanResult scan = new ClassGraph().enableNonSystemModules().enableClasspath()
+        .acceptPackages(RULES_PACKAGE).enableClassInfo().scan()) {
+      return scan.getAllClassesImplementing(ArchitectureRule.class).stream()
+          .filter(rule -> !rule.isAbstract() && !rule.isInterface() && !rule.isAnonymousClass())
           .map(ClassInfo::getName)
           .map(RuleCatalogTest::load)
           .toList();
