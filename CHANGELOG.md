@@ -1,5 +1,34 @@
 # Changelog
 
+## [0.12.2](https://github.com/quokkify/q4j/compare/v0.12.1...v0.12.2) (2026-10-14)
+
+
+### 🐛 Bug Fixes
+
+* **selenide:** reject multi-step cell locators in Table.column() ([#750](https://github.com/quokkify/q4j/issues/750)) ([824f82d](https://github.com/quokkify/q4j/commit/824f82dd6a0dfa6728ea0304b38d1ab10ecf43a1))
+
+
+### 📦 Dependencies
+
+* **docker-compose:** update redis:8.10.2 docker digest to 2c2dff7 ([#740](https://github.com/quokkify/q4j/issues/740)) ([0fd2879](https://github.com/quokkify/q4j/commit/0fd2879fd804471904194fa1c5aca89ff1eb6eac))
+* **docker-compose:** update reportportal/service-ui docker tag to v5.15.6 ([#752](https://github.com/quokkify/q4j/issues/752)) ([f88ee54](https://github.com/quokkify/q4j/commit/f88ee54247a053d0a3c740e7c98c08eed919f1b8))
+* **docker-compose:** update selenium grid images to v4.50.0-20261010 ([#747](https://github.com/quokkify/q4j/issues/747)) ([c2903b2](https://github.com/quokkify/q4j/commit/c2903b23fcc3a97de0e7c2c166316a28e5500154))
+* **docker-compose:** update traefik:v3.7.14 docker digest to 575fa15 ([#743](https://github.com/quokkify/q4j/issues/743)) ([000d2c4](https://github.com/quokkify/q4j/commit/000d2c4dea779b0031d4bbdeab771bfb97083094))
+* **gradle:** update com.enofex:taikai to v2 ([#749](https://github.com/quokkify/q4j/issues/749)) ([29f6009](https://github.com/quokkify/q4j/commit/29f6009e7f623966f82fba77476f69f15f3f589f))
+* **gradle:** update hibernate-orm monorepo to v7.4.13.final ([#753](https://github.com/quokkify/q4j/issues/753)) ([97755c3](https://github.com/quokkify/q4j/commit/97755c38881ada00416fe21ed9b1149261ff15d8))
+* **gradle:** update io.github.classgraph:classgraph to v5 ([#746](https://github.com/quokkify/q4j/issues/746)) ([7745013](https://github.com/quokkify/q4j/commit/7745013f0f98d7a7313d70df21fb775ea8b2f0ce))
+* **gradle:** update org.apache.kafka:kafka-clients to v4.4.0 ([#748](https://github.com/quokkify/q4j/issues/748)) ([de40cb5](https://github.com/quokkify/q4j/commit/de40cb53881c9914d317a5c135de0f3e6fed810c))
+* **gradle:** update selenide to v7.19.0 ([#744](https://github.com/quokkify/q4j/issues/744)) ([583e5fd](https://github.com/quokkify/q4j/commit/583e5fdc4b6f901c5eb70c79fee7284557271ab6))
+* **standalone-chromium:** update selenium/standalone-chromium docker tag to v155 ([#751](https://github.com/quokkify/q4j/issues/751)) ([1ff8c05](https://github.com/quokkify/q4j/commit/1ff8c058f509bcb23a023c73e6e452b8c4911578))
+
+
+### 📚 Documentation
+
+* **modules:** update q4j module documentation to v0.12.0 ([#737](https://github.com/quokkify/q4j/issues/737)) ([369f069](https://github.com/quokkify/q4j/commit/369f06906896727f855526f2982c5a919e0fbc08))
+* **modules:** update q4j module documentation to v0.12.1 ([#739](https://github.com/quokkify/q4j/issues/739)) ([161696e](https://github.com/quokkify/q4j/commit/161696e86eab1063be737916997e5caa6b2a65ed))
+* **modules:** update q4j module documentation to v0.12.1 ([#741](https://github.com/quokkify/q4j/issues/741)) ([d9437a8](https://github.com/quokkify/q4j/commit/d9437a8a943dc6016d248be8b4c830dff570ba7c))
+* **selenide:** add page-object recipe for tables with @FindBy ([#742](https://github.com/quokkify/q4j/issues/742)) ([b65d473](https://github.com/quokkify/q4j/commit/b65d473ee7f3cd246b01e60c39d00bf20e061abd))
+
 ## [0.12.1](https://github.com/quokkify/q4j/compare/v0.12.0...v0.12.1) (2026-10-10)
 
 
