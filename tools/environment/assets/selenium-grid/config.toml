@@ -4,7 +4,7 @@ max-sessions = "5"
 selenium-manager = true
 
 [docker]
-# renovate: depName=selenium/standalone-chromium currentValue=155.0-20261010 currentDigest=sha256:2bc5a3e5dafcc5e4eb14f2ef566147d1440e8577c6e4ddc1edc897cc3af00a45
+# renovate: depName=selenium/standalone-chromium currentValue=155.0-20261010 currentDigest=sha256:ba9dde71436cd1ffdae5ec783d0786742208b13211857e9ab52a4f695ba28e2b
 configs = ["selenium/standalone-chromium:155.0-20261010", "{\"browserName\":\"chrome\",\"hostConfig\":{\"extraHosts\":[\"host.docker.internal:host-gateway\"],\"NetworkMode\":\"__NETWORK__\"}}"]
 host-config-keys = ["Dns", "DnsOptions", "DnsSearch", "ExtraHosts", "Binds", "NetworkMode"]
 url = "http://docker-socket-proxy:2375"
