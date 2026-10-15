@@ -8,7 +8,7 @@ Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.qu
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:reportportal-testrail:0.12.1")
+    testImplementation("dev.quokkify:reportportal-testrail:0.12.2")
 }
 ```
 
