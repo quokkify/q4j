@@ -406,7 +406,7 @@ services:
 
   reportportal-uat:
     profiles: [reporting]
-    image: reportportal/service-authorization:5.15.1@sha256:6a954407b417963c63858e0e753671208c14096a4438ead883ccd656760e85dd
+    image: reportportal/service-authorization:5.15.2@sha256:ba5e19462975fed8fa7a387388a8a838af4f90e1dcd2a560d7493eba776a28d3
     depends_on:
       reportportal-postgres:
         condition: service_healthy
