@@ -8,7 +8,7 @@ Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.qu
 
 ```kotlin
 dependencies {
-    implementation("dev.quokkify:core:0.12.1")
+    implementation("dev.quokkify:core:0.12.2")
 }
 ```
 
