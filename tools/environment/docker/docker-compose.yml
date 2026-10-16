@@ -211,7 +211,7 @@ services:
 
   reportportal-index:
     profiles: [reporting]
-    image: reportportal/service-index:5.15.1@sha256:b1860ed33071586d3af8c196070d93894e7479a3ae6bdafbdc93a06090d6abe5
+    image: reportportal/service-index:5.15.2@sha256:7f78a31a8c8de586a3da002e8fe536dcc934c5355d1f63609f21cab9760fd4b0
     depends_on:
       reportportal-gateway:
         condition: service_started
