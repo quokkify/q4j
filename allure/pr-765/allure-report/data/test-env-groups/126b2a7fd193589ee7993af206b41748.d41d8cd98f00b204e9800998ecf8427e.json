@@ -1,1 +1,1 @@
-{"id":"126b2a7fd193589ee7993af206b41748.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.model.JsonPojoTest.testRequiredAtReturnsNode","name":"Verify get required node by json pointer","status":"passed","testResultsByEnv":{"ubuntu-24-04":"1a8822d481d2db6b6c01cd36fd66843b"}}
+{"id":"126b2a7fd193589ee7993af206b41748.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.model.JsonPojoTest.testRequiredAtReturnsNode","name":"Verify get required node by json pointer","status":"passed","testResultsByEnv":{"ubuntu-24-04":"60948af9a1348242d36a717ced2bd687"}}
