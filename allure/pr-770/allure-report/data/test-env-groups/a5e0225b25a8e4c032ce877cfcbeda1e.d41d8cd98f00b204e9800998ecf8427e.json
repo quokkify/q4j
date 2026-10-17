@@ -1,0 +1,1 @@
+{"id":"a5e0225b25a8e4c032ce877cfcbeda1e.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.OrdersTablePageObjectTest.readsAriaGridFromFindByElement","name":"ARIA div grid is a @FindBy component with an overridden layout","status":"passed","testResultsByEnv":{"ubuntu-24-04":"d50d797f0b08c8dced75e1091997fd45"}}
