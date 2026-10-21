@@ -1,0 +1,39 @@
+name: Project contract
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: project-contract-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  project-contract:
+    name: Project contract
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.14"
+      - name: Validate release and publication contracts
+        run: python tools/release_contract.py
+      - name: Test Gradle retry recovery contract
+        run: |
+          python -m unittest -v tools/ci/test_gradle_retry.py
+          bash -n tools/scripts/ci/gradle-retry.sh
+      - name: Validate project configuration contract
+        run: |
+          python -m pip install PyYAML==6.0.3
+          python tools/ci/project_contract.py
