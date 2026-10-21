@@ -1,0 +1,1 @@
+{"id":"f7c522da686b799b6e428a62650100c8.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.model.JsonPojoTest.testSetEachAtReplacesFieldInAllElements","name":"Verify set value in each array element by relative json pointer","status":"passed","testResultsByEnv":{"ubuntu-24-04":"e32c55f8d325c6c5c211b4b9f8e275d5"}}
