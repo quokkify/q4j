@@ -112,32 +112,3 @@ jobs:
           else
             git diff --check "$BASE_SHA..$HEAD_SHA"
           fi
-
-  app-java:
-    name: "App Java"
-    uses: quokkify/ci-kit/.github/workflows/java-ci.yml@v3.5.0
-    with:
-      working-directory: "."
-      # The canonical test.yml owns q4j's configured integration matrix and infrastructure lifecycle.
-      # Keep this generated component check lightweight.
-      test-command: "./gradlew help --no-daemon --console=plain --stacktrace"
-      run-lint: false
-      run-build: false
-
-  app-node:
-    name: "App Node"
-    uses: quokkify/ci-kit/.github/workflows/node-ci.yml@v3.5.0
-    with:
-      working-directory: "."
-      install-command: "true"
-      lint-command: "true"
-      test-command: "true"
-
-  app-python:
-    name: "App Python"
-    uses: quokkify/ci-kit/.github/workflows/python-ci.yml@v3.5.0
-    with:
-      working-directory: "."
-      install-command: "true"
-      lint-command: "true"
-      test-command: "true"

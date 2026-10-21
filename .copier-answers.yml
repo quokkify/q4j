@@ -14,19 +14,7 @@ codeql: true
 codeql_languages:
   - actions
   - java-kotlin
-components:
-  - id: app-java
-    name: App Java
-    path: .
-    type: java
-  - id: app-node
-    name: App Node
-    path: .
-    type: node
-  - id: app-python
-    name: App Python
-    path: .
-    type: python
+components: []
 docker: false
 gitleaks: true
 project_name: Q4J
