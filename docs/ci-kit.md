@@ -4,27 +4,26 @@ This repository is managed by the [`quokkify/ci-kit`](https://github.com/quokkif
 
 ## What this project received
 
-| Path                                                     | Purpose                                                               | Owner   |
-| -------------------------------------------------------- | --------------------------------------------------------------------- | ------- |
-| `.copier-answers.yml`                                    | Copier answers; required for `copier update`                          | toolkit |
-| `.github/workflows/validate.yml`                         | `Validate` workflow: App Java (`.`), App Node (`.`), App Python (`.`) | toolkit |
-| `.github/workflows/copier-update.yml`                    | Template update automation                                            | toolkit |
-| `.github/pull_request_template.md`                       | Pull request template                                                 | project |
-| `README.md`                                              | Starter README                                                        | project |
-| `docs/ci-kit.md`                                         | This guide                                                            | toolkit |
-| `.github/workflows/codeql.yml`                           | CodeQL code scanning                                                  | toolkit |
-| `.github/workflows/gitleaks.yml`                         | Secret scanning                                                       | toolkit |
-| `.github/workflows/allure-report.yml`, `.github/allure/` | Allure 3 pull-request report                                          | toolkit |
-| `.github/workflows/release.yml`, `.github/scripts/`      | Release Please (manifest)                                             | toolkit |
-| `.github/release-please/`                                | Release Please config and manifest                                    | project |
-| `.github/renovate.json`                                  | Renovate config extending `quokkify/renovate-presets`                 | project |
+| Path                                                     | Purpose                                               | Owner   |
+| -------------------------------------------------------- | ----------------------------------------------------- | ------- |
+| `.copier-answers.yml`                                    | Copier answers; required for `copier update`          | toolkit |
+| `.github/workflows/validate.yml`                         | `Validate` workflow                                   | toolkit |
+| `.github/workflows/copier-update.yml`                    | Template update automation                            | toolkit |
+| `.github/pull_request_template.md`                       | Pull request template                                 | project |
+| `README.md`                                              | Starter README                                        | project |
+| `docs/ci-kit.md`                                         | This guide                                            | toolkit |
+| `.github/workflows/codeql.yml`                           | CodeQL code scanning                                  | toolkit |
+| `.github/workflows/gitleaks.yml`                         | Secret scanning                                       | toolkit |
+| `.github/workflows/allure-report.yml`, `.github/allure/` | Allure 3 pull-request report                          | toolkit |
+| `.github/workflows/release.yml`, `.github/scripts/`      | Release Please (manifest)                             | toolkit |
+| `.github/release-please/`                                | Release Please config and manifest                    | project |
+| `.github/renovate.json`                                  | Renovate config extending `quokkify/renovate-presets` | project |
 
 Toolkit-owned files are replaced by `copier update`; change them in ci-kit, not here. Project-owned files are written once and never overwritten.
 
 ## First-day checklist
 
 - [ ] `.copier-answers.yml` is committed.
-- [ ] Component paths in `.github/workflows/validate.yml` match the real directories.
 - [ ] Test runners write Allure results as described in the `README.md` Allure section.
 - [ ] Code scanning is available for this repository (GitHub Advanced Security for private repositories).
 - [ ] The Renovate GitHub App has access to this repository.
