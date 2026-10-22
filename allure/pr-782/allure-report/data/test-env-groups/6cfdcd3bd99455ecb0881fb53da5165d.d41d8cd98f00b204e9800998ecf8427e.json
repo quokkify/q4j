@@ -1,0 +1,1 @@
+{"id":"6cfdcd3bd99455ecb0881fb53da5165d.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.OrdersTablePageObjectTest.filterHidesRows","name":"Filter input hides rows; visible rows are filtered explicitly","status":"passed","testResultsByEnv":{"ubuntu-24-04":"445d0953e51fff6c03f2da5756e969ac"}}
