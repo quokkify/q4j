@@ -28,4 +28,5 @@ renovate_presets:
   - java
 toolkit_version: v3.6.0
 module: legacy
-handed_off: []
+handed_off:
+  - validate
