@@ -31,10 +31,13 @@ module: legacy
 handed_off:
   - validate
 codeql_aggregate: false
-gitleaks_job_name: gitleaks
-gitleaks_scan: history
+gitleaks_job_name: "Scan current tree (legacy history pending baseline)"
+gitleaks_scan: tree
 gitleaks_aggregate: false
 allure_group_by:
+  - environment
+  - suite
+  - subSuite
   - epic
   - feature
   - story

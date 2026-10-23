@@ -10,7 +10,7 @@ permissions:
   pull-requests: write
 
 concurrency:
-  group: release-${{ github.workflow }}-${{ github.repository }}
+  group: release-please-${{ github.ref }}
   cancel-in-progress: false
 
 jobs:
