@@ -1,0 +1,21 @@
+_commit: v3.11.0
+_src_path: https://github.com/quokkify/ci-kit.git
+allure_categories_file: tools/allure/categories.json
+allure_external_artifact_max_count: 50
+allure_external_artifact_min_count: 24
+allure_external_artifact_prefix: allure-results-
+allure_external_workflow_name: Run tests
+allure_external_workflow_path: .github/workflows/test.yml
+allure_group_by:
+  - environment
+  - suite
+  - subSuite
+  - epic
+  - feature
+  - story
+allure_pages_url: https://quokkify.github.io/q4j
+allure_publish_pages: true
+allure_source: external
+module: allure
+project_name: Q4J
+toolkit_version: v3.11.0
