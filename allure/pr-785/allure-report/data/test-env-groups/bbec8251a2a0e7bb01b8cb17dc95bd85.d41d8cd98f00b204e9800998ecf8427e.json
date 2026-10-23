@@ -1,0 +1,1 @@
+{"id":"bbec8251a2a0e7bb01b8cb17dc95bd85.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.TableRowWaitTest.testTableRowAppearingWithDelayIsFound","name":"Verify 'TABLE' row search waits for a row appearing with a delay","status":"passed","testResultsByEnv":{"ubuntu-24-04":"4e6b4e7ed335671b58a8d14206dfe860"}}
