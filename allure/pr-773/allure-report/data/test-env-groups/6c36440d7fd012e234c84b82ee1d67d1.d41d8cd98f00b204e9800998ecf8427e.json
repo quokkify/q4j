@@ -1,1 +1,1 @@
-{"id":"6c36440d7fd012e234c84b82ee1d67d1.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.model.JsonPojoTest.testRemoveAtField","name":"Verify remove node by json pointer","status":"passed","testResultsByEnv":{"ubuntu-24-04":"82e47fb3a41018a3453712936f472853"}}
+{"id":"6c36440d7fd012e234c84b82ee1d67d1.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.model.JsonPojoTest.testRemoveAtField","name":"Verify remove node by json pointer","status":"passed","testResultsByEnv":{"ubuntu-24-04":"fa8c296f8ff14cd3eff4e76b2046de2a"}}
