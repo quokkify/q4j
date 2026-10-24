@@ -1,0 +1,1 @@
+{"id":"7a9c16e740bc4ccca25deb9d2aad13a6.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.OrdersTablePageObjectTest.reusesOrdersTableOnAnotherPage","name":"The same OrdersTable component is reused on another page with another locator","status":"passed","testResultsByEnv":{"ubuntu-24-04":"6139d694d4f6d5cd64b01eb39e2eb902"}}
