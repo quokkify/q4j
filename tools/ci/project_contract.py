@@ -4,9 +4,11 @@ from pathlib import Path
 
 import yaml
 
-answers = yaml.safe_load(Path(".copier-answers.yml").read_text())
+answers = {}
+for answers_file in sorted(Path(".").glob(".copier-answers.*.yml")):
+    answers.update(yaml.safe_load(answers_file.read_text()) or {})
 
-if answers.get("allure_report"):
+if Path(".copier-answers.allure.yml").is_file():
     allure_document = yaml.safe_load(Path(".github/workflows/allure-report.yml").read_text())
     jobs = allure_document["jobs"]
     report = jobs.get("report")
