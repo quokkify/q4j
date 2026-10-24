@@ -3,4 +3,3 @@ CHANGELOG.md
 
 # Rendered by the ci-kit template; keep its output byte-identical to the render.
 .github/allure/allurerc.mjs
-.github/workflows/codeql.yml
