@@ -1,1 +1,0 @@
-{"id":"41fa3e8644a1db978fab12f9f1a7e51e.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.TableAssertionsActionsContractTest.waitsForRowAndCellState","name":"Row and cell assertions wait natively for delayed cell state","status":"passed","testResultsByEnv":{"ubuntu-24-04":"441046740e90f9994f522f526e4b244b"}}
