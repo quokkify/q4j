@@ -1,0 +1,1 @@
+{"id":"d34fd04d8a665575f55bacfad6a6a053.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DropdownBehaviorTest.testClearSelectedFailsWhenChipRemovalMakesNoProgress","name":"Verify clearSelected fails fast when chip removal makes no progress","status":"passed","testResultsByEnv":{"ubuntu-24-04":"e211c8b3c5c8b9fc475297e44747c60c"}}
