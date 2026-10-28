@@ -1,0 +1,10 @@
+
+    select
+        dtu1_0.id,
+        dtu1_0.firstName,
+        dtu1_0.lastName 
+    from
+        DatabaseTestUser dtu1_0 
+    where
+        dtu1_0.firstName='O''Hara' 
+        and dtu1_0.lastName='D''Angelo'
