@@ -1,0 +1,1 @@
+{"id":"1f5a8a91bdf50d7891f034e843e3b0cf.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.OrdersTablePageObjectTest.findByTableFieldIsLeftNull","name":"Page factory leaves a plain @FindBy Table field null, so tables are wrapped in a Component","status":"passed","testResultsByEnv":{"ubuntu-24-04":"231c0af70f00bb051bfb1a2837d6a2d2"}}
