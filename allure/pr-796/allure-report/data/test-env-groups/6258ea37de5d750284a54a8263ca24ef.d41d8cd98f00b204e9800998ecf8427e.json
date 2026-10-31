@@ -1,1 +1,1 @@
-{"id":"6258ea37de5d750284a54a8263ca24ef.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.YamlParserTest.testParseToObject","name":"Verify parse yaml file to object","status":"passed","testResultsByEnv":{"ubuntu-24-04":"830e2793cfab4f42bd2fe1738b107101"}}
+{"id":"6258ea37de5d750284a54a8263ca24ef.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.YamlParserTest.testParseToObject","name":"Verify parse yaml file to object","status":"passed","testResultsByEnv":{"ubuntu-26-04":"28b75028d46d04703a81422f8b02b7e3"}}
