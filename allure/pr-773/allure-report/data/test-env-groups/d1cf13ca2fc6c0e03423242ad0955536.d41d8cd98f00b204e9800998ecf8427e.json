@@ -1,1 +1,1 @@
-{"id":"d1cf13ca2fc6c0e03423242ad0955536.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.architecture.ArchitectureRunnerTest.errorRuleFailsTheBuild","name":"errorRuleFailsTheBuild","status":"passed","testResultsByEnv":{"ubuntu-24-04":"9df4c647c2583ae8a0be89638eba4f3e"}}
+{"id":"d1cf13ca2fc6c0e03423242ad0955536.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.architecture.ArchitectureRunnerTest.errorRuleFailsTheBuild","name":"errorRuleFailsTheBuild","status":"passed","testResultsByEnv":{"ubuntu-26-04":"a93139e043e72e0b3369ff51bf9e5e56"}}

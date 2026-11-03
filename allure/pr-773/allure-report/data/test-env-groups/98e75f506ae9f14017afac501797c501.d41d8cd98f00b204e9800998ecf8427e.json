@@ -1,1 +1,1 @@
-{"id":"98e75f506ae9f14017afac501797c501.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.ConnectionProviderTest.checkC3P0ProviderViaXml","name":"Check connection via Xml","status":"passed","testResultsByEnv":{"ubuntu-24-04":"cf125d91e93085463fad76c5de937e01"}}
+{"id":"98e75f506ae9f14017afac501797c501.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.ConnectionProviderTest.checkC3P0ProviderViaXml","name":"Check connection via Xml","status":"passed","testResultsByEnv":{"ubuntu-26-04":"c6659162bf0e08120ddd8542ba3da337"}}

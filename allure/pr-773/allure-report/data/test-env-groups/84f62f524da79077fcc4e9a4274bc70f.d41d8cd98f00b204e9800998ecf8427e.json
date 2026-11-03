@@ -1,1 +1,1 @@
-{"id":"84f62f524da79077fcc4e9a4274bc70f.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.TableTest.multiRowTheadKeepsColumnsAligned","name":"multiRowTheadKeepsColumnsAligned","status":"passed","testResultsByEnv":{"ubuntu-24-04":"a5b9a0e2ac72ad64154b6441c7fbd75d"}}
+{"id":"84f62f524da79077fcc4e9a4274bc70f.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.TableTest.multiRowTheadKeepsColumnsAligned","name":"multiRowTheadKeepsColumnsAligned","status":"passed","testResultsByEnv":{"ubuntu-26-04":"50ff6ad1964f09d00573b4e8e539c876"}}
