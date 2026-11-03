@@ -1,1 +1,1 @@
-{"id":"6c8b003418139db5044c9e3ce91ca283.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.UiFileDownloadTest.testProxyDownload","name":"Download nginx file through proxy","status":"passed","testResultsByEnv":{"ubuntu-26-04":"b6940140f45d9e5a159b35f943fdf9b9"}}
+{"id":"6c8b003418139db5044c9e3ce91ca283.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.UiFileDownloadTest.testProxyDownload","name":"Download nginx file through proxy","status":"passed","testResultsByEnv":{"ubuntu-26-04":"ff74851876d0aadfe0b493c25e2e7ca2"}}
