@@ -1,1 +1,1 @@
-{"id":"a7cb3d6f100591b37b6defe299a836c2.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.UiFileDownloadTest.testHttpDownload","name":"Download nginx file through HTTP","status":"passed","testResultsByEnv":{"ubuntu-26-04":"328139abab5580894fc4f9554cfa35f9"}}
+{"id":"a7cb3d6f100591b37b6defe299a836c2.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.UiFileDownloadTest.testHttpDownload","name":"Download nginx file through HTTP","status":"passed","testResultsByEnv":{"ubuntu-26-04":"cb2fc063c83503c5c2ba23a1ecdd7a06"}}
