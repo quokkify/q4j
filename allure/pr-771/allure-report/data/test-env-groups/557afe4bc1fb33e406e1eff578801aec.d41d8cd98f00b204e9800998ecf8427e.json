@@ -1,1 +1,1 @@
-{"id":"557afe4bc1fb33e406e1eff578801aec.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.EncryptionTest.testDecryptionFunctionality","name":"Verify decryption functionality","status":"passed","testResultsByEnv":{"ubuntu-24-04":"cbdcb1e75839de9c43d2b6807ec07776"}}
+{"id":"557afe4bc1fb33e406e1eff578801aec.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.EncryptionTest.testDecryptionFunctionality","name":"Verify decryption functionality","status":"passed","testResultsByEnv":{"ubuntu-26-04":"cadf8687040d0bebb5e47d4ad4171b36"}}

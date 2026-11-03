@@ -1,1 +1,1 @@
-{"id":"d6cf34187a9021e6a406c8eecf323ad8.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.TableTest.cellWaitsForLateHeader","name":"cellWaitsForLateHeader","status":"passed","testResultsByEnv":{"ubuntu-24-04":"9f51d7e331d610540a2d2ba30e86c1b2"}}
+{"id":"d6cf34187a9021e6a406c8eecf323ad8.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.TableTest.cellWaitsForLateHeader","name":"cellWaitsForLateHeader","status":"passed","testResultsByEnv":{"ubuntu-26-04":"8c833ca614fe821d554207aa65ac0098"}}

@@ -1,1 +1,1 @@
-{"id":"dee40c6ddd8629bde792becbf359149c.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.util.CommandLockManagerTest.closingHandleTwiceReleasesOnce","name":"closingHandleTwiceReleasesOnce","status":"passed","testResultsByEnv":{"ubuntu-24-04":"94882c3a58092a56e394284fb4219355"}}
+{"id":"dee40c6ddd8629bde792becbf359149c.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.util.CommandLockManagerTest.closingHandleTwiceReleasesOnce","name":"closingHandleTwiceReleasesOnce","status":"passed","testResultsByEnv":{"ubuntu-26-04":"13d0673f45be1fb27908036c4b7e836f"}}
