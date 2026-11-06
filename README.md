@@ -254,7 +254,8 @@ Compile and run static checks:
 ```
 
 `check` includes `archgateCheck`, the [ArchGate](https://github.com/quokkify/archgate) architecture gate of every
-module with tests. Run it alone with `./gradlew archgateCheck`; the rules and how to change them are described in
+module with tests; the ArchGate plugin needs Gradle to run on JDK 21 or newer. Run it alone with
+`./gradlew archgateCheck`; the rules and how to change them are described in
 [archgate-rules](archgate-rules/README.md).
 
 Generate and inspect Maven publication metadata without publishing:

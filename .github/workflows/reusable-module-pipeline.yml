@@ -53,6 +53,8 @@ jobs:
 
       - name: 🔨Prepare Java/Gradle
         uses: quokkify/ci-kit/actions/setup-java-gradle@104b4089e02c67412e2fb82bd6782106fb216a8c # v4.2.0
+        with:
+          java-version: "21"
 
       - name: 🧱 Build (check, no tests)
         uses: ./.github/actions/gradle-retry
@@ -87,6 +89,8 @@ jobs:
 
       - name: 🔨Prepare Java/Gradle
         uses: quokkify/ci-kit/actions/setup-java-gradle@104b4089e02c67412e2fb82bd6782106fb216a8c # v4.2.0
+        with:
+          java-version: "21"
 
       - name: 🟢 Start Infra with health lifecycle
         if: ${{ inputs.profile != 'none' }}
