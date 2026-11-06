@@ -1,0 +1,1 @@
+{"id":"11ede81b9b6ecad3c915e4cb7c5190f7.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.NoSqlFactoryTest.rejectNullMongoClientForMorphiaConfig","name":"Reject a null Mongo client for Morphia configuration","status":"passed","testResultsByEnv":{"ubuntu-26-04":"9480c4a3921d48f4063ddee8f7554243"}}
