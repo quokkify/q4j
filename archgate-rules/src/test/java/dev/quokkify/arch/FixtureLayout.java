@@ -24,6 +24,14 @@ record FixtureLayout(String rootPackage, List<Path> mainClassDirs, List<Path> te
   }
 
   /**
+   * Returns an ArchUnit context whose main view holds the compiled fixtures under {@code fixturePackage}.
+   */
+  static ArchUnitContext mainClasses(String fixturePackage) {
+    return ArchUnitContexts.of(new FixtureLayout(fixturePackage, List.of(testClassesDir()), List.of(), List.of(),
+        List.of()));
+  }
+
+  /**
    * Returns a layout whose test sources are the given directories.
    */
   static FixtureLayout testSources(String rootPackage, List<Path> sourceDirs) {

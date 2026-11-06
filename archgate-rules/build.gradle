@@ -3,6 +3,7 @@ description = "Q4J-specific ArchGate architecture rules"
 dependencies {
     api platform(libs.archgate.bom)
     api libs.archgate.context.archunit
+    api libs.archgate.rules.archunit
     api libs.archgate.context.javaparser
 
     // HttpStatusConstantRule maps literals to org.apache.http.HttpStatus, which REST Assured brings at runtime.

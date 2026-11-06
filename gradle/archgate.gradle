@@ -64,12 +64,18 @@ subprojects {
         group = 'verification'
         description = 'Verifies that the ArchGate rule list of this module names every rule of tools/archgate.'
         inputs.files(ownList, sharedList, mainOnlyList).withPathSensitivity(PathSensitivity.RELATIVE)
+        def checkedPath = checkedList.map { rootProject.relativePath(it) }.orElse('none')
+        inputs.property('checkedList', checkedPath)
+        def verified = layout.buildDirectory.file('archgate/rule-list-verified')
+        outputs.file(verified)
         def checked = checkedList
         def shared = sharedList
         def modulePath = path
         doLast {
             File list = checked.getOrNull()
+            def marker = verified.get().asFile
             if (list == null) {
+                marker.text = 'uses tools/archgate, nothing to verify\n'
                 return
             }
             def rules = { File file -> file.readLines()*.trim().findAll { it && !it.startsWith('#') } as Set }
@@ -81,6 +87,7 @@ subprojects {
                 throw new GradleException("${modulePath}: ${list} neither lists nor omits the shared ArchGate rules " +
                     "${missing}. Add each rule, or a line '# omitted: <rule class> <reason>'.")
             }
+            marker.text = "verified ${checkedPath.get()}\n"
         }
     }
     tasks.named('check') {
