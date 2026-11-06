@@ -12,7 +12,8 @@ documents how its own architecture gate is wired.
 ./gradlew archgateCheck
 ```
 
-- Modules without test sources set `skip`: they only expose classes, and the rules need test classes to check.
+- Every module with Java code runs its own gate. Only modules without any Java code (structural parents such as
+  `:common-utils:jackson:parent`) and `:archgate-rules` itself are skipped.
 - Only `ERROR` findings fail the build; `WARNING` findings are reported. Pass `-Parchgate.failOn=WARNING` to fail on
   warnings too, or `-Parchgate.failOn=NEVER` to only report.
 - The report is printed when the task runs and written to `build/reports/archgate/report.txt`.
@@ -20,19 +21,29 @@ documents how its own architecture gate is wired.
 ### Which rules run
 
 A module runs the rules listed in its test resources at
-`META-INF/services/dev.quokkify.archgate.api.ArchitectureRule`. One shared list,
-[`tools/archgate`](../tools/archgate/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule), is added to
-the test resources of every module from `gradle/archgate.gradle`, so the list is kept once instead of copied into
-each module.
+`META-INF/services/dev.quokkify.archgate.api.ArchitectureRule`. Two shared lists are added to the test resources
+from `gradle/archgate.gradle`, so they are kept once instead of copied into each module:
+
+| List                                                                                                         | Used by                                |
+| ------------------------------------------------------------------------------------------------------------ | -------------------------------------- |
+| [`tools/archgate`](../tools/archgate/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule)           | modules with tests                     |
+| [`tools/archgate-main`](../tools/archgate-main/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule) | modules with main classes but no tests |
+
+`tools/archgate-main` holds the rules that run on main classes alone: everything in `tools/archgate` except
+`TestClassNamingRule` (test only) and `NoDeprecatedApiUsageRule`, which needs a test view.
 
 A module that needs a different list keeps its own
-`src/test/resources/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule`; the shared list is then not
-added, and the module's file must repeat the shared rules that apply to it. Two modules do this:
+`src/test/resources/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule`; no shared list is then added.
+Two modules do this:
 
 | Module                        | Difference from the shared list                                         |
 | ----------------------------- | ----------------------------------------------------------------------- |
 | `:integrations:rest-assured`  | adds `HttpStatusConstantRule` for its API tests                         |
 | `:integrations:selenide-grid` | has no main classes, so it leaves out the rules that need the main view |
+
+Every list other than `tools/archgate` must name each rule of `tools/archgate` or omit it with a line
+`# omitted: <rule class> <reason>`. The task `verifyArchgateRuleList`, part of `check`, fails otherwise, so a rule
+added to the shared list is not silently missing from a module's own list.
 
 The shared list:
 
@@ -90,7 +101,8 @@ older ArchGate plugin fails with a clear message instead of a linkage error.
    and throw `UnableToVerifyError` instead of passing when there is nothing to check.
 2. Add a test with fixtures: violating and clean classes in `src/test/java/archfixtures`, or sources in
    `src/test/resources`, and an unable-to-verify case.
-3. Register the rule in `tools/archgate` and in every module-specific list it applies to.
+3. Register the rule in `tools/archgate`, and add it to or omit it from `tools/archgate-main` and every
+   module-specific list; `verifyArchgateRuleList` reports a list that does neither.
 
 This module's own `archgateCheck` is skipped and its rules are verified by the fixture tests instead: ArchGate's
 registration check would require every rule of this module in its own list, and `HttpStatusConstantRule` cannot be

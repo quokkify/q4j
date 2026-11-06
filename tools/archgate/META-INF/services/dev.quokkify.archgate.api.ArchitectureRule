@@ -1,6 +1,8 @@
 # Rules run by archgateCheck in every Q4J module with tests, wired in gradle/archgate.gradle.
 # A module with its own src/test/resources/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule
-# runs that list instead and must repeat the rules below that apply to it.
+# runs that list instead: integrations/rest-assured and integrations/selenide-grid. Modules with main classes but
+# no tests run tools/archgate-main. Each of those lists names every rule below or omits it with
+# "# omitted: <rule class> <reason>"; their verifyArchgateRuleList task, part of check, fails otherwise.
 dev.quokkify.archgate.rules.archunit.HashCodeEqualsTogetherRule
 dev.quokkify.archgate.rules.archunit.LoggerFieldNameRule
 dev.quokkify.archgate.rules.archunit.NoConsoleOutputRule

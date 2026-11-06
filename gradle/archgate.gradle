@@ -1,10 +1,15 @@
-// Runs the ArchGate architecture rules (archgateCheck, wired into check) in every Q4J module.
+// Runs the ArchGate architecture rules (archgateCheck, wired into check) in every Q4J module with code.
 //
-// The rules a module runs are listed in a services file on its test resources. One shared list,
-// tools/archgate/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule, is added to the test resources
-// of every module. A module that needs a different list keeps its own
-// src/test/resources/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule, and the shared one is not added.
+// The rules a module runs are listed in a services file on its test resources. Two shared lists are added to the
+// test resources from here, so they are kept once instead of copied into each module:
+//   tools/archgate       modules with tests
+//   tools/archgate-main  modules with main classes but no tests; the rules that run on main classes alone
+// A module that needs a different list keeps its own
+// src/test/resources/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule, and no shared list is added.
+// Every list other than tools/archgate names each rule of tools/archgate, or omits it in a line
+// "# omitted: <rule class> <reason>"; verifyArchgateRuleList, part of check, fails otherwise.
 def sharedRules = rootProject.file('tools/archgate')
+def mainOnlyRules = rootProject.file('tools/archgate-main')
 def rulesFile = 'META-INF/services/dev.quokkify.archgate.api.ArchitectureRule'
 
 subprojects {
@@ -15,18 +20,23 @@ subprojects {
 
     apply plugin: 'dev.quokkify.archgate'
 
-    // Modules without tests only expose classes; the rules need test classes to check.
-    def hasTests = sourceSets.test.java.srcDirs.any { dir ->
-        dir.directory && !fileTree(dir).matching { include '**/*.java' }.empty
+    // Read lazily, after the module's own build file adjusted its source sets.
+    def hasSources = { SourceSet sourceSet ->
+        sourceSet.java.srcDirs.any { dir ->
+            dir.directory && !fileTree(dir).matching { include '**/*.java' }.empty
+        }
     }
+    def hasMain = provider { hasSources(sourceSets.main) }
+    def hasTests = provider { hasSources(sourceSets.test) }
 
     archgate {
         rootPackage = 'dev.quokkify'
         // Only errors fail the build, as before the move to ArchGate; warnings are reported.
         failOn.convention(providers.gradleProperty('archgate.failOn').orElse('ERROR'))
+        // A module without any Java code has nothing to check.
         skip.convention(providers.gradleProperty('archgate.skip')
             .map { it.isEmpty() || Boolean.parseBoolean(it) }
-            .orElse(!hasTests))
+            .orElse(provider { !hasMain.get() && !hasTests.get() }))
     }
 
     // :archgate-rules holds the custom rules; its fixtures break them on purpose, see its build file.
@@ -40,7 +50,40 @@ subprojects {
         testImplementation project(':archgate-rules')
     }
 
-    if (!file("src/test/resources/${rulesFile}").exists()) {
-        sourceSets.test.resources.srcDir(sharedRules)
+    def ownList = file("src/test/resources/${rulesFile}")
+    def sharedList = new File(sharedRules, rulesFile)
+    def mainOnlyList = new File(mainOnlyRules, rulesFile)
+    if (!ownList.exists()) {
+        sourceSets.test.resources.srcDir(provider { hasTests.get() ? sharedRules : mainOnlyRules })
+    }
+
+    def checkedList = provider {
+        ownList.exists() ? ownList : (hasTests.get() ? null : mainOnlyList)
+    }
+    def verifyRuleList = tasks.register('verifyArchgateRuleList') {
+        group = 'verification'
+        description = 'Verifies that the ArchGate rule list of this module names every rule of tools/archgate.'
+        inputs.files(ownList, sharedList, mainOnlyList).withPathSensitivity(PathSensitivity.RELATIVE)
+        def checked = checkedList
+        def shared = sharedList
+        def modulePath = path
+        doLast {
+            File list = checked.getOrNull()
+            if (list == null) {
+                return
+            }
+            def rules = { File file -> file.readLines()*.trim().findAll { it && !it.startsWith('#') } as Set }
+            def omitted = list.readLines()*.trim()
+                .findAll { it.startsWith('# omitted: ') }
+                .collect { it.substring('# omitted: '.length()).tokenize()[0] } as Set
+            def missing = (rules(shared) - rules(list) - omitted).sort()
+            if (!missing.empty) {
+                throw new GradleException("${modulePath}: ${list} neither lists nor omits the shared ArchGate rules " +
+                    "${missing}. Add each rule, or a line '# omitted: <rule class> <reason>'.")
+            }
+        }
+    }
+    tasks.named('check') {
+        dependsOn verifyRuleList
     }
 }
