@@ -1,0 +1,1 @@
+{"id":"fe35269648a25587095417c159f2eae9.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.util.ZipUtilsTest.testUnzipFileRejectsEntryOutsideDestinationDirectory","name":"testUnzipFileRejectsEntryOutsideDestinationDirectory","status":"passed","testResultsByEnv":{"ubuntu-26-04":"2f381e4f6f9c9f2c67e7dcc192dc8629"}}
