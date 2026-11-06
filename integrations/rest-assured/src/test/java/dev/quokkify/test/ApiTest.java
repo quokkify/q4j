@@ -29,7 +29,7 @@ public class ApiTest {
 
   @TmsLink("API_ID_1")
   @TestGroup("API")
-  @Test(description = "Verify 'GET' method and 'ResponseHelper'")
+  @Test(groups = "api", description = "Verify 'GET' method and 'ResponseHelper'")
   public void testGetMethodAndResponseHelper() {
     /* @Step 1: Get cat fact; Expected: Response */
     int statusCode = ResponseHelper.getStatusCode(MockApiHelper.getCatFactResponse());
@@ -39,7 +39,7 @@ public class ApiTest {
 
   @TmsLink("API_ID_2")
   @TestGroup("API")
-  @Test(description = "Verify pojo 'Converter'")
+  @Test(groups = "api", description = "Verify pojo 'Converter'")
   public void testPojoConverter() {
     /* @Step 1: Get cat fact pojo; Expected: Cat fact object */
     CatFactPojo catFactPojo = MockApiHelper.getCatFact();
@@ -50,7 +50,7 @@ public class ApiTest {
 
   @TmsLink("API_ID_3")
   @TestGroup("API")
-  @Test(description = "Verify 'LocalDateFormatter' and 'LocalDateParser'")
+  @Test(groups = "api", description = "Verify 'LocalDateFormatter' and 'LocalDateParser'")
   public void testLocalDateTimeFormatterAndParser() {
     SoftAssertions softAssertions = new SoftAssertions();
 
@@ -70,7 +70,7 @@ public class ApiTest {
 
   @TmsLink("API_ID_4")
   @TestGroup("API")
-  @Test(description = "Verify scheme validation by Pojo class")
+  @Test(groups = "api", description = "Verify scheme validation by Pojo class")
   public void testValidateSchemaByPojoClass() {
     /* @Step 1: Get cat fact; Expected: Response */
     ValidatableResponse validatableResponse = MockApiHelper.getCatFactResponse();
@@ -80,7 +80,7 @@ public class ApiTest {
 
   @TmsLink("API_ID_5")
   @TestGroup("API")
-  @Test(description = "Verify scheme validation by json schema file")
+  @Test(groups = "api", description = "Verify scheme validation by json schema file")
   public void testValidateSchemaByJsonSchemaFile() {
     /* @Step 1: Get cat fact; Expected: Response */
     ValidatableResponse validatableResponse = MockApiHelper.getCatFactResponse();
@@ -90,7 +90,7 @@ public class ApiTest {
 
   @TmsLink("API_ID_6")
   @TestGroup("API")
-  @Test(description = "Verify 'ApiVerification' steps")
+  @Test(groups = "api", description = "Verify 'ApiVerification' steps")
   public void testApiVerificationSteps() {
     CatFactPojo catFactPojo = catFactApiSteps.getCatFact();
     catFactApiSteps.verify()

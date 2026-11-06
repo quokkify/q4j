@@ -21,9 +21,7 @@ htmlcleaner = "2.29"
 guava = "33.7.2-jre"
 reflections = "0.10.2"
 classgraph = "5.0.0"
-archunit = "1.5.1"
-taikai = "2.0.0"
-javaparser = "3.28.2"
+archgate = "0.1.2"
 jjwt = "0.13.0"
 bouncy-castle = "1.86"
 morphia = "2.5.3"
@@ -94,12 +92,11 @@ guava = { module = "com.google.guava:guava", version.ref = "guava" }
 reflections = { module = "org.reflections:reflections", version.ref = "reflections" }
 # ClassGraph
 classgraph = { module = "io.github.classgraph:classgraph", version.ref = "classgraph" }
-# ArchUnit
-archunit = { module = "com.tngtech.archunit:archunit", version.ref = "archunit" }
-# Taikai
-taikai = { module = "com.enofex:taikai", version.ref = "taikai" }
-# JavaParser
-javaparser-core = { module = "com.github.javaparser:javaparser-core", version.ref = "javaparser" }
+# ArchGate
+archgate-bom = { module = "dev.quokkify.archgate:archgate-bom", version.ref = "archgate" }
+archgate-rules-archunit = { module = "dev.quokkify.archgate:archgate-rules-archunit" }
+archgate-context-archunit = { module = "dev.quokkify.archgate:archgate-context-archunit" }
+archgate-context-javaparser = { module = "dev.quokkify.archgate:archgate-context-javaparser" }
 # JJWT
 jjwt-api = { module = "io.jsonwebtoken:jjwt-api", version.ref = "jjwt" }
 jjwt-impl = { module = "io.jsonwebtoken:jjwt-impl", version.ref = "jjwt" }
@@ -151,3 +148,6 @@ feign-okhttp = { module = "io.github.openfeign:feign-okhttp", version.ref = "fei
 # Tyrus
 tyrus-standalone-client = { module = "org.glassfish.tyrus.bundles:tyrus-standalone-client", version.ref = "tyrus" }
 tyrus-container-grizzly-server = { module = "org.glassfish.tyrus:tyrus-container-grizzly-server", version.ref = "tyrus" }
+
+[plugins]
+archgate = { id = "dev.quokkify.archgate", version.ref = "archgate" }

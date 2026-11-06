@@ -47,7 +47,7 @@ public class ConnectionTimeoutTest {
 
   @SingleThread
   @TestGroup("API")
-  @Test(description = "Verify connection is closed when MAX_RESPONSE_TIME_SECONDS is exceeded")
+  @Test(groups = "api", description = "Verify connection is closed when MAX_RESPONSE_TIME_SECONDS is exceeded")
   public void testConnectionClosedOnTimeout() {
     long startMs = System.currentTimeMillis();
     try {

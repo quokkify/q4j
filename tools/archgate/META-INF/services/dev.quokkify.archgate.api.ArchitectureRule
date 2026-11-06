@@ -1,0 +1,12 @@
+# Rules run by archgateCheck in every Q4J module with tests, wired in gradle/archgate.gradle.
+# A module with its own src/test/resources/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule
+# runs that list instead and must repeat the rules below that apply to it.
+dev.quokkify.archgate.rules.archunit.HashCodeEqualsTogetherRule
+dev.quokkify.archgate.rules.archunit.LoggerFieldNameRule
+dev.quokkify.archgate.rules.archunit.NoConsoleOutputRule
+dev.quokkify.archgate.rules.archunit.NoDeprecatedApiUsageRule
+dev.quokkify.archgate.rules.archunit.ServiceRegistrationRule
+dev.quokkify.archgate.rules.archunit.TestClassNamingRule
+dev.quokkify.arch.NoInterfaceIPrefixRule
+dev.quokkify.arch.PackageNamingRule
+dev.quokkify.arch.SerialVersionUidRule

@@ -1,7 +1,0 @@
-dependencies {
-    api libs.archunit
-    api libs.taikai
-    api libs.classgraph
-    api libs.javaparser.core
-    api "org.apache.logging.log4j:log4j-api"
-}

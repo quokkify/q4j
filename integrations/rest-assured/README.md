@@ -85,31 +85,41 @@ public class OrderApiVerification extends BaseApiVerification<OrderApiVerificati
 
 ## Architecture rule: HTTP status constants
 
-`dev.quokkify.architecture.restassured.HttpStatusConstantRule` is an
-[architecture](../../architecture/README.md) rule for projects that use this module. In API tests it reports
-every call to a method whose name ends in `Status` or `StatusCode`, such as `verifyResponseStatusCode`, that
-passes an integer literal between 100 and 599 as a direct argument. The report names the `org.apache.http.HttpStatus` constant to use:
+`dev.quokkify.arch.HttpStatusConstantRule` is an [ArchGate](https://github.com/quokkify/archgate) rule for projects
+that use this module. It ships in [`dev.quokkify:archgate-rules`](../../archgate-rules/README.md), not in this
+module. In API tests it reports every call to a method whose name ends in `Status` or `StatusCode`, such as
+`verifyResponseStatusCode`, that passes an integer literal between 100 and 599 as a direct argument. The report names
+the `org.apache.http.HttpStatus` constant to use:
 
 ```text
-/work/project/src/test/java/com/example/test/api/HealthTest.java line 14: verifyResponseStatusCode(...) passes 200; use HttpStatus.SC_OK
+com/example/test/api/HealthTest.java line 14: verifyResponseStatusCode(...) passes 200; use HttpStatus.SC_OK
 ```
 
-The compiler inlines `HttpStatus.SC_OK` into `200`, so the rule reads the test sources. The runner therefore
-needs `architecture.test.sources`.
+The compiler inlines `HttpStatus.SC_OK` into `200`, so the rule reads the test sources through ArchGate's
+JavaParser backend.
 
 An API test is a test source in a package with a segment named after the marker, such as `com.example.test.api`,
-or a class or method annotated with `@Test(groups = ...)` whose groups include the marker as a string literal. The marker defaults to `api`;
-set `-Darchitecture.api.package` on the runner or the `ARCHITECTURE_API_PACKAGE` environment variable to change
-it. If test sources exist but none matches the marker, the run aborts instead of passing.
+or a class or method annotated with `@Test(groups = ...)` whose groups include the marker as a string literal. The
+marker defaults to `api`; set the `archgate.api.package` system property or the `ARCHGATE_API_PACKAGE` environment
+variable to change it, or subclass the rule with a public no-arg constructor that calls
+`super("<marker>")` and register the subclass. If test sources exist but none matches the marker, the gate reports
+that it is unable to verify and fails.
 
-Register the rule next to the other rules of the project:
+Add the rules artifact next to the ArchGate plugin and register the rule in
+`src/test/resources/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule`:
 
-```text
-# META-INF/services/dev.quokkify.architecture.contract.ArchitectureRule
-dev.quokkify.architecture.restassured.HttpStatusConstantRule
+```kotlin
+dependencies {
+    testImplementation("dev.quokkify:archgate-rules:<version>")
+}
 ```
 
-The runner classpath must hold `org.apache.http.HttpStatus`, which this module brings through REST Assured.
+```text
+dev.quokkify.arch.HttpStatusConstantRule
+```
+
+The test runtime classpath must hold `org.apache.http.HttpStatus`, which this module brings through REST Assured.
+Q4J registers the rule for its own API tests in this module, marked with `@Test(groups = "api")`.
 
 ---
 

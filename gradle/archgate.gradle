@@ -1,0 +1,46 @@
+// Runs the ArchGate architecture rules (archgateCheck, wired into check) in every Q4J module.
+//
+// The rules a module runs are listed in a services file on its test resources. One shared list,
+// tools/archgate/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule, is added to the test resources
+// of every module. A module that needs a different list keeps its own
+// src/test/resources/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule, and the shared one is not added.
+def sharedRules = rootProject.file('tools/archgate')
+def rulesFile = 'META-INF/services/dev.quokkify.archgate.api.ArchitectureRule'
+
+subprojects {
+    // Projects without a build file are structural parents with no code.
+    if (!buildFile.exists()) {
+        return
+    }
+
+    apply plugin: 'dev.quokkify.archgate'
+
+    // Modules without tests only expose classes; the rules need test classes to check.
+    def hasTests = sourceSets.test.java.srcDirs.any { dir ->
+        dir.directory && !fileTree(dir).matching { include '**/*.java' }.empty
+    }
+
+    archgate {
+        rootPackage = 'dev.quokkify'
+        // Only errors fail the build, as before the move to ArchGate; warnings are reported.
+        failOn.convention(providers.gradleProperty('archgate.failOn').orElse('ERROR'))
+        skip.convention(providers.gradleProperty('archgate.skip')
+            .map { it.isEmpty() || Boolean.parseBoolean(it) }
+            .orElse(!hasTests))
+    }
+
+    // :archgate-rules holds the custom rules; its fixtures break them on purpose, see its build file.
+    if (path == ':archgate-rules') {
+        return
+    }
+
+    dependencies {
+        testImplementation platform(rootProject.libs.archgate.bom)
+        testImplementation rootProject.libs.archgate.rules.archunit
+        testImplementation project(':archgate-rules')
+    }
+
+    if (!file("src/test/resources/${rulesFile}").exists()) {
+        sourceSets.test.resources.srcDir(sharedRules)
+    }
+}

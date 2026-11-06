@@ -87,4 +87,8 @@
   <Match>
     <Bug pattern="VA_FORMAT_STRING_USES_NEWLINE"/>
   </Match>
+  <!-- :archgate-rules test fixtures break conventions on purpose so the rules have something to report. -->
+  <Match>
+    <Package name="~archfixtures(\..*)?"/>
+  </Match>
 </FindBugsFilter>

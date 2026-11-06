@@ -1,0 +1,9 @@
+# This module has tests but no main classes, and ArchGate cannot verify a rule against an empty main view.
+# It therefore runs the rules of tools/archgate that do not need main classes:
+# HashCodeEqualsTogetherRule, LoggerFieldNameRule, NoConsoleOutputRule (main only) and
+# NoDeprecatedApiUsageRule (main and test views) are left out.
+dev.quokkify.archgate.rules.archunit.ServiceRegistrationRule
+dev.quokkify.archgate.rules.archunit.TestClassNamingRule
+dev.quokkify.arch.NoInterfaceIPrefixRule
+dev.quokkify.arch.PackageNamingRule
+dev.quokkify.arch.SerialVersionUidRule

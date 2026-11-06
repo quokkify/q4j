@@ -4,7 +4,6 @@ rootProject.name = "q4j"
 // TEST EXTENSIONS
 // ============================================================================
 include(":testng-extensions")            // Extensions for TestNG (used as testImplementation)
-include(":architecture")                 // Architecture verification gate (ArchUnit / ClassGraph rules)
 
 // ============================================================================
 // INTEGRATIONS WITH EXTERNAL LIBRARIES / SERVICES
@@ -56,3 +55,8 @@ include(":common-utils:jwt")              // JWT utilities (token handling with 
 include(":common-utils:config")           // Configuration utilities (YAML/JSON configs, property mapping)
 include(":common-utils:signature")        // Cryptographic signature utilities
 include(":common-utils:console")          // Java wrapper for executing shell/console commands
+
+// ============================================================================
+// ARCHITECTURE GATE (last: every module above consumes it as a test dependency)
+// ============================================================================
+include(":archgate-rules")               // Q4J-specific ArchGate rules

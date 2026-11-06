@@ -87,19 +87,19 @@ dev.quokkify:<artifact>:<version>
 
 ### 🧱 Foundation
 
-| Artifact       | Purpose                                                          |
-| -------------- | ---------------------------------------------------------------- |
-| `core`         | Shared types, formatting, generators, and utility APIs           |
-| `config`       | Typed configuration and locale providers                         |
-| `testng`       | TestNG listeners, retries, annotations, and lifecycle extensions |
-| `architecture` | Pluggable architecture rules verified as a build gate            |
-| `awaitility`   | Polling and timeout abstractions                                 |
-| `reflection`   | Classpath scanning and reflection utilities                      |
-| `files`        | Files, archives, locking, and local resources                    |
-| `html`         | HTML parsing and generated browser-compatibility models          |
-| `jwt`          | JWT models, generators, and formatting                           |
-| `crypto`       | Encryption, key, and digital-signature utilities                 |
-| `ssh`          | SSH execution and port forwarding                                |
+| Artifact         | Purpose                                                          |
+| ---------------- | ---------------------------------------------------------------- |
+| `core`           | Shared types, formatting, generators, and utility APIs           |
+| `config`         | Typed configuration and locale providers                         |
+| `testng`         | TestNG listeners, retries, annotations, and lifecycle extensions |
+| `archgate-rules` | Q4J-specific ArchGate architecture rules                         |
+| `awaitility`     | Polling and timeout abstractions                                 |
+| `reflection`     | Classpath scanning and reflection utilities                      |
+| `files`          | Files, archives, locking, and local resources                    |
+| `html`           | HTML parsing and generated browser-compatibility models          |
+| `jwt`            | JWT models, generators, and formatting                           |
+| `crypto`         | Encryption, key, and digital-signature utilities                 |
+| `ssh`            | SSH execution and port forwarding                                |
 
 ### 🗂️ Data formats
 
@@ -252,6 +252,10 @@ Compile and run static checks:
 ```bash
 ./gradlew check assemble --no-daemon --console=plain
 ```
+
+`check` includes `archgateCheck`, the [ArchGate](https://github.com/quokkify/archgate) architecture gate of every
+module with tests. Run it alone with `./gradlew archgateCheck`; the rules and how to change them are described in
+[archgate-rules](archgate-rules/README.md).
 
 Generate and inspect Maven publication metadata without publishing:
 

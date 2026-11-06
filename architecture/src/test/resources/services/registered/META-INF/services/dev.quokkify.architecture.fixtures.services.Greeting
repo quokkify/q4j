@@ -1,3 +1,0 @@
-# Comments and blank lines follow the ServiceLoader file format.
-
-dev.quokkify.architecture.fixtures.services.PoliteGreeting # trailing comment
