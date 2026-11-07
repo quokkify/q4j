@@ -1,0 +1,1 @@
+{"id":"6f525fad5d83e8b8be7838ae50a26634.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.arch.NoDeprecatedApiUsageMainRuleTest.ruleKeepsTheUpstreamSeverityOverMainOnly","name":"ruleKeepsTheUpstreamSeverityOverMainOnly","status":"passed","testResultsByEnv":{"ubuntu-26-04":"b66e5061bb0906d8d06051ef84652d95"}}
