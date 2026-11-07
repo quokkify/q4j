@@ -1,5 +1,19 @@
 # Changelog
 
+## [0.13.1](https://github.com/quokkify/q4j/compare/v0.13.0...v0.13.1) (2026-11-07)
+
+<!-- project-toolkit:release-notes v2 -->
+**At a glance:** 2 internal
+
+<details><summary>Internal changes (2 PRs)</summary>
+
+**Maintenance**
+
+- **template:** update shared project template ([#813](https://github.com/quokkify/q4j/pull/813))
+- **rest-assured:** use Duration timeouts instead of deprecated setParam — No user-visible change: `ApiService` request specifications keep the same read and connect timeouts. They now use the `Duration` API that REST Assured 6.3 introduced, instead of the deprecated `HttpClientConfig.setParam` parameters, which REST Assured 8.0.0 removes. ([#815](https://github.com/quokkify/q4j/pull/815))
+
+</details>
+
 ## [0.13.0](https://github.com/quokkify/q4j/compare/v0.12.2...v0.13.0) (2026-11-07)
 
 <!-- project-toolkit:release-notes v2 -->
