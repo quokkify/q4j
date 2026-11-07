@@ -52,7 +52,8 @@ jobs:
             const dataBuildModules = [
               { name: 'sql', module: ':data-utils:sql', slug: 'data-utils-sql' },
               { name: 'nosql', module: ':data-utils:nosql', slug: 'data-utils-nosql' },
-              { name: 'morphia', module: ':data-utils:nosql:morphia', slug: 'data-utils-nosql-morphia' },
+              { name: 'mongodb', module: ':data-utils:nosql:mongodb', slug: 'data-utils-nosql-mongodb' },
+              { name: 'morphia-legacy', module: ':data-utils:nosql:morphia-legacy', slug: 'data-utils-nosql-morphia-legacy' },
               { name: 'redis', module: ':data-utils:nosql:redis', slug: 'data-utils-nosql-redis' },
             ];
 

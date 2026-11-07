@@ -1,0 +1,13 @@
+dependencies {
+    implementation project(":common-utils:awaitility")
+    implementation project(":testng-extensions")
+
+    api libs.allure.java.commons
+    api libs.mongodb.driver.sync
+    // querydsl-mongodb only needs classes from mongodb-driver-core; the exclusion stops it from requesting driver-legacy
+    api(libs.querydsl.mongodb) {
+        exclude group: "org.mongodb", module: "mongodb-driver-legacy"
+    }
+
+    testAnnotationProcessor variantOf(libs.querydsl.apt) { classifier("general") }
+}
