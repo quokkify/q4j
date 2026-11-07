@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import dev.quokkify.annotation.SingleThread;
 import dev.quokkify.entity.DatabaseTestUser;
 import dev.quokkify.entity.QDatabaseTestUser;
-import dev.quokkify.persistence.PersistenceItem;
+import dev.quokkify.persistence.PersistenceConfigurationFactory;
 import dev.quokkify.service.DatabaseService;
 import dev.quokkify.service.SqlFactory;
 import dev.quokkify.steps.SqlDatabaseSteps;
@@ -110,7 +110,7 @@ public class ConnectionPoolTest extends BaseDatabaseTest {
         AvailableSettings.JAKARTA_JDBC_PASSWORD, JDBC_PASSWORD,
         AvailableSettings.POOL_SIZE, poolSize,
         AvailableSettings.HBM2DDL_AUTO, "update");
-    SqlFactory factory = DatabaseService.getInstance().createSqlQuery(new PersistenceItem(applicationName, props));
+    SqlFactory factory = DatabaseService.getInstance().createSqlQuery(PersistenceConfigurationFactory.create(applicationName, props));
     entityManagerFactory = factory.getThreadLocalEntityManager().getEntityManagerFactory();
     return factory;
   }

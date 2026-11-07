@@ -17,7 +17,7 @@ import dev.quokkify.entity.DatabaseTestUser;
 import dev.quokkify.entity.DatabaseTestUserIdentity;
 import dev.quokkify.entity.QDatabaseTestUser;
 import dev.quokkify.entity.QDatabaseTestUserIdentity;
-import dev.quokkify.persistence.PersistenceItem;
+import dev.quokkify.persistence.PersistenceConfigurationFactory;
 import dev.quokkify.provider.PersistenceUnitDecorator;
 import dev.quokkify.provider.PersistenceXmlProvider;
 import dev.quokkify.service.DatabaseService;
@@ -50,8 +50,8 @@ public class DatabaseSqlTest extends BaseDatabaseTest {
 
   @BeforeClass(alwaysRun = true)
   public void initResources() {
-    PersistenceItem persistenceItem = new PersistenceItem(this.getClass().getSimpleName(), getH2Properties());
-    SqlFactory query = DatabaseService.getInstance().createSqlQuery(persistenceItem);
+    SqlFactory query = DatabaseService.getInstance()
+        .createSqlQuery(PersistenceConfigurationFactory.create(this.getClass().getSimpleName(), getH2Properties()));
     databaseSteps = new SqlDatabaseSteps(query);
     databaseSteps.save(Arrays.asList(expectedUser, updatedUser, deletedUser, expectedUserIdentity));
   }

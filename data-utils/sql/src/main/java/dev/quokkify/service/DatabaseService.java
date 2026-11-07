@@ -1,16 +1,10 @@
 package dev.quokkify.service;
 
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
-import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
 import jakarta.persistence.PersistenceConfiguration;
-import jakarta.persistence.PersistenceException;
-import jakarta.persistence.spi.PersistenceProvider;
-import jakarta.persistence.spi.PersistenceProviderResolverHolder;
 
 /**
  * Singleton service for work with databases.
@@ -57,27 +51,12 @@ public class DatabaseService {
    *
    * @param persistence Persistence class {@link dev.quokkify.persistence.PersistenceItem}
    * @return {@link SqlFactory}
+   * @deprecated use {@link #createSqlQuery(PersistenceConfiguration)}
    */
+  @Deprecated(since = "0.14.0", forRemoval = true)
+  @SuppressWarnings("removal")
   public SqlFactory createSqlQuery(dev.quokkify.persistence.PersistenceItem persistence) {
-    if (!sqlQueryFactories.containsKey(persistence.getPersistenceUnitName())) {
-      List<PersistenceProvider> providers = PersistenceProviderResolverHolder.getPersistenceProviderResolver()
-          .getPersistenceProviders();
-      EntityManagerFactory entityManagerFactory = providers.stream()
-          .filter(provider -> provider.getClass().getName().equals(persistence.getPersistenceProviderClassName()))
-          .findAny()
-          .orElseThrow(() -> new PersistenceException("No Persistence provider for : "
-              + persistence.getPersistenceProviderClassName()))
-          .createContainerEntityManagerFactory(persistence, Map.of());
-      if (Objects.isNull(entityManagerFactory)) {
-        throw new PersistenceException("No Persistence provider for EntityManager named: "
-            + persistence.getPersistenceUnitName());
-      }
-      SqlFactory sqlFactory = new SqlFactory(entityManagerFactory);
-      sqlQueryFactories.put(persistence.getPersistenceUnitName(), sqlFactory);
-      return sqlFactory;
-    } else {
-      return sqlQueryFactories.get(persistence.getPersistenceUnitName());
-    }
+    return createSqlQuery(persistence.toPersistenceConfiguration());
   }
 
   /**

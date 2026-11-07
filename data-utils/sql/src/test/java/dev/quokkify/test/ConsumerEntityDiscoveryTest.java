@@ -14,6 +14,7 @@ import org.example.entity.ConsumerEntity;
 import org.example.entity.QConsumerEntity;
 import org.testng.annotations.Test;
 
+@SuppressWarnings("removal")
 public class ConsumerEntityDiscoveryTest extends BaseDatabaseTest {
 
   @Test(description = "Regression guard: entities outside dev.quokkify are discovered via classpath scanning")
@@ -61,5 +62,18 @@ public class ConsumerEntityDiscoveryTest extends BaseDatabaseTest {
     } finally {
       steps.closeConnection();
     }
+  }
+
+  @Test(description = "Guards the bridge: toPersistenceConfiguration honors the managed classes override")
+  public void checkBridgeHonorsManagedClassOverride() {
+    PersistenceItem persistenceItem =
+        new PersistenceItem("bridge-" + UUID.randomUUID(), getH2Properties()) {
+          @Override
+          public List<String> getManagedClassNames() {
+            return List.of(DatabaseTestUser.class.getName());
+          }
+        };
+    Assertions.assertThat(persistenceItem.toPersistenceConfiguration().managedClasses())
+        .containsExactly(DatabaseTestUser.class);
   }
 }

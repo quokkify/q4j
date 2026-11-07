@@ -7,7 +7,7 @@ import dev.quokkify.annotation.SingleThread;
 import dev.quokkify.converter.SqlConverter;
 import dev.quokkify.entity.DatabaseTestUser;
 import dev.quokkify.entity.QDatabaseTestUser;
-import dev.quokkify.persistence.PersistenceItem;
+import dev.quokkify.persistence.PersistenceConfigurationFactory;
 import dev.quokkify.service.DatabaseService;
 import dev.quokkify.service.SqlFactory;
 import dev.quokkify.steps.SqlDatabaseSteps;
@@ -43,8 +43,8 @@ public class SqlConverterTest extends BaseDatabaseTest {
 
   @BeforeMethod(alwaysRun = true)
   public void initResources() {
-    PersistenceItem persistenceItem = new PersistenceItem(UUID.randomUUID().toString(), getH2Properties());
-    SqlFactory query = DatabaseService.getInstance().createSqlQuery(persistenceItem);
+    SqlFactory query = DatabaseService.getInstance()
+        .createSqlQuery(PersistenceConfigurationFactory.create(UUID.randomUUID().toString(), getH2Properties()));
     databaseSteps = new SqlDatabaseSteps(query);
   }
 

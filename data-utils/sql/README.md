@@ -70,8 +70,8 @@ DatabaseStage stage = new DatabaseStage() {
     public String getPersistencePropertyPath() { return "db.properties"; }
 };
 
-PersistenceItem persistenceItem = PersistenceItemProvider.getPersistenceItem(stage);
-SqlFactory sqlFactory = DatabaseService.getInstance().createSqlQuery(persistenceItem);
+PersistenceConfiguration configuration = PersistenceItemProvider.getPersistenceConfiguration(stage);
+SqlFactory sqlFactory = DatabaseService.getInstance().createSqlQuery(configuration);
 ```
 
 ### Variant 3 — manual properties map
@@ -81,7 +81,7 @@ Use the built-in `DatabaseConfig` (Owner interface, reads `SQL_DATABASE_*` env v
 ```java
 DatabaseConfig dbConfig = ConfigRegistry.get(DatabaseConfig.class);
 
-PersistenceItem persistenceItem = new PersistenceItem(
+PersistenceConfiguration configuration = PersistenceConfigurationFactory.create(
     "my-persistence-unit",
     Map.of(
         AvailableSettings.JAKARTA_JDBC_URL,      dbConfig.url(),
@@ -89,8 +89,12 @@ PersistenceItem persistenceItem = new PersistenceItem(
         AvailableSettings.JAKARTA_JDBC_PASSWORD, dbConfig.password()
     )
 );
-SqlFactory sqlFactory = DatabaseService.getInstance().createSqlQuery(persistenceItem);
+SqlFactory sqlFactory = DatabaseService.getInstance().createSqlQuery(configuration);
 ```
+
+Entities implementing `SqlEntityInterface` are discovered in any package; add more with `.managedClasses(...)` on the returned configuration.
+
+> `PersistenceItem` and `PersistenceItemProvider.getPersistenceItem` are deprecated for removal; use the `PersistenceConfiguration` variants above.
 
 > **Alternative** (without Owner): pass values directly via `System.getenv("SQL_DATABASE_URL")`, etc.
 

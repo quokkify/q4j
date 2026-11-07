@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.UncheckedIOException;
 import java.net.URL;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -14,8 +15,16 @@ import jakarta.persistence.ValidationMode;
 import jakarta.persistence.spi.ClassTransformer;
 import jakarta.persistence.spi.PersistenceUnitInfo;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.jpa.HibernatePersistenceConfiguration;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 
+/**
+ * Persistence unit description for Hibernate.
+ *
+ * @deprecated use {@link PersistenceConfigurationFactory#create(String, Map)} and
+ *     {@link dev.quokkify.service.DatabaseService#createSqlQuery(jakarta.persistence.PersistenceConfiguration)}
+ */
+@Deprecated(since = "0.14.0", forRemoval = true)
 public class PersistenceItem implements PersistenceUnitInfo {
 
   private final String persistenceName;
@@ -24,6 +33,19 @@ public class PersistenceItem implements PersistenceUnitInfo {
   public PersistenceItem(String persistenceName, Map<String, Object> persistenceProperties) {
     this.persistenceName = persistenceName;
     this.persistenceProperties = persistenceProperties;
+  }
+
+  /**
+   * Convert this item to a {@link HibernatePersistenceConfiguration}, honoring {@link #getManagedClassNames()}.
+   *
+   * @return configuration
+   * @deprecated use {@link PersistenceConfigurationFactory#create(String, Map)}
+   */
+  @Deprecated(since = "0.14.0", forRemoval = true)
+  public HibernatePersistenceConfiguration toPersistenceConfiguration() {
+    Map<String, Object> properties = new HashMap<>();
+    getProperties().forEach((key, value) -> properties.put(String.valueOf(key), value));
+    return PersistenceConfigurationFactory.create(getPersistenceUnitName(), properties, getManagedClassNames());
   }
 
   @Override

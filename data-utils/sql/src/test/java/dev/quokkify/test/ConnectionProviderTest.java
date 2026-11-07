@@ -9,6 +9,7 @@ import dev.quokkify.service.DatabaseService;
 
 import io.qameta.allure.TmsLink;
 import org.assertj.core.api.Assertions;
+import org.hibernate.jpa.HibernatePersistenceConfiguration;
 import org.testng.annotations.Test;
 
 public class ConnectionProviderTest extends BaseDatabaseTest {
@@ -32,8 +33,8 @@ public class ConnectionProviderTest extends BaseDatabaseTest {
   @Test(description = "Check connection via Provider")
   @SingleThread
   public void checkAgroalProviderViaPersistenceProvider() {
-    PersistenceItem persistenceItem = PersistenceItemProvider.getPersistenceItem(getStage());
-    TestLogAppender appender = withLogging(() -> DatabaseService.getInstance().createSqlQuery(persistenceItem));
+    HibernatePersistenceConfiguration configuration = PersistenceItemProvider.getPersistenceConfiguration(getStage());
+    TestLogAppender appender = withLogging(() -> DatabaseService.getInstance().createSqlQuery(configuration));
     Assertions.assertThat(appender.getCombinedLog())
         .as("Combined log should contain both lines")
         .contains(sequences);
@@ -42,6 +43,7 @@ public class ConnectionProviderTest extends BaseDatabaseTest {
   @TmsLink("SQL_DATABASE_CONNECTION_PROVIDER_ID_3")
   @Test(description = "Check connection via PersistenceItem")
   @SingleThread
+  @SuppressWarnings("removal")
   public void checkAgroalProviderViaPersistenceItem() {
     PersistenceItem persistenceItem = new PersistenceItem("test", getH2Properties());
     TestLogAppender appender = withLogging(() -> DatabaseService.getInstance().createSqlQuery(persistenceItem));
