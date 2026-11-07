@@ -30,7 +30,8 @@ redisson = "4.8.0"
 hibernate = "7.4.13.Final"
 hibernate-type = "3.16.0"
 jakarta-persistence-api = "3.2.0"
-querydsl = "5.1.0"
+querydsl = "7.7"
+jakarta-annotation-api = "3.0.0"
 h2 = "2.5.252"
 jira-rest-client = "7.0.2"
 fugue = "7.0.2"
@@ -116,9 +117,11 @@ hibernate-c3p0 = { module = "org.hibernate.orm:hibernate-c3p0", version.ref = "h
 hibernate-type = { module = "io.hypersistence:hypersistence-utils-hibernate-73", version.ref = "hibernate-type" }
 # Jakarta Persistence API
 jakarta-persistence-api = { module = "jakarta.persistence:jakarta.persistence-api", version.ref = "jakarta-persistence-api" }
+# Jakarta Annotations API
+jakarta-annotation-api = { module = "jakarta.annotation:jakarta.annotation-api", version.ref = "jakarta-annotation-api" }
 # QueryDSL
-querydsl-jpa = { module = "com.querydsl:querydsl-jpa", version.ref = "querydsl" }
-querydsl-apt = { module = "com.querydsl:querydsl-apt", version.ref = "querydsl" }
+querydsl-jpa = { module = "io.github.openfeign.querydsl:querydsl-jpa", version.ref = "querydsl" }
+querydsl-apt = { module = "io.github.openfeign.querydsl:querydsl-apt", version.ref = "querydsl" }
 # H2
 h2 = { module = "com.h2database:h2", version.ref = "h2" }
 # Jira REST Client
