@@ -1,4 +1,4 @@
-# This module has tests but no main classes, so it runs only the rules of tools/archgate that check test classes.
+# This module has tests but no main classes, so it leaves out the rules of tools/archgate that check main classes only.
 # omitted: dev.quokkify.archgate.rules.archunit.HashCodeEqualsTogetherRule main only
 # omitted: dev.quokkify.archgate.rules.archunit.LoggerFieldNameRule main only
 # omitted: dev.quokkify.archgate.rules.archunit.NoConsoleOutputRule main only
