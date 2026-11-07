@@ -36,10 +36,10 @@ A module that needs a different list keeps its own
 `src/test/resources/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule`; no shared list is then added.
 Two modules do this:
 
-| Module                        | Difference from the shared list                                         |
-| ----------------------------- | ----------------------------------------------------------------------- |
-| `:integrations:rest-assured`  | adds `HttpStatusConstantRule` for its API tests                         |
-| `:integrations:selenide-grid` | has no main classes, so it leaves out the rules that check main only    |
+| Module                        | Difference from the shared list                                      |
+| ----------------------------- | -------------------------------------------------------------------- |
+| `:integrations:rest-assured`  | adds `HttpStatusConstantRule` for its API tests                      |
+| `:integrations:selenide-grid` | has no main classes, so it leaves out the rules that check main only |
 
 Every list other than `tools/archgate` must name each rule of `tools/archgate` or omit it with a line
 `# omitted: <rule class> <reason>`. The task `verifyArchgateRuleList`, part of `check`, fails otherwise, so a rule
