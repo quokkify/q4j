@@ -1,9 +1,17 @@
 package dev.quokkify.test;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.nio.charset.StandardCharsets;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
+import java.util.stream.Stream;
 
 import dev.quokkify.entity.DatabaseTestUser;
 import dev.quokkify.entity.DatabaseTestUserIdentity;
@@ -17,7 +25,15 @@ import dev.quokkify.service.SqlFactory;
 import dev.quokkify.steps.DatabaseUserDbSteps;
 import dev.quokkify.steps.SqlDatabaseSteps;
 
+import com.querydsl.core.CloseableIterator;
+import io.qameta.allure.Allure;
+import io.qameta.allure.AllureExternalKey;
+import io.qameta.allure.AllureLifecycle;
+import io.qameta.allure.AllureResultsWriter;
 import io.qameta.allure.TmsLink;
+import io.qameta.allure.model.Attachment;
+import io.qameta.allure.model.StepResult;
+import io.qameta.allure.model.TestResult;
 import org.assertj.core.api.Assertions;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
@@ -126,5 +142,117 @@ public class DatabaseSqlTest extends BaseDatabaseTest {
             .fetch();
     Assertions.assertThat(actualUsers).usingRecursiveComparison()
         .isEqualTo(Collections.singleton(expectedUserIdentity));
+  }
+
+  @TmsLink("SQL_DATABASE_ID_8")
+  @Test(description = "Check stream returns the same record as fetch")
+  public void checkStream() {
+    QDatabaseTestUser databaseTestUser = QDatabaseTestUser.databaseTestUser;
+    List<DatabaseTestUser> actualUsers;
+    try (Stream<DatabaseTestUser> stream = databaseSteps.selectDsl(databaseTestUser)
+        .where(databaseTestUser.firstName.eq(expectedUser.getFirstName())).stream()) {
+      actualUsers = stream.toList();
+    }
+    Assertions.assertThat(actualUsers).usingRecursiveComparison()
+        .isEqualTo(Collections.singleton(expectedUser));
+  }
+
+  @TmsLink("SQL_DATABASE_ID_9")
+  @Test(description = "Check iterate returns the same record as fetch")
+  public void checkIterate() {
+    QDatabaseTestUser databaseTestUser = QDatabaseTestUser.databaseTestUser;
+    List<DatabaseTestUser> actualUsers = new ArrayList<>();
+    try (CloseableIterator<DatabaseTestUser> iterator = databaseSteps.selectDsl(databaseTestUser)
+        .where(databaseTestUser.firstName.eq(expectedUser.getFirstName())).iterate()) {
+      iterator.forEachRemaining(actualUsers::add);
+    }
+    Assertions.assertThat(actualUsers).usingRecursiveComparison()
+        .isEqualTo(Collections.singleton(expectedUser));
+  }
+
+  @TmsLink("SQL_DATABASE_ID_10")
+  @Test(description = "Check fetch attaches executed sql to allure")
+  public void checkFetchAttachesSql() {
+    QDatabaseTestUser databaseTestUser = QDatabaseTestUser.databaseTestUser;
+    List<String> attachments = captureSqlAttachments(() -> databaseSteps.selectDsl(databaseTestUser).fetch());
+    Assertions.assertThat(attachments).singleElement().asString().containsIgnoringCase("from");
+  }
+
+  @TmsLink("SQL_DATABASE_ID_11")
+  @Test(description = "Check stream attaches executed sql to allure")
+  public void checkStreamAttachesSql() {
+    QDatabaseTestUser databaseTestUser = QDatabaseTestUser.databaseTestUser;
+    List<String> attachments = captureSqlAttachments(() -> {
+      try (Stream<DatabaseTestUser> stream = databaseSteps.selectDsl(databaseTestUser).stream()) {
+        stream.count();
+      }
+    });
+    Assertions.assertThat(attachments).singleElement().asString().containsIgnoringCase("from");
+  }
+
+  @TmsLink("SQL_DATABASE_ID_12")
+  @Test(description = "Check iterate attaches executed sql to allure")
+  public void checkIterateAttachesSql() {
+    QDatabaseTestUser databaseTestUser = QDatabaseTestUser.databaseTestUser;
+    List<String> attachments = captureSqlAttachments(() -> {
+      try (CloseableIterator<DatabaseTestUser> iterator = databaseSteps.selectDsl(databaseTestUser).iterate()) {
+        iterator.forEachRemaining(user -> { });
+      }
+    });
+    Assertions.assertThat(attachments).singleElement().asString().containsIgnoringCase("from");
+  }
+
+  private static List<String> captureSqlAttachments(Runnable action) {
+    InMemoryResultsWriter writer = new InMemoryResultsWriter();
+    AllureLifecycle previous = Allure.getLifecycle();
+    AllureLifecycle lifecycle = new AllureLifecycle(writer);
+    Allure.setLifecycle(lifecycle);
+    try {
+      AllureExternalKey key = AllureExternalKey.random(DatabaseSqlTest.class);
+      lifecycle.scheduleTest(key, new TestResult().setUuid(UUID.randomUUID().toString()).setName("sql attachments capture"));
+      lifecycle.startTest(key);
+      try {
+        action.run();
+      } finally {
+        lifecycle.stopTest(key);
+        lifecycle.writeTest(key);
+      }
+    } finally {
+      Allure.setLifecycle(previous);
+    }
+    List<String> contents = new ArrayList<>();
+    writer.results.forEach(result -> collectSqlAttachments(result.getAttachments(), result.getSteps(), writer, contents));
+    return contents;
+  }
+
+  private static void collectSqlAttachments(List<Attachment> attachments, List<StepResult> steps,
+      InMemoryResultsWriter writer, List<String> contents) {
+    attachments.stream().filter(attachment -> "SQL query".equals(attachment.getName()))
+        .forEach(attachment -> contents.add(writer.contents.get(attachment.getSource())));
+    steps.forEach(step -> collectSqlAttachments(step.getAttachments(), step.getSteps(), writer, contents));
+  }
+
+  private static final class InMemoryResultsWriter implements AllureResultsWriter {
+    private final List<TestResult> results = new ArrayList<>();
+    private final Map<String, String> contents = new HashMap<>();
+
+    @Override
+    public void write(TestResult testResult) {
+      results.add(testResult);
+    }
+
+    @Override
+    public void write(io.qameta.allure.model.TestResultContainer testResultContainer) {
+      // containers are not needed
+    }
+
+    @Override
+    public void write(String source, InputStream attachment) {
+      try {
+        contents.put(source, new String(attachment.readAllBytes(), StandardCharsets.UTF_8));
+      } catch (IOException e) {
+        throw new IllegalStateException("Cannot read attachment " + source, e);
+      }
+    }
   }
 }

@@ -30,17 +30,16 @@ from `gradle/archgate.gradle`, so they are kept once instead of copied into each
 | [`tools/archgate-main`](../tools/archgate-main/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule) | modules with main classes but no tests |
 
 `tools/archgate-main` holds the rules that run on main classes alone: everything in `tools/archgate` except
-`TestClassNamingRule` (test only), and `NoDeprecatedApiUsageMainRule` in place of `NoDeprecatedApiUsageRule`, which
-needs a test view.
+`TestClassNamingRule` (test only).
 
 A module that needs a different list keeps its own
 `src/test/resources/META-INF/services/dev.quokkify.archgate.api.ArchitectureRule`; no shared list is then added.
 Two modules do this:
 
-| Module                        | Difference from the shared list                                         |
-| ----------------------------- | ----------------------------------------------------------------------- |
-| `:integrations:rest-assured`  | adds `HttpStatusConstantRule` for its API tests                         |
-| `:integrations:selenide-grid` | has no main classes, so it leaves out the rules that need the main view |
+| Module                        | Difference from the shared list                                      |
+| ----------------------------- | -------------------------------------------------------------------- |
+| `:integrations:rest-assured`  | adds `HttpStatusConstantRule` for its API tests                      |
+| `:integrations:selenide-grid` | has no main classes, so it leaves out the rules that check main only |
 
 Every list other than `tools/archgate` must name each rule of `tools/archgate` or omit it with a line
 `# omitted: <rule class> <reason>`. The task `verifyArchgateRuleList`, part of `check`, fails otherwise, so a rule
@@ -67,13 +66,12 @@ The ArchGate rules are documented in the
 
 All rules are in the package `dev.quokkify.arch`.
 
-| Rule                           | Backend    | Enforces                                                                                                       |
-| ------------------------------ | ---------- | -------------------------------------------------------------------------------------------------------------- |
-| `HttpStatusConstantRule`       | JavaParser | API tests pass `org.apache.http.HttpStatus` constants, not literals 100-599, to `*Status` calls                |
-| `SerialVersionUidRule`         | ArchUnit   | a `serialVersionUID` field is `static final long`                                                              |
-| `PackageNamingRule`            | ArchUnit   | package segments are lower case letters and digits, start with a letter, have no underscore                    |
-| `NoDeprecatedApiUsageMainRule` | ArchUnit   | ArchGate's `NoDeprecatedApiUsageRule` (WARNING), unchanged but on main classes only, for modules without tests |
-| `NoInterfaceIPrefixRule`       | ArchUnit   | interface names do not start with `I` followed by an upper-case letter                                         |
+| Rule                     | Backend    | Enforces                                                                                        |
+| ------------------------ | ---------- | ----------------------------------------------------------------------------------------------- |
+| `HttpStatusConstantRule` | JavaParser | API tests pass `org.apache.http.HttpStatus` constants, not literals 100-599, to `*Status` calls |
+| `SerialVersionUidRule`   | ArchUnit   | a `serialVersionUID` field is `static final long`                                               |
+| `PackageNamingRule`      | ArchUnit   | package segments are lower case letters and digits, start with a letter, have no underscore     |
+| `NoInterfaceIPrefixRule` | ArchUnit   | interface names do not start with `I` followed by an upper-case letter                          |
 
 `HttpStatusConstantRule` is described in the [REST Assured module](../integrations/rest-assured/README.md#architecture-rule-http-status-constants).
 Register it only in modules whose tests use REST Assured and contain API tests: a module without API tests

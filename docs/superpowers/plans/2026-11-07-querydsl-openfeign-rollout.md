@@ -6,11 +6,11 @@
 
 **Rollout (one PR per repository, all `Refs quokkify/q4j#818`):**
 
-| # | Repository | Change | State |
-|---|---|---|---|
-| 0 | `quokkify/q4j` | `data-utils/sql` → fork (breaking) | done, PR #819 |
-| 1 | `quokkify/q4j` | Task 1: `MongoDatabaseSteps.selectQuery(EntityPath<T>)` over `MorphiaQuery<T>`, keeping `selectDsl(Class<T>)` untouched | this plan; branch stacked on #819 |
-| 2 | `quokkify/archgate` | Task 2: test fixture dependency `querydsl-core` → fork | this plan; independent of #819 |
+| #   | Repository          | Change                                                                                                                  | State                             |
+| --- | ------------------- | ----------------------------------------------------------------------------------------------------------------------- | --------------------------------- |
+| 0   | `quokkify/q4j`      | `data-utils/sql` → fork (breaking)                                                                                      | done, PR #819                     |
+| 1   | `quokkify/q4j`      | Task 1: `MongoDatabaseSteps.selectQuery(EntityPath<T>)` over `MorphiaQuery<T>`, keeping `selectDsl(Class<T>)` untouched | this plan; branch stacked on #819 |
+| 2   | `quokkify/archgate` | Task 2: test fixture dependency `querydsl-core` → fork                                                                  | this plan; independent of #819    |
 
 Tasks 1 and 2 touch different repositories and can run in parallel. Task 1's PR targets `feat/querydsl-openfeign` until #819 merges, then is retargeted to `main`.
 
@@ -43,6 +43,7 @@ Tasks 1 and 2 touch different repositories and can run in parallel. Task 1's PR 
 ### Task 1: `selectQuery` over `MorphiaQuery`, with Q-class generation and docs
 
 **Files:**
+
 - Modify: `gradle/libs.versions.toml` (QueryDSL block, next to `querydsl-apt`)
 - Modify: `data-utils/nosql/morphia/build.gradle`
 - Modify: `data-utils/nosql/morphia/src/main/java/dev/quokkify/steps/MongoDatabaseSteps.java`
@@ -51,6 +52,7 @@ Tasks 1 and 2 touch different repositories and can run in parallel. Task 1's PR 
 - Docs: `data-utils/nosql/morphia/README.md`
 
 **Interfaces:**
+
 - Consumes: `NoSqlFactory#getThreadLocalDatastore(): dev.morphia.Datastore`; catalog key `querydsl` (7.7); catalog entry `querydsl-apt` (`io.github.openfeign.querydsl:querydsl-apt`); catalog entry `morphia-core`.
 - Produces: `MongoDatabaseSteps#selectQuery(EntityPath<T>): MorphiaQuery<T>`; catalog entry `querydsl-mongodb = { module = "io.github.openfeign.querydsl:querydsl-mongodb", version.ref = "querydsl" }`; generated test Q-class `dev.quokkify.entity.nosql.QDatabaseTestUserMongo` with default instance `QDatabaseTestUserMongo.databaseTestUserMongo`.
 
@@ -117,6 +119,7 @@ Run: `./gradlew :data-utils:nosql:morphia:compileTestJava --console=plain`
 Expected: `QDatabaseTestUserMongo.java` exists under `build/generated/sources/annotationProcessor/java/test/dev/quokkify/entity/nosql/`, and the only compile error is `cannot find symbol ... selectQuery`.
 
 Branch decision, made here on the observed output:
+
 - If compilation fails because `QIdentity` is missing (the supertype from the main source set was not generated), annotate `Identity` with `@com.querydsl.core.annotations.QuerySupertype` and add `annotationProcessor variantOf(libs.querydsl.apt) { classifier("morphia") }` and `annotationProcessor libs.morphia.core` to the main configuration. Re-run; expected: `QIdentity.java` under `.../java/main/...` and only the `selectQuery` error remains.
 - Otherwise leave `Identity` untouched.
 
@@ -142,6 +145,7 @@ Expected: `querydsl-mongodb` `7.7` with `<scope>compile</scope>`.
 - [ ] **Step 8: Document in `data-utils/nosql/morphia/README.md`**
 
 Add a section "Type-safe queries with Querydsl" after the existing query example:
+
 - the Gradle snippet `testAnnotationProcessor("io.github.openfeign.querydsl:querydsl-apt:7.7:morphia")` and `testAnnotationProcessor("dev.morphia.morphia:morphia-core:2.5.3")`;
 - a usage example mirroring `checkSelectQuery` with a `QUser` (`mongoSteps.selectQuery(user).where(user.email.eq("alice@example.com")).fetchFirst()`);
 - one sentence that `selectDsl(Class)` with Morphia `Filters` keeps working unchanged.
@@ -152,6 +156,7 @@ Add a section "Type-safe queries with Querydsl" after the existing query example
 git add gradle/libs.versions.toml data-utils/nosql/morphia docs/superpowers/plans/2026-11-07-querydsl-openfeign-rollout.md
 git commit -m "feat(morphia): add type-safe Querydsl queries via selectQuery"
 ```
+
 Body: what was added, the legacy-driver decision from Step 6, `Refs #818`, and the session's `Co-Authored-By` trailer.
 
 - [ ] **Step 10: Stop the local MongoDB**
@@ -168,10 +173,12 @@ Repository `quokkify/archgate`. Work in a fresh worktree on a new branch `chore/
 **Context:** `com.querydsl:querydsl-core` 5.1.0 is only a `testImplementation` dependency of `backends/archunit/context` and `backends/archunit/rules`. It compiles the fixtures `QFoo`, `QDate`, `QLogger`, which extend `com.querydsl.core.types.dsl.BeanPath<Object>` through `super(Object.class, "<name>")`. The production rule `GeneratedCode` matches the string `com.querydsl.core.types.dsl.BeanPath`, so it has no dependency on the library. The fork keeps the package and the `BeanPath(Class<? extends T>, String)` constructor, so no Java changes are expected.
 
 **Files:**
+
 - Modify: `gradle/libs.versions.toml` (`querydsl = "5.1.0"` → `"7.7"`; `querydsl-core` module → `io.github.openfeign.querydsl:querydsl-core`)
 - No other file changes expected; `backends/archunit/{context,rules}/build.gradle` keep `testImplementation libs.querydsl.core`.
 
 **Interfaces:**
+
 - Consumes: nothing from Task 1.
 - Produces: nothing used by other tasks.
 
@@ -198,6 +205,7 @@ Expected: only `io.github.openfeign.querydsl:querydsl-core:7.7`, no `com.queryds
 git add gradle/libs.versions.toml
 git commit -m "chore(deps): move Querydsl test fixtures to the OpenFeign fork"
 ```
+
 Body: `com.querydsl` has had no release since 5.1.0 (January 2024); the fork keeps the `com.querydsl.*` packages, so the fixtures and `GeneratedCode` are unchanged; `Refs quokkify/q4j#818`; the session's `Co-Authored-By` trailer. Test-only dependency, so no release-note impact for archgate users.
 
 ## Outcome and deviations

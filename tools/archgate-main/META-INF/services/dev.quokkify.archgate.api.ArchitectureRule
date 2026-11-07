@@ -1,12 +1,11 @@
 # Rules run by archgateCheck in every Q4J module with main classes but no tests, wired in gradle/archgate.gradle:
 # the rules of tools/archgate that can run on main classes alone.
 # omitted: dev.quokkify.archgate.rules.archunit.TestClassNamingRule test only
-# omitted: dev.quokkify.archgate.rules.archunit.NoDeprecatedApiUsageRule needs a test view; replaced by NoDeprecatedApiUsageMainRule
 dev.quokkify.archgate.rules.archunit.HashCodeEqualsTogetherRule
 dev.quokkify.archgate.rules.archunit.LoggerFieldNameRule
 dev.quokkify.archgate.rules.archunit.NoConsoleOutputRule
+dev.quokkify.archgate.rules.archunit.NoDeprecatedApiUsageRule
 dev.quokkify.archgate.rules.archunit.ServiceRegistrationRule
-dev.quokkify.arch.NoDeprecatedApiUsageMainRule
 dev.quokkify.arch.NoInterfaceIPrefixRule
 dev.quokkify.arch.PackageNamingRule
 dev.quokkify.arch.SerialVersionUidRule
