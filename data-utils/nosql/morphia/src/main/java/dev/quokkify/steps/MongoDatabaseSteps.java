@@ -8,6 +8,8 @@ import dev.quokkify.verification.MongoVerifier;
 
 import com.mongodb.client.result.DeleteResult;
 import com.mongodb.client.result.UpdateResult;
+import com.querydsl.core.types.EntityPath;
+import com.querydsl.mongodb.morphia.MorphiaQuery;
 import dev.morphia.DeleteOptions;
 import dev.morphia.UpdateOptions;
 import dev.morphia.query.Query;
@@ -58,5 +60,17 @@ public class MongoDatabaseSteps extends AbstractMongoSteps<MongoVerifier> {
   @Step("Create query for request in mongo database")
   public <T extends MongoEntityInterface> Query<T> selectDsl(Class<T> entity) {
     return noSqlFactory.getThreadLocalDatastore().find(entity);
+  }
+
+  /**
+   * Creates a type-safe Querydsl query on the calling thread's datastore.
+   *
+   * @param path the generated Q-class instance of the entity
+   * @param <T>  entity type, extends {@link MongoEntityInterface}
+   * @return Querydsl query over the entity
+   */
+  @Step("Create Querydsl query for mongo database")
+  public <T extends MongoEntityInterface> MorphiaQuery<T> selectQuery(EntityPath<T> path) {
+    return new MorphiaQuery<>(noSqlFactory.getThreadLocalDatastore(), path);
   }
 }
