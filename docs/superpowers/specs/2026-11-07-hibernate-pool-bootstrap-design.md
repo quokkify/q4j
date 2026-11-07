@@ -72,39 +72,48 @@ Move `dev.quokkify:sql` off c3p0 and off the hand-written `PersistenceUnitInfo` 
 
 ### New public path
 
-- `dev.quokkify.persistence.PersistenceConfigurationFactory.create(String name, Map<String, Object> properties)` returns `HibernatePersistenceConfiguration`: Hibernate provider, `jakarta.persistence.PersistenceUnitTransactionType.RESOURCE_LOCAL`, the given properties, and the same entity discovery as today (see below). Replaces README variant 3.
-- `PersistenceItemProvider.getPersistenceConfiguration(DatabaseStage)` returns the configuration for a stage, cached per stage like `getPersistenceItem`. Replaces README variant 2.
+- `dev.quokkify.persistence.PersistenceConfigurationFactory.create(String name, Map<String, Object> properties)` returns `HibernatePersistenceConfiguration`: Hibernate provider, `jakarta.persistence.PersistenceUnitTransactionType.RESOURCE_LOCAL`, the given properties, and the entity discovery described below. Replaces README variant 3.
+- `PersistenceItemProvider.getPersistenceConfiguration(DatabaseStage)` returns the configuration for a stage, built per call; the `SqlFactory` is cached by name in `DatabaseService`. Replaces README variant 2.
 - `DatabaseService.createSqlQuery(jakarta.persistence.PersistenceConfiguration)` calls `configuration.createEntityManagerFactory()` and caches the `SqlFactory` by `configuration.name()`.
 
 ### Deprecated path
 
 - `PersistenceItem`, `PersistenceItemProvider.getPersistenceItem(DatabaseStage)` and `DatabaseService.createSqlQuery(PersistenceItem)` get `@Deprecated(since = "<version>", forRemoval = true)` and a Javadoc `@deprecated` pointer to the replacement. `<version>` is the release that ships PR2, read from the repository's release manifest at implementation time.
-- `createSqlQuery(PersistenceItem)` converts the item with `PersistenceConfigurationFactory.create(item.getPersistenceUnitName(), <item properties as map>)` and delegates to the new overload, so both paths build the factory the same way and share one cache keyed by name.
+- `PersistenceItem.toPersistenceConfiguration()` (new, deprecated with the class) builds a `HibernatePersistenceConfiguration` from `getPersistenceUnitName()`, `getProperties()` and `getManagedClassNames()`. Because it calls the overridable `getManagedClassNames()`, subclasses that list their own entities keep working (a known consumer does this). `createSqlQuery(PersistenceItem)` delegates to the new overload through it, so both paths share one cache keyed by name.
 - `PersistenceItem` keeps implementing `PersistenceUnitInfo` until removal; dropping the interface earlier would break binary compatibility.
 - Variant 1 (`createSqlQuery(String)` with `persistence.xml`) is unchanged.
 
-### Entity discovery (main risk)
+### Thread safety
 
-Today an entity is found two ways: ClassGraph lists `SqlEntityInterface` + `@Entity` classes under `dev.quokkify`, and Hibernate scans every classpath root returned by `getJarFileUrls()`. The second way is what finds consumer entities in their own packages. `PersistenceConfiguration` has no `excludeUnlistedClasses`; scanning is available only through Hibernate's `rootUrl` / `jarFileUrls`.
+Decision (final review, 2026-11-07): `DatabaseService` keeps its `SqlFactory` cache in a `ConcurrentHashMap` and builds with `computeIfAbsent`, so concurrent first use of one name creates a single `EntityManagerFactory` (and one pool).
 
-1. Before any production change, add a characterization test: an `@Entity` in a package outside `dev.quokkify` is usable through `PersistenceItem` (persist + query).
-2. Run the same test through `PersistenceConfigurationFactory`, which passes the ClassGraph list to `managedClasses` and the classpath roots to `jarFileUrls`.
-3. If Hibernate does not scan `jarFileUrls` for a `PersistenceConfiguration` bootstrap, the factory instead uses ClassGraph to find all `@Entity` classes in classpath directories (not in jar dependencies) and passes them to `managedClasses`. The PR states which mechanism is used.
+### Entity discovery
+
+Finding (Task 4 of the plan, 2026-11-07): the premise that classpath-root scanning finds consumer entities is wrong. On the current code an `@Entity` outside `dev.quokkify` fails with `Unknown entity type ... does not belong to this persistence unit`; only the ClassGraph scan of `dev.quokkify` works. A known consumer works around it by subclassing `PersistenceItem` and overriding `getManagedClassNames()`.
+
+Decision (owner, 2026-11-07): discover entities by contract, not by package.
+
+- ClassGraph finds every class annotated `@Entity` that implements `dev.quokkify.entity.SqlEntityInterface`, in all packages on the classpath. The interface belongs to q4j, so unrelated entities from other libraries are not picked up.
+- The scan result is computed once per JVM and reused.
+- It is the default for both paths: `PersistenceItem.getManagedClassNames()` and `PersistenceConfigurationFactory.create`. This widens discovery for existing `PersistenceItem` users; overrides of `getManagedClassNames()` still win.
+- Callers can add classes with `.managedClasses(...)` on the returned `HibernatePersistenceConfiguration`, or use `PersistenceConfigurationFactory.create(name, properties, Collection<Class<?>>)`, which takes exactly the given classes with no scan and replaces `getManagedClassNames()` overrides.
+- `jarFileUrls` / `rootUrl` are not used by the new path.
 
 ### Tests
 
 - `DatabaseSqlTest` and `SqlConverterTest` move to the new API.
-- One test keeps exercising the deprecated `PersistenceItem` path so the bridge cannot break silently.
+- One test keeps exercising the deprecated `PersistenceItem` path so the bridge cannot break silently, and one pins that a subclass override of `getManagedClassNames()` is honored by the bridge.
+- A consumer entity outside `dev.quokkify` is usable through both paths without listing it.
 - Cache test: a second `createSqlQuery` with the same configuration name returns the same `SqlFactory`.
 - The PR1 pool tests move to `PersistenceConfigurationFactory`.
 
 ### Docs and PR notes
 
 - `data-utils/sql/README.md`: variants 2 and 3 use the new API; a short note says `PersistenceItem` is deprecated for removal.
-- PR Migration section: before/after snippets for variants 2 and 3. No breaking change.
+- PR Migration section: before/after snippets for variants 2 and 3; note that entities implementing `SqlEntityInterface` are now found in any package, so `getManagedClassNames()` overrides that only work around the old `dev.quokkify` limit can be dropped. No breaking change.
 
 ## Out of scope
 
 - Querydsl fork (third #818 item).
-- Thread safety of `DatabaseService`'s `HashMap` cache and the never-cleared `ThreadLocal` in `SqlFactory`. The spike showed no effect on pool usage; file separate issues if wanted.
+- The never-cleared `ThreadLocal` in `SqlFactory`. The spike showed no effect on pool usage; file separate issues if wanted.
 - Removing `PersistenceItem` (a later release).

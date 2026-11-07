@@ -19,7 +19,7 @@ dependencies {
     testAnnotationProcessor libs.jakarta.persistence.api
     testAnnotationProcessor libs.jakarta.annotation.api
     api libs.assertj.core
-    testRuntimeOnly libs.h2
+    testImplementation libs.h2
     testRuntimeOnly libs.postgresql
 }
 

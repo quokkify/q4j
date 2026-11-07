@@ -1,15 +1,10 @@
 package dev.quokkify.service;
 
-import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
-import java.util.Objects;
+import java.util.concurrent.ConcurrentHashMap;
 
-import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
-import jakarta.persistence.PersistenceException;
-import jakarta.persistence.spi.PersistenceProvider;
-import jakarta.persistence.spi.PersistenceProviderResolverHolder;
+import jakarta.persistence.PersistenceConfiguration;
 
 /**
  * Singleton service for work with databases.
@@ -17,7 +12,7 @@ import jakarta.persistence.spi.PersistenceProviderResolverHolder;
 public class DatabaseService {
 
   private static volatile DatabaseService instance;
-  private final Map<String, SqlFactory> sqlQueryFactories = new HashMap<>();
+  private final Map<String, SqlFactory> sqlQueryFactories = new ConcurrentHashMap<>();
 
   private DatabaseService() {
   }
@@ -42,40 +37,37 @@ public class DatabaseService {
    * @return {@link SqlFactory}
    */
   public SqlFactory createSqlQuery(String persistenceName) {
-    if (!sqlQueryFactories.containsKey(persistenceName)) {
-      SqlFactory sqlFactory = new SqlFactory(Persistence.createEntityManagerFactory(persistenceName));
-      sqlQueryFactories.put(persistenceName, sqlFactory);
-      return sqlFactory;
-    } else {
-      return sqlQueryFactories.get(persistenceName);
-    }
+    return sqlQueryFactories.computeIfAbsent(persistenceName,
+        name -> new SqlFactory(Persistence.createEntityManagerFactory(name)));
   }
 
   /**
    * Create {@link SqlFactory} for work with SQL databases.
    *
+   * Only the name, properties, managed classes, non-JTA data source, mapping files, shared cache mode and
+   * validation mode of the item are used; the JTA data source, transaction type (always resource-local),
+   * persistence provider class name (always Hibernate), jar file URLs, excludeUnlistedClasses and class loader
+   * are not.
+   *
    * @param persistence Persistence class {@link dev.quokkify.persistence.PersistenceItem}
    * @return {@link SqlFactory}
+   * @deprecated use {@link #createSqlQuery(PersistenceConfiguration)}
    */
+  @Deprecated(since = "0.14.0", forRemoval = true)
+  @SuppressWarnings("removal")
   public SqlFactory createSqlQuery(dev.quokkify.persistence.PersistenceItem persistence) {
-    if (!sqlQueryFactories.containsKey(persistence.getPersistenceUnitName())) {
-      List<PersistenceProvider> providers = PersistenceProviderResolverHolder.getPersistenceProviderResolver()
-          .getPersistenceProviders();
-      EntityManagerFactory entityManagerFactory = providers.stream()
-          .filter(provider -> provider.getClass().getName().equals(persistence.getPersistenceProviderClassName()))
-          .findAny()
-          .orElseThrow(() -> new PersistenceException("No Persistence provider for : "
-              + persistence.getPersistenceProviderClassName()))
-          .createContainerEntityManagerFactory(persistence, Map.of());
-      if (Objects.isNull(entityManagerFactory)) {
-        throw new PersistenceException("No Persistence provider for EntityManager named: "
-            + persistence.getPersistenceUnitName());
-      }
-      SqlFactory sqlFactory = new SqlFactory(entityManagerFactory);
-      sqlQueryFactories.put(persistence.getPersistenceUnitName(), sqlFactory);
-      return sqlFactory;
-    } else {
-      return sqlQueryFactories.get(persistence.getPersistenceUnitName());
-    }
+    return createSqlQuery(persistence.toPersistenceConfiguration());
+  }
+
+  /**
+   * Create {@link SqlFactory} for work with SQL databases. An already used persistence name returns the cached
+   * factory and ignores the new configuration.
+   *
+   * @param configuration persistence configuration
+   * @return {@link SqlFactory}
+   */
+  public SqlFactory createSqlQuery(PersistenceConfiguration configuration) {
+    return sqlQueryFactories.computeIfAbsent(configuration.name(),
+        name -> new SqlFactory(configuration.createEntityManagerFactory()));
   }
 }
