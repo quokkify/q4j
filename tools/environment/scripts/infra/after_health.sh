@@ -16,6 +16,9 @@ for profile in "$@"; do
     storage)
       ./tools/environment/scripts/infra/hooks/storage.sh
       ;;
+    sql)
+      ./tools/environment/scripts/infra/hooks/sql.sh
+      ;;
     redis)
       ./tools/environment/scripts/infra/hooks/redis.sh
       ;;

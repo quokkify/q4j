@@ -38,6 +38,10 @@ services:
     ports:
       - "${MONGODB_PUBLISHED_PORT:-27017}:27017"
 
+  postgres:
+    ports:
+      - "${POSTGRES_PUBLISHED_PORT:-5432}:5432"
+
   redis:
     ports:
       - "${REDIS_PUBLISHED_PORT:-6379}:6379"

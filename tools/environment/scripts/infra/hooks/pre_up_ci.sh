@@ -33,6 +33,9 @@ for profile in "$@"; do
     storage)
       export MONGODB_PUBLISHED_PORT=0
       ;;
+    sql)
+      export POSTGRES_PUBLISHED_PORT=0
+      ;;
     redis)
       export REDIS_PUBLISHED_PORT=0
       ;;

@@ -107,7 +107,7 @@ jobs:
 
       - name: 🚀 Run tests
         run: |
-          for env_file in selenium-grid mock-server mongo redis nginx reportportal kafka rabbitmq; do
+          for env_file in selenium-grid mock-server mongo postgres redis nginx reportportal kafka rabbitmq; do
             if [[ -f "tools/environment/.${env_file}.env" ]]; then
               set -a
               # shellcheck source=/dev/null
