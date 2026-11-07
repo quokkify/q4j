@@ -1,1 +1,1 @@
-{"id":"96b7ed2d3482218c0f8f4d86fe1d7a5d.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.ConnectionProviderTest.checkAgroalProviderViaXml","name":"Check connection via Xml","status":"passed","testResultsByEnv":{"ubuntu-26-04":"52a80e12ea74aec45ed44ce7cec4ef8f"}}
+{"id":"96b7ed2d3482218c0f8f4d86fe1d7a5d.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.ConnectionProviderTest.checkAgroalProviderViaXml","name":"Check connection via Xml","status":"passed","testResultsByEnv":{"ubuntu-26-04":"aee0770c226e65a6a7ea2fb14ca43fa8"}}
