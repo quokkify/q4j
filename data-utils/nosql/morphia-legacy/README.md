@@ -6,14 +6,14 @@ Morphia-based MongoDB access utility for test automation with thread-safe datast
 
 ## Migrating to dev.quokkify:mongodb
 
-| Morphia (legacy) | `dev.quokkify:mongodb` |
-|---|---|
-| `@dev.morphia.annotations.Entity` | `@MongoDocument("name")` + `@QueryEntity` |
-| `@dev.morphia.annotations.Id` | `@org.bson.codecs.pojo.annotations.BsonId` |
-| `new NoSqlFactory(client, config)` | `new MongoFactory(client, "db")` |
-| `update(entity, List.of(UpdateOperators.set(f, v)))` | `update(entity, Updates.set(f, v))` |
-| `selectDsl(Class)` / `selectQuery(EntityPath)` (Morphia) | `selectQuery(EntityPath)` |
-| `delete(entity)`: deletes all documents of the class | `delete(entity)`: deletes this document |
+| Morphia (legacy)                                         | `dev.quokkify:mongodb`                     |
+| -------------------------------------------------------- | ------------------------------------------ |
+| `@dev.morphia.annotations.Entity`                        | `@MongoDocument("name")` + `@QueryEntity`  |
+| `@dev.morphia.annotations.Id`                            | `@org.bson.codecs.pojo.annotations.BsonId` |
+| `new NoSqlFactory(client, config)`                       | `new MongoFactory(client, "db")`           |
+| `update(entity, List.of(UpdateOperators.set(f, v)))`     | `update(entity, Updates.set(f, v))`        |
+| `selectDsl(Class)` / `selectQuery(EntityPath)` (Morphia) | `selectQuery(EntityPath)`                  |
+| `delete(entity)`: deletes all documents of the class     | `delete(entity)`: deletes this document    |
 
 ## Installation
 

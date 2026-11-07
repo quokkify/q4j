@@ -64,16 +64,16 @@ exercise browser, API, database, queue, or reporting system
 produce a clear test result
 ```
 
-| Need                  | Add                       | Result                                              |
-| --------------------- | ------------------------- | --------------------------------------------------- |
-| Shared test utilities | `core`                    | Formatting, generation, models, and reusable APIs   |
-| TestNG lifecycle      | `testng`                  | Listeners, retries, annotations, and extensions     |
-| Browser automation    | `selenide`                | Components, page workflows, and browser services    |
-| API automation        | `rest-assured`            | Requests, filters, steps, and response verification |
+| Need                  | Add                              | Result                                              |
+| --------------------- | -------------------------------- | --------------------------------------------------- |
+| Shared test utilities | `core`                           | Formatting, generation, models, and reusable APIs   |
+| TestNG lifecycle      | `testng`                         | Listeners, retries, annotations, and extensions     |
+| Browser automation    | `selenide`                       | Components, page workflows, and browser services    |
+| API automation        | `rest-assured`                   | Requests, filters, steps, and response verification |
 | Database verification | `sql`, `morphia-legacy`, `redis` | Persistence helpers and reusable assertions         |
-| Messaging             | `kafka`, `rabbitmq`       | Producers, consumers, steps, and verifiers          |
-| Test management       | `jira-*`, `testrail-*`    | Ticket and test-case lifecycle integrations         |
-| Reporting             | `reportportal-*`          | ReportPortal services and TestNG listeners          |
+| Messaging             | `kafka`, `rabbitmq`              | Producers, consumers, steps, and verifiers          |
+| Test management       | `jira-*`, `testrail-*`           | Ticket and test-case lifecycle integrations         |
+| Reporting             | `reportportal-*`                 | ReportPortal services and TestNG listeners          |
 
 ---
 
@@ -113,11 +113,12 @@ dev.quokkify:<artifact>:<version>
 
 ### 🗄️ Data access
 
-| Artifact  | Purpose                                          |
-| --------- | ------------------------------------------------ |
-| `sql`     | SQL, JPA, persistence, and database verification |
-| `morphia-legacy` | Deprecated Morphia helpers; use mongodb |
-| `redis`   | Redis operations and verification                |
+| Artifact         | Purpose                                                                |
+| ---------------- | ---------------------------------------------------------------------- |
+| `sql`            | SQL, JPA, persistence, and database verification                       |
+| `morphia-legacy` | Deprecated Morphia helpers; use mongodb                                |
+| `mongodb`        | MongoDB helpers on the official driver with type-safe Querydsl queries |
+| `redis`          | Redis operations and verification                                      |
 
 ### 🔌 Test integrations
 
