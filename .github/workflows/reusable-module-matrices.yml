@@ -18,7 +18,7 @@ permissions:
 
 jobs:
   emit:
-    name: Emit module matrices
+    name: matrices
     runs-on: ubuntu-latest
     outputs:
       common_modules: ${{ steps.emit.outputs.common_modules }}
@@ -79,6 +79,15 @@ jobs:
               ...module,
               results_path: module.module.slice(1).replaceAll(':', '/'),
             }));
+
+            // Job names are "<name> / Build|Test" without the group, so short names must stay unique.
+            // The static data/integrations callers in test.yml reuse these names and are not checked here.
+            const names = [...commonModules, ...dataBuildModules, ...integrationsBuildModules].map((m) => m.name);
+            const dupes = [...new Set(names.filter((n, i) => names.indexOf(n) !== i))];
+            if (dupes.length) {
+              core.setFailed(`Module short names must be unique: ${dupes.join(', ')}`);
+              return;
+            }
 
             core.setOutput('common_modules', JSON.stringify(withResultsPath(commonModules)));
             core.setOutput('data_build_modules', JSON.stringify(withResultsPath(dataBuildModules)));

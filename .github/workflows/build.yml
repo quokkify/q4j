@@ -12,16 +12,18 @@ concurrency:
 
 jobs:
   detect-runner:
+    name: Setup
     uses: ./.github/workflows/reusable-detect-runner.yml
     with:
       strategy: push_any
     secrets: inherit
 
   module-matrices:
+    name: Setup
     uses: ./.github/workflows/reusable-module-matrices.yml
 
   build-common:
-    name: "Build common • ${{ matrix.name }}"
+    name: "${{ matrix.name }} / Build"
     needs: [detect-runner, module-matrices]
     runs-on: ${{ fromJson(needs.detect-runner.outputs.runs_on) }}
     permissions:
@@ -66,7 +68,7 @@ jobs:
             **/build/reports/checkstyle
 
   build-data:
-    name: "Build data • ${{ matrix.name }}"
+    name: "${{ matrix.name }} / Build"
     needs: [detect-runner, module-matrices, build-common]
     runs-on: ${{ fromJson(needs.detect-runner.outputs.runs_on) }}
     permissions:
@@ -111,7 +113,7 @@ jobs:
             **/build/reports/checkstyle
 
   build-integrations:
-    name: "Build integrations • ${{ matrix.name }}"
+    name: "${{ matrix.name }} / Build"
     needs: [detect-runner, module-matrices, build-common]
     runs-on: ${{ fromJson(needs.detect-runner.outputs.runs_on) }}
     permissions:
