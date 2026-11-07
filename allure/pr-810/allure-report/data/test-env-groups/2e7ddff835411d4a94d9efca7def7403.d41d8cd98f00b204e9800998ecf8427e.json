@@ -1,0 +1,1 @@
+{"id":"2e7ddff835411d4a94d9efca7def7403.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.arch.NoDeprecatedApiUsageMainRuleTest.deprecatedCallInMainClassesIsReportedWithoutATestView","name":"deprecatedCallInMainClassesIsReportedWithoutATestView","status":"passed","testResultsByEnv":{"ubuntu-26-04":"8b17737ccccee97e5df29659cb114deb"}}
