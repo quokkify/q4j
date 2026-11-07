@@ -6,6 +6,8 @@ dependencies {
     api libs.allure.java.commons
     api libs.morphia.core
     api libs.mongodb.driver.sync
+    // querydsl-mongodb only uses com.mongodb.{BasicDBObject,BasicDBList,DBObject,DBRef} and com.mongodb.client.*, all in mongodb-driver-core;
+    // the exclusion stops it from requesting legacy 5.12 (morphia-core 2.5.3 still brings mongodb-driver-legacy, resolved 5.7.0, pre-existing)
     api(libs.querydsl.mongodb) {
         exclude group: "org.mongodb", module: "mongodb-driver-legacy"
     }

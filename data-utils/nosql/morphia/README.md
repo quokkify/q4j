@@ -100,6 +100,8 @@ dependencies {
 }
 ```
 
+Use `annotationProcessor` instead of `testAnnotationProcessor` if the entities live in `src/main`. Keep the processor's Querydsl and `morphia-core` versions equal to the ones `dev.quokkify:morphia` brings transitively (check with `./gradlew dependencies`).
+
 ```java
 QUser user = QUser.user;
 User found = mongoSteps.selectQuery(user)

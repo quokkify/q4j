@@ -199,3 +199,10 @@ git add gradle/libs.versions.toml
 git commit -m "chore(deps): move Querydsl test fixtures to the OpenFeign fork"
 ```
 Body: `com.querydsl` has had no release since 5.1.0 (January 2024); the fork keeps the `com.querydsl.*` packages, so the fixtures and `GeneratedCode` are unchanged; `Refs quokkify/q4j#818`; the session's `Co-Authored-By` trailer. Test-only dependency, so no release-note impact for archgate users.
+
+## Outcome and deviations
+
+- Step 4/8: the Morphia annotation processor also needs `querydsl-mongodb` on the processor path (`testAnnotationProcessor libs.querydsl.mongodb`); without it generation fails with `ClassNotFoundException: com.querydsl.mongodb.Point`. The README snippet includes it.
+- Step 4: `QIdentity` was generated without `@QuerySupertype`; `Identity` is unchanged.
+- Step 6/7: the legacy exclusion stays, but not every `org.mongodb` artifact resolves to 5.13.0: morphia-core 2.5.3 brings `mongodb-driver-legacy` 5.7.0 (pre-existing on base). Driver alignment is a follow-up.
+- Task 2: archgate Gradle projects are `:context-archunit` and `:rules-archunit` (directories `backends/archunit/{context,rules}`).
