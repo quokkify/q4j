@@ -1,0 +1,1 @@
+{"id":"665aeeb49865bd9129f7278372ee31fd.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.arch.SerialVersionUidRuleTest.fieldsThatAreNotStaticFinalLongAreReported","name":"fieldsThatAreNotStaticFinalLongAreReported","status":"passed","testResultsByEnv":{"ubuntu-26-04":"d2008540f5a282b5d7aed0f76a277f13"}}
