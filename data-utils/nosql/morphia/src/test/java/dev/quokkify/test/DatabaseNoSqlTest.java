@@ -1,8 +1,10 @@
 package dev.quokkify.test;
 
 import java.util.List;
+import java.util.UUID;
 
 import dev.quokkify.entity.nosql.DatabaseTestUserMongo;
+import dev.quokkify.entity.nosql.QDatabaseTestUserMongo;
 import dev.quokkify.service.NoSqlFactory;
 import dev.quokkify.steps.MongoDatabaseSteps;
 
@@ -100,5 +102,38 @@ public class DatabaseNoSqlTest extends BaseDatabaseTest {
         .filter(Filters.eq("firstName", deletedUser.getFirstName()))
         .first();
     Assertions.assertThat(actual).isNull();
+  }
+
+  @TmsLink("NO_SQL_DATABASE_ID_5")
+  @Test(description = "Check type-safe select by inherited id and field")
+  public void checkSelectQuery() {
+    DatabaseTestUserMongo user = new DatabaseTestUserMongo("Query", "Dsl");
+    mongoDatabaseSteps.save(user);
+    QDatabaseTestUserMongo q = QDatabaseTestUserMongo.databaseTestUserMongo;
+    DatabaseTestUserMongo actual = mongoDatabaseSteps.selectQuery(q)
+        .where(q.id.eq(user.getId()), q.firstName.eq("Query"))
+        .fetchFirst();
+    Assertions.assertThat(actual).usingRecursiveComparison().isEqualTo(user);
+  }
+
+  @TmsLink("NO_SQL_DATABASE_ID_6")
+  @Test(description = "Check type-safe select returns nothing for unknown value")
+  public void checkSelectQueryNoMatch() {
+    QDatabaseTestUserMongo q = QDatabaseTestUserMongo.databaseTestUserMongo;
+    String unknown = UUID.randomUUID().toString();
+    Assertions.assertThat(mongoDatabaseSteps.selectQuery(q).where(q.firstName.eq(unknown)).fetch()).isEmpty();
+    Assertions.assertThat(mongoDatabaseSteps.selectQuery(q).where(q.firstName.eq(unknown)).fetchFirst()).isNull();
+  }
+
+  @TmsLink("NO_SQL_DATABASE_ID_7")
+  @Test(description = "Check type-safe select returns all matching records")
+  public void checkSelectQueryFetchesAll() {
+    String lastName = UUID.randomUUID().toString();
+    mongoDatabaseSteps.save(List.of(new DatabaseTestUserMongo("One", lastName), new DatabaseTestUserMongo("Two", lastName)));
+    QDatabaseTestUserMongo q = QDatabaseTestUserMongo.databaseTestUserMongo;
+    Assertions.assertThat(mongoDatabaseSteps.selectQuery(q).where(q.lastName.eq(lastName)).fetch())
+        .extracting(DatabaseTestUserMongo::getFirstName)
+        .containsExactlyInAnyOrder("One", "Two");
+    Assertions.assertThat(mongoDatabaseSteps.selectQuery(q).where(q.lastName.eq(lastName)).fetchFirst()).isNotNull();
   }
 }

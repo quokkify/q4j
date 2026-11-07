@@ -10,14 +10,14 @@ dependencies {
     implementation libs.hibernate.c3p0
     implementation libs.jakarta.persistence.api
     implementation libs.hibernate.type
-    implementation "com.querydsl:querydsl-jpa:${libs.versions.querydsl.get()}:jakarta"
-    implementation "jakarta.annotation:jakarta.annotation-api:3.0.0"
-    annotationProcessor "com.querydsl:querydsl-apt:${libs.versions.querydsl.get()}:jakarta"
+    api libs.querydsl.jpa
+    implementation libs.jakarta.annotation.api
+    annotationProcessor variantOf(libs.querydsl.apt) { classifier("jpa") }
     annotationProcessor libs.jakarta.persistence.api
-    annotationProcessor "jakarta.annotation:jakarta.annotation-api:3.0.0"
-    testAnnotationProcessor "com.querydsl:querydsl-apt:${libs.versions.querydsl.get()}:jakarta"
+    annotationProcessor libs.jakarta.annotation.api
+    testAnnotationProcessor variantOf(libs.querydsl.apt) { classifier("jpa") }
     testAnnotationProcessor libs.jakarta.persistence.api
-    testAnnotationProcessor "jakarta.annotation:jakarta.annotation-api:3.0.0"
+    testAnnotationProcessor libs.jakarta.annotation.api
     api libs.assertj.core
     testRuntimeOnly libs.h2
 }

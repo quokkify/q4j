@@ -9,4 +9,13 @@ dependencies {
     // morphia-core needs mongodb-driver-legacy (AggregationOptions) but requests an older version;
     // declare it at the driver version. Remove once Morphia tracks the driver version.
     api libs.mongodb.driver.legacy
+    // querydsl-mongodb only uses com.mongodb.{BasicDBObject,BasicDBList,DBObject,DBRef} and com.mongodb.client.*, all in mongodb-driver-core;
+    // the exclusion stops it from requesting legacy 5.12 (morphia-core still needs legacy; it is declared above at the driver version)
+    api(libs.querydsl.mongodb) {
+        exclude group: "org.mongodb", module: "mongodb-driver-legacy"
+    }
+
+    testAnnotationProcessor variantOf(libs.querydsl.apt) { classifier("morphia") }
+    testAnnotationProcessor libs.querydsl.mongodb
+    testAnnotationProcessor libs.morphia.core
 }
