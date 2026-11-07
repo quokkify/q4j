@@ -3,6 +3,7 @@ plugins {
     id 'java-platform'
     id 'com.github.spotbugs' version '6.5.13'
     id 'com.vanniktech.maven.publish' version '0.37.0' apply false
+    alias(libs.plugins.archgate) apply false
 }
 
 def releaseManifest = new groovy.json.JsonSlurper().parse(file('.github/release-please/manifest.json'))
@@ -23,7 +24,7 @@ subprojects {
 
 apply from: 'gradle/compilation.gradle'
 apply from: 'gradle/code-analysis.gradle'
-apply from: 'gradle/architecture.gradle'
+apply from: 'gradle/archgate.gradle'
 apply from: 'gradle/dependencies.gradle'
 apply from: 'gradle/tests.gradle'
 apply from: 'gradle/aspectj.gradle'

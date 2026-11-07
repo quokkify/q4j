@@ -1,0 +1,11 @@
+# The rules of tools/archgate plus HttpStatusConstantRule for the API tests of this module.
+dev.quokkify.archgate.rules.archunit.HashCodeEqualsTogetherRule
+dev.quokkify.archgate.rules.archunit.LoggerFieldNameRule
+dev.quokkify.archgate.rules.archunit.NoConsoleOutputRule
+dev.quokkify.archgate.rules.archunit.NoDeprecatedApiUsageRule
+dev.quokkify.archgate.rules.archunit.ServiceRegistrationRule
+dev.quokkify.archgate.rules.archunit.TestClassNamingRule
+dev.quokkify.arch.HttpStatusConstantRule
+dev.quokkify.arch.NoInterfaceIPrefixRule
+dev.quokkify.arch.PackageNamingRule
+dev.quokkify.arch.SerialVersionUidRule

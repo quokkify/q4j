@@ -1,0 +1,23 @@
+description = "Q4J-specific ArchGate architecture rules"
+
+dependencies {
+    api platform(libs.archgate.bom)
+    api libs.archgate.context.archunit
+    api libs.archgate.rules.archunit
+    api libs.archgate.context.javaparser
+
+    // HttpStatusConstantRule maps literals to org.apache.http.HttpStatus, which REST Assured brings at runtime.
+    testRuntimeOnly libs.rest.assured
+}
+
+tasks.named('jar') {
+    manifest {
+        attributes('Archgate-Api-Version': libs.versions.archgate.get())
+    }
+}
+
+// The rules are verified by their fixture tests. Running them as this module's own gate would make ArchGate's
+// registration check require HttpStatusConstantRule here too, and this module has no API tests for it to check.
+archgate {
+    skip = true
+}

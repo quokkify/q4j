@@ -1,6 +1,5 @@
 ext.modules = [
     ':testng-extensions': [artifactId: 'testng', displayName: 'Q4J TestNG', description: 'TestNG listeners, retry policies, annotations, and test lifecycle extensions.'],
-    ':architecture': [artifactId: 'architecture', displayName: 'Q4J Architecture', description: 'Pluggable architecture rules and a build gate that verifies them with ArchUnit and ClassGraph.'],
 
     ':integrations:rest-assured': [artifactId: 'rest-assured', displayName: 'Q4J REST Assured', description: 'REST Assured helpers for API testing, validation, and request configuration.'],
     ':integrations:selenide': [artifactId: 'selenide', displayName: 'Q4J Selenide', description: 'Selenide components and workflows for browser-based test automation.'],
@@ -37,6 +36,8 @@ ext.modules = [
     ':common-utils:config': [artifactId: 'config', displayName: 'Q4J Config', description: 'Typed configuration and locale-provider utilities for Q4J.'],
     ':common-utils:signature': [artifactId: 'crypto', displayName: 'Q4J Crypto', description: 'Encryption, key, and digital-signature utilities for Q4J.'],
     ':common-utils:console': [artifactId: 'ssh', displayName: 'Q4J SSH', description: 'SSH execution and port-forwarding utilities for Q4J.'],
+
+    ':archgate-rules': [artifactId: 'archgate-rules', displayName: 'Q4J ArchGate Rules', description: 'Q4J-specific ArchGate architecture rules, such as HTTP status constants in REST Assured API tests.'],
 ]
 
 // Gradle creates structural parent projects (for example :integrations) for

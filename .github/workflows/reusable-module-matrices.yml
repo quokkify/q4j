@@ -32,7 +32,6 @@ jobs:
           script: |
             const commonModules = [
               { name: 'testng', module: ':testng-extensions', slug: 'testng-extensions' },
-              { name: 'architecture', module: ':architecture', slug: 'architecture' },
               { name: 'core', module: ':common-utils:core', slug: 'common-utils-core' },
               { name: 'jackson-support', module: ':common-utils:jackson:parent', slug: 'common-utils-jackson-parent' },
               { name: 'jackson-csv', module: ':common-utils:jackson:csv', slug: 'common-utils-jackson-csv' },
@@ -47,6 +46,7 @@ jobs:
               { name: 'config', module: ':common-utils:config', slug: 'common-utils-config' },
               { name: 'crypto', module: ':common-utils:signature', slug: 'common-utils-signature' },
               { name: 'ssh', module: ':common-utils:console', slug: 'common-utils-console' },
+              { name: 'archgate-rules', module: ':archgate-rules', slug: 'archgate-rules' },
             ];
 
             const dataBuildModules = [
