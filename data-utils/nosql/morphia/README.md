@@ -88,6 +88,26 @@ public class UserTest extends BaseTest {
 }
 ````
 
+## Type-safe queries with Querydsl
+
+`selectQuery` builds a Querydsl `MorphiaQuery` from a generated Q-class. Add the annotation processors that generate Q-classes for your `@Entity` types:
+
+```kotlin
+dependencies {
+    testAnnotationProcessor("io.github.openfeign.querydsl:querydsl-apt:7.7:morphia")
+    testAnnotationProcessor("dev.morphia.morphia:morphia-core:2.5.3")
+}
+```
+
+```java
+QUser user = QUser.user;
+User found = mongoSteps.selectQuery(user)
+    .where(user.email.eq("alice@example.com"))
+    .fetchFirst();
+```
+
+`selectDsl(Class)` with Morphia `Filters` keeps working unchanged.
+
 ## Fluent verification chain
 
 Use `verify()` to assert MongoDB state with polling and configurable timeouts:
@@ -144,3 +164,4 @@ Default timeout is 30 seconds with 1 second polling.
 | `mongoSteps.update(entity, operators)`   | Apply update operators, return `UpdateResult`     |
 | `mongoSteps.delete(entity)`              | Remove entity, return `DeleteResult`              |
 | `mongoSteps.selectDsl(Entity.class)`     | Start a Morphia `Query` for the given entity type |
+| `mongoSteps.selectQuery(QEntity)`        | Start a type-safe Querydsl `MorphiaQuery`         |

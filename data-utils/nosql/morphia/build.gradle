@@ -6,4 +6,11 @@ dependencies {
     api libs.allure.java.commons
     api libs.morphia.core
     api libs.mongodb.driver.sync
+    api(libs.querydsl.mongodb) {
+        exclude group: "org.mongodb", module: "mongodb-driver-legacy"
+    }
+
+    testAnnotationProcessor variantOf(libs.querydsl.apt) { classifier("morphia") }
+    testAnnotationProcessor libs.querydsl.mongodb
+    testAnnotationProcessor libs.morphia.core
 }

@@ -122,6 +122,7 @@ jakarta-annotation-api = { module = "jakarta.annotation:jakarta.annotation-api",
 # QueryDSL
 querydsl-jpa = { module = "io.github.openfeign.querydsl:querydsl-jpa", version.ref = "querydsl" }
 querydsl-apt = { module = "io.github.openfeign.querydsl:querydsl-apt", version.ref = "querydsl" }
+querydsl-mongodb = { module = "io.github.openfeign.querydsl:querydsl-mongodb", version.ref = "querydsl" }
 # H2
 h2 = { module = "com.h2database:h2", version.ref = "h2" }
 # Jira REST Client
