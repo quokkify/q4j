@@ -163,7 +163,7 @@ Expected: container name printed (it was started with `--rm`, so it is removed).
 
 ### Task 2: archgate test fixtures on the OpenFeign fork
 
-Repository `quokkify/archgate` (local clone `~/Code/quokkify/archgate`, currently 28 commits behind `origin/main`; do not touch it). Work in a new worktree: `git -C ~/Code/quokkify/archgate worktree add -b chore/querydsl-openfeign ~/Code/quokkify/.worktrees/archgate/chore-querydsl-openfeign origin/main`.
+Repository `quokkify/archgate`. Work in a fresh worktree on a new branch `chore/querydsl-openfeign` created from `origin/main`; do not modify an existing local clone's checkout.
 
 **Context:** `com.querydsl:querydsl-core` 5.1.0 is only a `testImplementation` dependency of `backends/archunit/context` and `backends/archunit/rules`. It compiles the fixtures `QFoo`, `QDate`, `QLogger`, which extend `com.querydsl.core.types.dsl.BeanPath<Object>` through `super(Object.class, "<name>")`. The production rule `GeneratedCode` matches the string `com.querydsl.core.types.dsl.BeanPath`, so it has no dependency on the library. The fork keeps the package and the `BeanPath(Class<? extends T>, String)` constructor, so no Java changes are expected.
 

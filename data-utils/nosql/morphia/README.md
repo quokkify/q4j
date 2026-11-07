@@ -95,6 +95,7 @@ public class UserTest extends BaseTest {
 ```kotlin
 dependencies {
     testAnnotationProcessor("io.github.openfeign.querydsl:querydsl-apt:7.7:morphia")
+    testAnnotationProcessor("io.github.openfeign.querydsl:querydsl-mongodb:7.7")
     testAnnotationProcessor("dev.morphia.morphia:morphia-core:2.5.3")
 }
 ```
