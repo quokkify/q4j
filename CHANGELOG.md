@@ -1,5 +1,141 @@
 # Changelog
 
+## [0.14.0](https://github.com/quokkify/q4j/compare/v0.13.0...v0.14.0) (2026-11-07)
+
+<!-- project-toolkit:release-notes v2 -->
+**At a glance:** ⚠️ 3 breaking · 4 new · 1 fixed · 3 internal
+
+### ⚠️ Breaking changes
+
+> [!WARNING]
+> **architecture:** move to ArchGate 0.2.1 and drop NoDeprecatedApiUsageMainRule ([#817](https://github.com/quokkify/q4j/pull/817))
+>
+> `dev.quokkify.arch.NoDeprecatedApiUsageMainRule`, released in `archgate-rules` v0.13.0, is removed. A project that lists it in `META-INF/services/dev.quokkify.archgate.api.ArchitectureRule` must replace it with `dev.quokkify.archgate.rules.archunit.NoDeprecatedApiUsageRule` and move to ArchGate 0.2.0 or later.
+>
+> Closes #804
+
+> [!WARNING]
+> **mongodb:** add MongoDB module without Morphia and rename morphia to morphia-legacy — **New `dev.quokkify:mongodb`: MongoDB test helpers on the official driver, with no Morphia and no legacy driver.** Annotate a POJO with `@MongoDocument` and `@QueryEntity`, then save, update and delete it and query it type-safely with generated Q-classes. Stored-name mappings via `@BsonProperty`, embedded objects and UUIDs work, and `fetch()`, `fetchFirst()` and `fetchOne()` attach the query to the Allure report. `update` and `delete` now touch exactly one document by `_id`. ([#824](https://github.com/quokkify/q4j/pull/824))
+>
+> **`dev.quokkify:morphia` is renamed to `dev.quokkify:morphia-legacy`.** To keep using Morphia, change the coordinate; code and packages are unchanged, but the types are deprecated for removal.
+>
+> **Moving to `dev.quokkify:mongodb`:** replace `@Entity` with `@MongoDocument` + `@QueryEntity` and declare your own `@BsonId` id. Then replace `NoSqlFactory` with `MongoFactory`, `UpdateOperators.set` with `Updates.set`, and `selectDsl` with `selectQuery`, and switch the annotation processor to `querydsl-apt:7.7:general`. Note that `delete(entity)` in the legacy module removes every document of the entity's class, while the new module removes only that document. The full table is in `data-utils/nosql/morphia-legacy/README.md`.
+>
+> ```java
+> @MongoDocument("users")
+> @QueryEntity
+> public class User {
+>   @BsonId private ObjectId id;
+>   @BsonProperty("first_name") private String firstName;
+>   private int age;
+>   // getters and setters
+> }
+>
+> MongoDatabaseSteps steps = new MongoDatabaseSteps(new MongoFactory(MongoClients.create(url), "app"));
+> steps.save(user);
+> QUser u = QUser.user;
+> List<User> adults = steps.selectQuery(u).where(u.age.goe(18)).orderBy(u.firstName.asc()).fetch();
+> ```
+>
+> ```kotlin
+> dependencies {
+>     testImplementation("dev.quokkify:mongodb:0.14.0")
+>     testAnnotationProcessor("io.github.openfeign.querydsl:querydsl-apt:7.7:general")
+> }
+> ```
+
+> [!WARNING]
+> **sql:** switch Querydsl to the maintained OpenFeign fork — **`dev.quokkify:sql` now runs on the maintained OpenFeign Querydsl fork (7.7).** Your Querydsl query code compiles unchanged, because the `com.querydsl.*` packages are the same. Only your build coordinates change, and `querydsl-jpa` now comes in transitively. ([#819](https://github.com/quokkify/q4j/pull/819))
+>
+> **Switch to the fork's coordinates.** Replace the `com.querydsl` group with `io.github.openfeign.querydsl`. Drop the `:jakarta` classifier from `querydsl-jpa`. On `querydsl-apt`, use the `jpa` classifier.
+>
+> ```kotlin
+> // before
+> testAnnotationProcessor("com.querydsl:querydsl-apt:5.1.0:jakarta")
+> // after
+> testAnnotationProcessor("io.github.openfeign.querydsl:querydsl-apt:7.7:jpa")
+> ```
+>
+> **Remove every `com.querydsl:*` dependency.** Both groups contain the same `com.querydsl.*` classes. Gradle and Maven do not treat them as one library, so keeping both puts two copies on the classpath without any resolution error. See the [Querydsl migration guide](https://openfeign.github.io/querydsl/migration).
+>
+> ```java
+> QUser user = QUser.user;
+> List<User> active = databaseSteps.selectDsl(user)
+>     .where(user.status.eq("active"))
+>     .fetch();
+> ```
+
+### ✨ New
+
+- **morphia:** add type-safe Querydsl queries via selectQuery — **Type-safe MongoDB queries in `dev.quokkify:morphia`.** Generate Q-classes for your Morphia entities and query with `selectQuery(QUser.user)`. A typo in a field name now fails at compile time instead of at test run time. The existing `selectDsl(Class)` with Morphia `Filters` keeps working. ([#820](https://github.com/quokkify/q4j/pull/820))
+  ```kotlin
+  dependencies {
+      testAnnotationProcessor("io.github.openfeign.querydsl:querydsl-apt:7.7:morphia")
+      testAnnotationProcessor("io.github.openfeign.querydsl:querydsl-mongodb:7.7")
+      testAnnotationProcessor("dev.morphia.morphia:morphia-core:2.5.3")
+  }
+  ```
+
+  ```java
+  QUser user = QUser.user;
+  User found = mongoSteps.selectQuery(user)
+      .where(user.email.eq("alice@example.com"), user.age.goe(18))
+      .fetchFirst();
+  ```
+- **sql:** attach executed SQL to Allure for stream() and iterate() — **SQL from `stream()` and `iterate()` now shows up in the Allure report.** Queries built with `selectDsl(...)` attach the executed SQL to their "Execute query" step, whichever fetch method you use. Previously only `fetch()`, `fetchOne()` and `fetchFirst()` did. ([#823](https://github.com/quokkify/q4j/pull/823))
+  ```java
+  QUser user = QUser.user;
+  try (Stream<User> active = databaseSteps.selectDsl(user)
+      .where(user.status.eq("active"))
+      .stream()) {
+    active.forEach(this::checkUser);
+  }
+  ```
+- **sql:** bootstrap through HibernatePersistenceConfiguration — **`dev.quokkify:sql` bootstraps through the standard Jakarta Persistence `PersistenceConfiguration`, and finds your entities in any package.** Every `@Entity` implementing `SqlEntityInterface` is discovered automatically, so subclassing `PersistenceItem` to list project entities is no longer needed; `PersistenceItem` keeps working but is deprecated for removal. ([#827](https://github.com/quokkify/q4j/pull/827))
+  ```java
+  HibernatePersistenceConfiguration configuration = PersistenceConfigurationFactory.create(
+      "my-persistence-unit",
+      Map.of(
+          AvailableSettings.JAKARTA_JDBC_URL, dbConfig.url(),
+          AvailableSettings.JAKARTA_JDBC_USER, dbConfig.user(),
+          AvailableSettings.JAKARTA_JDBC_PASSWORD, dbConfig.password()));
+  SqlFactory sqlFactory = DatabaseService.getInstance().createSqlQuery(configuration);
+
+  // exact entity set, no classpath scan
+  PersistenceConfigurationFactory.create("billing", properties, List.of(Invoice.class, Payment.class));
+  ```
+
+  > **Migration**
+  >
+  > - `new PersistenceItem(name, properties)` → `PersistenceConfigurationFactory.create(name, properties)`.
+  > - `PersistenceItemProvider.getPersistenceItem(stage)` → `PersistenceItemProvider.getPersistenceConfiguration(stage)`.
+  > - A `PersistenceItem` subclass overriding `getManagedClassNames()` only to reach entities outside `dev.quokkify` can be dropped; to pin an exact set use `PersistenceConfigurationFactory.create(name, properties, entityClasses)`.
+  > - `PersistenceItem` now finds `SqlEntityInterface` entities in every package, so a unit may include more entities than before; pass an explicit set if a unit must not.
+  > - Builds with `-Werror` will fail on the new `forRemoval` deprecation warnings until migrated.
+- **sql:** replace c3p0 with Agroal connection pool — **`dev.quokkify:sql` now pools connections with Agroal instead of c3p0.** Agroal opens connections only as your tests need them and never fills the pool in the background, so a large `SQL_DATABASE_POOL_SIZE` no longer risks exhausting the database's connection limit; a live PostgreSQL test guards this. ([#826](https://github.com/quokkify/q4j/pull/826))
+
+  > **Migration**
+  >
+  > - `hibernate.c3p0.*` properties in `persistence.xml` are now ignored without a warning; use the `hibernate.agroal.*` equivalents.
+  > - A `persistence.xml` that names the c3p0 class in `hibernate.connection.provider_class` fails at boot; remove the property or switch it to `agroal`.
+  > - Without `hibernate.connection.pool_size`, Agroal's maximum is 10 connections. The `DatabaseStage` path always sets it (`SQL_DATABASE_POOL_SIZE`, default 100).
+  > - To stay on c3p0, add `org.hibernate.orm:hibernate-c3p0` and set `hibernate.connection.provider_class` explicitly. With two pool modules on the classpath, setting the provider explicitly is required: otherwise Hibernate cannot auto-detect a single provider and falls back to its non-production `DriverManagerConnectionProvider`.
+  > - Running this module's tests locally needs PostgreSQL: `docker compose -f tools/environment/docker/docker-compose.yml -f tools/environment/docker/docker-compose.local.yml --profile sql up -d`.
+
+### 🐛 Fixed
+
+- **morphia:** align mongodb-driver-legacy with the driver version — **`dev.quokkify:morphia` no longer mixes MongoDB driver versions.** `mongodb-driver-legacy`, which Morphia needs, now follows the driver version (5.13.0) instead of Morphia's older 5.7.0. This holds for Gradle and Maven consumers alike, and you do not need to change anything. ([#822](https://github.com/quokkify/q4j/pull/822))
+
+<details><summary>Internal changes (3 PRs)</summary>
+
+**Maintenance**
+
+- **template:** update shared project template ([#813](https://github.com/quokkify/q4j/pull/813))
+- **workflows:** use module-first job names ([#828](https://github.com/quokkify/q4j/pull/828))
+- **rest-assured:** use Duration timeouts instead of deprecated setParam — No user-visible change: `ApiService` request specifications keep the same read and connect timeouts. They now use the `Duration` API that REST Assured 6.3 introduced, instead of the deprecated `HttpClientConfig.setParam` parameters, which REST Assured 8.0.0 removes. ([#815](https://github.com/quokkify/q4j/pull/815))
+
+</details>
+
 ## [0.13.0](https://github.com/quokkify/q4j/compare/v0.12.2...v0.13.0) (2026-11-07)
 
 <!-- project-toolkit:release-notes v2 -->
