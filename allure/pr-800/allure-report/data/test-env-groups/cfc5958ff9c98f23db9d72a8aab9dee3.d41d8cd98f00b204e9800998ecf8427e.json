@@ -1,1 +1,1 @@
-{"id":"cfc5958ff9c98f23db9d72a8aab9dee3.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DatabaseSqlTest.checkStream","name":"Check stream returns the same record as fetch","status":"passed","testResultsByEnv":{"ubuntu-26-04":"5125448bf0d58a810a766cfdead11b40"}}
+{"id":"cfc5958ff9c98f23db9d72a8aab9dee3.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DatabaseSqlTest.checkStream","name":"Check stream returns the same record as fetch","status":"passed","testResultsByEnv":{"ubuntu-26-04":"4cb6be190b8624af9485d6b069afe580"}}
