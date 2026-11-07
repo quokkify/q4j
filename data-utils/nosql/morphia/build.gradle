@@ -6,4 +6,7 @@ dependencies {
     api libs.allure.java.commons
     api libs.morphia.core
     api libs.mongodb.driver.sync
+    // morphia-core needs mongodb-driver-legacy (AggregationOptions) but requests an older version;
+    // declare it at the driver version. Remove once Morphia tracks the driver version.
+    api libs.mongodb.driver.legacy
 }

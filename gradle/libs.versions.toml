@@ -107,6 +107,7 @@ bouncy-castle = { module = "org.bouncycastle:bcprov-jdk18on", version.ref = "bou
 morphia-core = { module = "dev.morphia.morphia:morphia-core", version.ref = "morphia" }
 # MongoDB Driver
 mongodb-driver-sync = { module = "org.mongodb:mongodb-driver-sync", version.ref = "mongodb-driver" }
+mongodb-driver-legacy = { module = "org.mongodb:mongodb-driver-legacy", version.ref = "mongodb-driver" }
 # Redisson
 redisson = { module = "org.redisson:redisson", version.ref = "redisson" }
 # Hibernate
