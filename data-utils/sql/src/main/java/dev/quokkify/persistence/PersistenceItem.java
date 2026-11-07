@@ -15,6 +15,7 @@ import jakarta.persistence.ValidationMode;
 import jakarta.persistence.spi.ClassTransformer;
 import jakarta.persistence.spi.PersistenceUnitInfo;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.cfg.AvailableSettings;
 import org.hibernate.jpa.HibernatePersistenceConfiguration;
 import org.hibernate.jpa.HibernatePersistenceProvider;
 
@@ -37,6 +38,9 @@ public class PersistenceItem implements PersistenceUnitInfo {
 
   /**
    * Convert this item to a {@link HibernatePersistenceConfiguration}, honoring {@link #getManagedClassNames()}.
+   * Also carried when set: the non-JTA data source, mapping file names, shared cache mode and validation mode.
+   * Not carried: the JTA data source, transaction type (always resource-local), jar file URLs,
+   * {@link #excludeUnlistedClasses()} and the class loader.
    *
    * @return configuration
    * @deprecated use {@link PersistenceConfigurationFactory#create(String, Map)}
@@ -45,7 +49,23 @@ public class PersistenceItem implements PersistenceUnitInfo {
   public HibernatePersistenceConfiguration toPersistenceConfiguration() {
     Map<String, Object> properties = new HashMap<>();
     getProperties().forEach((key, value) -> properties.put(String.valueOf(key), value));
-    return PersistenceConfigurationFactory.create(getPersistenceUnitName(), properties, getManagedClassNames());
+    DataSource dataSource = getNonJtaDataSource();
+    if (dataSource != null) {
+      properties.put(AvailableSettings.JAKARTA_NON_JTA_DATASOURCE, dataSource);
+    }
+    HibernatePersistenceConfiguration configuration =
+        PersistenceConfigurationFactory.create(getPersistenceUnitName(), properties, getManagedClassNames());
+    List<String> mappingFileNames = getMappingFileNames();
+    if (mappingFileNames != null) {
+      mappingFileNames.forEach(configuration::mappingFile);
+    }
+    if (getSharedCacheMode() != null) {
+      configuration.sharedCacheMode(getSharedCacheMode());
+    }
+    if (getValidationMode() != null) {
+      configuration.validationMode(getValidationMode());
+    }
+    return configuration;
   }
 
   @Override

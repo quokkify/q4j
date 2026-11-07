@@ -92,7 +92,7 @@ PersistenceConfiguration configuration = PersistenceConfigurationFactory.create(
 SqlFactory sqlFactory = DatabaseService.getInstance().createSqlQuery(configuration);
 ```
 
-Entities implementing `SqlEntityInterface` are discovered in any package; add more with `.managedClasses(...)` on the returned configuration.
+Entities implementing `SqlEntityInterface` are discovered in any package; add more with `.managedClasses(...)` on the returned configuration. `getPersistenceConfiguration(stage)` returns a cached shared instance, so add classes before its first use (or build your own with `PersistenceConfigurationFactory.create`).
 
 > `PersistenceItem` and `PersistenceItemProvider.getPersistenceItem` are deprecated for removal; use the `PersistenceConfiguration` variants above.
 

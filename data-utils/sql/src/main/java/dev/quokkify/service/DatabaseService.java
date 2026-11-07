@@ -49,6 +49,10 @@ public class DatabaseService {
   /**
    * Create {@link SqlFactory} for work with SQL databases.
    *
+   * Only the name, properties, managed classes, non-JTA data source, mapping files, shared cache mode and
+   * validation mode of the item are used; the JTA data source, transaction type (always resource-local),
+   * jar file URLs, excludeUnlistedClasses and class loader are not.
+   *
    * @param persistence Persistence class {@link dev.quokkify.persistence.PersistenceItem}
    * @return {@link SqlFactory}
    * @deprecated use {@link #createSqlQuery(PersistenceConfiguration)}
