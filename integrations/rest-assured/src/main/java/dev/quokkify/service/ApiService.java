@@ -1,5 +1,6 @@
 package dev.quokkify.service;
 
+import java.time.Duration;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
@@ -406,8 +407,8 @@ public class ApiService {
         .setContentType(contentType)
         .setConfig(RestAssuredConfig.config()
             .httpClient(HttpClientConfig.httpClientConfig()
-                .setParam("http.socket.timeout", timeoutMs)
-                .setParam("http.connection.timeout", timeoutMs)))
+                .readTimeout(Duration.ofMillis(timeoutMs))
+                .connectTimeout(Duration.ofMillis(timeoutMs))))
         .build()
         .filters(filters);
   }
