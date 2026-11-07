@@ -1,5 +1,34 @@
 # Changelog
 
+## [0.14.0](https://github.com/quokkify/q4j/compare/v0.13.0...v0.14.0) (2026-11-07)
+
+
+### ⚠ BREAKING CHANGES
+
+* **mongodb:** add MongoDB module without Morphia and rename morphia to morphia-legacy ([#824](https://github.com/quokkify/q4j/issues/824))
+* **sql:** switch Querydsl to the maintained OpenFeign fork ([#819](https://github.com/quokkify/q4j/issues/819))
+* **architecture:** move to ArchGate 0.2.1 and drop NoDeprecatedApiUsageMainRule ([#817](https://github.com/quokkify/q4j/issues/817))
+
+### ✨ Features
+
+* **mongodb:** add MongoDB module without Morphia and rename morphia to morphia-legacy ([#824](https://github.com/quokkify/q4j/issues/824)) ([a38e018](https://github.com/quokkify/q4j/commit/a38e01851bab9d5d27bcb86edde072ad1802382a))
+* **morphia:** add type-safe Querydsl queries via selectQuery ([#820](https://github.com/quokkify/q4j/issues/820)) ([6c277d6](https://github.com/quokkify/q4j/commit/6c277d62386ffd91a0ff1a0b1d60566a34640ad2))
+* **sql:** attach executed SQL to Allure for stream() and iterate() ([#823](https://github.com/quokkify/q4j/issues/823)) ([9c2bfe3](https://github.com/quokkify/q4j/commit/9c2bfe33756128afb1d085e08dc5ab3cdf870251))
+* **sql:** bootstrap through HibernatePersistenceConfiguration ([#827](https://github.com/quokkify/q4j/issues/827)) ([be58634](https://github.com/quokkify/q4j/commit/be58634ab71d4a7753b54c37cf12f095313b1341))
+* **sql:** replace c3p0 with Agroal connection pool ([#826](https://github.com/quokkify/q4j/issues/826)) ([56175b0](https://github.com/quokkify/q4j/commit/56175b0a77f4c47641aaadea0e19cee85744cd3d))
+* **sql:** switch Querydsl to the maintained OpenFeign fork ([#819](https://github.com/quokkify/q4j/issues/819)) ([2a5f8af](https://github.com/quokkify/q4j/commit/2a5f8af0c9d06f8e02e8b03ae02ab8f22278b79a))
+
+
+### 🐛 Bug Fixes
+
+* **morphia:** align mongodb-driver-legacy with the driver version ([#822](https://github.com/quokkify/q4j/issues/822)) ([3b917a1](https://github.com/quokkify/q4j/commit/3b917a1d234f83d9a0e4ed97d02784d9e3474eee))
+
+
+### ♻️ Code Refactoring
+
+* **architecture:** move to ArchGate 0.2.1 and drop NoDeprecatedApiUsageMainRule ([#817](https://github.com/quokkify/q4j/issues/817)) ([e99575b](https://github.com/quokkify/q4j/commit/e99575beb01ea29ce96ad925b304f63a2830237c))
+* **rest-assured:** use Duration timeouts instead of deprecated setParam ([#815](https://github.com/quokkify/q4j/issues/815)) ([99add06](https://github.com/quokkify/q4j/commit/99add066a80a447da2afbae3bfad33ae084555ef))
+
 ## [0.13.0](https://github.com/quokkify/q4j/compare/v0.12.2...v0.13.0) (2026-11-07)
 
 <!-- project-toolkit:release-notes v2 -->
