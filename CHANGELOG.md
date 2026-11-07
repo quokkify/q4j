@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.13.1](https://github.com/quokkify/q4j/compare/v0.13.0...v0.13.1) (2026-11-07)
+
+
+### ♻️ Code Refactoring
+
+* **rest-assured:** use Duration timeouts instead of deprecated setParam ([#815](https://github.com/quokkify/q4j/issues/815)) ([99add06](https://github.com/quokkify/q4j/commit/99add066a80a447da2afbae3bfad33ae084555ef))
+
 ## [0.13.0](https://github.com/quokkify/q4j/compare/v0.12.2...v0.13.0) (2026-11-07)
 
 <!-- project-toolkit:release-notes v2 -->
