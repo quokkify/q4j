@@ -34,8 +34,8 @@ project(":integrations:reportportal:testrail").projectDir = file("integrations/r
 // ============================================================================
 include(":data-utils:sql")               // Utilities for relational databases (JDBC, migrations, etc.)
 include(":data-utils:nosql")             // Parent module for non-relational database utilities
-include(":data-utils:nosql:mongodb")             // MongoDB utilities (driver + Querydsl, no Morphia)
-include(":data-utils:nosql:morphia-legacy")  // MongoDB utilities (Morphia, deprecated: use :data-utils:nosql:mongodb)
+include(":data-utils:nosql:mongodb")     // MongoDB utilities (driver + Querydsl, no Morphia)
+include(":data-utils:nosql:morphia-legacy") // MongoDB utilities (Morphia, deprecated: use :data-utils:nosql:mongodb)
 include(":data-utils:nosql:redis")       // Redis utilities (Redisson)
 
 // ============================================================================

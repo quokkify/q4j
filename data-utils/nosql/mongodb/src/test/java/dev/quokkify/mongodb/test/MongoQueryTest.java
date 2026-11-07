@@ -2,6 +2,7 @@ package dev.quokkify.mongodb.test;
 
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.function.Consumer;
 
 import dev.quokkify.mongodb.entity.Address;
@@ -10,12 +11,17 @@ import dev.quokkify.mongodb.entity.Role;
 import dev.quokkify.mongodb.entity.TestUser;
 import dev.quokkify.mongodb.query.MongoQuery;
 import dev.quokkify.mongodb.service.MongoFactory;
+import dev.quokkify.mongodb.steps.MongoDatabaseSteps;
 
+import com.mongodb.ConnectionString;
+import com.mongodb.MongoClientSettings;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.Updates;
 import com.querydsl.core.NonUniqueResultException;
 import com.querydsl.core.types.Predicate;
+import org.bson.UuidRepresentation;
 import org.testng.annotations.AfterClass;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
@@ -128,6 +134,49 @@ public class MongoQueryTest {
       assertThat(attachment.getKey()).isEqualTo(QUERY_ATTACHMENT);
       assertThat(attachment.getValue()).contains("lastName").contains("Moe");
     });
+  }
+
+  @Test
+  public void checkFilterByEmbeddedObjectEquality() {
+    Address address = new Address();
+    address.setCity("Oslo");
+    address.setZipCode("0150");
+    Predicate sameAddress = q.address.eq(address);
+
+    List<Map.Entry<String, String>> attachments = AllureCapture.run(() -> {
+      List<TestUser> users = query().where(sameAddress).fetch();
+      assertThat(users).singleElement().extracting(TestUser::getFirstName).isEqualTo("Bob");
+    });
+
+    assertThat(attachments).singleElement().extracting(Map.Entry::getKey).isEqualTo(QUERY_ATTACHMENT);
+  }
+
+  @Test
+  public void checkUuidFieldWithStandardRepresentation() {
+    MongoClientSettings settings = MongoClientSettings.builder()
+        .applyConnectionString(new ConnectionString(MONGODB_URL))
+        .uuidRepresentation(UuidRepresentation.STANDARD)
+        .build();
+    try (MongoClient standardClient = MongoClients.create(settings)) {
+      MongoFactory standardFactory = new MongoFactory(standardClient, DATABASE);
+      MongoDatabaseSteps steps = new MongoDatabaseSteps(standardFactory);
+      UUID uuid = UUID.randomUUID();
+      TestUser dan = user("Dan", "Poe", 20, Role.USER, "Rome", "00100");
+      dan.setExternalId(uuid);
+      steps.save(dan);
+
+      TestUser found = steps.selectQuery(q).where(q.externalId.eq(uuid)).fetchOne();
+
+      assertThat(found).usingRecursiveComparison().isEqualTo(dan);
+      assertThat(steps.update(dan, Updates.set("age", 1)).getModifiedCount()).isEqualTo(1);
+    }
+  }
+
+  @Test
+  public void checkOrderByRenamedField() {
+    List<TestUser> users = query().orderBy(q.firstName.asc()).fetch();
+
+    assertThat(users).extracting(TestUser::getFirstName).containsExactly("Ann", "Bob", "Cid");
   }
 
   private MongoQuery<TestUser> query() {

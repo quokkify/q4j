@@ -14,13 +14,13 @@ Give q4j a MongoDB test-automation module that does not depend on Morphia or `or
 
 ## Decisions
 
-| Topic | Decision |
-|---|---|
-| Old module | Renamed: directory `data-utils/nosql/morphia` → `data-utils/nosql/morphia-legacy`, Gradle `:data-utils:nosql:morphia-legacy`, artifactId `morphia-legacy`, displayName `Q4J Morphia (legacy)`. Java packages and behavior unchanged. All public types get `@Deprecated(forRemoval = true)` with a Javadoc pointer to `dev.quokkify:mongodb`. |
-| New module | Directory `data-utils/nosql/mongodb`, Gradle `:data-utils:nosql:mongodb`, artifactId `mongodb`, displayName `Q4J MongoDB`, packages `dev.quokkify.mongodb.*`. There are no split packages with the legacy module, so both can sit on one classpath during migration. |
-| Entity contract | `@MongoDocument("collection")` (q4j annotation, required) + `@com.querydsl.core.annotations.QueryEntity` + `@BsonId` on the id field. No marker interface. |
-| API shape | A thin wrapper over the driver that mirrors the legacy shape, so migration is method for method (approach A). |
-| Release | One breaking PR `feat(mongodb)!`, merged after #819, #820 and #822. |
+| Topic           | Decision                                                                                                                                                                                                                                                                                                                                     |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Old module      | Renamed: directory `data-utils/nosql/morphia` → `data-utils/nosql/morphia-legacy`, Gradle `:data-utils:nosql:morphia-legacy`, artifactId `morphia-legacy`, displayName `Q4J Morphia (legacy)`. Java packages and behavior unchanged. All public types get `@Deprecated(forRemoval = true)` with a Javadoc pointer to `dev.quokkify:mongodb`. |
+| New module      | Directory `data-utils/nosql/mongodb`, Gradle `:data-utils:nosql:mongodb`, artifactId `mongodb`, displayName `Q4J MongoDB`, packages `dev.quokkify.mongodb.*`. There are no split packages with the legacy module, so both can sit on one classpath during migration.                                                                         |
+| Entity contract | `@MongoDocument("collection")` (q4j annotation, required) + `@com.querydsl.core.annotations.QueryEntity` + `@BsonId` on the id field. No marker interface.                                                                                                                                                                                   |
+| API shape       | A thin wrapper over the driver that mirrors the legacy shape, so migration is method for method (approach A).                                                                                                                                                                                                                                |
+| Release         | One breaking PR `feat(mongodb)!`, merged after #819, #820 and #822.                                                                                                                                                                                                                                                                          |
 
 ## Module layout and dependencies
 
@@ -55,14 +55,14 @@ All under `dev.quokkify.mongodb`.
 
 Constructor `MongoDatabaseSteps(MongoFactory factory)`. Every public method carries `@Step`.
 
-| Method | Behavior |
-|---|---|
-| `<T> void save(T entity)` | `insertOne`. The POJO codec generates an `ObjectId` for a `null` `@BsonId` and writes it back to the entity (`PojoCodecImpl.encodeIdProperty`, 5.13.0). |
-| `<T> void save(List<T> entities)` | `insertMany`. An empty list is a no-op. |
-| `<T> UpdateResult update(T entity, Bson... updates)` | `updateOne(eq("_id", id), Updates.combine(updates))`. |
-| `<T> DeleteResult delete(T entity)` | `deleteOne(eq("_id", id))`. It deletes exactly one document, unlike legacy, which deletes every document of the class. |
-| `<T> MongoQuery<T> selectQuery(EntityPath<T> path)` | A new query over `factory.collection(path.getType())`. |
-| `MongoVerifier verify()` | A new verifier. |
+| Method                                               | Behavior                                                                                                                                                |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `<T> void save(T entity)`                            | `insertOne`. The POJO codec generates an `ObjectId` for a `null` `@BsonId` and writes it back to the entity (`PojoCodecImpl.encodeIdProperty`, 5.13.0). |
+| `<T> void save(List<T> entities)`                    | `insertMany`. An empty list is a no-op.                                                                                                                 |
+| `<T> UpdateResult update(T entity, Bson... updates)` | `updateOne(eq("_id", id), Updates.combine(updates))`.                                                                                                   |
+| `<T> DeleteResult delete(T entity)`                  | `deleteOne(eq("_id", id))`. It deletes exactly one document, unlike legacy, which deletes every document of the class.                                  |
+| `<T> MongoQuery<T> selectQuery(EntityPath<T> path)`  | A new query over `factory.collection(path.getType())`.                                                                                                  |
+| `MongoVerifier verify()`                             | A new verifier.                                                                                                                                         |
 
 The id is read by encoding the entity with the factory's codec into a `BsonDocument` and taking `_id`. A missing `_id` throws `IllegalArgumentException("<FQCN> has no _id; save it first")`.
 
@@ -104,14 +104,14 @@ TestNG + AssertJ against a live MongoDB at `MONGODB_URL` (default `mongodb://loc
 - `data-utils/nosql/mongodb/README.md`: installation, annotation processor (`querydsl-apt:7.7:general`), entity example, CRUD, `selectQuery`, `verify()`, limitations.
 - `data-utils/nosql/morphia-legacy/README.md`: a deprecation banner and a migration table:
 
-| Morphia (legacy) | `dev.quokkify:mongodb` |
-|---|---|
-| `@dev.morphia.annotations.Entity` | `@MongoDocument("name")` + `@QueryEntity` |
-| `@dev.morphia.annotations.Id` | `@org.bson.codecs.pojo.annotations.BsonId` |
-| `new NoSqlFactory(client, config)` | `new MongoFactory(client, "db")` |
-| `update(entity, List.of(UpdateOperators.set(f, v)))` | `update(entity, Updates.set(f, v))` |
-| `selectDsl(Class)` / `selectQuery(EntityPath)` (Morphia) | `selectQuery(EntityPath)` |
-| `delete(entity)`: deletes all documents of the class | `delete(entity)`: deletes this document |
+| Morphia (legacy)                                         | `dev.quokkify:mongodb`                     |
+| -------------------------------------------------------- | ------------------------------------------ |
+| `@dev.morphia.annotations.Entity`                        | `@MongoDocument("name")` + `@QueryEntity`  |
+| `@dev.morphia.annotations.Id`                            | `@org.bson.codecs.pojo.annotations.BsonId` |
+| `new NoSqlFactory(client, config)`                       | `new MongoFactory(client, "db")`           |
+| `update(entity, List.of(UpdateOperators.set(f, v)))`     | `update(entity, Updates.set(f, v))`        |
+| `selectDsl(Class)` / `selectQuery(EntityPath)` (Morphia) | `selectQuery(EntityPath)`                  |
+| `delete(entity)`: deletes all documents of the class     | `delete(entity)`: deletes this document    |
 
 ## Release
 

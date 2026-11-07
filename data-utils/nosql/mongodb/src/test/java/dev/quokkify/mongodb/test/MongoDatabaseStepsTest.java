@@ -141,6 +141,15 @@ public class MongoDatabaseStepsTest {
         .doesNotHaveDocument(() -> steps.selectQuery(q).fetch(), x -> "Zed".equals(x.getFirstName()));
   }
 
+  @Test
+  public void checkVerifyHasDocumentCountAtLeast() {
+    steps.save(List.of(user("Ann", "Lee"), user("Bob", "Lee")));
+
+    steps.verify().withTimeout(Duration.ofSeconds(5))
+        .hasDocumentCount(() -> steps.selectQuery(q).fetch(), 1)
+        .hasDocumentCount(() -> steps.selectQuery(q).fetch(), 2);
+  }
+
   private static TestUser user(String firstName, String lastName) {
     TestUser user = new TestUser();
     user.setFirstName(firstName);

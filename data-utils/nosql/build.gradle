@@ -1,1 +1,1 @@
-// Parent aggregator module for NoSQL subprojects (morphia-legacy, redis).
+// Parent aggregator module for NoSQL subprojects (mongodb, morphia-legacy, redis).

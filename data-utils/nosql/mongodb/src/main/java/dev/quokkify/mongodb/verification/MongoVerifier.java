@@ -1,5 +1,8 @@
 package dev.quokkify.mongodb.verification;
 
+/**
+ * Polling verifications of MongoDB documents.
+ */
 public final class MongoVerifier extends BaseMongoVerification<MongoVerifier> {
 
   @Override

@@ -24,15 +24,29 @@ public final class MongoFactory {
   private final MongoDatabase database;
   private final CodecRegistry codecRegistry;
 
+  /**
+   * Create a factory with the default POJO codec registry.
+   *
+   * @param client MongoDB client
+   * @param databaseName database name
+   */
   public MongoFactory(MongoClient client, String databaseName) {
     this(client, databaseName, defaultCodecRegistry());
   }
 
+  /**
+   * Create a factory with a custom codec registry.
+   *
+   * @param client MongoDB client
+   * @param databaseName database name
+   * @param codecRegistry registry used to encode and decode documents
+   */
   public MongoFactory(MongoClient client, String databaseName, CodecRegistry codecRegistry) {
     Objects.requireNonNull(client, "client");
     Objects.requireNonNull(databaseName, "databaseName");
-    this.codecRegistry = Objects.requireNonNull(codecRegistry, "codecRegistry");
+    Objects.requireNonNull(codecRegistry, "codecRegistry");
     this.database = client.getDatabase(databaseName).withCodecRegistry(codecRegistry);
+    this.codecRegistry = database.getCodecRegistry();
   }
 
   /**
@@ -58,6 +72,11 @@ public final class MongoFactory {
     return database.getCollection(collectionName(type));
   }
 
+  /**
+   * Return the codec registry the database actually uses, including the client's UUID representation.
+   *
+   * @return effective codec registry
+   */
   public CodecRegistry codecRegistry() {
     return codecRegistry;
   }

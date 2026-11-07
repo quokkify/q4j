@@ -6,14 +6,21 @@ Morphia-based MongoDB access utility for test automation with thread-safe datast
 
 ## Migrating to dev.quokkify:mongodb
 
-| Morphia (legacy)                                         | `dev.quokkify:mongodb`                     |
-| -------------------------------------------------------- | ------------------------------------------ |
-| `@dev.morphia.annotations.Entity`                        | `@MongoDocument("name")` + `@QueryEntity`  |
-| `@dev.morphia.annotations.Id`                            | `@org.bson.codecs.pojo.annotations.BsonId` |
-| `new NoSqlFactory(client, config)`                       | `new MongoFactory(client, "db")`           |
-| `update(entity, List.of(UpdateOperators.set(f, v)))`     | `update(entity, Updates.set(f, v))`        |
-| `selectDsl(Class)` / `selectQuery(EntityPath)` (Morphia) | `selectQuery(EntityPath)`                  |
-| `delete(entity)`: deletes all documents of the class     | `delete(entity)`: deletes this document    |
+| Morphia (legacy)                                                             | `dev.quokkify:mongodb`                                                                            |
+| ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `@dev.morphia.annotations.Entity`                                            | `@MongoDocument("name")` + `@QueryEntity`                                                         |
+| `@dev.morphia.annotations.Id`                                                | `@org.bson.codecs.pojo.annotations.BsonId`                                                        |
+| `@Property`                                                                  | `@BsonProperty`                                                                                   |
+| `@Embedded`                                                                  | `@QueryEmbeddable`                                                                                |
+| `implements MongoEntityInterface` / `extends Identity`                       | declare your own `@BsonId ObjectId id`                                                            |
+| `querydsl-apt:7.7:morphia` + `morphia-core`                                  | `querydsl-apt:7.7:general`                                                                        |
+| `dev.quokkify.steps` / `dev.quokkify.verification`                           | `dev.quokkify.mongodb.steps` / `dev.quokkify.mongodb.verification`                                |
+| `new NoSqlFactory(client, "db")` / `new NoSqlFactory(client, morphiaConfig)` | `new MongoFactory(client, "db")`                                                                  |
+| `getNoSqlFactory()`                                                          | keep your own `MongoFactory` reference                                                            |
+| `update(entity, List.of(UpdateOperators.set(f, v)))`                         | `update(entity, Updates.set(f, v))`                                                               |
+| `selectDsl(Class)` + Morphia `Filters`                                       | `selectQuery(QEntity)` or `factory.collection(T.class).find(com.mongodb.client.model.Filters...)` |
+| `selectQuery(EntityPath)` (Morphia)                                          | `selectQuery(EntityPath)`                                                                         |
+| `delete(entity)`: deletes all documents of the class                         | `delete(entity)`: deletes this document                                                           |
 
 ## Installation
 
@@ -21,7 +28,7 @@ Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.qu
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:morphia-legacy:0.12.2")
+    testImplementation("dev.quokkify:morphia-legacy:0.14.0")
 }
 ```
 
@@ -67,11 +74,9 @@ public abstract class BaseTest {
 
 > **Alternative** (without Owner): read values directly via `System.getenv("MONGO_HOST")`, `System.getenv("MONGO_PORT")`, `System.getenv("MONGO_DATABASE")`.
 
-````
-
 ## Usage in tests
 
-```java
+````java
 public class UserTest extends BaseTest {
 
     @Test
@@ -99,7 +104,6 @@ public class UserTest extends BaseTest {
         Assertions.assertThat(adults).hasSizeGreaterThanOrEqualTo(2);
     }
 }
-````
 
 ## Type-safe queries with Querydsl
 
@@ -111,7 +115,7 @@ dependencies {
     testAnnotationProcessor("io.github.openfeign.querydsl:querydsl-mongodb:7.7")
     testAnnotationProcessor("dev.morphia.morphia:morphia-core:2.5.3")
 }
-```
+````
 
 Use `annotationProcessor` instead of `testAnnotationProcessor` if the entities live in `src/main`. Keep the processor's Querydsl and `morphia-core` versions equal to the ones `dev.quokkify:morphia-legacy` brings transitively (check with `./gradlew dependencies`).
 

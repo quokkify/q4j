@@ -1,5 +1,7 @@
 package dev.quokkify.mongodb.entity;
 
+import java.util.UUID;
+
 import dev.quokkify.mongodb.annotation.MongoDocument;
 
 import com.querydsl.core.annotations.QueryEntity;
@@ -21,6 +23,7 @@ public class TestUser {
   private int age;
   private Role role;
   private Address address;
+  private UUID externalId;
 
   public TestUser() {
   }
@@ -63,6 +66,14 @@ public class TestUser {
 
   public void setRole(Role role) {
     this.role = role;
+  }
+
+  public UUID getExternalId() {
+    return externalId;
+  }
+
+  public void setExternalId(UUID externalId) {
+    this.externalId = externalId;
   }
 
   public Address getAddress() {

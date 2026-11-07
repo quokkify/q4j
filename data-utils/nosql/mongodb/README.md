@@ -8,7 +8,7 @@ Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.qu
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:mongodb:0.13.0")
+    testImplementation("dev.quokkify:mongodb:0.14.0")
     testAnnotationProcessor("io.github.openfeign.querydsl:querydsl-apt:7.7:general")
 }
 ```
@@ -58,6 +58,8 @@ steps.update(user, Updates.set("age", 31));              // at least one update 
 steps.delete(user);                                      // deletes only this document
 ```
 
+`Updates.set(...)` takes stored field names (for example `first_name`); only Querydsl paths are mapped from Java names.
+
 `save` fails with `MongoWriteException` when a document with the same `_id` already exists. `update` and `delete` throw
 `IllegalArgumentException` for an entity without `_id`.
 
@@ -71,7 +73,9 @@ User ann = steps.selectQuery(u).where(u.firstName.eq("Ann")).fetchOne();
 ```
 
 `fetchOne()` throws `NonUniqueResultException` when several documents match. Field names use the stored
-`@BsonProperty` names, including fields of embedded objects. Each executed query is attached to the Allure report.
+`@BsonProperty` names, including fields of embedded objects. The no-arg `fetch()`, `fetchFirst()` and `fetchOne()` attach the query filter as JSON (`Mongo query`) to the
+Allure report; other fetch variants are not instrumented. The attachment contains filter values, so avoid filtering on
+secrets.
 
 ## Verification
 
@@ -82,6 +86,9 @@ steps.verify()
     .doesNotHaveDocument(() -> steps.selectQuery(u).fetch(), x -> "Zed".equals(x.getFirstName()))
     .hasDocumentCount(() -> steps.selectQuery(u).fetch(), 1);
 ```
+
+`hasDocumentCount` means at least that many documents. Polling a `selectQuery(...)` adds steps and attachments on every
+poll; for long polls prefer `factory.collection(User.class).find(...)` inside the lambda.
 
 ## Limitations
 

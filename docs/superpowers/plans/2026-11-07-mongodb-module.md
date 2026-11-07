@@ -36,6 +36,7 @@
 ### Task 1: Rename `morphia` to `morphia-legacy` and deprecate it
 
 **Files:**
+
 - Move: `data-utils/nosql/morphia/**` → `data-utils/nosql/morphia-legacy/**` (`git mv`)
 - Modify: `settings.gradle` (line `include(":data-utils:nosql:morphia")` and its comment → `morphia-legacy`, comment `// MongoDB utilities (Morphia, deprecated: use :data-utils:nosql:mongodb)`)
 - Modify: `gradle/module-metadata.gradle` (`':data-utils:nosql:morphia'` entry → `':data-utils:nosql:morphia-legacy'`, artifactId/displayName per Global Constraints, description `Deprecated MongoDB and Morphia helpers; use dev.quokkify:mongodb.`)
@@ -47,6 +48,7 @@
 - Any other reference: `git grep -n -e 'nosql:morphia' -e 'nosql/morphia' -e 'dev.quokkify:morphia'` must return only `morphia-legacy` hits afterwards. Existing `CHANGELOG.md` entries stay unchanged.
 
 **Interfaces:**
+
 - Produces: Gradle project `:data-utils:nosql:morphia-legacy`, artifactId `morphia-legacy`; public API unchanged apart from the deprecation annotations.
 
 - [ ] **Step 1: Baseline.** Start MongoDB (Global Constraints). Run `./gradlew :data-utils:nosql:morphia:build --console=plain`. Expected: `BUILD SUCCESSFUL`. Record the test counts (expected 11: `NoSqlFactoryTest` 4, `DatabaseNoSqlTest` 7).
@@ -62,6 +64,7 @@
 ### Task 2: New module skeleton, `@MongoDocument`, `MongoFactory`, classpath guard
 
 **Files:**
+
 - Create: `data-utils/nosql/mongodb/build.gradle` (dependencies exactly as in Global Constraints)
 - Modify: `settings.gradle` (`include(":data-utils:nosql:mongodb")             // MongoDB utilities (driver + Querydsl, no Morphia)`, placed before morphia-legacy)
 - Modify: `gradle/module-metadata.gradle` (new entry per Global Constraints)
@@ -76,6 +79,7 @@
 (Paths under `src/` are relative to `data-utils/nosql/mongodb/`.)
 
 **Interfaces:**
+
 - Produces:
   - `@Retention(RUNTIME) @Target(TYPE) public @interface MongoDocument { String value(); }`
   - `public final class MongoFactory`:
@@ -120,12 +124,14 @@
 ### Task 3: `PojoDocumentSerializer` and `MongoQuery<T>`
 
 **Files:**
+
 - Create: `src/main/java/dev/quokkify/mongodb/query/PojoDocumentSerializer.java`
 - Create: `src/main/java/dev/quokkify/mongodb/query/MongoQuery.java`
 - Create: `src/test/java/dev/quokkify/mongodb/test/MongoQueryTest.java`
 - Create: `src/test/java/dev/quokkify/mongodb/test/AllureCapture.java`. This is a test helper that runs an action inside a temporary in-memory `AllureLifecycle` and returns the recorded attachments as `Map<String name, String content>`. Port it from `captureSqlAttachments` / `InMemoryResultsWriter` in `data-utils/sql/src/test/java/dev/quokkify/test/DatabaseSqlTest.java` on branch `feat/sql-stream-attachments` (PR #823): `git show origin/feat/sql-stream-attachments:data-utils/sql/src/test/java/dev/quokkify/test/DatabaseSqlTest.java`. Restore the previous lifecycle in `finally`.
 
 **Interfaces:**
+
 - Consumes: `MongoFactory.documents(Class<?>)`, `MongoFactory.codecRegistry()`, `MongoFactory.collection(Class<T>)` (Task 2); test entities (Task 2).
 - Produces:
   - `public class PojoDocumentSerializer extends com.querydsl.mongodb.document.MongodbDocumentSerializer`. Overrides `getKeyForPath(Path<?>, PathMetadata)`: `@BsonId` → `"_id"`, non-empty `@BsonProperty(value)` → `value`, read from `expr.getAnnotatedElement()`; otherwise `super`. Also `isReference` → `false`, and `asReference` → `throw new UnsupportedOperationException("DBRef references are not supported")`.
@@ -149,6 +155,7 @@
 ### Task 4: `MongoDatabaseSteps`, verification, README
 
 **Files:**
+
 - Create: `src/main/java/dev/quokkify/mongodb/steps/MongoDatabaseSteps.java`
 - Create: `src/main/java/dev/quokkify/mongodb/verification/MongoVerification.java`, `BaseMongoVerification.java`, `MongoVerifier.java`. Copy them from the legacy module's `dev.quokkify.verification` with the package changed to `dev.quokkify.mongodb.verification`; the API stays identical.
 - Create: `src/test/java/dev/quokkify/mongodb/test/MongoDatabaseStepsTest.java`
@@ -156,22 +163,24 @@
 - Modify: root `README.md` module table (add the `mongodb` row: `MongoDB helpers on the official driver with type-safe Querydsl queries`)
 
 **Interfaces:**
+
 - Consumes: `MongoFactory` (Task 2), `MongoQuery<T>` (Task 3).
 - Produces: `public class MongoDatabaseSteps extends dev.quokkify.step.AbstractSteps<MongoVerifier>` with constructor `MongoDatabaseSteps(MongoFactory factory)`. Each method carries `@Step`:
 
-| Method | `@Step` text |
-|---|---|
-| `<T> void save(T entity)` | `Save entity to mongo database` |
-| `<T> void save(List<T> entities)` | `Save entities to mongo database`; an empty list is a no-op |
-| `<T> UpdateResult update(T entity, Bson... updates)` | `Update entity in mongo database` |
-| `<T> DeleteResult delete(T entity)` | `Delete entity in mongo database` |
-| `<T> MongoQuery<T> selectQuery(EntityPath<T> path)` | `Create query for mongo database`; returns `new MongoQuery<>(factory, (Class<T>) path.getType())` |
-| `MongoVerifier verify()` | — |
+| Method                                               | `@Step` text                                                                                      |
+| ---------------------------------------------------- | ------------------------------------------------------------------------------------------------- |
+| `<T> void save(T entity)`                            | `Save entity to mongo database`                                                                   |
+| `<T> void save(List<T> entities)`                    | `Save entities to mongo database`; an empty list is a no-op                                       |
+| `<T> UpdateResult update(T entity, Bson... updates)` | `Update entity in mongo database`                                                                 |
+| `<T> DeleteResult delete(T entity)`                  | `Delete entity in mongo database`                                                                 |
+| `<T> MongoQuery<T> selectQuery(EntityPath<T> path)`  | `Create query for mongo database`; returns `new MongoQuery<>(factory, (Class<T>) path.getType())` |
+| `MongoVerifier verify()`                             | —                                                                                                 |
 
-  Implementation details:
-  - The id is taken by encoding the entity with `factory.codecRegistry().get(entity.getClass())` into a `BsonDocument` (`BsonDocumentWriter`) and reading `_id`. A missing or null `_id` throws `IllegalArgumentException("<FQCN> has no _id; save it first")`.
-  - `update` with `updates.length == 0` throws `IllegalArgumentException("update requires at least one update operation")`. Otherwise it calls `updateOne(Filters.eq("_id", id), Updates.combine(updates))`.
-  - `delete` calls `deleteOne(Filters.eq("_id", id))`.
+Implementation details:
+
+- The id is taken by encoding the entity with `factory.codecRegistry().get(entity.getClass())` into a `BsonDocument` (`BsonDocumentWriter`) and reading `_id`. A missing or null `_id` throws `IllegalArgumentException("<FQCN> has no _id; save it first")`.
+- `update` with `updates.length == 0` throws `IllegalArgumentException("update requires at least one update operation")`. Otherwise it calls `updateOne(Filters.eq("_id", id), Updates.combine(updates))`.
+- `delete` calls `deleteOne(Filters.eq("_id", id))`.
 
 - [ ] **Step 1: Failing tests** in `MongoDatabaseStepsTest`. `@BeforeMethod` empties `test_users`.
   - `checkSaveAssignsId`: a new `TestUser` with null id; after `save`, `getId()` is not null and `selectQuery(q).where(q.id.eq(id)).fetchOne()` recursive-equals it.

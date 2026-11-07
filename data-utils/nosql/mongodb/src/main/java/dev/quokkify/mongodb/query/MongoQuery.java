@@ -31,6 +31,12 @@ public class MongoQuery<T> extends AbstractFetchableMongodbQuery<T, MongoQuery<T
 
   private final MongoFactory factory;
 
+  /**
+   * Create a query over the collection of the given document class.
+   *
+   * @param factory collection factory
+   * @param type class annotated with {@code @MongoDocument}
+   */
   public MongoQuery(MongoFactory factory, Class<T> type) {
     super(factory.documents(type), transformer(factory.codecRegistry(), type), new PojoDocumentSerializer());
     this.factory = factory;
@@ -80,7 +86,12 @@ public class MongoQuery<T> extends AbstractFetchableMongodbQuery<T, MongoQuery<T
 
   @Attachment(value = "Mongo query", type = "application/json")
   private String attachQuery() {
-    return asDocument().toJson();
+    Document filter = asDocument();
+    try {
+      return filter.toJson(factory.codecRegistry().get(Document.class));
+    } catch (RuntimeException e) {
+      return filter.toString();
+    }
   }
 
   private static <T> Function<Document, T> transformer(CodecRegistry registry, Class<T> type) {

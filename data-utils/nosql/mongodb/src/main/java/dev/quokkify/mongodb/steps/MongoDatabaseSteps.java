@@ -1,6 +1,7 @@
 package dev.quokkify.mongodb.steps;
 
 import java.util.List;
+import java.util.Objects;
 
 import dev.quokkify.mongodb.query.MongoQuery;
 import dev.quokkify.mongodb.service.MongoFactory;
@@ -30,7 +31,7 @@ public class MongoDatabaseSteps extends AbstractSteps<MongoVerifier> {
   private final MongoFactory factory;
 
   public MongoDatabaseSteps(MongoFactory factory) {
-    this.factory = factory;
+    this.factory = Objects.requireNonNull(factory, "factory");
   }
 
   /**
@@ -91,12 +92,24 @@ public class MongoDatabaseSteps extends AbstractSteps<MongoVerifier> {
     return factory.documents(entity.getClass()).deleteOne(Filters.eq(ID_FIELD, idOf(entity)));
   }
 
+  /**
+   * Create a type-safe query for the documents of the given Q-class.
+   *
+   * @param path generated Querydsl entity path
+   * @param <T> document type
+   * @return query
+   */
   @Step("Create query for mongo database")
   @SuppressWarnings("unchecked")
   public <T> MongoQuery<T> selectQuery(EntityPath<T> path) {
     return new MongoQuery<>(factory, (Class<T>) path.getType());
   }
 
+  /**
+   * Start a verification chain.
+   *
+   * @return verifier
+   */
   @Override
   public MongoVerifier verify() {
     return new MongoVerifier();
