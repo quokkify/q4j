@@ -190,6 +190,21 @@ jobs:
       module: ":data-utils:nosql"
       slug: data-utils-nosql
 
+  data-utils-nosql-mongodb:
+    name: "Data • mongodb"
+    needs: [detect-runner, build-common]
+    if: ${{ github.event_name != 'pull_request_target' }}
+    uses: ./.github/workflows/reusable-module-pipeline.yml
+    with:
+      runs-on: ${{ needs.detect-runner.outputs.runs_on }}
+      self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
+      group: data
+      name: mongodb
+      module: ":data-utils:nosql:mongodb"
+      slug: data-utils-nosql-mongodb
+      run-tests: true
+      profile: storage
+
   data-utils-nosql-morphia-legacy:
     name: "Data • morphia-legacy"
     needs: [detect-runner, build-common]
@@ -541,6 +556,7 @@ jobs:
         test-common,
         data-utils-sql,
         data-utils-nosql,
+        data-utils-nosql-mongodb,
         data-utils-nosql-morphia-legacy,
         data-utils-nosql-redis,
         integrations-rest-assured,
