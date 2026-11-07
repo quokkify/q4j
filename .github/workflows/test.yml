@@ -175,7 +175,7 @@ jobs:
       module: ":data-utils:sql"
       slug: data-utils-sql
       run-tests: true
-      profile: none
+      profile: sql
 
   data-utils-nosql:
     name: "Data • nosql"

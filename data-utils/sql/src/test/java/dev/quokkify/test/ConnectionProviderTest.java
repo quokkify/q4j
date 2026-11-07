@@ -14,14 +14,14 @@ import org.testng.annotations.Test;
 public class ConnectionProviderTest extends BaseDatabaseTest {
 
   private static final List<String> sequences = List.of(
-      "Configuring connection pool [c3p0]",
-      "Pool: C3P0ConnectionProvider"
+      "Configuring connection pool [Agroal]",
+      "Pool: AgroalConnectionProvider"
   );
 
   @TmsLink("SQL_DATABASE_CONNECTION_PROVIDER_ID_1")
   @Test(description = "Check connection via Xml")
   @SingleThread
-  public void checkC3P0ProviderViaXml() {
+  public void checkAgroalProviderViaXml() {
     TestLogAppender appender = withLogging(() -> DatabaseService.getInstance().createSqlQuery("hsql"));
     Assertions.assertThat(appender.getCombinedLog())
         .as("Combined log should contain both lines")
@@ -31,7 +31,7 @@ public class ConnectionProviderTest extends BaseDatabaseTest {
   @TmsLink("SQL_DATABASE_CONNECTION_PROVIDER_ID_2")
   @Test(description = "Check connection via Provider")
   @SingleThread
-  public void checkC3P0ProviderViaPersistenceProvider() {
+  public void checkAgroalProviderViaPersistenceProvider() {
     PersistenceItem persistenceItem = PersistenceItemProvider.getPersistenceItem(getStage());
     TestLogAppender appender = withLogging(() -> DatabaseService.getInstance().createSqlQuery(persistenceItem));
     Assertions.assertThat(appender.getCombinedLog())
@@ -42,7 +42,7 @@ public class ConnectionProviderTest extends BaseDatabaseTest {
   @TmsLink("SQL_DATABASE_CONNECTION_PROVIDER_ID_3")
   @Test(description = "Check connection via PersistenceItem")
   @SingleThread
-  public void checkC3P0ProviderViaPersistenceItem() {
+  public void checkAgroalProviderViaPersistenceItem() {
     PersistenceItem persistenceItem = new PersistenceItem("test", getH2Properties());
     TestLogAppender appender = withLogging(() -> DatabaseService.getInstance().createSqlQuery(persistenceItem));
     Assertions.assertThat(appender.getCombinedLog())

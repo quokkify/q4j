@@ -9,7 +9,7 @@ PROFILE="${1:-all}"
 PROFILES_ARGS=()
 if [[ "$PROFILE" != "none" && -n "$PROFILE" ]]; then
   if [[ "$PROFILE" == "all" ]]; then
-    PROFILES_ARGS=(--profile web --profile messaging --profile rabbitmq --profile mock --profile realtime --profile storage --profile redis --profile reporting)
+    PROFILES_ARGS=(--profile web --profile messaging --profile rabbitmq --profile mock --profile realtime --profile storage --profile redis --profile reporting --profile sql)
   else
     IFS=',' read -ra TOKENS <<<"$PROFILE"
     for profile in "${TOKENS[@]}"; do

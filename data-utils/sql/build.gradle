@@ -7,7 +7,7 @@ dependencies {
 
     implementation libs.classgraph
     implementation libs.hibernate.core
-    implementation libs.hibernate.c3p0
+    implementation libs.hibernate.agroal
     implementation libs.jakarta.persistence.api
     implementation libs.hibernate.type
     api libs.querydsl.jpa
@@ -20,6 +20,7 @@ dependencies {
     testAnnotationProcessor libs.jakarta.annotation.api
     api libs.assertj.core
     testRuntimeOnly libs.h2
+    testRuntimeOnly libs.postgresql
 }
 
 tasks.withType(JavaCompile).configureEach {
