@@ -18,9 +18,10 @@ transitively. To generate Q-classes (`QUser`, ...) for your own entities, add th
 ```kotlin
 dependencies {
     testAnnotationProcessor("io.github.openfeign.querydsl:querydsl-apt:7.7:jpa")
-    testAnnotationProcessor("jakarta.persistence:jakarta.persistence-api:3.2.0")
 }
 ```
+
+The `jpa` classifier registers `JPAAnnotationProcessor` and brings `jakarta.persistence-api` with it.
 
 ### Migrating from `com.querydsl`
 
@@ -31,7 +32,8 @@ the Maven coordinates do:
 - Replace the `com.querydsl` group ID with `io.github.openfeign.querydsl`.
 - Drop the `:jakarta` classifier from `querydsl-jpa`; on `querydsl-apt` use the `jpa` classifier.
 - Remove any remaining `com.querydsl:*` dependency. Both artifacts contain the same `com.querydsl.*` classes,
-  and Gradle and Maven do not treat them as one library, so keeping both puts two copies on the classpath.
+  and Gradle and Maven do not treat them as one library, so keeping both puts two copies on the classpath
+  without any resolution error, and whichever copy loads first wins at runtime.
 
 See the [Querydsl migration guide](https://openfeign.github.io/querydsl/migration) for details.
 
