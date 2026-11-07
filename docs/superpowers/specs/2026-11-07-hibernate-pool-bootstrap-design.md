@@ -26,7 +26,7 @@ Move `dev.quokkify:sql` off c3p0 and off the hand-written `PersistenceUnitInfo` 
 | Topic            | Decision                                                                                                                                                               |
 | ---------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Pool             | Agroal (`org.hibernate.orm:hibernate-agroal`, versioned with `hibernate`). c3p0 removed.                                                                               |
-| Pool test        | Live PostgreSQL through Testcontainers, test scope only.                                                                                                               |
+| Pool test        | Live PostgreSQL from a new Docker Compose profile `sql`, following the repository's existing compose-profile pattern (as `storage` does for MongoDB).                  |
 | API policy       | Deprecate and bridge: new `PersistenceConfiguration` path; `PersistenceItem` path keeps working, `@Deprecated(forRemoval = true)`, removed in a later release.         |
 | Bridge signature | `DatabaseService.createSqlQuery(jakarta.persistence.PersistenceConfiguration)` takes the Jakarta supertype; q4j's factory returns `HibernatePersistenceConfiguration`. |
 | Delivery         | Two PRs from one plan. PR1: pool. PR2: bootstrap, on top of PR1. Both reference `Refs #818`, not `Closes`.                                                             |
@@ -37,7 +37,14 @@ Move `dev.quokkify:sql` off c3p0 and off the hand-written `PersistenceUnitInfo` 
 
 - `gradle/libs.versions.toml`: remove `hibernate-c3p0`, add `hibernate-agroal = { module = "org.hibernate.orm:hibernate-agroal", version.ref = "hibernate" }`. If `io.agroal:agroal-pool` is not resolved transitively (check `:data-utils:sql:dependencies --configuration runtimeClasspath`), add it to the catalog and to `implementation`.
 - `data-utils/sql/build.gradle`: `implementation libs.hibernate.agroal` replaces `libs.hibernate.c3p0`. Scope stays `implementation`, so consumers keep getting a pool at runtime.
-- Test scope: Testcontainers PostgreSQL module and the PostgreSQL JDBC driver, added to the catalog.
+- Test scope: the PostgreSQL JDBC driver (`testRuntimeOnly`), added to the catalog.
+
+### Live database for tests
+
+- `tools/environment/docker/docker-compose.yml`: service `postgres` under profile `sql`, same pinned `postgres` image as `reportportal-postgres`, with a `pg_isready` healthcheck; published port `${POSTGRES_PUBLISHED_PORT:-5432}` in the local override and `${POSTGRES_PUBLISHED_PORT:-0}` in the CI override.
+- Hook `tools/environment/scripts/infra/hooks/sql.sh` resolves the published port and writes `POSTGRES_JDBC_URL` to `tools/environment/.postgres.env`; registered in `after_health.sh`, `pre_up_ci.sh` (dynamic port) and `stop_app.sh` (profile list).
+- `reusable-module-pipeline.yml` sources `.postgres.env` with the other env files; the `data-utils-sql` job in `test.yml` sets `profile: sql`.
+- Tests read `POSTGRES_JDBC_URL`, defaulting to the local compose port. An unreachable database fails the test with a message naming the variable and the compose command; it is never skipped.
 
 ### Code
 
@@ -47,14 +54,12 @@ Move `dev.quokkify:sql` off c3p0 and off the hand-written `PersistenceUnitInfo` 
 ### Tests
 
 - `ConnectionProviderTest`: the three scenarios (xml, provider, item) assert Agroal in the `org.hibernate.orm.connections.pooling` log. Exact log lines are taken from a real run. Methods renamed `checkC3P0…` → `checkAgroal…`; `@TmsLink` IDs unchanged. These are characterization tests of the chosen pool, so changing their expectation is intended.
-- `ConnectionPoolTest` (new, live PostgreSQL via Testcontainers, one container per class). Each test builds its own `EntityManagerFactory` with a unique `ApplicationName` in the JDBC URL and counts that application's rows in `pg_stat_activity` through a separate plain JDBC connection:
+- `ConnectionPoolTest` (new, live PostgreSQL from the `sql` profile, single-threaded). Each test builds its own `EntityManagerFactory` with a unique `ApplicationName` in the JDBC URL and counts that application's rows in `pg_stat_activity` through a separate plain JDBC connection:
   1. **On-demand growth (regression guard for the HikariCP behavior):** pool size 100, load from K threads (K = 10) through `SqlDatabaseSteps` (`save` + `selectDsl(...).fetchFirst()`), then idle for a few seconds. Assert connections ≤ K + 2 after the idle period, never close to 100.
   2. **Upper bound and pool-size wiring:** `hibernate.connection.pool_size` = 5 (the key `SQL_DATABASE_POOL_SIZE` maps to), 10 threads. Assert the sampled peak ≤ 5 and all threads finish without errors within a timeout.
   3. **Release:** after `EntityManagerFactory.close()`, connections = 0.
 
-  The tests bootstrap with a properties map because the container URL is dynamic and `DatabaseStage` reads a classpath file; the `DatabaseStage` → properties mapping stays covered by `ConnectionProviderTest` on H2.
-
-- Docker is available on GitHub Actions `ubuntu` runners. If the module test job runs on a runner without Docker, the plan adds the requirement to the job rather than skipping the test.
+  The tests bootstrap with a properties map because the database URL comes from the environment and `DatabaseStage` reads a classpath file; the `DatabaseStage` → properties mapping stays covered by `ConnectionProviderTest` on H2.
 
 ### PR notes (Migration)
 
