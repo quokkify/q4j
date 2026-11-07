@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.UUID;
 
 import dev.quokkify.entity.DatabaseTestUser;
+import dev.quokkify.persistence.PersistenceConfigurationFactory;
 import dev.quokkify.persistence.PersistenceItem;
 import dev.quokkify.service.DatabaseService;
 import dev.quokkify.steps.SqlDatabaseSteps;
@@ -19,6 +20,20 @@ public class ConsumerEntityDiscoveryTest extends BaseDatabaseTest {
   public void checkConsumerEntityViaPersistenceItem() {
     PersistenceItem persistenceItem = new PersistenceItem("consumer-" + UUID.randomUUID(), getH2Properties());
     SqlDatabaseSteps steps = new SqlDatabaseSteps(DatabaseService.getInstance().createSqlQuery(persistenceItem));
+    try {
+      steps.save(new ConsumerEntity("acme"));
+      QConsumerEntity entity = QConsumerEntity.consumerEntity;
+      ConsumerEntity found = steps.selectDsl(entity).where(entity.name.eq("acme")).fetchFirst();
+      Assertions.assertThat(found).isNotNull();
+    } finally {
+      steps.closeConnection();
+    }
+  }
+
+  @Test(description = "Regression guard: entities outside dev.quokkify are discovered via PersistenceConfiguration")
+  public void checkConsumerEntityViaPersistenceConfiguration() {
+    SqlDatabaseSteps steps = new SqlDatabaseSteps(DatabaseService.getInstance().createSqlQuery(
+        PersistenceConfigurationFactory.create("consumer-cfg-" + UUID.randomUUID(), getH2Properties())));
     try {
       steps.save(new ConsumerEntity("acme"));
       QConsumerEntity entity = QConsumerEntity.consumerEntity;

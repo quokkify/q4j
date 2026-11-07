@@ -7,6 +7,7 @@ import java.util.Objects;
 
 import jakarta.persistence.EntityManagerFactory;
 import jakarta.persistence.Persistence;
+import jakarta.persistence.PersistenceConfiguration;
 import jakarta.persistence.PersistenceException;
 import jakarta.persistence.spi.PersistenceProvider;
 import jakarta.persistence.spi.PersistenceProviderResolverHolder;
@@ -76,6 +77,24 @@ public class DatabaseService {
       return sqlFactory;
     } else {
       return sqlQueryFactories.get(persistence.getPersistenceUnitName());
+    }
+  }
+
+  /**
+   * Create {@link SqlFactory} for work with SQL databases. An already used persistence name returns the cached
+   * factory and ignores the new configuration.
+   *
+   * @param configuration persistence configuration
+   * @return {@link SqlFactory}
+   */
+  public SqlFactory createSqlQuery(PersistenceConfiguration configuration) {
+    String name = configuration.name();
+    if (!sqlQueryFactories.containsKey(name)) {
+      SqlFactory sqlFactory = new SqlFactory(configuration.createEntityManagerFactory());
+      sqlQueryFactories.put(name, sqlFactory);
+      return sqlFactory;
+    } else {
+      return sqlQueryFactories.get(name);
     }
   }
 }
