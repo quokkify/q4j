@@ -70,7 +70,7 @@ public class ConnectionPoolTest extends BaseDatabaseTest {
   public void checkPoolGrowsOnDemandOnly() throws InterruptedException, SQLException {
     String app = applicationName();
     sqlFactory = bootstrap(app, 100);
-    runLoad(app, WORKER_THREADS);
+    assertLoadSucceeded(runLoad(app, WORKER_THREADS), WORKER_THREADS);
     Thread.sleep(IDLE_PAUSE_MS);
     Assertions.assertThat(connections(app))
         .as("idle connections after load from 10 threads")
@@ -84,8 +84,7 @@ public class ConnectionPoolTest extends BaseDatabaseTest {
     sqlFactory = bootstrap(app, 5);
     LoadResult result = runLoad(app, WORKER_THREADS);
     Assertions.assertThat(result.peak()).as("peak connections").isLessThanOrEqualTo(5);
-    Assertions.assertThat(result.errors()).as("worker errors").isEmpty();
-    Assertions.assertThat(result.finishedThreads()).as("finished threads").isEqualTo(WORKER_THREADS);
+    assertLoadSucceeded(result, WORKER_THREADS);
   }
 
   @Test(description = "Check pool releases connections on close")
@@ -93,9 +92,14 @@ public class ConnectionPoolTest extends BaseDatabaseTest {
   public void checkPoolReleasesConnectionsOnClose() throws InterruptedException, SQLException {
     String app = applicationName();
     sqlFactory = bootstrap(app, 5);
-    runLoad(app, 3);
+    assertLoadSucceeded(runLoad(app, 3), 3);
     entityManagerFactory.close();
     Waiter.awaitQuickCondition(() -> connections(app) == 0, "Connections were not released after close");
+  }
+
+  private static void assertLoadSucceeded(LoadResult result, int threads) {
+    Assertions.assertThat(result.errors()).as("worker errors").isEmpty();
+    Assertions.assertThat(result.finishedThreads()).as("finished threads").isEqualTo(threads);
   }
 
   private SqlFactory bootstrap(String applicationName, int poolSize) {
@@ -159,7 +163,7 @@ public class ConnectionPoolTest extends BaseDatabaseTest {
             steps.selectDsl(user).where(user.firstName.isNotNull()).fetchFirst();
           }
           finished.incrementAndGet();
-        } catch (RuntimeException e) {
+        } catch (Throwable e) {
           errors.add(e);
         }
       });
