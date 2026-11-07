@@ -13,11 +13,11 @@ import dev.quokkify.config.DatabaseConfig;
 import dev.quokkify.util.FileUtils;
 
 import org.aeonbits.owner.ConfigFactory;
-import org.hibernate.c3p0.internal.C3P0ConnectionProvider;
 import org.hibernate.cfg.AvailableSettings;
 
 public class PersistencePropertiesProvider {
 
+  private static final String CONNECTION_PROVIDER = "agroal";
   private static final Map<DatabaseStage, DatabaseConfig> CONFIG_CACHE = new ConcurrentHashMap<>();
   private static final Map<DatabaseStage, Map<String, Object>> PROPS_CACHE = new ConcurrentHashMap<>();
 
@@ -44,7 +44,7 @@ public class PersistencePropertiesProvider {
         AvailableSettings.JAKARTA_JDBC_URL, databaseConfig.url(),
         AvailableSettings.JAKARTA_JDBC_USER, databaseConfig.user(),
         AvailableSettings.JAKARTA_JDBC_PASSWORD, databaseConfig.password(),
-        AvailableSettings.CONNECTION_PROVIDER, C3P0ConnectionProvider.class.getName(),
+        AvailableSettings.CONNECTION_PROVIDER, CONNECTION_PROVIDER,
         AvailableSettings.POOL_SIZE, databaseConfig.poolSize());
     return Collections.unmodifiableMap(props);
   }

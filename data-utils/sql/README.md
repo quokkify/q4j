@@ -39,12 +39,13 @@ See the [Querydsl migration guide](https://openfeign.github.io/querydsl/migratio
 
 ## Environment variables
 
-| Variable                | Default                 | Description       |
-| ----------------------- | ----------------------- | ----------------- |
-| `SQL_DATABASE_URL`      | —                       | JDBC URL          |
-| `SQL_DATABASE_USER`     | —                       | DB username       |
-| `SQL_DATABASE_PASSWORD` | —                       | DB password       |
-| `SQL_DATABASE_DRIVER`   | `org.postgresql.Driver` | JDBC driver class |
+| Variable                 | Default                 | Description                              |
+| ------------------------ | ----------------------- | ---------------------------------------- |
+| `SQL_DATABASE_URL`       | —                       | JDBC URL                                 |
+| `SQL_DATABASE_USER`      | —                       | DB username                              |
+| `SQL_DATABASE_PASSWORD`  | —                       | DB password                              |
+| `SQL_DATABASE_DRIVER`    | `org.postgresql.Driver` | JDBC driver class                        |
+| `SQL_DATABASE_POOL_SIZE` | `100`                   | Maximum connections in the pool (Agroal) |
 
 ## Initialization in BaseTest
 

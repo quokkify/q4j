@@ -113,7 +113,7 @@ mongodb-driver-legacy = { module = "org.mongodb:mongodb-driver-legacy", version.
 redisson = { module = "org.redisson:redisson", version.ref = "redisson" }
 # Hibernate
 hibernate-core = { module = "org.hibernate.orm:hibernate-core", version.ref = "hibernate" }
-hibernate-c3p0 = { module = "org.hibernate.orm:hibernate-c3p0", version.ref = "hibernate" }
+hibernate-agroal = { module = "org.hibernate.orm:hibernate-agroal", version.ref = "hibernate" }
 # Hibernate Type
 hibernate-type = { module = "io.hypersistence:hypersistence-utils-hibernate-73", version.ref = "hibernate-type" }
 # Jakarta Persistence API
@@ -126,6 +126,7 @@ querydsl-apt = { module = "io.github.openfeign.querydsl:querydsl-apt", version.r
 querydsl-mongodb = { module = "io.github.openfeign.querydsl:querydsl-mongodb", version.ref = "querydsl" }
 # H2
 h2 = { module = "com.h2database:h2", version.ref = "h2" }
+postgresql = { module = "org.postgresql:postgresql", version = "42.7.14" }
 # Jira REST Client
 jira-rest-client-core = { module = "com.atlassian.jira:jira-rest-java-client-core", version.ref = "jira-rest-client" }
 jira-rest-client-api = { module = "com.atlassian.jira:jira-rest-java-client-api", version.ref = "jira-rest-client" }
