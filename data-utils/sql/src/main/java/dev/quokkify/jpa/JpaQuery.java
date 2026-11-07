@@ -1,9 +1,11 @@
 package dev.quokkify.jpa;
 
 import java.util.List;
+import java.util.stream.Stream;
 
 import dev.quokkify.converter.SqlConverter;
 
+import com.querydsl.core.CloseableIterator;
 import com.querydsl.core.NonUniqueResultException;
 import com.querydsl.jpa.impl.JPAQuery;
 import io.qameta.allure.Attachment;
@@ -55,6 +57,30 @@ public class JpaQuery<T> extends JPAQuery<T> {
   public T fetchOne() throws NonUniqueResultException {
     attachSqlRequest();
     return super.fetchOne();
+  }
+
+  /**
+   * Execute sql query and return result as stream of objects.
+   *
+   * @return stream of objects
+   */
+  @Override
+  @Step("Execute query")
+  public Stream<T> stream() {
+    attachSqlRequest();
+    return super.stream();
+  }
+
+  /**
+   * Execute sql query and return result as closeable iterator of objects.
+   *
+   * @return closeable iterator of objects
+   */
+  @Override
+  @Step("Execute query")
+  public CloseableIterator<T> iterate() {
+    attachSqlRequest();
+    return super.iterate();
   }
 
   /**
