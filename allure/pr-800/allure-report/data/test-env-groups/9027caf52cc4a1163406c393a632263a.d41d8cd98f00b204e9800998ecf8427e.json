@@ -1,0 +1,1 @@
+{"id":"9027caf52cc4a1163406c393a632263a.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.ConsumerEntityDiscoveryTest.checkBridgeHonorsManagedClassOverride","name":"Guards the bridge: toPersistenceConfiguration honors the managed classes override","status":"passed","testResultsByEnv":{"ubuntu-26-04":"ba4d5d9c93ff72da56a87a0a1722c2b6"}}
