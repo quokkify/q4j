@@ -1,5 +1,6 @@
 package dev.quokkify.service;
 
+import java.time.Duration;
 import java.util.List;
 
 import dev.quokkify.filter.CustomApiTestLogFilter;
@@ -32,8 +33,8 @@ public class SlowApiService extends ApiService {
         .setContentType(ContentType.JSON)
         .setConfig(RestAssuredConfig.config()
             .httpClient(HttpClientConfig.httpClientConfig()
-                .setParam("http.socket.timeout", timeoutMs)
-                .setParam("http.connection.timeout", timeoutMs)))
+                .readTimeout(Duration.ofMillis(timeoutMs))
+                .connectTimeout(Duration.ofMillis(timeoutMs))))
         .build()
         .filters(List.of(new CustomApiTestLogFilter(), new AllureRestAssured()));
   }
