@@ -1,0 +1,1 @@
+{"id":"4628752bd27ec98c8e1098e171899144.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.model.NavigationTest.openPageByUrlWithBasicAuthDoesNotLeakCredentials","name":"Opening by raw url with Basic Auth must use the native Selenide overload without embedding credentials","status":"passed","testResultsByEnv":{"ubuntu-26-04":"a6e9374e38a901f11d66351e33a94637"}}
