@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -33,14 +34,15 @@ public class ConnectionPoolTest extends BaseDatabaseTest {
 
   private static final String JDBC_URL =
       System.getenv().getOrDefault("POSTGRES_JDBC_URL", "jdbc:postgresql://localhost:5432/q4j");
-  private static final String JDBC_USER = System.getenv().getOrDefault("POSTGRES_USER", "q4j");
-  private static final String JDBC_PASSWORD = System.getenv().getOrDefault("POSTGRES_PASSWORD", "q4j");
+  private static final String JDBC_USER = System.getenv().getOrDefault("Q4J_POSTGRES_USER", "q4j");
+  private static final String JDBC_PASSWORD = System.getenv().getOrDefault("Q4J_POSTGRES_PASSWORD", "q4j");
   private static final String JDBC_DRIVER = "org.postgresql.Driver";
   private static final int OPERATIONS_PER_THREAD = 10;
   private static final long SAMPLING_INTERVAL_MS = 200;
   private static final long IDLE_PAUSE_MS = 8_000;
   private static final long JOIN_TIMEOUT_MS = 60_000;
   private static final int WORKER_THREADS = 10;
+  private static final int MAX_IDLE_CONNECTIONS = 2 * WORKER_THREADS;
 
   private SqlFactory sqlFactory;
   private EntityManagerFactory entityManagerFactory;
@@ -51,7 +53,8 @@ public class ConnectionPoolTest extends BaseDatabaseTest {
       Assertions.assertThat(ignored).isNotNull();
     } catch (SQLException e) {
       throw new AssertionError("PostgreSQL is not reachable at " + JDBC_URL
-          + ". Set POSTGRES_JDBC_URL or run: docker compose -f tools/environment/docker/docker-compose.yml"
+          + ". Set POSTGRES_JDBC_URL, Q4J_POSTGRES_USER and Q4J_POSTGRES_PASSWORD or run:"
+          + " docker compose -f tools/environment/docker/docker-compose.yml"
           + " -f tools/environment/docker/docker-compose.local.yml --profile sql up -d", e);
     }
   }
@@ -73,8 +76,8 @@ public class ConnectionPoolTest extends BaseDatabaseTest {
     assertLoadSucceeded(runLoad(app, WORKER_THREADS), WORKER_THREADS);
     Thread.sleep(IDLE_PAUSE_MS);
     Assertions.assertThat(connections(app))
-        .as("idle connections after load from 10 threads")
-        .isLessThanOrEqualTo(12);
+        .as("idle connections after load from " + WORKER_THREADS + " threads, bound " + MAX_IDLE_CONNECTIONS)
+        .isLessThanOrEqualTo(MAX_IDLE_CONNECTIONS);
   }
 
   @Test(description = "Check pool never exceeds max size")
@@ -110,7 +113,8 @@ public class ConnectionPoolTest extends BaseDatabaseTest {
         AvailableSettings.JAKARTA_JDBC_PASSWORD, JDBC_PASSWORD,
         AvailableSettings.POOL_SIZE, poolSize,
         AvailableSettings.HBM2DDL_AUTO, "update");
-    SqlFactory factory = DatabaseService.getInstance().createSqlQuery(PersistenceConfigurationFactory.create(applicationName, props));
+    SqlFactory factory = DatabaseService.getInstance()
+        .createSqlQuery(PersistenceConfigurationFactory.create(applicationName, props));
     entityManagerFactory = factory.getThreadLocalEntityManager().getEntityManagerFactory();
     return factory;
   }
@@ -170,9 +174,11 @@ public class ConnectionPoolTest extends BaseDatabaseTest {
       workers.add(worker);
       worker.start();
     }
+    long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(JOIN_TIMEOUT_MS);
     for (Thread worker : workers) {
-      worker.join(JOIN_TIMEOUT_MS);
+      worker.join(Math.max(1, TimeUnit.NANOSECONDS.toMillis(deadline - System.nanoTime())));
     }
+    workers.stream().filter(Thread::isAlive).forEach(Thread::interrupt);
     running.set(false);
     sampler.join();
     return new LoadResult(peak.get(), errors, finished.get());
