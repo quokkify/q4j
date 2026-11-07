@@ -12,6 +12,29 @@ dependencies {
 }
 ```
 
+The module brings [Querydsl](https://openfeign.github.io/querydsl/) (`io.github.openfeign.querydsl:querydsl-jpa`)
+transitively. To generate Q-classes (`QUser`, ...) for your own entities, add the annotation processor:
+
+```kotlin
+dependencies {
+    testAnnotationProcessor("io.github.openfeign.querydsl:querydsl-apt:7.7:jpa")
+    testAnnotationProcessor("jakarta.persistence:jakarta.persistence-api:3.2.0")
+}
+```
+
+### Migrating from `com.querydsl`
+
+The module uses the maintained OpenFeign fork of Querydsl instead of `com.querydsl` 5.x, which has had no
+release since January 2024. The fork keeps the `com.querydsl.*` packages, so query code does not change, but
+the Maven coordinates do:
+
+- Replace the `com.querydsl` group ID with `io.github.openfeign.querydsl`.
+- Drop the `:jakarta` classifier from `querydsl-jpa`; on `querydsl-apt` use the `jpa` classifier.
+- Remove any remaining `com.querydsl:*` dependency. Both artifacts contain the same `com.querydsl.*` classes,
+  and Gradle and Maven do not treat them as one library, so keeping both puts two copies on the classpath.
+
+See the [Querydsl migration guide](https://openfeign.github.io/querydsl/migration) for details.
+
 ## Environment variables
 
 | Variable                | Default                 | Description       |
