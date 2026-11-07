@@ -1,1 +1,1 @@
-{"id":"6a9a1dae27716ac265dfbc307723e7ca.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.arch.PackageNamingRuleTest.packageWithUnderscoreIsReported","name":"packageWithUnderscoreIsReported","status":"passed","testResultsByEnv":{"ubuntu-26-04":"b359d9d306c34b9e6a6b438e4fca052f"}}
+{"id":"6a9a1dae27716ac265dfbc307723e7ca.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.arch.PackageNamingRuleTest.packageWithUnderscoreIsReported","name":"packageWithUnderscoreIsReported","status":"passed","testResultsByEnv":{"ubuntu-26-04":"3362b6a869bea3994ffd3e0839692462"}}
