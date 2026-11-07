@@ -76,7 +76,7 @@ public abstract class BaseTest {
 
 ## Usage in tests
 
-````java
+```java
 public class UserTest extends BaseTest {
 
     @Test
@@ -104,6 +104,7 @@ public class UserTest extends BaseTest {
         Assertions.assertThat(adults).hasSizeGreaterThanOrEqualTo(2);
     }
 }
+```
 
 ## Type-safe queries with Querydsl
 
@@ -115,7 +116,7 @@ dependencies {
     testAnnotationProcessor("io.github.openfeign.querydsl:querydsl-mongodb:7.7")
     testAnnotationProcessor("dev.morphia.morphia:morphia-core:2.5.3")
 }
-````
+```
 
 Use `annotationProcessor` instead of `testAnnotationProcessor` if the entities live in `src/main`. Keep the processor's Querydsl and `morphia-core` versions equal to the ones `dev.quokkify:morphia-legacy` brings transitively (check with `./gradlew dependencies`).
 
