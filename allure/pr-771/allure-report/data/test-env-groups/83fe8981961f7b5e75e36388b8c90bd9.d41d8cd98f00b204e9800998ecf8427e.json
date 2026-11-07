@@ -1,1 +1,0 @@
-{"id":"83fe8981961f7b5e75e36388b8c90bd9.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.architecture.ArchitectureRunnerTest.ruleThatCannotRunFailsTheBuildRegardlessOfItsSeverity","name":"ruleThatCannotRunFailsTheBuildRegardlessOfItsSeverity","status":"passed","testResultsByEnv":{"ubuntu-26-04":"5b3ee772841e3e7626077510c0ddc462"}}
