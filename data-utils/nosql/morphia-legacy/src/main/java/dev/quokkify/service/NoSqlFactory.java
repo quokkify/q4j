@@ -9,7 +9,10 @@ import dev.morphia.config.MorphiaConfig;
 
 /**
  * Use this class for get methods for work with mongo database.
+ *
+ * @deprecated Use {@code dev.quokkify:mongodb} ({@code dev.quokkify.mongodb.*}); this module will be removed.
  */
+@Deprecated(since = "0.14.0", forRemoval = true)
 public class NoSqlFactory {
 
   private final MongoClient mongoClient;

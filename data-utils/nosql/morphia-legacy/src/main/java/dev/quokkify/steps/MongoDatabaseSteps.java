@@ -17,6 +17,10 @@ import dev.morphia.query.filters.Filters;
 import dev.morphia.query.updates.UpdateOperator;
 import io.qameta.allure.Step;
 
+/**
+ * @deprecated Use {@code dev.quokkify:mongodb} ({@code dev.quokkify.mongodb.*}); this module will be removed.
+ */
+@Deprecated(since = "0.14.0", forRemoval = true)
 public class MongoDatabaseSteps extends AbstractMongoSteps<MongoVerifier> {
 
   private final NoSqlFactory noSqlFactory;

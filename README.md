@@ -70,7 +70,7 @@ produce a clear test result
 | TestNG lifecycle      | `testng`                  | Listeners, retries, annotations, and extensions     |
 | Browser automation    | `selenide`                | Components, page workflows, and browser services    |
 | API automation        | `rest-assured`            | Requests, filters, steps, and response verification |
-| Database verification | `sql`, `morphia`, `redis` | Persistence helpers and reusable assertions         |
+| Database verification | `sql`, `morphia-legacy`, `redis` | Persistence helpers and reusable assertions         |
 | Messaging             | `kafka`, `rabbitmq`       | Producers, consumers, steps, and verifiers          |
 | Test management       | `jira-*`, `testrail-*`    | Ticket and test-case lifecycle integrations         |
 | Reporting             | `reportportal-*`          | ReportPortal services and TestNG listeners          |
@@ -116,7 +116,7 @@ dev.quokkify:<artifact>:<version>
 | Artifact  | Purpose                                          |
 | --------- | ------------------------------------------------ |
 | `sql`     | SQL, JPA, persistence, and database verification |
-| `morphia` | MongoDB and Morphia persistence helpers          |
+| `morphia-legacy` | Deprecated Morphia helpers; use mongodb |
 | `redis`   | Redis operations and verification                |
 
 ### 🔌 Test integrations

@@ -190,8 +190,8 @@ jobs:
       module: ":data-utils:nosql"
       slug: data-utils-nosql
 
-  data-utils-nosql-morphia:
-    name: "Data • morphia"
+  data-utils-nosql-morphia-legacy:
+    name: "Data • morphia-legacy"
     needs: [detect-runner, build-common]
     if: ${{ github.event_name != 'pull_request_target' }}
     uses: ./.github/workflows/reusable-module-pipeline.yml
@@ -199,9 +199,9 @@ jobs:
       runs-on: ${{ needs.detect-runner.outputs.runs_on }}
       self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
       group: data
-      name: morphia
-      module: ":data-utils:nosql:morphia"
-      slug: data-utils-nosql-morphia
+      name: morphia-legacy
+      module: ":data-utils:nosql:morphia-legacy"
+      slug: data-utils-nosql-morphia-legacy
       run-tests: true
       profile: storage
 
@@ -541,7 +541,7 @@ jobs:
         test-common,
         data-utils-sql,
         data-utils-nosql,
-        data-utils-nosql-morphia,
+        data-utils-nosql-morphia-legacy,
         data-utils-nosql-redis,
         integrations-rest-assured,
         integrations-selenide,

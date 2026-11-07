@@ -1,14 +1,27 @@
-# data-utils/nosql/morphia
+> **Deprecated.** Use [`dev.quokkify:mongodb`](../mongodb/README.md); this module will be removed in a future release.
+
+# data-utils/nosql/morphia-legacy
 
 Morphia-based MongoDB access utility for test automation with thread-safe datastore management.
 
+## Migrating to dev.quokkify:mongodb
+
+| Morphia (legacy) | `dev.quokkify:mongodb` |
+|---|---|
+| `@dev.morphia.annotations.Entity` | `@MongoDocument("name")` + `@QueryEntity` |
+| `@dev.morphia.annotations.Id` | `@org.bson.codecs.pojo.annotations.BsonId` |
+| `new NoSqlFactory(client, config)` | `new MongoFactory(client, "db")` |
+| `update(entity, List.of(UpdateOperators.set(f, v)))` | `update(entity, Updates.set(f, v))` |
+| `selectDsl(Class)` / `selectQuery(EntityPath)` (Morphia) | `selectQuery(EntityPath)` |
+| `delete(entity)`: deletes all documents of the class | `delete(entity)`: deletes this document |
+
 ## Installation
 
-Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/morphia):
+Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.quokkify/morphia-legacy):
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:morphia:0.12.2")
+    testImplementation("dev.quokkify:morphia-legacy:0.12.2")
 }
 ```
 
@@ -100,7 +113,7 @@ dependencies {
 }
 ```
 
-Use `annotationProcessor` instead of `testAnnotationProcessor` if the entities live in `src/main`. Keep the processor's Querydsl and `morphia-core` versions equal to the ones `dev.quokkify:morphia` brings transitively (check with `./gradlew dependencies`).
+Use `annotationProcessor` instead of `testAnnotationProcessor` if the entities live in `src/main`. Keep the processor's Querydsl and `morphia-core` versions equal to the ones `dev.quokkify:morphia-legacy` brings transitively (check with `./gradlew dependencies`).
 
 ```java
 QUser user = QUser.user;

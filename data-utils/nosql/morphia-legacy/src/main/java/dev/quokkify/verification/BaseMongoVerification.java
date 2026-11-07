@@ -11,6 +11,10 @@ import io.qameta.allure.Step;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+/**
+ * @deprecated Use {@code dev.quokkify:mongodb} ({@code dev.quokkify.mongodb.*}); this module will be removed.
+ */
+@Deprecated(since = "0.14.0", forRemoval = true)
 public abstract class BaseMongoVerification<T extends BaseMongoVerification<T>>
     implements MongoVerification {
 

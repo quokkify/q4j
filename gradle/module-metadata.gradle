@@ -19,7 +19,7 @@ ext.modules = [
 
     ':data-utils:sql': [artifactId: 'sql', displayName: 'Q4J SQL', description: 'SQL, JPA, persistence, and database verification helpers for tests.'],
     ':data-utils:nosql': [artifactId: 'nosql', displayName: 'Q4J NoSQL', description: 'Structural parent for Q4J NoSQL modules.', publish: false],
-    ':data-utils:nosql:morphia': [artifactId: 'morphia', displayName: 'Q4J Morphia', description: 'MongoDB and Morphia persistence helpers for automated tests.'],
+    ':data-utils:nosql:morphia-legacy': [artifactId: 'morphia-legacy', displayName: 'Q4J Morphia (legacy)', description: 'Deprecated MongoDB and Morphia helpers; use dev.quokkify:mongodb.'],
     ':data-utils:nosql:redis': [artifactId: 'redis', displayName: 'Q4J Redis', description: 'Redis operations and verification helpers for automated tests.'],
 
     ':common-utils:core': [artifactId: 'core', displayName: 'Q4J Core', description: 'Core types, formatting, generation, and utility APIs shared by Q4J modules.'],
