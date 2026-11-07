@@ -1,7 +1,14 @@
 package dev.quokkify.test;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
+import java.util.concurrent.TimeUnit;
 
 import dev.quokkify.entity.DatabaseTestUser;
 import dev.quokkify.persistence.PersistenceConfigurationFactory;
@@ -46,6 +53,43 @@ public class PersistenceConfigurationTest extends BaseDatabaseTest {
     Assertions.assertThat(second).isSameAs(first);
   }
 
+  @Test(description = "Regression guard: concurrent first use of one persistence name builds a single SqlFactory")
+  public void checkConcurrentFirstUseReturnsSingleFactory() throws Exception {
+    int threads = 8;
+    String name = "concurrent-" + UUID.randomUUID();
+    Map<String, Object> props = getH2Properties();
+    CountDownLatch start = new CountDownLatch(1);
+    ExecutorService executor = Executors.newFixedThreadPool(threads);
+    try {
+      List<Future<SqlFactory>> futures = new ArrayList<>();
+      for (int i = 0; i < threads; i++) {
+        futures.add(executor.submit(() -> {
+          start.await();
+          return DatabaseService.getInstance()
+              .createSqlQuery(PersistenceConfigurationFactory.create(name, props));
+        }));
+      }
+      start.countDown();
+      List<SqlFactory> factories = new ArrayList<>();
+      for (Future<SqlFactory> future : futures) {
+        factories.add(future.get(60, TimeUnit.SECONDS));
+      }
+      Assertions.assertThat(factories).hasSize(threads).allSatisfy(factory ->
+          Assertions.assertThat(factory).isSameAs(factories.get(0)));
+    } finally {
+      executor.shutdownNow();
+    }
+  }
+
+  @Test(description = "Explicit entities overload uses exactly the given classes")
+  public void checkExplicitEntitiesOverloadUsesExactSet() {
+    HibernatePersistenceConfiguration configuration = PersistenceConfigurationFactory.create(
+        "explicit", getH2Properties(), List.<Class<?>>of(DatabaseTestUser.class));
+    Assertions.assertThat(configuration.managedClasses()).containsExactly(DatabaseTestUser.class);
+    Assertions.assertThatNullPointerException().isThrownBy(() -> PersistenceConfigurationFactory.create(
+        "explicit", getH2Properties(), (java.util.Collection<Class<?>>) null));
+  }
+
   @Test(description = "Null arguments are rejected")
   public void checkNullArgumentsRejected() {
     Map<String, Object> props = getH2Properties();
@@ -55,15 +99,16 @@ public class PersistenceConfigurationTest extends BaseDatabaseTest {
         .isThrownBy(() -> PersistenceConfigurationFactory.create("x", null));
   }
 
-  @Test(description = "Provider builds a cached configuration for a stage")
+  @Test(description = "Provider builds a configuration for a stage per call")
   public void checkProviderBuildsConfigurationForStage() {
     DatabaseStage stage = getStage();
     HibernatePersistenceConfiguration configuration = PersistenceItemProvider.getPersistenceConfiguration(stage);
     Assertions.assertThat(configuration.name()).isEqualTo("quokkify");
     Assertions.assertThat(configuration.properties())
         .containsEntry(AvailableSettings.POOL_SIZE, "100");
-    Assertions.assertThat(PersistenceItemProvider.getPersistenceConfiguration(stage))
-        .isSameAs(configuration);
+    HibernatePersistenceConfiguration again = PersistenceItemProvider.getPersistenceConfiguration(stage);
+    Assertions.assertThat(again.name()).isEqualTo(configuration.name());
+    Assertions.assertThat(again.properties()).isEqualTo(configuration.properties());
   }
 
   @Test(description = "Regression guard: the deprecated PersistenceItem path and the new path share one cache")

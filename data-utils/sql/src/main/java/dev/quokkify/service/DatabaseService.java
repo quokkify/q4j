@@ -1,7 +1,7 @@
 package dev.quokkify.service;
 
-import java.util.HashMap;
 import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
 
 import jakarta.persistence.Persistence;
 import jakarta.persistence.PersistenceConfiguration;
@@ -12,7 +12,7 @@ import jakarta.persistence.PersistenceConfiguration;
 public class DatabaseService {
 
   private static volatile DatabaseService instance;
-  private final Map<String, SqlFactory> sqlQueryFactories = new HashMap<>();
+  private final Map<String, SqlFactory> sqlQueryFactories = new ConcurrentHashMap<>();
 
   private DatabaseService() {
   }
@@ -37,13 +37,8 @@ public class DatabaseService {
    * @return {@link SqlFactory}
    */
   public SqlFactory createSqlQuery(String persistenceName) {
-    if (!sqlQueryFactories.containsKey(persistenceName)) {
-      SqlFactory sqlFactory = new SqlFactory(Persistence.createEntityManagerFactory(persistenceName));
-      sqlQueryFactories.put(persistenceName, sqlFactory);
-      return sqlFactory;
-    } else {
-      return sqlQueryFactories.get(persistenceName);
-    }
+    return sqlQueryFactories.computeIfAbsent(persistenceName,
+        name -> new SqlFactory(Persistence.createEntityManagerFactory(name)));
   }
 
   /**
@@ -51,7 +46,8 @@ public class DatabaseService {
    *
    * Only the name, properties, managed classes, non-JTA data source, mapping files, shared cache mode and
    * validation mode of the item are used; the JTA data source, transaction type (always resource-local),
-   * jar file URLs, excludeUnlistedClasses and class loader are not.
+   * persistence provider class name (always Hibernate), jar file URLs, excludeUnlistedClasses and class loader
+   * are not.
    *
    * @param persistence Persistence class {@link dev.quokkify.persistence.PersistenceItem}
    * @return {@link SqlFactory}
@@ -71,13 +67,7 @@ public class DatabaseService {
    * @return {@link SqlFactory}
    */
   public SqlFactory createSqlQuery(PersistenceConfiguration configuration) {
-    String name = configuration.name();
-    if (!sqlQueryFactories.containsKey(name)) {
-      SqlFactory sqlFactory = new SqlFactory(configuration.createEntityManagerFactory());
-      sqlQueryFactories.put(name, sqlFactory);
-      return sqlFactory;
-    } else {
-      return sqlQueryFactories.get(name);
-    }
+    return sqlQueryFactories.computeIfAbsent(configuration.name(),
+        name -> new SqlFactory(configuration.createEntityManagerFactory()));
   }
 }

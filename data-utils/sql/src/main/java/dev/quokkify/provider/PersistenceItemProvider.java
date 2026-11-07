@@ -16,26 +16,21 @@ public class PersistenceItemProvider {
 
   @SuppressWarnings("removal")
   private static final Map<DatabaseStage, PersistenceItem> PERSISTENCE_ITEMS = new ConcurrentHashMap<>();
-  private static final Map<DatabaseStage, HibernatePersistenceConfiguration> PERSISTENCE_CONFIGURATIONS =
-      new ConcurrentHashMap<>();
 
   private PersistenceItemProvider() {
   }
 
   /**
-   * Get the cached persistence configuration for a stage.
+   * Build a persistence configuration for a stage on every call.
    *
    * @param databaseStage database stage
    * @return configuration built from the stage project name and persistence properties
    */
   public static HibernatePersistenceConfiguration getPersistenceConfiguration(DatabaseStage databaseStage) {
     Objects.requireNonNull(databaseStage);
-    return PERSISTENCE_CONFIGURATIONS.computeIfAbsent(
-        databaseStage,
-        stage -> PersistenceConfigurationFactory.create(
-            stage.getProjectName(),
-            PersistencePropertiesProvider.getPersistenceProperties(stage)
-        )
+    return PersistenceConfigurationFactory.create(
+        databaseStage.getProjectName(),
+        PersistencePropertiesProvider.getPersistenceProperties(databaseStage)
     );
   }
 

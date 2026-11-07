@@ -39,8 +39,8 @@ public class PersistenceItem implements PersistenceUnitInfo {
   /**
    * Convert this item to a {@link HibernatePersistenceConfiguration}, honoring {@link #getManagedClassNames()}.
    * Also carried when set: the non-JTA data source, mapping file names, shared cache mode and validation mode.
-   * Not carried: the JTA data source, transaction type (always resource-local), jar file URLs,
-   * {@link #excludeUnlistedClasses()} and the class loader.
+   * Not carried: the JTA data source, transaction type (always resource-local), persistence provider class name
+   * (always Hibernate), jar file URLs, {@link #excludeUnlistedClasses()} and the class loader.
    *
    * @return configuration
    * @deprecated use {@link PersistenceConfigurationFactory#create(String, Map)}
@@ -54,7 +54,8 @@ public class PersistenceItem implements PersistenceUnitInfo {
       properties.put(AvailableSettings.JAKARTA_NON_JTA_DATASOURCE, dataSource);
     }
     HibernatePersistenceConfiguration configuration =
-        PersistenceConfigurationFactory.create(getPersistenceUnitName(), properties, getManagedClassNames());
+        PersistenceConfigurationFactory.createWithClassNames(getPersistenceUnitName(), properties,
+            getManagedClassNames());
     List<String> mappingFileNames = getMappingFileNames();
     if (mappingFileNames != null) {
       mappingFileNames.forEach(configuration::mappingFile);
