@@ -1,1 +1,1 @@
-{"id":"1aca4c2fd35a0c228f76b128ee4ef72e.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.tyrus.client.WsClientTest.messageCollector_storesMessages","name":"messageCollector_storesMessages","status":"passed","testResultsByEnv":{"ubuntu-26-04":"1ee58eda3b8e543b0a3006b0ba5ba914"}}
+{"id":"1aca4c2fd35a0c228f76b128ee4ef72e.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.tyrus.client.WsClientTest.messageCollector_storesMessages","name":"messageCollector_storesMessages","status":"passed","testResultsByEnv":{"ubuntu-26-04":"00e8c25a6fc86ceeba569f6dcca2ab45"}}
