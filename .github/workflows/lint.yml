@@ -12,6 +12,7 @@ concurrency:
 
 jobs:
   detect-runner:
+    name: Setup
     uses: ./.github/workflows/reusable-detect-runner.yml
     with:
       strategy: push_any

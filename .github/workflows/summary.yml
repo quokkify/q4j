@@ -18,6 +18,7 @@ concurrency:
 
 jobs:
   detect-runner:
+    name: Setup
     uses: ./.github/workflows/reusable-detect-runner.yml
     with:
       strategy: workflow_run_pr_trusted

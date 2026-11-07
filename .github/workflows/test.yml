@@ -12,6 +12,7 @@ concurrency:
 
 jobs:
   detect-runner:
+    name: Setup
     uses: ./.github/workflows/reusable-detect-runner.yml
     with:
       strategy: pr_trusted
@@ -21,6 +22,7 @@ jobs:
     secrets: inherit
 
   module-matrices:
+    name: Setup
     uses: ./.github/workflows/reusable-module-matrices.yml
 
   check-formatting:
@@ -45,7 +47,7 @@ jobs:
           prettier_options: --check .
 
   build-common:
-    name: "Build common • ${{ matrix.name }}"
+    name: "${{ matrix.name }} / Build"
     needs: [detect-runner, module-matrices, check-formatting]
     runs-on: ${{ fromJson(needs.detect-runner.outputs.runs_on) }}
     if: ${{ github.event_name != 'pull_request_target' }}
@@ -83,7 +85,7 @@ jobs:
           path: build/reports/problems/problems-report.html
 
   test-common:
-    name: "Common • ${{ matrix.name }}"
+    name: "${{ matrix.name }} / Test"
     needs: [detect-runner, module-matrices, build-common]
     runs-on: ${{ fromJson(needs.detect-runner.outputs.runs_on) }}
     if: ${{ github.event_name != 'pull_request_target' }}
@@ -163,7 +165,7 @@ jobs:
           path: build/reports/problems/problems-report.html
 
   data-utils-sql:
-    name: "Data • sql"
+    name: sql
     needs: [detect-runner, build-common]
     if: ${{ github.event_name != 'pull_request_target' }}
     uses: ./.github/workflows/reusable-module-pipeline.yml
@@ -178,7 +180,7 @@ jobs:
       profile: sql
 
   data-utils-nosql:
-    name: "Data • nosql"
+    name: nosql
     needs: [detect-runner, build-common]
     if: ${{ github.event_name != 'pull_request_target' }}
     uses: ./.github/workflows/reusable-module-pipeline.yml
@@ -191,7 +193,7 @@ jobs:
       slug: data-utils-nosql
 
   data-utils-nosql-mongodb:
-    name: "Data • mongodb"
+    name: mongodb
     needs: [detect-runner, build-common]
     if: ${{ github.event_name != 'pull_request_target' }}
     uses: ./.github/workflows/reusable-module-pipeline.yml
@@ -206,7 +208,7 @@ jobs:
       profile: storage
 
   data-utils-nosql-morphia-legacy:
-    name: "Data • morphia-legacy"
+    name: morphia-legacy
     needs: [detect-runner, build-common]
     if: ${{ github.event_name != 'pull_request_target' }}
     uses: ./.github/workflows/reusable-module-pipeline.yml
@@ -221,7 +223,7 @@ jobs:
       profile: storage
 
   data-utils-nosql-redis:
-    name: "Data • redis"
+    name: redis
     needs: [detect-runner, build-common]
     if: ${{ github.event_name != 'pull_request_target' }}
     uses: ./.github/workflows/reusable-module-pipeline.yml
@@ -236,7 +238,7 @@ jobs:
       profile: redis
 
   integrations-rest-assured:
-    name: "Integrations • rest-assured"
+    name: rest-assured
     needs: [detect-runner, build-common]
     if: ${{ github.event_name != 'pull_request_target' }}
     uses: ./.github/workflows/reusable-module-pipeline.yml
@@ -251,7 +253,7 @@ jobs:
       profile: mock
 
   integrations-selenide:
-    name: "Integrations • selenide"
+    name: selenide
     needs: [detect-runner, build-common]
     if: ${{ github.event_name != 'pull_request_target' }}
     uses: ./.github/workflows/reusable-module-pipeline.yml
@@ -266,7 +268,7 @@ jobs:
       profile: web
 
   integrations-selenide-proxy:
-    name: "Integrations • selenide-proxy"
+    name: selenide-proxy
     needs: [detect-runner, build-common]
     if: ${{ github.event_name != 'pull_request_target' }}
     uses: ./.github/workflows/reusable-module-pipeline.yml
@@ -279,7 +281,7 @@ jobs:
       slug: integrations-selenide-proxy
 
   integrations-selenide-grid:
-    name: "Integrations • selenide-grid"
+    name: selenide-grid
     needs: [detect-runner, build-common]
     if: ${{ github.event_name != 'pull_request_target' }}
     uses: ./.github/workflows/reusable-module-pipeline.yml
@@ -294,7 +296,7 @@ jobs:
       profile: web
 
   integrations-tyrus:
-    name: "Integrations • tyrus"
+    name: tyrus
     needs: [detect-runner, build-common]
     if: ${{ github.event_name != 'pull_request_target' }}
     uses: ./.github/workflows/reusable-module-pipeline.yml
@@ -309,7 +311,7 @@ jobs:
       profile: none
 
   integrations-kafka:
-    name: "Integrations • kafka"
+    name: kafka
     needs: [detect-runner, build-common]
     if: ${{ github.event_name != 'pull_request_target' }}
     uses: ./.github/workflows/reusable-module-pipeline.yml
@@ -324,7 +326,7 @@ jobs:
       profile: messaging
 
   integrations-rabbitmq:
-    name: "Integrations • rabbitmq"
+    name: rabbitmq
     needs: [detect-runner, build-common]
     if: ${{ github.event_name != 'pull_request_target' }}
     uses: ./.github/workflows/reusable-module-pipeline.yml
@@ -339,7 +341,7 @@ jobs:
       profile: rabbitmq
 
   integrations-jira-core:
-    name: "Integrations • jira-core"
+    name: jira-core
     needs: [detect-runner, build-common]
     if: ${{ github.event_name != 'pull_request_target' }}
     uses: ./.github/workflows/reusable-module-pipeline.yml
@@ -352,7 +354,7 @@ jobs:
       slug: integrations-jira-core
 
   integrations-jira-testng:
-    name: "Integrations • jira-testng"
+    name: jira-testng
     needs: [detect-runner, build-common]
     if: ${{ github.event_name != 'pull_request_target' }}
     uses: ./.github/workflows/reusable-module-pipeline.yml
@@ -365,7 +367,7 @@ jobs:
       slug: integrations-jira-testng
 
   integrations-jira-testrail:
-    name: "Integrations • jira-testrail"
+    name: jira-testrail
     needs: [detect-runner, build-common]
     if: ${{ github.event_name != 'pull_request_target' }}
     uses: ./.github/workflows/reusable-module-pipeline.yml
@@ -378,7 +380,7 @@ jobs:
       slug: integrations-jira-testrail
 
   integrations-testrail-core:
-    name: "Integrations • testrail-core"
+    name: testrail-core
     needs: [detect-runner, build-common]
     if: ${{ github.event_name != 'pull_request_target' }}
     uses: ./.github/workflows/reusable-module-pipeline.yml
@@ -391,7 +393,7 @@ jobs:
       slug: integrations-testrail-core
 
   integrations-testrail-testng:
-    name: "Integrations • testrail-testng"
+    name: testrail-testng
     needs: [detect-runner, build-common]
     if: ${{ github.event_name != 'pull_request_target' }}
     uses: ./.github/workflows/reusable-module-pipeline.yml
@@ -404,7 +406,7 @@ jobs:
       slug: integrations-testrail-testng
 
   integrations-reportportal-core:
-    name: "Integrations • reportportal-core"
+    name: reportportal-core
     needs: [detect-runner, build-common]
     if: ${{ github.event_name != 'pull_request_target' }}
     uses: ./.github/workflows/reusable-module-pipeline.yml
@@ -417,7 +419,7 @@ jobs:
       slug: integrations-reportportal-core
 
   integrations-reportportal-testng:
-    name: "Integrations • reportportal-testng"
+    name: reportportal-testng
     needs: [detect-runner, build-common]
     if: ${{ github.event_name != 'pull_request_target' }}
     uses: ./.github/workflows/reusable-module-pipeline.yml
@@ -432,7 +434,7 @@ jobs:
       profile: reporting
 
   integrations-reportportal-testrail:
-    name: "Integrations • reportportal-testrail"
+    name: reportportal-testrail
     needs: [detect-runner, build-common]
     if: ${{ github.event_name != 'pull_request_target' }}
     uses: ./.github/workflows/reusable-module-pipeline.yml

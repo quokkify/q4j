@@ -36,7 +36,7 @@ permissions:
 
 jobs:
   detect-runner:
-    name: Select runner
+    name: runner
     runs-on: ubuntu-latest
     outputs:
       runs_on: ${{ steps.select.outputs.runs_on }}
