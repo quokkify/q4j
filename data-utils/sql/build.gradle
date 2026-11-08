@@ -6,9 +6,9 @@ dependencies {
     implementation project(":testng-extensions")
 
     implementation libs.classgraph
-    implementation libs.hibernate.core
+    api libs.hibernate.core
     implementation libs.hibernate.agroal
-    implementation libs.jakarta.persistence.api
+    api libs.jakarta.persistence.api
     implementation libs.hibernate.type
     api libs.querydsl.jpa
     implementation libs.jakarta.annotation.api
