@@ -1,0 +1,1 @@
+{"id":"a07de181147b2830dea431205b6d3a08.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.model.JsonPojoTest.testSetEachAtThrowsWhenArrayMissing","name":"Verify set value in each array element rejects missing array","status":"passed","testResultsByEnv":{"ubuntu-26-04":"43f1744e3e207430f9b3e5f024e8938e"}}
