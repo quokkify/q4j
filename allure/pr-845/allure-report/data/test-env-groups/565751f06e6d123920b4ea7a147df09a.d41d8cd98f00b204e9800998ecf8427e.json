@@ -1,0 +1,1 @@
+{"id":"565751f06e6d123920b4ea7a147df09a.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.rabbitmq.test.RabbitIntegrationTest.testRabbitMqPublishMessage","name":"Verify the publication of RabbitMQ message","status":"passed","testResultsByEnv":{"ubuntu-26-04":"0f8b1edaa19f96df9c11218a0d2b7d05"}}
