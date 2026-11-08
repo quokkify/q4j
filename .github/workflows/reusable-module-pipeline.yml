@@ -52,7 +52,7 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/ci-kit/actions/setup-java-gradle@feeb0b648eb0e0a00c0720adc4ccd5821c7f0aac # v4.3.2
+        uses: quokkify/ci-kit/actions/setup-java-gradle@2349c1c8da42dcd36e1a79fc45cca72b1e803fee # v4.3.3
         with:
           java-version: "21"
 
@@ -88,13 +88,13 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/ci-kit/actions/setup-java-gradle@feeb0b648eb0e0a00c0720adc4ccd5821c7f0aac # v4.3.2
+        uses: quokkify/ci-kit/actions/setup-java-gradle@2349c1c8da42dcd36e1a79fc45cca72b1e803fee # v4.3.3
         with:
           java-version: "21"
 
       - name: 🟢 Start Infra with health lifecycle
         if: ${{ inputs.profile != 'none' }}
-        uses: quokkify/ci-kit/actions/compose-up@feeb0b648eb0e0a00c0720adc4ccd5821c7f0aac # v4.3.2
+        uses: quokkify/ci-kit/actions/compose-up@2349c1c8da42dcd36e1a79fc45cca72b1e803fee # v4.3.3
         with:
           compose-files: |
             tools/environment/docker/docker-compose.yml
