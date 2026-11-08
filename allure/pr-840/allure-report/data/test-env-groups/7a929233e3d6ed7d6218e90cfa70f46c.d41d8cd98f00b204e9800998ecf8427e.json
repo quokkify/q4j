@@ -1,1 +1,1 @@
-{"id":"7a929233e3d6ed7d6218e90cfa70f46c.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.ApiTest.testValidateSchemaByPojoClass","name":"Verify scheme validation by Pojo class","status":"passed","testResultsByEnv":{"ubuntu-26-04":"b657b63d28fe72b4550d1a9c6e0c9c20"}}
+{"id":"7a929233e3d6ed7d6218e90cfa70f46c.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.ApiTest.testValidateSchemaByPojoClass","name":"Verify scheme validation by Pojo class","status":"passed","testResultsByEnv":{"ubuntu-26-04":"f5694017c5d386a9172c32697debb33f"}}

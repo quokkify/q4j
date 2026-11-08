@@ -1,1 +1,1 @@
-{"id":"485aba4f79b316ef5659f00d4a871c99.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.JwtTest.testJwtFunctionalityUsingJwtKeyPair","name":"Verify JWT functionality using JwtKeyPair","status":"passed","testResultsByEnv":{"ubuntu-26-04":"01a6844bc953f9d5f970681d487051e0"}}
+{"id":"485aba4f79b316ef5659f00d4a871c99.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.JwtTest.testJwtFunctionalityUsingJwtKeyPair","name":"Verify JWT functionality using JwtKeyPair","status":"passed","testResultsByEnv":{"ubuntu-26-04":"29d2a98c9a0accf77897c19d2d39391e"}}
