@@ -1,0 +1,1 @@
+{"id":"a185f7e0ab48d7220e6e693fbf261f5c.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.OrdersTablePageObjectTest.sameComponentClassKeepsTablesIsolated","name":"One Component class backs two panels whose tables stay isolated","status":"passed","testResultsByEnv":{"ubuntu-26-04":"14312e20e5a1dc8e7de2b7a683c066d3"}}
