@@ -1,0 +1,1 @@
+{"id":"623db16fe1623134a2e497f1f8e4a326.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.PersistenceConfigurationTest.checkDeprecatedAndNewPathShareCache","name":"Regression guard: the deprecated PersistenceItem path and the new path share one cache","status":"passed","testResultsByEnv":{"ubuntu-26-04":"0c29a0960ec07cfaa39eb3f5518dba83"}}
