@@ -45,7 +45,7 @@ jobs:
           java-version: "21"
 
       - name: 🧱 Build (check, no tests)
-        uses: ./.github/actions/gradle-retry
+        uses: quokkify/ci-kit/actions/gradle-retry@8619c02414480541989420d2a4fbf1ebebfb99f5 # v4.3.4
         with:
           command: "./gradlew ${{ matrix.module }}:check -x ${{ matrix.module }}:test --warning-mode all --console=plain"
 
@@ -90,7 +90,7 @@ jobs:
           java-version: "21"
 
       - name: 🧱 Build (check, no tests)
-        uses: ./.github/actions/gradle-retry
+        uses: quokkify/ci-kit/actions/gradle-retry@8619c02414480541989420d2a4fbf1ebebfb99f5 # v4.3.4
         with:
           command: "./gradlew ${{ matrix.module }}:check -x ${{ matrix.module }}:test --warning-mode all --console=plain"
 
@@ -135,7 +135,7 @@ jobs:
           java-version: "21"
 
       - name: 🧱 Build (check, no tests)
-        uses: ./.github/actions/gradle-retry
+        uses: quokkify/ci-kit/actions/gradle-retry@8619c02414480541989420d2a4fbf1ebebfb99f5 # v4.3.4
         with:
           command: "./gradlew ${{ matrix.module }}:check -x ${{ matrix.module }}:test --warning-mode all --console=plain"
 
