@@ -66,12 +66,12 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/ci-kit/actions/setup-java-gradle@2349c1c8da42dcd36e1a79fc45cca72b1e803fee # v4.3.3
+        uses: quokkify/ci-kit/actions/setup-java-gradle@5de64cfba3013f35df1ec60ed4bc174cc3d9cd6b # v4.3.5
         with:
           java-version: "21"
 
       - name: 🧱 Build (check, no tests)
-        uses: quokkify/ci-kit/actions/gradle-retry@8619c02414480541989420d2a4fbf1ebebfb99f5 # v4.3.4
+        uses: quokkify/ci-kit/actions/gradle-retry@5de64cfba3013f35df1ec60ed4bc174cc3d9cd6b # v4.3.5
         with:
           command: "./gradlew ${{ matrix.module }}:check -x ${{ matrix.module }}:test --warning-mode all --console=plain"
 
@@ -106,12 +106,12 @@ jobs:
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
 
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/ci-kit/actions/setup-java-gradle@2349c1c8da42dcd36e1a79fc45cca72b1e803fee # v4.3.3
+        uses: quokkify/ci-kit/actions/setup-java-gradle@5de64cfba3013f35df1ec60ed4bc174cc3d9cd6b # v4.3.5
         with:
           java-version: "21"
 
       - name: 🚀 Run tests
-        uses: quokkify/ci-kit/actions/gradle-retry@8619c02414480541989420d2a4fbf1ebebfb99f5 # v4.3.4
+        uses: quokkify/ci-kit/actions/gradle-retry@5de64cfba3013f35df1ec60ed4bc174cc3d9cd6b # v4.3.5
         with:
           command: "./gradlew ${{ matrix.module }}:test --no-daemon --warning-mode all --console=plain --stacktrace"
         env:
@@ -467,10 +467,10 @@ jobs:
   #       uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
   #
   #     - name: 🔨Prepare Java/Gradle
-  #       uses: quokkify/ci-kit/actions/setup-java-gradle@2349c1c8da42dcd36e1a79fc45cca72b1e803fee # v4.3.3
+  #       uses: quokkify/ci-kit/actions/setup-java-gradle@5de64cfba3013f35df1ec60ed4bc174cc3d9cd6b # v4.3.5
   #
   #     - name: 🟢 Start Infra with health lifecycle
-  #       uses: quokkify/ci-kit/actions/compose-up@2349c1c8da42dcd36e1a79fc45cca72b1e803fee # v4.3.3
+  #       uses: quokkify/ci-kit/actions/compose-up@5de64cfba3013f35df1ec60ed4bc174cc3d9cd6b # v4.3.5
   #       with:
   #         compose-files: |
   #           tools/environment/docker/docker-compose.yml
