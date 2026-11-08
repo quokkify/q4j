@@ -29,10 +29,10 @@ jobs:
           python-version: "3.15"
       - name: Validate release and publication contracts
         run: python tools/release_contract.py
-      - name: Test Gradle retry recovery contract
+      - name: Test module test environment wrapper
         run: |
-          python -m unittest -v tools/ci/test_gradle_retry.py
-          bash -n tools/scripts/ci/gradle-retry.sh
+          bash -n tools/scripts/ci/with-test-env.sh
+          bash tools/scripts/ci/test-with-test-env.sh
       - name: Validate project configuration contract
         run: |
           python -m pip install PyYAML==6.0.3

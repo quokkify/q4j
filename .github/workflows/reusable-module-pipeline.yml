@@ -57,7 +57,7 @@ jobs:
           java-version: "21"
 
       - name: 🧱 Build (check, no tests)
-        uses: ./.github/actions/gradle-retry
+        uses: quokkify/ci-kit/actions/gradle-retry@8619c02414480541989420d2a4fbf1ebebfb99f5 # v4.3.4
         with:
           command: "./gradlew ${{ inputs.module }}:check -x ${{ inputs.module }}:test --warning-mode all --console=plain"
 
@@ -106,29 +106,9 @@ jobs:
           timeout-seconds: "120"
 
       - name: 🚀 Run tests
-        run: |
-          for env_file in selenium-grid mock-server mongo postgres redis nginx reportportal kafka rabbitmq; do
-            if [[ -f "tools/environment/.${env_file}.env" ]]; then
-              set -a
-              # shellcheck source=/dev/null
-              source "tools/environment/.${env_file}.env"
-              set +a
-            fi
-          done
-          if [[ -n "${KAFKA_BOOTSTRAP_SERVERS:-}" ]]; then
-            export KAFKA_SERVER_ADDRESS="${KAFKA_BOOTSTRAP_SERVERS}"
-          fi
-          if [[ "${QUOKKIFY_TEST_PROFILE}" == "web" ]]; then
-            if [[ -n "${NGINX_BASE_URL:-}" ]]; then
-              export BASE_URL="${NGINX_BASE_URL}"
-            else
-              echo "NGINX_BASE_URL is not set for web profile" >&2
-              exit 1
-            fi
-          fi
-
-          GRADLE_RETRY_COMMAND="./gradlew ${MODULE_PATH}:test --warning-mode all --console=plain" bash tools/scripts/ci/gradle-retry.sh
-        shell: bash
+        uses: quokkify/ci-kit/actions/gradle-retry@8619c02414480541989420d2a4fbf1ebebfb99f5 # v4.3.4
+        with:
+          command: "tools/scripts/ci/with-test-env.sh ./gradlew ${{ inputs.module }}:test --warning-mode all --console=plain"
 
       - name: 🧾 Allure CI env fragment
         if: always()
