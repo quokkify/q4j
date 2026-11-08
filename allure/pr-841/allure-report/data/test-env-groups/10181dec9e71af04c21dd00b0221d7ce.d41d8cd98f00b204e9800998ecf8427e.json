@@ -1,0 +1,1 @@
+{"id":"10181dec9e71af04c21dd00b0221d7ce.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.TableModelContractTest.readsTypedCellLazily","name":"Rows expose typed lazy-cell contract without table capabilities","status":"passed","testResultsByEnv":{"ubuntu-26-04":"b14375ed5a2c931945178013a39b4d2a"}}
