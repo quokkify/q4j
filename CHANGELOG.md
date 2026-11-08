@@ -2,25 +2,34 @@
 
 ## [0.14.1](https://github.com/quokkify/q4j/compare/v0.14.0...v0.14.1) (2026-11-08)
 
+<!-- project-toolkit:release-notes v2 -->
+**At a glance:** 1 fixed · 11 internal
 
-### 🐛 Bug Fixes
+### 🐛 Fixed
 
-* **sql:** expose hibernate-core and jakarta.persistence-api as api ([#844](https://github.com/quokkify/q4j/issues/844)) ([d28a482](https://github.com/quokkify/q4j/commit/d28a48233f951d4b9ff2acdb5d6c0d8569726fed))
+- **sql:** expose hibernate-core and jakarta.persistence-api as api — **`dev.quokkify:sql` now brings Hibernate and Jakarta Persistence onto your compile classpath**, so the types its API returns compile without declaring `hibernate-core` or `jakarta.persistence-api` yourself. ([#844](https://github.com/quokkify/q4j/pull/844))
 
+  > **Migration**
+  >
+  > - Direct `org.hibernate.orm:hibernate-core` and `jakarta.persistence:jakarta.persistence-api` dependencies added only to compile against `dev.quokkify:sql` can be removed; the versions then follow q4j.
 
-### 📦 Dependencies
+<details><summary>Internal changes (11 PRs)</summary>
 
-* **busybox:** update busybox:1.38.0 docker digest to a46257e ([#811](https://github.com/quokkify/q4j/issues/811)) ([49a99d2](https://github.com/quokkify/q4j/commit/49a99d20fc1fce5dd3636270f0147d5d1f543497))
-* **curl:** update curlimages/curl:8.23.0 docker digest to 3fb7e13 ([#800](https://github.com/quokkify/q4j/issues/800)) ([cd2cc55](https://github.com/quokkify/q4j/commit/cd2cc55a9a28606fa4f9b24de7b8d4bf6090223c))
-* **docker-compose:** update docker:29.9-dind docker digest to 08a9801 ([#771](https://github.com/quokkify/q4j/issues/771)) ([a6ccb7a](https://github.com/quokkify/q4j/commit/a6ccb7a34bd9b69f057f9374e770867ddc590c79))
-* **docker-compose:** update traefik docker tag to v3.7.16 ([#833](https://github.com/quokkify/q4j/issues/833)) ([1343049](https://github.com/quokkify/q4j/commit/13430494ee740c606694fe4131ff9ef37c3e3a73))
-* **github-actions:** update actions/setup-python action to v7.1.0 ([#829](https://github.com/quokkify/q4j/issues/829)) ([0cee26f](https://github.com/quokkify/q4j/commit/0cee26ff9d72a6ae89104eb3ae536411d01f83ac))
-* **github-actions:** update python to 3.15 ([#831](https://github.com/quokkify/q4j/issues/831)) ([50100fa](https://github.com/quokkify/q4j/commit/50100facaf851da5199b26262afc32e191a0903e))
-* **gradle:** update allure to v3.1.1 ([#836](https://github.com/quokkify/q4j/issues/836)) ([bd9c18e](https://github.com/quokkify/q4j/commit/bd9c18e40e4330f32e7c7a1baf652c9b30ad3cc5))
-* **gradle:** update com.rabbitmq:amqp-client to v5.37.1 ([#834](https://github.com/quokkify/q4j/issues/834)) ([6651b4f](https://github.com/quokkify/q4j/commit/6651b4fd546d051515cfd7154785eec076a7faf1))
-* **gradle:** update hibernate-orm monorepo to v7.4.14.final ([#830](https://github.com/quokkify/q4j/issues/830)) ([231e782](https://github.com/quokkify/q4j/commit/231e7822fcb4411dc85b1a0b827a9a11f16cc992))
-* **gradle:** update mongo-java-driver monorepo to v5.14.0 ([#837](https://github.com/quokkify/q4j/issues/837)) ([0589679](https://github.com/quokkify/q4j/commit/05896793dd030baaeb32f0e85819d790bcd5ae61))
-* **gradle:** update org.aspectj:aspectjweaver to v1.9.27 ([#835](https://github.com/quokkify/q4j/issues/835)) ([3a58350](https://github.com/quokkify/q4j/commit/3a58350cb2edf5afde45c999e1c9180ee440052d))
+**Dependencies**
+
+- actions/setup-python v7.0.0 → v7.1.0 ([#829](https://github.com/quokkify/q4j/pull/829))
+- allure 3.0.0 → 3.1.1 ([#836](https://github.com/quokkify/q4j/pull/836))
+- busybox fd7dc98 → a46257e ([#811](https://github.com/quokkify/q4j/pull/811))
+- com.rabbitmq:amqp-client 5.37.0 → 5.37.1 ([#834](https://github.com/quokkify/q4j/pull/834))
+- curlimages/curl a134550 → 3fb7e13 ([#800](https://github.com/quokkify/q4j/pull/800))
+- docker 0b6d18a → 08a9801 ([#771](https://github.com/quokkify/q4j/pull/771))
+- org.aspectj:aspectjweaver 1.9.25.1 → 1.9.27 ([#835](https://github.com/quokkify/q4j/pull/835))
+- org.hibernate.orm:hibernate-agroal, org.hibernate.orm:hibernate-core 7.4.13.Final → 7.4.14.Final ([#830](https://github.com/quokkify/q4j/pull/830))
+- org.mongodb:mongodb-driver-legacy, org.mongodb:mongodb-driver-sync 5.13.0 → 5.14.0 ([#837](https://github.com/quokkify/q4j/pull/837))
+- python 3.14 → 3.15 ([#831](https://github.com/quokkify/q4j/pull/831))
+- traefik v3.7.15 → v3.7.16 ([#833](https://github.com/quokkify/q4j/pull/833))
+
+</details>
 
 ## [0.14.0](https://github.com/quokkify/q4j/compare/v0.13.0...v0.14.0) (2026-11-07)
 
