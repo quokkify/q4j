@@ -1,1 +1,1 @@
-{"id":"2a09681516b7ec60cd348ac79cd56341.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DatabaseNoSqlTest.checkDelete","name":"Check delete records from database","status":"passed","testResultsByEnv":{"ubuntu-26-04":"efdc0e4b96d0b37b528b26b96662a155"}}
+{"id":"2a09681516b7ec60cd348ac79cd56341.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DatabaseNoSqlTest.checkDelete","name":"Check delete records from database","status":"passed","testResultsByEnv":{"ubuntu-26-04":"92d6f45f4ce428c1a37780def78401a2"}}
