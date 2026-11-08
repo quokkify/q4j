@@ -1,0 +1,1 @@
+{"id":"97f48651f05930598a85dc9db6a354a7.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.ConnectionPoolTest.checkPoolReleasesConnectionsOnClose","name":"Check pool releases connections on close","status":"passed","testResultsByEnv":{"ubuntu-26-04":"47da91f10a1b2f9d7e1ca7b74518bc5c"}}
