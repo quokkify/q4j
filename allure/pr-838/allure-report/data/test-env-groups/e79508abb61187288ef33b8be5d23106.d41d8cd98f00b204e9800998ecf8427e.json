@@ -1,0 +1,1 @@
+{"id":"e79508abb61187288ef33b8be5d23106.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.PersistenceConfigurationTest.checkFactoryBuildsResourceLocalHibernateConfiguration","name":"Factory builds a resource-local Hibernate configuration with discovered entities","status":"passed","testResultsByEnv":{"ubuntu-26-04":"7b41a36f823991016ed7832240388fc7"}}
