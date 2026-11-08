@@ -1,0 +1,1 @@
+{"id":"f8f59796ad27682f09839da1e19e1ff3.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DatabaseNoSqlTest.checkSelectQueryNoMatch","name":"Check type-safe select returns nothing for unknown value","status":"passed","testResultsByEnv":{"ubuntu-26-04":"91f2dbbc0d230b1554e98fd5b2b3c0d8"}}

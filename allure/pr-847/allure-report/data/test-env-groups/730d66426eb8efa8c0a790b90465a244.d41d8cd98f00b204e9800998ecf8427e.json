@@ -1,0 +1,1 @@
+{"id":"730d66426eb8efa8c0a790b90465a244.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DatabaseNoSqlTest.checkSelectQueryFetchesAll","name":"Check type-safe select returns all matching records","status":"passed","testResultsByEnv":{"ubuntu-26-04":"24c04023f1680010dd83a3b7b8507f2c"}}
