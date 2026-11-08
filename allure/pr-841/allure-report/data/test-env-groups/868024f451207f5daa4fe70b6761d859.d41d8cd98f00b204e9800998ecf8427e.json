@@ -1,1 +1,1 @@
-{"id":"868024f451207f5daa4fe70b6761d859.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DatabaseSqlTest.checkFetchAttachesSql","name":"Check fetch attaches executed sql to allure","status":"passed","testResultsByEnv":{"ubuntu-26-04":"e2e347d885f14a6653ef73e732a62852"}}
+{"id":"868024f451207f5daa4fe70b6761d859.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DatabaseSqlTest.checkFetchAttachesSql","name":"Check fetch attaches executed sql to allure","status":"passed","testResultsByEnv":{"ubuntu-26-04":"0792961fcda46972a15dae74a5e14231"}}
