@@ -1,1 +1,1 @@
-{"id":"934d0270b6bf76e957e72bd834155bbd.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.util.SshUtilsCommandLockTest.returnsCommandOutput","name":"returnsCommandOutput","status":"passed","testResultsByEnv":{"ubuntu-26-04":"d7445c55cf1b741233c232cc20309c47"}}
+{"id":"934d0270b6bf76e957e72bd834155bbd.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.util.SshUtilsCommandLockTest.returnsCommandOutput","name":"returnsCommandOutput","status":"passed","testResultsByEnv":{"ubuntu-26-04":"ae748b1c0c47f3a30855e2f5cfceb176"}}
