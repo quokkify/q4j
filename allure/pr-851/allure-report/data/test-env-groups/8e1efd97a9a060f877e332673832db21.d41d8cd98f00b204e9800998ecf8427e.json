@@ -1,1 +1,1 @@
-{"id":"8e1efd97a9a060f877e332673832db21.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DatabaseSqlTest.checkStreamAttachesSql","name":"Check stream attaches executed sql to allure","status":"passed","testResultsByEnv":{"ubuntu-26-04":"7174b7a9a0dc4230ca7415845796e4d5"}}
+{"id":"8e1efd97a9a060f877e332673832db21.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DatabaseSqlTest.checkStreamAttachesSql","name":"Check stream attaches executed sql to allure","status":"passed","testResultsByEnv":{"ubuntu-26-04":"5af847a82a64a77a797c7129f6eb6b87"}}
