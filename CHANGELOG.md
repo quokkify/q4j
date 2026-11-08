@@ -1,5 +1,36 @@
 # Changelog
 
+## [0.14.1](https://github.com/quokkify/q4j/compare/v0.14.0...v0.14.1) (2026-11-08)
+
+<!-- project-toolkit:release-notes v2 -->
+**At a glance:** 1 fixed · 11 internal
+
+### 🐛 Fixed
+
+- **sql:** expose hibernate-core and jakarta.persistence-api as api — **`dev.quokkify:sql` now brings Hibernate and Jakarta Persistence onto your compile classpath**, so the types its API returns compile without declaring `hibernate-core` or `jakarta.persistence-api` yourself. ([#844](https://github.com/quokkify/q4j/pull/844))
+
+  > **Migration**
+  >
+  > - Direct `org.hibernate.orm:hibernate-core` and `jakarta.persistence:jakarta.persistence-api` dependencies added only to compile against `dev.quokkify:sql` can be removed; the versions then follow q4j.
+
+<details><summary>Internal changes (11 PRs)</summary>
+
+**Dependencies**
+
+- actions/setup-python v7.0.0 → v7.1.0 ([#829](https://github.com/quokkify/q4j/pull/829))
+- allure 3.0.0 → 3.1.1 ([#836](https://github.com/quokkify/q4j/pull/836))
+- busybox fd7dc98 → a46257e ([#811](https://github.com/quokkify/q4j/pull/811))
+- com.rabbitmq:amqp-client 5.37.0 → 5.37.1 ([#834](https://github.com/quokkify/q4j/pull/834))
+- curlimages/curl a134550 → 3fb7e13 ([#800](https://github.com/quokkify/q4j/pull/800))
+- docker 0b6d18a → 08a9801 ([#771](https://github.com/quokkify/q4j/pull/771))
+- org.aspectj:aspectjweaver 1.9.25.1 → 1.9.27 ([#835](https://github.com/quokkify/q4j/pull/835))
+- org.hibernate.orm:hibernate-agroal, org.hibernate.orm:hibernate-core 7.4.13.Final → 7.4.14.Final ([#830](https://github.com/quokkify/q4j/pull/830))
+- org.mongodb:mongodb-driver-legacy, org.mongodb:mongodb-driver-sync 5.13.0 → 5.14.0 ([#837](https://github.com/quokkify/q4j/pull/837))
+- python 3.14 → 3.15 ([#831](https://github.com/quokkify/q4j/pull/831))
+- traefik v3.7.15 → v3.7.16 ([#833](https://github.com/quokkify/q4j/pull/833))
+
+</details>
+
 ## [0.14.0](https://github.com/quokkify/q4j/compare/v0.13.0...v0.14.0) (2026-11-07)
 
 <!-- project-toolkit:release-notes v2 -->
