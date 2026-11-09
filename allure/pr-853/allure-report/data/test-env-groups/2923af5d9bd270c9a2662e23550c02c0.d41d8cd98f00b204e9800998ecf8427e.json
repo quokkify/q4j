@@ -1,1 +1,1 @@
-{"id":"2923af5d9bd270c9a2662e23550c02c0.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.PersistenceConfigurationTest.checkNullArgumentsRejected","name":"Null arguments are rejected","status":"passed","testResultsByEnv":{"ubuntu-26-04":"c908cb041ed88084640bd36c3cd27764"}}
+{"id":"2923af5d9bd270c9a2662e23550c02c0.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.PersistenceConfigurationTest.checkNullArgumentsRejected","name":"Null arguments are rejected","status":"passed","testResultsByEnv":{"ubuntu-26-04":"83ca40d2f4e4e8eaa262d2c1171f0648"}}
