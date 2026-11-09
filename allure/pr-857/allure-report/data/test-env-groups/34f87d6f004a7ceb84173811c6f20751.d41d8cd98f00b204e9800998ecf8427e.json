@@ -1,0 +1,1 @@
+{"id":"34f87d6f004a7ceb84173811c6f20751.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.PersistenceConfigurationTest.checkProviderBuildsConfigurationForStage","name":"Provider builds a configuration for a stage per call","status":"passed","testResultsByEnv":{"ubuntu-26-04":"a5e8db57bb4e063036a85bd569a54e19"}}
