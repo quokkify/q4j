@@ -1,0 +1,1 @@
+{"id":"007ee48ae1928c41a560df48cd5bd50b.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.ConsumerEntityDiscoveryTest.checkConsumerEntityViaPersistenceConfiguration","name":"Regression guard: entities outside dev.quokkify are discovered via PersistenceConfiguration","status":"passed","testResultsByEnv":{"ubuntu-26-04":"8a60ba31e24d6f1671190826f92406b3"}}
