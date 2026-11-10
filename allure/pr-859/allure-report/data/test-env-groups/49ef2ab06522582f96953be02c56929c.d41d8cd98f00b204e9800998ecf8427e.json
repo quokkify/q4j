@@ -1,0 +1,1 @@
+{"id":"49ef2ab06522582f96953be02c56929c.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.ConsumerEntityDiscoveryTest.checkBridgeCarriesUnitInfoOverrides","name":"Guards the bridge: data source, shared cache mode and validation mode overrides are carried","status":"passed","testResultsByEnv":{"ubuntu-26-04":"853a16624f8e5e793c345281cc9cf85f"}}
