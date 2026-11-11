@@ -1,5 +1,53 @@
 # Changelog
 
+## [0.15.0](https://github.com/quokkify/q4j/compare/v0.14.1...v0.15.0) (2026-11-11)
+
+
+### ⚠ BREAKING CHANGES
+
+* **selenide:** remove dropdown component layer ([#869](https://github.com/quokkify/q4j/issues/869))
+
+### ✨ Features
+
+* **selenide:** remove dropdown component layer ([#869](https://github.com/quokkify/q4j/issues/869)) ([367aab4](https://github.com/quokkify/q4j/commit/367aab4fa324b76623cfc370cfcddcc7893c2a6d))
+
+
+### 🐛 Bug Fixes
+
+* **build:** publish dev.quokkify:testng as api where steps classes expose it ([#868](https://github.com/quokkify/q4j/issues/868)) ([42d762a](https://github.com/quokkify/q4j/commit/42d762a8fbc2ec9ea4ff8913c1ae833120f524c7))
+* **html:** commit HTML model sources and drop network codegen ([#867](https://github.com/quokkify/q4j/issues/867)) ([f0d721e](https://github.com/quokkify/q4j/commit/f0d721ea1c1cf77044a8c66a49c4d06d80889a06))
+
+
+### 📦 Dependencies
+
+* **docker-compose:** update mongo:9.0.4 docker digest to 452bdaf ([#847](https://github.com/quokkify/q4j/issues/847)) ([0d51e3d](https://github.com/quokkify/q4j/commit/0d51e3d7784da7b1fad39192b4d6e8abc3049eed))
+* **docker-compose:** update myoung34/github-runner docker tag to v2.338.2 ([#838](https://github.com/quokkify/q4j/issues/838)) ([7413f83](https://github.com/quokkify/q4j/commit/7413f83965c4fb6e447302f09156af0ff239ee4a))
+* **docker-compose:** update opensearchproject/opensearch:3.9.0 docker digest to 3b55f6b ([#849](https://github.com/quokkify/q4j/issues/849)) ([4c6e9c2](https://github.com/quokkify/q4j/commit/4c6e9c27066953690d3ba7be61d9810318422f35))
+* **docker-compose:** update postgres:18.6 docker digest to e3d24f6 ([#862](https://github.com/quokkify/q4j/issues/862)) ([4f6169e](https://github.com/quokkify/q4j/commit/4f6169e31132ea1ff6cc69d8e1a79b418e55874c))
+* **docker-compose:** update redis docker tag to v8.10.3 ([#859](https://github.com/quokkify/q4j/issues/859)) ([c337193](https://github.com/quokkify/q4j/commit/c337193355f33bde220a21bc146d9da9cd330a07))
+* **docker-compose:** update redis:8.10.2 docker digest to 97ec881 ([#851](https://github.com/quokkify/q4j/issues/851)) ([7e95cb8](https://github.com/quokkify/q4j/commit/7e95cb8de097c40dd029fb36873cdbd6fbb7d688))
+* **docker-compose:** update reportportal/migrations docker tag to v5.15.6 ([#839](https://github.com/quokkify/q4j/issues/839)) ([ee0da1e](https://github.com/quokkify/q4j/commit/ee0da1e7c3e423c15e1aeda0eb660579aaba3579))
+* **docker-compose:** update reportportal/service-api docker tag to v5.15.6 ([#840](https://github.com/quokkify/q4j/issues/840)) ([9414d29](https://github.com/quokkify/q4j/commit/9414d29da22b13d251ccda6e65dc94d8fb8dfa1d))
+* **docker-compose:** update traefik docker tag to v3.7.17 ([#856](https://github.com/quokkify/q4j/issues/856)) ([fee29b8](https://github.com/quokkify/q4j/commit/fee29b82231dd8915f0f7e896ee97ec10e6a64b9))
+* **docker-compose:** update zookeeper:3.9 docker digest to bbf6783 ([#853](https://github.com/quokkify/q4j/issues/853)) ([571d819](https://github.com/quokkify/q4j/commit/571d819141479cff455ae2ca2bb8ac414b27cf3e))
+* **dockerfile:** update nginx:1.31.8 docker digest to 165ddde ([#854](https://github.com/quokkify/q4j/issues/854)) ([340e2e0](https://github.com/quokkify/q4j/commit/340e2e0c0ba1afd7c3b50f7d631d04e7788777fe))
+* **github-actions:** update actions/download-artifact digest to 9000827 ([#855](https://github.com/quokkify/q4j/issues/855)) ([521ed9a](https://github.com/quokkify/q4j/commit/521ed9aba2b5890803c87048160599f70fbdf7e6))
+* **github-actions:** update actions/setup-node digest to 949feb2 ([#863](https://github.com/quokkify/q4j/issues/863)) ([b5b2969](https://github.com/quokkify/q4j/commit/b5b29693137cdaa943dae0da7dc655297269ebad))
+* **github-actions:** update actions/setup-python digest to 6d4fd22 ([#864](https://github.com/quokkify/q4j/issues/864)) ([60edb55](https://github.com/quokkify/q4j/commit/60edb55a5ed34305597a1d2bf53892b2bde13cda))
+* **github-actions:** update actions/upload-artifact digest to cf430e0 ([#865](https://github.com/quokkify/q4j/issues/865)) ([c1df7a3](https://github.com/quokkify/q4j/commit/c1df7a3f1ca28edbc1bcc3b364e9e27aaf05e8ec))
+* **gradle:** update com.fasterxml.jackson:jackson-bom to v2.22.4 ([#842](https://github.com/quokkify/q4j/issues/842)) ([cd747b0](https://github.com/quokkify/q4j/commit/cd747b0377e421ff1f1b2b47a6150e1f252e2a08))
+* **gradle:** update com.fasterxml.jackson:jackson-bom to v2.23.0 ([#861](https://github.com/quokkify/q4j/issues/861)) ([6cb831d](https://github.com/quokkify/q4j/commit/6cb831d9dcfff7d7fc9376e695d63bd5ac70d97b))
+* **gradle:** update hibernate-orm monorepo to v7.4.15.final ([#860](https://github.com/quokkify/q4j/issues/860)) ([0f98ef1](https://github.com/quokkify/q4j/commit/0f98ef14843e30f1eef6acf2a85db4839d94bbf4))
+* **gradle:** update io.atlassian.fugue:fugue to v7.0.3 ([#852](https://github.com/quokkify/q4j/issues/852)) ([1dd16ec](https://github.com/quokkify/q4j/commit/1dd16ec9f083548173129b78cf301ab32b6a3a1f))
+* **gradle:** update io.github.classgraph:classgraph to v5.0.1 ([#843](https://github.com/quokkify/q4j/issues/843)) ([4e46c7c](https://github.com/quokkify/q4j/commit/4e46c7c50d6213a958acccc532645f5f36968e91))
+* **gradle:** update io.github.classgraph:classgraph to v5.0.2 ([#857](https://github.com/quokkify/q4j/issues/857)) ([2c92e7e](https://github.com/quokkify/q4j/commit/2c92e7e30f9717f1d743a2b83a5afb195b14246e))
+* **gradle:** update org.modelmapper:modelmapper to v3.2.8 ([#841](https://github.com/quokkify/q4j/issues/841)) ([efb99c0](https://github.com/quokkify/q4j/commit/efb99c032567b07907fe1af146fe437086516880))
+
+
+### 📚 Documentation
+
+* **modules:** update q4j module documentation to v0.14.1 ([#858](https://github.com/quokkify/q4j/issues/858)) ([9de133b](https://github.com/quokkify/q4j/commit/9de133be86240b174696143c581cb99941a8cafd))
+
 ## [0.14.1](https://github.com/quokkify/q4j/compare/v0.14.0...v0.14.1) (2026-11-08)
 
 <!-- project-toolkit:release-notes v2 -->
