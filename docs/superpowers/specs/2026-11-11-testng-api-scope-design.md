@@ -79,6 +79,23 @@ A separate build, rather than a detached configuration in the root build, is nee
 
 During implementation, one module is set back to `implementation`; `consumerSmoke` must fail with a javac error naming `AbstractSteps`. Set back to `api`, it must pass. Both outputs go into the PR description.
 
+## Check against a real consumer
+
+A one-off local check, not part of CI, on a downstream test project that extends steps classes from `rest-assured`, `selenide` and `sql` and today declares `dev.quokkify:testng` directly, which hides the bug.
+
+- q4j is published twice to a scratch Maven repository (`-Dmaven.repo.local=<scratch>`): `main` as `0.0.0-pre825` and this branch as `0.0.0-fix825`. Comparing against `main`, not the consumer's released q4j version, keeps unrelated API changes out of the result.
+- The consumer is not edited. A Gradle init script resolves `dev.quokkify` only from the scratch repository, forces the version, and in the "without" variant removes only the direct `dev.quokkify:testng` declaration (`withDependencies { removeIf … }`); the transitive one stays.
+- It runs `compileJava compileTestJava` in a detached worktree of the consumer's default branch. Tests are not run: they need the consumer's backend and database, and the defect shows at compile time.
+
+| q4j      | Direct `testng` | Expected | Shows                            |
+| -------- | --------------- | -------- | -------------------------------- |
+| `main`   | yes             | green    | baseline                         |
+| `main`   | no              | red      | the defect on a real consumer    |
+| this fix | no              | green    | the fix works                    |
+| this fix | yes             | green    | no regression for the workaround |
+
+The matrix, with the failing javac line of the red row, goes into the PR description without naming the consumer project.
+
 ## Documentation
 
 - The README of each of the nine modules says that `dev.quokkify:testng` comes transitively.
@@ -98,9 +115,10 @@ One PR, `fix(build): publish dev.quokkify:testng as api where steps classes expo
 - The generated POMs of the nine modules list `dev.quokkify:testng` in `compile` scope; the POMs of signature and selenide-proxy no longer list it.
 - `./gradlew <module>:check` passes for all published modules, and `consumerSmoke` runs (not skipped) for the nine steps modules.
 - The red/green proof above is recorded in the PR.
+- The real-consumer matrix matches the expected column.
 
 ## Out of scope
 
 - A general guard against public signatures that use types from `implementation`-only dependencies.
 - The dependency-analysis Gradle plugin.
-- Changes to the test-automation template.
+- Changes to the test-automation template. Its `template/AGENTS.md` tells projects to declare `dev.quokkify:testng` next to `rest-assured`; a separate issue in quokkify/java-test-automation-template tracks updating that paragraph after the q4j release.
