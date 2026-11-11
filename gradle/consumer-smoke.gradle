@@ -6,7 +6,8 @@
 // build/consumer-smoke-repo in the root project, and the standalone build in tools/consumer-smoke compiles that code
 // against the published coordinates twice: POM only (:pom) and with Gradle Module Metadata (:gmm). javac fails there
 // when AbstractSteps, or anything else on its public API, is missing from the consumer's compile classpath.
-// Modules without steps classes skip the task.
+// Modules without steps classes skip the task. Publishing is wired only for modules whose compile classpath reaches
+// :testng-extensions, which declares AbstractSteps, so the skipped modules do not publish anything.
 
 // ClassGraph comes from the root buildscript classpath, which script plugins cannot compile against.
 def classGraphType = rootProject.buildscript.classLoader.loadClass('io.github.classgraph.ClassGraph')
@@ -16,13 +17,14 @@ def gradlew = rootProject.file('gradlew')
 def publishedModules = rootProject.modules.findAll { path, metadata -> metadata.publish != false }
 def publishTaskName = 'publishAllPublicationsToConsumerSmokeRepository'
 def stepsBaseClass = 'dev.quokkify.step.AbstractSteps'
+def stepsModulePath = ':testng-extensions'
 
 // signAllPublications() makes every publish of a release version sign, which needs keys that local runs and CI checks
 // do not have. Signing is turned off only when the build publishes nowhere but consumerSmoke, so Maven Central and
 // mavenLocal publishes still require it.
 gradle.taskGraph.whenReady { graph ->
     def publishes = graph.allTasks.findAll { it instanceof PublishToMavenRepository || it instanceof PublishToMavenLocal }
-    def consumerSmokeOnly = publishes.every { it instanceof PublishToMavenRepository && it.repository.name == 'consumerSmoke' }
+    def consumerSmokeOnly = !publishes.empty && publishes.every { it instanceof PublishToMavenRepository && it.repository.name == 'consumerSmoke' }
     if (consumerSmokeOnly) {
         graph.allTasks.findAll { it instanceof Sign }.each { it.enabled = false }
     }
@@ -46,6 +48,19 @@ subprojects {
     def modulePath = path
     def classesDirs = sourceSets.main.output.classesDirs
     def compileClasspath = configurations.compileClasspath
+    def reachesStepsModule = compileClasspath.incoming.resolutionResult.rootComponent.map { root ->
+        def seen = [] as Set
+        def queue = [root]
+        while (!queue.empty) {
+            def component = queue.pop()
+            if (seen.add(component.id)) {
+                queue.addAll(component.dependencies
+                    .findAll { it instanceof ResolvedDependencyResult }
+                    .collect { it.selected })
+            }
+        }
+        seen.any { it instanceof ProjectComponentIdentifier && it.projectPath == stepsModulePath }
+    }
     def sourcesDir = layout.buildDirectory.dir('generated/consumer-smoke/src')
     def smokeSource = layout.buildDirectory.file('generated/consumer-smoke/src/consumersmoke/ConsumerSmoke.java')
 
@@ -53,6 +68,7 @@ subprojects {
         description = 'Generates a consumer of the public AbstractSteps subclasses of this module.'
         inputs.files(classesDirs).withPropertyName('classesDirs')
         inputs.files(compileClasspath).withPropertyName('compileClasspath')
+        inputs.property('reachesStepsModule', reachesStepsModule)
         outputs.dir(sourcesDir)
 
         doLast { task ->
@@ -66,6 +82,10 @@ subprojects {
                 .acceptPackages('dev.quokkify')
                 .scan()
                 .withCloseable { scan ->
+                    if (reachesStepsModule.get() && scan.getClassInfo(stepsBaseClass) == null) {
+                        throw new GradleException("consumerSmoke ${modulePath}: ${stepsModulePath} is on the compile " +
+                            "classpath, but ClassGraph cannot find ${stepsBaseClass}; steps classes would be missed.")
+                    }
                     scan.getAllSubclasses(stepsBaseClass)
                         .findAll { it.public && !it.anonymousClass && it.classpathElementFile?.canonicalFile in ownDirs }
                         .collect { [name: it.name, typeParameters: it.typeSignature?.typeParameters?.size() ?: 0] }
@@ -102,9 +122,12 @@ subprojects {
         group = 'verification'
         description = 'Compiles a consumer of the published module (POM and Gradle Module Metadata) against its steps classes.'
         dependsOn generateSources
-        dependsOn "${modulePath}:${publishTaskName}".toString()
+        // Only modules that reach AbstractSteps can have steps classes, so only they publish.
         dependsOn {
-            runtimeClasspath.incoming.resolutionResult.allComponents
+            if (!reachesStepsModule.get()) {
+                return []
+            }
+            ["${modulePath}:${publishTaskName}".toString()] + runtimeClasspath.incoming.resolutionResult.allComponents
                 .collect { it.id }
                 .findAll { it instanceof ProjectComponentIdentifier && publishedModules.containsKey(it.projectPath) }
                 .collect { "${it.projectPath}:${publishTaskName}".toString() }
