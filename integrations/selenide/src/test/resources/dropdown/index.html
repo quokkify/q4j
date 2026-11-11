@@ -84,6 +84,7 @@
         <div id="single-open" class="widget"></div>
         <div id="single-closed" class="widget"></div>
         <div id="single-direct-text" class="widget"></div>
+        <div id="single-portal" class="widget"></div>
       </section>
       <section class="fixture-card">
         <h2>Multi dropdowns</h2>
@@ -239,6 +240,73 @@
             selectedContainer.hidden = true;
           }
           renderOptions();
+        }
+
+        function createPortalDropdown(root, config) {
+          const listboxId = `${config.id}-listbox`;
+          root.innerHTML = `
+            <label>${config.label}
+              <input type="text"
+                     role="combobox"
+                     aria-controls="${listboxId}"
+                     aria-expanded="false"
+                     placeholder="Search ${config.label.toLowerCase()}" />
+            </label>
+            <div class="chip-row">
+              <div class="item" hidden>
+                <span class="item-label" data-dropdown-label></span>
+              </div>
+            </div>
+          `;
+
+          const input = root.querySelector("input");
+          const selected = root.querySelector("[data-dropdown-label]");
+          const selectedContainer = root.querySelector(".item");
+
+          function close() {
+            const listbox = document.getElementById(listboxId);
+            if (listbox) {
+              listbox.remove();
+            }
+            input.setAttribute("aria-expanded", "false");
+          }
+
+          function open() {
+            let listbox = document.getElementById(listboxId);
+            if (!listbox) {
+              listbox = document.createElement("div");
+              listbox.id = listboxId;
+              listbox.setAttribute("role", "listbox");
+              document.body.appendChild(listbox);
+            }
+            const query = input.value.toLowerCase();
+            listbox.innerHTML = "";
+            config.options
+              .filter((option) => option.text.toLowerCase().includes(query))
+              .forEach((option) => {
+                const el = document.createElement("div");
+                el.setAttribute("role", "option");
+                el.className = "option";
+                el.textContent = option.text;
+                el.addEventListener("click", () => select(option.text));
+                listbox.appendChild(el);
+              });
+            input.setAttribute("aria-expanded", "true");
+          }
+
+          function select(text) {
+            selected.textContent = text;
+            selectedContainer.hidden = false;
+            close();
+          }
+
+          input.addEventListener("click", open);
+          input.addEventListener("input", open);
+          input.addEventListener("keydown", (event) => {
+            if (event.key === "Escape") {
+              close();
+            }
+          });
         }
 
         function createMultiDropdown(root, config) {
@@ -465,6 +533,12 @@
           selectedText: "Apricot",
           directSelectedText: true,
           options: [{ text: "Apple" }, { text: "Apricot" }, { text: "Banana" }],
+        });
+
+        createPortalDropdown(document.getElementById("single-portal"), {
+          id: "single-portal",
+          label: "Portal single",
+          options: [{ text: "Peach" }, { text: "Pear" }, { text: "Plum" }],
         });
 
         createMultiDropdown(document.getElementById("multi-primary"), {
