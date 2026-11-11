@@ -1,5 +1,98 @@
 # Changelog
 
+## [0.15.0](https://github.com/quokkify/q4j/compare/v0.14.1...v0.15.0) (2026-11-11)
+
+<!-- project-toolkit:release-notes v2 -->
+**At a glance:** ⚠️ 1 breaking · 2 fixed · 26 internal
+
+### ⚠️ Breaking changes
+
+> [!WARNING]
+> **selenide:** remove dropdown component layer — **Custom dropdowns are now plain Selenide: the `InputDropdown` / `MultiSelectInputDropdown` layer is removed in favour of tested recipes in the selenide README.** The recipes cover single select, chips, asynchronous chip removal, and listboxes rendered in a portal, which the removed classes could not reach. ([#869](https://github.com/quokkify/q4j/pull/869))
+>
+> > [!WARNING]
+> > `InputDropdown` and `MultiSelectInputDropdown` were removed. Extend `dev.quokkify.elements.base.Component` instead and use plain Selenide on `getSelf()`. Below, `input` is the combobox, `listbox` its listbox and `labels` the chip label elements:
+> >
+> > | Removed method | Plain Selenide |
+> > | --- | --- |
+> > | `selectExact(text)` / `selectPartial(text)` | `if (!listbox.isDisplayed()) input.click();` then `listbox.findAll(byRole("option")).findBy(exactText(text)).click();` (or `partialText`) |
+> > | `typeAndSelectExact(text)` / `typeAndSelectPartial(text)` | `input.setValue(text);` then the option click |
+> > | `typeAndPressEnter(text)` | `input.setValue(text).pressEnter();` |
+> > | `selectAllExact(texts)` / `selectAllPartial(texts)` | the select lines for each text |
+> > | `selectedTexts()` | `labels.texts()` (snapshot) or `labels.shouldHave(exactTexts(..))` (waits) |
+> > | `removeSelectedPartial(text)` | `int n = labels.size(); labels.findBy(partialTextCaseSensitive(text)).closest(".item").find("button").click(); labels.shouldHave(size(n - 1));` |
+> > | `clearSelected()` | `input.setValue(""); input.pressEscape();` then remove chips one by one, waiting with `chips.shouldHave(size(n - 1))` after each click |
+> >
+> > Selenide text conditions ignore case; use the `*CaseSensitive` variants to keep the old matching. The removed classes opened the popup only when closed and closed it after every operation; add `input.pressEscape()` where the next step needs it closed. Full recipes, including listboxes rendered in a portal: selenide README, section "Dropdowns".
+>
+> 🤖 Generated with [Claude Code](https://claude.com/claude-code)
+>
+> ```java
+> SelenideElement widget = $("#fruit");
+>
+> widget.find(byRole("combobox")).setValue("berry");
+> widget.find(byRole("listbox")).findAll(byRole("option")).findBy(partialText("berry")).click();
+>
+> widget.find(".chip-row .item .item-label").shouldHave(exactText("Blueberry"));
+> ```
+
+### 🐛 Fixed
+
+- **build:** publish dev.quokkify:testng as api where steps classes expose it — **Steps modules now bring `dev.quokkify:testng` to your compile classpath.** A project that depends only on, for example, `dev.quokkify:sql` or `dev.quokkify:selenide-proxy` can extend the module's steps classes and call `verify()` and `verifySoftly(...)` without declaring `dev.quokkify:testng` itself. ([#868](https://github.com/quokkify/q4j/pull/868))
+  ```groovy
+  dependencies {
+      implementation "dev.quokkify:sql:<version>" // dev.quokkify:testng comes transitively
+  }
+  ```
+
+  ```java
+  public class OrderDbSteps extends DatabaseSteps<OrderDbVerification> {
+    // ...
+  }
+
+  orderDbSteps.verifySoftly(v -> { /* your assertions */ }); // inherited from AbstractSteps
+  ```
+
+  > **Migration**
+  >
+  > No change is required. A direct `dev.quokkify:testng` dependency that was added only to compile steps classes can be removed. `dev.quokkify:signature` no longer brings `dev.quokkify:testng` at runtime; declare it directly if you use q4j listeners next to `signature` without a steps module.
+- **html:** commit HTML model sources and drop network codegen ([#867](https://github.com/quokkify/q4j/pull/867))
+
+  > **Migration**
+  >
+  > `HtmlCustomAttribute` is deprecated for removal. If you use `HtmlCustomAttribute.ITEM`, replace it with the literal `"item"` or your own constant.
+
+<details><summary>Internal changes (26 PRs)</summary>
+
+**Dependencies**
+
+- actions/download-artifact 3e5f45b → 9000827 ([#855](https://github.com/quokkify/q4j/pull/855))
+- actions/setup-node 8207627 → 949feb2 ([#863](https://github.com/quokkify/q4j/pull/863))
+- actions/setup-python 5fda3b9 → 6d4fd22 ([#864](https://github.com/quokkify/q4j/pull/864))
+- actions/upload-artifact 043fb46 → cf430e0 ([#865](https://github.com/quokkify/q4j/pull/865))
+- com.fasterxml.jackson:jackson-bom 2.22.3 → 2.23.0 ([#842](https://github.com/quokkify/q4j/pull/842), [#861](https://github.com/quokkify/q4j/pull/861))
+- io.atlassian.fugue:fugue 7.0.2 → 7.0.3 ([#852](https://github.com/quokkify/q4j/pull/852))
+- io.github.classgraph:classgraph 5.0.0 → 5.0.2 ([#843](https://github.com/quokkify/q4j/pull/843), [#857](https://github.com/quokkify/q4j/pull/857))
+- mongo dc28ed5 → 452bdaf ([#847](https://github.com/quokkify/q4j/pull/847))
+- myoung34/github-runner 2.338.0 → 2.338.2 ([#838](https://github.com/quokkify/q4j/pull/838))
+- nginx 5ab5b0b → 165ddde ([#854](https://github.com/quokkify/q4j/pull/854))
+- opensearchproject/opensearch adfa61f → 3b55f6b ([#849](https://github.com/quokkify/q4j/pull/849))
+- org.hibernate.orm:hibernate-agroal, org.hibernate.orm:hibernate-core 7.4.14.Final → 7.4.15.Final ([#860](https://github.com/quokkify/q4j/pull/860))
+- org.modelmapper:modelmapper 3.2.7 → 3.2.8 ([#841](https://github.com/quokkify/q4j/pull/841))
+- postgres 74935e7 → e3d24f6 ([#862](https://github.com/quokkify/q4j/pull/862))
+- redis 8.10.2 → 8.10.3 ([#851](https://github.com/quokkify/q4j/pull/851), [#859](https://github.com/quokkify/q4j/pull/859))
+- reportportal/migrations, reportportal/service-api 5.15.5 → 5.15.6 ([#839](https://github.com/quokkify/q4j/pull/839), [#840](https://github.com/quokkify/q4j/pull/840))
+- traefik v3.7.16 → v3.7.17 ([#856](https://github.com/quokkify/q4j/pull/856))
+- zookeeper d0ae166 → bbf6783 ([#853](https://github.com/quokkify/q4j/pull/853))
+
+**Maintenance**
+
+- **gradle:** retry module tests on transient repository failures ([#850](https://github.com/quokkify/q4j/pull/850))
+- **modules:** update q4j module documentation to v0.14.1 ([#858](https://github.com/quokkify/q4j/pull/858))
+- **template:** update shared project template ([#845](https://github.com/quokkify/q4j/pull/845), [#848](https://github.com/quokkify/q4j/pull/848))
+
+</details>
+
 ## [0.14.1](https://github.com/quokkify/q4j/compare/v0.14.0...v0.14.1) (2026-11-08)
 
 <!-- project-toolkit:release-notes v2 -->
