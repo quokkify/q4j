@@ -1,1 +1,0 @@
-{"id":"df62077d3f6f7ce23eef53733191d3c2.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DropdownPlainSelenideTest.testDirectTextChipLabels","name":"Plain Selenide: labels of chips rendered as direct text exclude the remove control text","status":"passed","testResultsByEnv":{"ubuntu-26-04":"ba818c9c5d8743eb54c2d74e004d5d2e"}}

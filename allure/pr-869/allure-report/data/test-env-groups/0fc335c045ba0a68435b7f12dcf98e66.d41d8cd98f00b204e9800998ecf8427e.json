@@ -1,1 +1,0 @@
-{"id":"0fc335c045ba0a68435b7f12dcf98e66.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DropdownPlainSelenideTest.testClearAllWithAsyncRemoval","name":"Plain Selenide: clear a pending query and remove every chip while removal is asynchronous","status":"passed","testResultsByEnv":{"ubuntu-26-04":"dd0ec7a2060e4e2bac81e734950f47d5"}}

@@ -1,1 +1,0 @@
-{"id":"ba5029844cc8d3ffb9713a2c19e595b4.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DropdownPlainSelenideTest.testRemoveChipWithRegexMetacharacters","name":"Plain Selenide: a chip label with regex metacharacters is matched literally","status":"passed","testResultsByEnv":{"ubuntu-26-04":"2732b96acba17307109491b0aa2fa6a5"}}

@@ -1,1 +1,0 @@
-{"id":"4207103191a47e1a9fd45ad3b52bb3d8.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DropdownPlainSelenideTest.testSelectSeveralWithoutAutoClose","name":"Plain Selenide: select several partial matches in a dropdown that stays open","status":"passed","testResultsByEnv":{"ubuntu-26-04":"5a29abb04497ba32cb81a234287d14f9"}}

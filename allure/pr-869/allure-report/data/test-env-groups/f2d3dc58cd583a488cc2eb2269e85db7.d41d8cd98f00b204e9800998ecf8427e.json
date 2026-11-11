@@ -1,1 +1,0 @@
-{"id":"f2d3dc58cd583a488cc2eb2269e85db7.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DropdownPlainSelenideTest.testTwoWidgetIsolation","name":"Plain Selenide: selections in two single dropdowns on one page stay isolated","status":"passed","testResultsByEnv":{"ubuntu-26-04":"877c4797ab5a3790bf1def91908079c1"}}

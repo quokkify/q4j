@@ -1,1 +1,0 @@
-{"id":"1e0213984a0af1d73198e1777b4bea94.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DropdownPlainSelenideTest.testStuckRemovalFailsWithinTimeout","name":"Plain Selenide: waiting for a chip removal that never happens fails within the given timeout","status":"passed","testResultsByEnv":{"ubuntu-26-04":"0ea4ed7eb04c211f80d2ce6eb5371a13"}}

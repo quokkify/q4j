@@ -1,0 +1,1 @@
+{"id":"a8711da521dd798b69ce3593e6a89d48.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DropdownRecipeTest.testTypeAndSelectPartialFromClosed","name":"Plain Selenide: type a query into a closed single dropdown and select the first partial match","status":"passed","testResultsByEnv":{"ubuntu-26-04":"b6b2606d180d7592d927907f5410cac3"}}

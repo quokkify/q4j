@@ -1,1 +1,0 @@
-{"id":"5531f2b16d5f912e6f5b850ecbf6bf45.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DropdownPlainSelenideTest.testRemoveChipIgnoresRemoveControlText","name":"Plain Selenide: remove a chip by label when another chip's remove control contains the query","status":"passed","testResultsByEnv":{"ubuntu-26-04":"d8970ada6b8e2a6793bb9db8ebcfbc45"}}
