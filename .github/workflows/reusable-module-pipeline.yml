@@ -62,7 +62,7 @@ jobs:
           command: "./gradlew ${{ inputs.module }}:check -x ${{ inputs.module }}:test --warning-mode all --console=plain"
 
       - name: 📊 Upload Gradle Problems report
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: gradle-problems-build-${{ inputs.group }}-${{ inputs.slug }}
@@ -135,7 +135,7 @@ jobs:
         shell: bash
 
       - name: 📊 Upload dedicated Allure results
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: allure-results-${{ inputs.group }}-${{ inputs.slug }}
@@ -145,14 +145,14 @@ jobs:
 
       - name: 📦 Pack docker compose logs as artifact
         if: ${{ inputs.profile != 'none' && always() }}
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         with:
           name: docker-logs-${{ inputs.group }}-${{ inputs.slug }}
           retention-days: 3
           path: logs
 
       - name: 📦 Pack test results as artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: test-report-${{ inputs.group }}-${{ inputs.slug }}
@@ -162,7 +162,7 @@ jobs:
             **/build/test-results
 
       - name: 📊 Upload Gradle Problems report
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: gradle-problems-test-${{ inputs.group }}-${{ inputs.slug }}

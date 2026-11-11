@@ -76,7 +76,7 @@ jobs:
           command: "./gradlew ${{ matrix.module }}:check -x ${{ matrix.module }}:test --warning-mode all --console=plain"
 
       - name: 📊 Upload Gradle Problems report
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: gradle-problems-${{ github.job }}-${{ matrix.slug }}
@@ -138,7 +138,7 @@ jobs:
         shell: bash
 
       - name: 📊 Upload dedicated Allure results
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: allure-results-common-${{ matrix.slug }}
@@ -147,7 +147,7 @@ jobs:
           path: "allure-artifact"
 
       - name: 📦 Pack test results as artifact
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: test-report-common-${{ matrix.slug }}
@@ -157,7 +157,7 @@ jobs:
             **/build/test-results
 
       - name: 📊 Upload Gradle Problems report
-        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
         if: always()
         with:
           name: gradle-problems-${{ github.job }}-${{ matrix.slug }}
