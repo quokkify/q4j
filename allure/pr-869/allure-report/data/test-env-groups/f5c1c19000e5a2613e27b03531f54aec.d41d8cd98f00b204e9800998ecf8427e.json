@@ -1,0 +1,1 @@
+{"id":"f5c1c19000e5a2613e27b03531f54aec.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DropdownPlainSelenideTest.testSelectSeveralAndRemoveOne","name":"Plain Selenide: select several options, then remove one chip by its label","status":"passed","testResultsByEnv":{"ubuntu-26-04":"8b940df91a4f2c889279406552a935ac"}}

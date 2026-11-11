@@ -1,0 +1,1 @@
+{"id":"f03594c7ed78e05f2ce7ad7c5e37ca2f.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DropdownPlainSelenideTest.testChipLabelsExcludeRemoveText","name":"Plain Selenide: chip labels are read without the text of their remove controls","status":"passed","testResultsByEnv":{"ubuntu-26-04":"c186925290f463c7e878e51c43d18012"}}

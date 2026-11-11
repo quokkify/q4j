@@ -1,0 +1,1 @@
+{"id":"a4aa34865df0f5b73b4fa2e527682d0f.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DropdownPlainSelenideTest.testSelectExactInOpenWidget","name":"Plain Selenide: select an exact option in an initially open single dropdown, which then closes","status":"passed","testResultsByEnv":{"ubuntu-26-04":"b1fba2f8c5705395f1c13bd58bee9a88"}}

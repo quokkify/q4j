@@ -1,0 +1,1 @@
+{"id":"38d429db293fb743e5a8530701462475.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.TableQueryContractTest.supportsFindByStringFirstComponent","name":"String-first data table is injected by Selenide and resolves exact displayed headers","status":"passed","testResultsByEnv":{"ubuntu-26-04":"2802158b73c0c7f6f9d1c2f363e01f97"}}
