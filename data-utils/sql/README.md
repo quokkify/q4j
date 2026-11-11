@@ -12,7 +12,9 @@ dependencies {
 }
 ```
 
-The module brings [Querydsl](https://openfeign.github.io/querydsl/) (`io.github.openfeign.querydsl:querydsl-jpa`)
+The module brings `dev.quokkify:testng` (`AbstractSteps`) transitively; do not declare it separately.
+
+[Querydsl](https://openfeign.github.io/querydsl/) (`io.github.openfeign.querydsl:querydsl-jpa`) also comes
 transitively. To generate Q-classes (`QUser`, ...) for your own entities, add the annotation processor:
 
 ```kotlin

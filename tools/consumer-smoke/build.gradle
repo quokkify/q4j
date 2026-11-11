@@ -1,0 +1,51 @@
+// Compiles a generated consumer of one published q4j module twice:
+// :pom sees only the Maven POM (as a Maven consumer does), :gmm uses Gradle Module Metadata.
+// Inputs come from gradle/consumer-smoke.gradle as -PsmokeRepo, -PsmokeCoordinate, -PsmokeSources.
+
+def requiredProperty = { String name ->
+    def value = providers.gradleProperty(name).orNull
+    if (value == null || value.trim().isEmpty()) {
+        throw new GradleException("consumer-smoke: missing required property -P${name}")
+    }
+    value
+}
+
+def smokeRepo = requiredProperty('smokeRepo')
+def smokeCoordinate = requiredProperty('smokeCoordinate')
+def smokeSources = requiredProperty('smokeSources')
+
+subprojects {
+    apply plugin: 'java'
+
+    def pomOnly = name == 'pom'
+
+    repositories {
+        exclusiveContent {
+            forRepository {
+                maven {
+                    url = uri(smokeRepo)
+                    if (pomOnly) {
+                        metadataSources {
+                            mavenPom()
+                            artifact()
+                        }
+                    }
+                }
+            }
+            filter {
+                includeGroup 'dev.quokkify'
+            }
+        }
+        mavenCentral()
+    }
+
+    java {
+        toolchain { languageVersion = JavaLanguageVersion.of(21) }
+    }
+
+    dependencies {
+        implementation smokeCoordinate
+    }
+
+    sourceSets.main.java.srcDir smokeSources
+}

@@ -15,6 +15,8 @@ dependencies {
 }
 ```
 
+The module brings `dev.quokkify:testng` (`AbstractSteps`) transitively; do not declare it separately.
+
 ---
 
 ## API overview

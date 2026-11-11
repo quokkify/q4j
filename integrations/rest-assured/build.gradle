@@ -3,7 +3,7 @@ dependencies {
     implementation project(":common-utils:awaitility")
     implementation project(":common-utils:config")
     api project(":common-utils:jackson:json")
-    implementation project(":testng-extensions")
+    api project(":testng-extensions")
     implementation libs.jjschema
 
     implementation libs.owner

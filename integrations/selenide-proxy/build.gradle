@@ -1,12 +1,10 @@
 description = "Selenide BrowserUpProxy integration for HAR recording and request interception"
 
 dependencies {
-    implementation project(":integrations:selenide")
+    api project(":integrations:selenide")
     implementation project(":common-utils:config")
-    compileOnly project(":testng-extensions")
 
     api libs.selenide.proxy
-    testImplementation project(":testng-extensions")
     testImplementation libs.allure.testng
 
     api "org.assertj:assertj-core"

@@ -1,6 +1,6 @@
 dependencies {
     implementation project(":common-utils:awaitility")
-    implementation project(":testng-extensions")
+    api project(":testng-extensions")
 
     api libs.allure.java.commons
     api libs.redisson

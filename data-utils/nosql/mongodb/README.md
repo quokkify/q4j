@@ -13,6 +13,8 @@ dependencies {
 }
 ```
 
+The module brings `dev.quokkify:testng` (`AbstractSteps`) transitively; do not declare it separately.
+
 The annotation processor generates Q-classes (`QUser`, ...) for classes annotated with `@QueryEntity`.
 
 ## Entity

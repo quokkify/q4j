@@ -3,7 +3,7 @@ dependencies {
     implementation project(":common-utils:file")
     implementation project(":common-utils:awaitility")
     implementation project(":common-utils:config")
-    implementation project(":testng-extensions")
+    api project(":testng-extensions")
 
     implementation libs.classgraph
     api libs.hibernate.core
