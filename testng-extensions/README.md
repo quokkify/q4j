@@ -12,7 +12,7 @@ dependencies {
 }
 ```
 
-Steps modules (`dev.quokkify:sql`, `kafka`, `rest-assured`, ...) bring this module transitively. Declare it directly
+Steps modules (`dev.quokkify:sql`, `dev.quokkify:kafka`, `dev.quokkify:rest-assured`, ...) bring this module transitively. Declare it directly
 only when you use the listeners or annotations without a steps module.
 
 ## Environment variables

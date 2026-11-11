@@ -6,7 +6,10 @@ that declares only that module's `dev.quokkify` coordinate.
 ## What it checks
 
 `consumerSmoke` runs in the `check` of every published module. It finds public subclasses of
-`dev.quokkify.step.AbstractSteps` (ClassGraph) and skips with a log line when the module has none. Otherwise it:
+`dev.quokkify.step.AbstractSteps` in the module (ClassGraph) and skips with a log line when the module has none.
+Publishing is wired only for modules whose compile classpath includes `:testng-extensions`, so other modules skip
+without publishing anything. When `:testng-extensions` is present but ClassGraph cannot find `AbstractSteps`, the task
+fails instead of skipping. Otherwise it:
 
 1. Publishes the module and its project-dependency closure to `build/consumer-smoke-repo`.
 2. Generates a consumer that calls the inherited `verify()` and `verifySoftly()` on each steps class.
@@ -25,7 +28,8 @@ This build has two subprojects:
 
 ## Failures
 
-`class file for dev.quokkify.step.AbstractSteps not found` means the consumer's compile classpath lacks the module that
+javac reports `error: cannot access AbstractSteps` followed by
+`class file for dev.quokkify.step.AbstractSteps not found` when the consumer's compile classpath lacks the module that
 declares the type. The module with the steps class must expose it as `api`: `api project(":testng-extensions")`, or,
 for a steps class that extends one from another q4j module (for example `selenide-proxy` and `selenide`), `api` on that
 module.

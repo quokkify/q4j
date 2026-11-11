@@ -109,7 +109,7 @@ One PR, `fix(build): publish dev.quokkify:testng as api where steps classes expo
 
 - Highlight: the ten modules work with only their own coordinate;
 - Usage example: a consumer with only `dev.quokkify:sql`;
-- Migration: none required; a direct `dev.quokkify:testng` dependency added only to work around this can be removed.
+- Migration: none required for steps modules; a direct `dev.quokkify:testng` dependency added only to work around this can be removed. `dev.quokkify:signature` no longer brings `dev.quokkify:testng` at runtime: a consumer that relied on that (for example, q4j listeners in `testng.xml`) must declare `dev.quokkify:testng` directly.
 
 ## Acceptance
 
