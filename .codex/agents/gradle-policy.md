@@ -8,7 +8,7 @@ Use this policy with every Q4J Gradle specialist. It is based on the repository 
 - Modules are declared in `settings.gradle`; use the exact project paths printed by `./gradlew projects`.
 - Shared build policy is applied from `build.gradle` and `gradle/{compilation,code-analysis,dependencies,tests,aspectj,module-metadata,publishing}.gradle`.
 - The version catalog, when present, is `gradle/libs.versions.toml`; generated Groovy accessors are consumed as `libs.foo.bar` and `rootProject.libs.foo.bar`.
-- HTML model generation is wired by `common-utils/html/gradle/codegen.gradle`; a catalog migration must not remove that application or its source/task wiring.
+- HTML model constants (`HtmlTag`, `HtmlAttribute`, `HtmlCustomAttribute`) are committed sources in `common-utils/html/src/main/java/dev/quokkify/html/model`; the build does not download or generate them.
 - CI workflow commands and external-service assumptions are in `.github/workflows/*.yml`. Kafka, RabbitMQ, Redis, MongoDB, browser/grid, ReportPortal, Jira, and TestRail are integration concerns, not proof that a local build defect exists.
 
 ## Guardrails

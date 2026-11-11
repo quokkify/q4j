@@ -1,10 +1,9 @@
 subprojects {
     tasks.withType(Test).configureEach {
-        onlyIf {
-            !project.hasProperty("skip.tests") &&
-            !project.hasProperty("skipTests") &&
-            !Boolean.parseBoolean(System.getProperty("skipTests", "false"))
-        }
+        def skipTests = project.hasProperty("skip.tests") ||
+                project.hasProperty("skipTests") ||
+                Boolean.parseBoolean(System.getProperty("skipTests", "false"))
+        onlyIf { !skipTests }
         useTestNG()
         jvmArgs = ["-ea", "-Xmx512m", "-javaagent:${configurations.agent.singleFile}"]
         systemProperties['file.encoding'] = encoding
