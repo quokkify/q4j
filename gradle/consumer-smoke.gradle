@@ -1,0 +1,131 @@
+// Checks that a published steps module is usable by a consumer that declares only that module
+// (consumerSmoke, wired into check).
+//
+// Public subclasses of dev.quokkify.step.AbstractSteps in the module are compiled against, through generated code
+// that calls the inherited verify()/verifySoftly(). The module and its project dependencies are published to
+// build/consumer-smoke-repo in the root project, and the standalone build in tools/consumer-smoke compiles that code
+// against the published coordinates twice: POM only (:pom) and with Gradle Module Metadata (:gmm). javac fails there
+// when AbstractSteps, or anything else on its public API, is missing from the consumer's compile classpath.
+// Modules without steps classes skip the task.
+
+// ClassGraph comes from the root buildscript classpath, which script plugins cannot compile against.
+def classGraphType = rootProject.buildscript.classLoader.loadClass('io.github.classgraph.ClassGraph')
+def smokeRepoDir = rootProject.layout.buildDirectory.dir('consumer-smoke-repo')
+def smokeBuildDir = rootProject.file('tools/consumer-smoke')
+def gradlew = rootProject.file('gradlew')
+def publishedModules = rootProject.modules.findAll { path, metadata -> metadata.publish != false }
+def publishTaskName = 'publishAllPublicationsToConsumerSmokeRepository'
+def stepsBaseClass = 'dev.quokkify.step.AbstractSteps'
+
+// signAllPublications() makes every publish of a release version sign, which needs keys that local runs and CI checks
+// do not have. Signing is turned off only when the build publishes nowhere but consumerSmoke, so Maven Central and
+// mavenLocal publishes still require it.
+gradle.taskGraph.whenReady { graph ->
+    def publishes = graph.allTasks.findAll { it instanceof PublishToMavenRepository || it instanceof PublishToMavenLocal }
+    def consumerSmokeOnly = publishes.every { it instanceof PublishToMavenRepository && it.repository.name == 'consumerSmoke' }
+    if (consumerSmokeOnly) {
+        graph.allTasks.findAll { it instanceof Sign }.each { it.enabled = false }
+    }
+}
+
+subprojects {
+    def metadata = publishedModules[path]
+    if (metadata == null) {
+        return
+    }
+
+    publishing {
+        repositories {
+            maven {
+                name = 'consumerSmoke'
+                url = smokeRepoDir
+            }
+        }
+    }
+
+    def modulePath = path
+    def classesDirs = sourceSets.main.output.classesDirs
+    def compileClasspath = configurations.compileClasspath
+    def sourcesDir = layout.buildDirectory.dir('generated/consumer-smoke/src')
+    def smokeSource = layout.buildDirectory.file('generated/consumer-smoke/src/consumersmoke/ConsumerSmoke.java')
+
+    def generateSources = tasks.register('generateConsumerSmokeSources') {
+        description = 'Generates a consumer of the public AbstractSteps subclasses of this module.'
+        inputs.files(classesDirs).withPropertyName('classesDirs')
+        inputs.files(compileClasspath).withPropertyName('compileClasspath')
+        outputs.dir(sourcesDir)
+
+        doLast { task ->
+            def outputDir = sourcesDir.get().asFile
+            outputDir.deleteDir()
+
+            def ownDirs = classesDirs.files.collect { it.canonicalFile } as Set
+            def stepsClasses = classGraphType.getDeclaredConstructor().newInstance()
+                .enableClasspathEntries((classesDirs.files + compileClasspath.files) as List)
+                .enableClassInfo()
+                .acceptPackages('dev.quokkify')
+                .scan()
+                .withCloseable { scan ->
+                    scan.getAllSubclasses(stepsBaseClass)
+                        .findAll { it.public && !it.anonymousClass && it.classpathElementFile?.canonicalFile in ownDirs }
+                        .collect { [name: it.name, typeParameters: it.typeSignature?.typeParameters?.size() ?: 0] }
+                        .sort { it.name }
+                }
+
+            task.logger.lifecycle("consumerSmoke ${modulePath}: ${stepsClasses.size()} steps class(es): " +
+                stepsClasses.collect { it.name }.join(', '))
+            if (stepsClasses.empty) {
+                return
+            }
+
+            def methods = stepsClasses.withIndex().collect { stepsClass, index ->
+                def wildcards = stepsClass.typeParameters > 0 ? '<' + (['?'] * stepsClass.typeParameters).join(', ') + '>' : ''
+                """\
+                  |  static void use${index}(${stepsClass.name.replace('$', '.')}${wildcards} steps) {
+                  |    steps.verify();
+                  |    steps.verifySoftly();
+                  |  }
+                  |""".stripMargin()
+            }
+            def file = smokeSource.get().asFile
+            file.parentFile.mkdirs()
+            file.text = "package consumersmoke;\n\nfinal class ConsumerSmoke {\n${methods.join('\n')}}\n"
+        }
+    }
+
+    def runtimeClasspath = configurations.runtimeClasspath
+    def coordinate = "${rootProject.group}:${metadata.artifactId}:${version}"
+    def smokeRepoPath = smokeRepoDir.get().asFile.absolutePath
+    def sourcesPath = sourcesDir.get().asFile.absolutePath
+
+    def consumerSmoke = tasks.register('consumerSmoke', Exec) {
+        group = 'verification'
+        description = 'Compiles a consumer of the published module (POM and Gradle Module Metadata) against its steps classes.'
+        dependsOn generateSources
+        dependsOn "${modulePath}:${publishTaskName}".toString()
+        dependsOn {
+            runtimeClasspath.incoming.resolutionResult.allComponents
+                .collect { it.id }
+                .findAll { it instanceof ProjectComponentIdentifier && publishedModules.containsKey(it.projectPath) }
+                .collect { "${it.projectPath}:${publishTaskName}".toString() }
+        }
+
+        onlyIf { task ->
+            def found = smokeSource.get().asFile.exists()
+            if (!found) {
+                task.logger.lifecycle("consumerSmoke ${modulePath}: skipped, no public ${stepsBaseClass} subclasses found")
+            }
+            found
+        }
+
+        executable = gradlew.absolutePath
+        args '-p', smokeBuildDir.absolutePath, '--console=plain', '--continue', 'compileJava',
+            "-PsmokeRepo=${smokeRepoPath}",
+            "-PsmokeCoordinate=${coordinate}",
+            "-PsmokeSources=${sourcesPath}"
+    }
+
+    tasks.named('check') {
+        dependsOn consumerSmoke
+    }
+}

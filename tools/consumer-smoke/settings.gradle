@@ -1,0 +1,8 @@
+// Standalone consumer build used by the consumerSmoke task (gradle/consumer-smoke.gradle).
+// It is not part of the root q4j build: it resolves a published module by coordinates only.
+rootProject.name = 'consumer-smoke'
+
+include 'pom', 'gmm'
+
+// Both projects are configured from build.gradle and hold only build output, so their directories are not tracked.
+rootProject.children.each { it.projectDir.mkdirs() }
