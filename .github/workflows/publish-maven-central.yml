@@ -1,8 +1,12 @@
 name: Publish to Maven Central
 
+# Release Please creates releases with GITHUB_TOKEN, which never triggers
+# `release` events, so publication follows the Release Please run instead.
 on:
-  release:
-    types: [published]
+  workflow_run:
+    workflows: [Release Please]
+    types: [completed]
+    branches: [main]
   workflow_dispatch:
     inputs:
       release_tag:
@@ -13,22 +17,73 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: maven-central-${{ github.event.release.tag_name || inputs.release_tag }}
-  cancel-in-progress: false
-
 jobs:
+  resolve:
+    name: Resolve release tag
+    if: ${{ github.event_name == 'workflow_dispatch' || github.event.workflow_run.conclusion == 'success' }}
+    runs-on: ubuntu-latest
+    outputs:
+      tag: ${{ steps.tag.outputs.tag }}
+    steps:
+      - name: Find the release tag on the released commit
+        id: tag
+        env:
+          GH_TOKEN: ${{ github.token }}
+          EVENT_NAME: ${{ github.event_name }}
+          INPUT_TAG: ${{ inputs.release_tag }}
+          HEAD_SHA: ${{ github.event.workflow_run.head_sha }}
+        run: |
+          set -euo pipefail
+          if [[ "$EVENT_NAME" == "workflow_dispatch" ]]; then
+            if [[ ! "$INPUT_TAG" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              echo "Expected a stable semantic release tag such as v0.2.0" >&2
+              exit 1
+            fi
+            echo "tag=$INPUT_TAG" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          refs="$(gh api --paginate "repos/$GITHUB_REPOSITORY/git/matching-refs/tags/v" \
+            --jq '.[] | [.ref, .object.type, .object.sha] | @tsv')"
+          tags=()
+          while IFS=$'\t' read -r ref type sha; do
+            [[ -n "$ref" ]] || continue
+            if [[ "$type" == "tag" ]]; then
+              sha="$(gh api "repos/$GITHUB_REPOSITORY/git/tags/$sha" --jq .object.sha)"
+            fi
+            if [[ "$sha" == "$HEAD_SHA" && "${ref#refs/tags/}" =~ ^v[0-9]+\.[0-9]+\.[0-9]+$ ]]; then
+              tags+=("${ref#refs/tags/}")
+            fi
+          done <<< "$refs"
+          case "${#tags[@]}" in
+            0)
+              echo "No release tag on $HEAD_SHA; nothing to publish."
+              echo "tag=" >> "$GITHUB_OUTPUT"
+              ;;
+            1)
+              echo "Release tag ${tags[0]} found on $HEAD_SHA."
+              echo "tag=${tags[0]}" >> "$GITHUB_OUTPUT"
+              ;;
+            *)
+              echo "Multiple release tags on $HEAD_SHA: ${tags[*]}" >&2
+              exit 1
+              ;;
+          esac
+
   publish:
     name: Publish signed Q4J modules
-    if: ${{ github.event_name == 'workflow_dispatch' || !github.event.release.prerelease }}
+    needs: resolve
+    if: ${{ needs.resolve.outputs.tag != '' }}
     runs-on: ubuntu-latest
     environment: maven-central
+    concurrency:
+      group: maven-central-${{ needs.resolve.outputs.tag }}
+      cancel-in-progress: false
     steps:
       - name: Checkout the release tag
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
         with:
           fetch-depth: 0
-          ref: ${{ github.event.release.tag_name || inputs.release_tag }}
+          ref: ${{ needs.resolve.outputs.tag }}
 
       - name: Set up Java and Gradle
         uses: quokkify/ci-kit/actions/setup-java-gradle@5de64cfba3013f35df1ec60ed4bc174cc3d9cd6b # v4.3.5
@@ -39,7 +94,7 @@ jobs:
       - name: Verify release identity
         id: release
         env:
-          RELEASE_TAG: ${{ github.event.release.tag_name || inputs.release_tag }}
+          RELEASE_TAG: ${{ needs.resolve.outputs.tag }}
         run: |
           set -euo pipefail
           if [[ ! "$RELEASE_TAG" =~ ^v(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)\.(0|[1-9][0-9]*)$ ]]; then

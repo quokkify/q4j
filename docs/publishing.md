@@ -33,10 +33,21 @@ Never commit Central credentials or private signing material to the repository.
 
 ## 🤖 Release workflow
 
-The [Publish to Maven Central](../.github/workflows/publish-maven-central.yml) workflow runs for a published, non-prerelease GitHub release. It can also be dispatched manually for an existing release tag.
+The [Publish to Maven Central](../.github/workflows/publish-maven-central.yml) workflow starts automatically after every successful **Release Please** run on `main`. It looks for a stable `vMAJOR.MINOR.PATCH` tag on the commit that run processed: when the run cut a release, the tag is there and publication proceeds; otherwise the workflow ends without publishing.
+
+Release Please creates releases with `GITHUB_TOKEN`, and GitHub does not start workflows from events made with that token, so the workflow follows the Release Please run instead of the `release` event.
+
+If publication fails, recover in either way:
+
+- open the failed run and choose **Re-run failed jobs**;
+- dispatch the workflow manually with the existing release tag, for example `v0.2.0`.
+
+Publication only starts after a **successful** Release Please run on the tagged commit. If that run failed after tagging, a later successful run on a newer commit will not publish the release: re-run the failed Release Please run, or dispatch this workflow with the tag.
 
 ```text
-GitHub release tag
+Release Please run on main (or manual tag)
+        ↓
+find the release tag on the released commit
         ↓
 validate stable vMAJOR.MINOR.PATCH format
         ↓
