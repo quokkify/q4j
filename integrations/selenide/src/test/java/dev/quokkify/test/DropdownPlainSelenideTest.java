@@ -54,6 +54,71 @@ public class DropdownPlainSelenideTest extends BaseTest {
     $("#single-portal-listbox").shouldNot(Condition.exist);
   }
 
+  @TmsLink("UI_ID_42")
+  @Test(description = "Plain Selenide: select an exact option in an initially open single dropdown, which then closes")
+  public void testSelectExactInOpenWidget() {
+    openFixture();
+    SelenideElement widget = $("#single-open");
+
+    widget.find(byRole("listbox")).findAll(byRole("option")).findBy(exactText("Apricot")).click();
+
+    widget.find(".chip-row .item .item-label").shouldHave(exactText("Apricot"));
+    widget.find(byRole("combobox")).shouldHave(attribute("aria-expanded", "false"));
+  }
+
+  @TmsLink("UI_ID_43")
+  @Test(description = "Plain Selenide: type a query into a closed single dropdown and select the first partial match")
+  public void testTypeAndSelectPartialFromClosed() {
+    openFixture();
+    SelenideElement widget = $("#single-closed");
+
+    widget.find(byRole("combobox")).setValue("berry");
+    widget.find(byRole("listbox")).findAll(byRole("option")).findBy(partialText("berry")).click();
+
+    widget.find(".chip-row .item .item-label").shouldHave(exactText("Blueberry"));
+    widget.find(byRole("combobox")).shouldHave(attribute("aria-expanded", "false"));
+  }
+
+  @TmsLink("UI_ID_44")
+  @Test(description = "Plain Selenide: type a query and press Enter to accept the highlighted option")
+  public void testTypeAndPressEnter() {
+    openFixture();
+    SelenideElement widget = $("#single-closed");
+
+    widget.find(byRole("combobox")).setValue("blue").pressEnter();
+
+    widget.find(".chip-row .item .item-label").shouldHave(exactText("Blueberry"));
+    widget.find(byRole("combobox")).shouldHave(attribute("aria-expanded", "false"));
+  }
+
+  @TmsLink("UI_ID_45")
+  @Test(description = "Plain Selenide: type a query and select the exact matching option")
+  public void testTypeAndSelectExact() {
+    openFixture();
+    SelenideElement widget = $("#single-closed");
+
+    widget.find(byRole("combobox")).setValue("Cranberry");
+    widget.find(byRole("listbox")).findAll(byRole("option")).findBy(exactText("Cranberry")).click();
+
+    widget.find(".chip-row .item .item-label").shouldHave(exactText("Cranberry"));
+    widget.find(byRole("combobox")).shouldHave(attribute("aria-expanded", "false"));
+  }
+
+  @TmsLink("UI_ID_46")
+  @Test(description = "Plain Selenide: selections in two single dropdowns on one page stay isolated")
+  public void testTwoWidgetIsolation() {
+    openFixture();
+    SelenideElement openWidget = $("#single-open");
+    SelenideElement closedWidget = $("#single-closed");
+
+    openWidget.find(byRole("listbox")).findAll(byRole("option")).findBy(partialText("Apri")).click();
+    closedWidget.find(byRole("combobox")).click();
+    closedWidget.find(byRole("listbox")).findAll(byRole("option")).findBy(partialText("Cran")).click();
+
+    openWidget.find(".chip-row .item .item-label").shouldHave(exactText("Apricot"));
+    closedWidget.find(".chip-row .item .item-label").shouldHave(exactText("Cranberry"));
+  }
+
   private static SelenideElement listboxOf(SelenideElement combobox) {
     return $(By.id(combobox.getAttribute("aria-controls")));
   }
