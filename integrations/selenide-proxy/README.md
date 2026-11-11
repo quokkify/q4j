@@ -12,4 +12,6 @@ dependencies {
 }
 ```
 
+The module brings `dev.quokkify:testng` (`AbstractSteps`) transitively through `dev.quokkify:selenide`; do not declare it separately.
+
 See the [Q4J module catalog](../../README.md) for the complete list of modules and common setups.
