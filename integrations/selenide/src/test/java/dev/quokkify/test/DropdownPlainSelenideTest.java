@@ -242,6 +242,7 @@ public class DropdownPlainSelenideTest extends BaseTest {
   }
 
   private static SelenideElement listboxOf(SelenideElement combobox) {
+    combobox.shouldHave(attribute("aria-controls"));
     return $(By.id(combobox.getAttribute("aria-controls")));
   }
 

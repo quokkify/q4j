@@ -248,7 +248,6 @@
             <label>${config.label}
               <input type="text"
                      role="combobox"
-                     aria-controls="${listboxId}"
                      aria-expanded="false"
                      placeholder="Search ${config.label.toLowerCase()}" />
             </label>
@@ -268,10 +267,19 @@
             if (listbox) {
               listbox.remove();
             }
+            window.clearTimeout(renderTimer);
+            input.removeAttribute("aria-controls");
             input.setAttribute("aria-expanded", "false");
           }
 
+          let renderTimer = 0;
+
           function open() {
+            window.clearTimeout(renderTimer);
+            renderTimer = window.setTimeout(render, config.renderDelayMs || 0);
+          }
+
+          function render() {
             let listbox = document.getElementById(listboxId);
             if (!listbox) {
               listbox = document.createElement("div");
@@ -291,6 +299,7 @@
                 el.addEventListener("click", () => select(option.text));
                 listbox.appendChild(el);
               });
+            input.setAttribute("aria-controls", listboxId);
             input.setAttribute("aria-expanded", "true");
           }
 
@@ -538,6 +547,7 @@
         createPortalDropdown(document.getElementById("single-portal"), {
           id: "single-portal",
           label: "Portal single",
+          renderDelayMs: 300,
           options: [{ text: "Peach" }, { text: "Pear" }, { text: "Plum" }],
         });
 
