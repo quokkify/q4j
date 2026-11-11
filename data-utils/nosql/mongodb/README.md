@@ -8,7 +8,7 @@ Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.qu
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:mongodb:0.14.1")
+    testImplementation("dev.quokkify:mongodb:0.15.0")
     testAnnotationProcessor("io.github.openfeign.querydsl:querydsl-apt:7.7:general")
 }
 ```

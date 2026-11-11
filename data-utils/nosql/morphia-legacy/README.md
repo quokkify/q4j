@@ -28,7 +28,7 @@ Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.qu
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:morphia-legacy:0.14.1")
+    testImplementation("dev.quokkify:morphia-legacy:0.15.0")
 }
 ```
 
