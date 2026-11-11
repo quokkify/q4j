@@ -5,7 +5,7 @@ dependencies {
     implementation project(":common-utils:core")
     implementation project(":common-utils:awaitility")
     implementation project(":common-utils:jackson:json")
-    implementation project(":testng-extensions")
+    api project(":testng-extensions")
 
     implementation libs.tyrus.standalone.client
 

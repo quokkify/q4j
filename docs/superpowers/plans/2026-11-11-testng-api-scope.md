@@ -2,7 +2,7 @@
 
 > **For agentic workers:** REQUIRED SUB-SKILL: Use superpowers:subagent-driven-development (recommended) or superpowers:executing-plans to implement this plan task-by-task. Steps use checkbox (`- [ ]`) syntax for tracking.
 
-**Goal:** Consumers of the nine steps modules compile against the inherited `AbstractSteps` API with only the module coordinate, and a `consumerSmoke` check in `<module>:check` keeps it that way.
+**Goal:** Consumers of the ten steps modules compile against the inherited `AbstractSteps` API with only the module coordinate, and a `consumerSmoke` check in `<module>:check` keeps it that way.
 
 **Architecture:** A shared script `gradle/consumer-smoke.gradle` adds, to every published module, a `consumerSmoke` repository, a source generator that finds public `AbstractSteps` subclasses with ClassGraph, and an `Exec` task that compiles the generated consumer in the standalone build `tools/consumer-smoke` (subprojects `pom` and `gmm`). The guard lands first and is red on `main`'s dependencies; the dependency fix turns it green.
 
@@ -24,7 +24,7 @@
 
 ## Review Focus
 
-1. **False green from discovery.** If ClassGraph cannot resolve `AbstractSteps`, it finds no subclasses and the task is skipped. Discovery must scan the module's output together with its `compileClasspath` and log the classes found. Task 2 asserts that none of the nine modules is skipped.
+1. **False green from discovery.** If ClassGraph cannot resolve `AbstractSteps`, it finds no subclasses and the task is skipped. Discovery must scan the module's output together with its `compileClasspath` and log the classes found. Task 2 asserts that none of the ten modules is skipped.
 2. **Release version without signing keys.** `check` with `-Pversion=0.0.0-probe` and no `signingInMemory*` properties must not fail in a `Sign` task. Covered in Task 1, Step 6.
 3. **Stale artifacts after a dependency change.** When the module goes `api` → `implementation` → `api` in one workspace, without `clean`, the result must go green → red → green. Gradle must not reuse the previous SNAPSHOT metadata. Covered in Task 2, Step 4.
 4. **Recursive generics.** `PageSteps<S extends PageSteps<S, V, P>, V extends Verification<S, V, P>, P extends Page>` must compile with wildcards. Covered by `:integrations:selenide` in Task 2, Step 3.
@@ -95,9 +95,9 @@
 
 **Files:**
 
-- Modify: the `build.gradle` of the nine steps modules (`implementation`/`compileOnly project(":testng-extensions")` → `api project(":testng-extensions")`)
+- Modify: the `build.gradle` of the nine steps modules that declare it (`implementation`/`compileOnly project(":testng-extensions")` → `api project(":testng-extensions")`)
 - Modify: `common-utils/signature/build.gradle` (remove `implementation project(":testng-extensions")`)
-- Modify: `integrations/selenide-proxy/build.gradle` (remove `compileOnly` and `testImplementation project(":testng-extensions")`)
+- Modify: `integrations/selenide-proxy/build.gradle` (remove `compileOnly` and `testImplementation project(":testng-extensions")`; `implementation project(":integrations:selenide")` → `api`, because `dev.quokkify.model.ProxyPageSteps` extends `PageSteps`)
 - Modify: `integrations/selenide/build.gradle` (remove the duplicate `testImplementation project(":testng-extensions")`)
 
 **Interfaces:**
@@ -106,19 +106,19 @@
 
 - [ ] **Step 1: Change the scopes as in the spec table.** In the `pom` and `gmm` consumers this flips the Task 1 red to green.
 
-- [ ] **Step 2: Run the guard on all nine modules.**
+- [ ] **Step 2: Run the guard on all ten modules.**
       Run: `./gradlew :data-utils:sql:consumerSmoke :data-utils:nosql:mongodb:consumerSmoke :data-utils:nosql:morphia-legacy:consumerSmoke :data-utils:nosql:redis:consumerSmoke :integrations:kafka:consumerSmoke :integrations:rabbitmq:consumerSmoke :integrations:rest-assured:consumerSmoke :integrations:selenide:consumerSmoke :integrations:tyrus:consumerSmoke --console=plain`
-      Expected: BUILD SUCCESSFUL. None of the nine tasks is `SKIPPED`, and each one logs at least one steps class.
+      Expected: BUILD SUCCESSFUL. None of the ten tasks is `SKIPPED`, and each one logs at least one steps class.
 
 - [ ] **Step 3: Check the generated POMs.**
       Run: `./gradlew generatePomFileForMavenPublication -q`, then for each module `grep -A3 '<artifactId>testng</artifactId>' <module>/build/publications/maven/pom-default.xml`.
-      Expected: in the nine steps modules `dev.quokkify:testng` has `<scope>compile</scope>`. In the POMs of `common-utils/signature` and `integrations/selenide-proxy` there is no `dev.quokkify:testng` (`org.testng:testng`, if it appears transitively, does not count).
+      Expected: in the nine steps modules that declare it `dev.quokkify:testng` has `<scope>compile</scope>`, and `integrations/selenide-proxy` lists `dev.quokkify:selenide` in `compile` scope. In the POMs of `common-utils/signature` and `integrations/selenide-proxy` there is no direct `dev.quokkify:testng` (`org.testng:testng`, if it appears transitively, does not count).
 
 - [ ] **Step 4: Red→green proof without `clean`.**
       Temporarily set `:data-utils:sql` back to `implementation` and run `./gradlew :data-utils:sql:consumerSmoke`. Expected: FAIL with the same error as in Task 1, Step 3. Restore `api` and run again. Expected: PASS. Save both excerpts to `<scratchpad>/redgreen-sql.txt`.
 
 - [ ] **Step 5: Full check of the affected modules.**
-      Run `./gradlew <module>:check -x <module>:test --console=plain`, the way CI runs it, for the nine steps modules plus `:common-utils:signature`, `:integrations:selenide-proxy` and `:testng-extensions`. Also run `./gradlew :common-utils:signature:test :integrations:selenide-proxy:compileTestJava`.
+      Run `./gradlew <module>:check -x <module>:test --console=plain`, the way CI runs it, for the ten steps modules plus `:common-utils:signature`, `:integrations:selenide-proxy` and `:testng-extensions`. Also run `./gradlew :common-utils:signature:test :integrations:selenide-proxy:compileTestJava`.
       Expected: everything is green, and `verifyArchgateRuleList` and checkstyle pass.
 
 - [ ] **Step 6: Commit.**
@@ -131,7 +131,7 @@
 
 **Files:**
 
-- Modify: the `README.md` of the nine steps modules: one sentence in the dependency or installation section saying that `dev.quokkify:testng` (`AbstractSteps`) comes transitively and does not need to be declared separately
+- Modify: the `README.md` of the ten steps modules: one sentence in the dependency or installation section saying that `dev.quokkify:testng` (`AbstractSteps`) comes transitively and does not need to be declared separately
 - Modify: `testng-extensions/README.md`: declare it directly only when listeners or annotations are used without a steps module
 - Create: `tools/consumer-smoke/README.md`: what the check verifies (POM and GMM consumers, coordinate only), how to run it (`./gradlew :data-utils:sql:consumerSmoke`), what `cannot access dev.quokkify.step.AbstractSteps` means (the module must declare `api project(":testng-extensions")`), and why the build is standalone
 

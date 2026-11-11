@@ -7,7 +7,7 @@ dependencies {
     implementation project(":common-utils:awaitility")
     implementation project(":common-utils:jackson:json")
     implementation project(":common-utils:introspection")
-    implementation project(":testng-extensions")
+    api project(":testng-extensions")
 
     implementation libs.kafka.clients
     api "org.apache.commons:commons-lang3"

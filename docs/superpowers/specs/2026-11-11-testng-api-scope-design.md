@@ -8,7 +8,7 @@ A consumer that depends on a single q4j module, for example `dev.quokkify:sql`, 
 
 ## Why
 
-- Nine published modules have public classes that extend `AbstractSteps`, but declare `:testng-extensions` as `implementation` (POM scope `runtime`) or `compileOnly` (absent from the POM). Neither puts `dev.quokkify:testng` on a Maven or Gradle consumer's compile classpath.
+- Ten published modules have public classes that extend `AbstractSteps` (the tenth, `integrations/selenide-proxy`, through `dev.quokkify.model.ProxyPageSteps` extending `PageSteps`; found by `consumerSmoke`), but declare `:testng-extensions` as `implementation` (POM scope `runtime`) or `compileOnly` (absent from the POM). Neither puts `dev.quokkify:testng` on a Maven or Gradle consumer's compile classpath.
 - The problem stays hidden in projects that add `dev.quokkify:testng` themselves, such as projects generated from the test-automation template.
 
 ## Decisions
@@ -24,26 +24,27 @@ A consumer that depends on a single q4j module, for example `dev.quokkify:sql`, 
 
 ## Dependency changes
 
-| Module                                             | Before           | After     |
-| -------------------------------------------------- | ---------------- | --------- |
-| `data-utils/sql`                                   | `implementation` | `api`     |
-| `data-utils/nosql/mongodb`                         | `implementation` | `api`     |
-| `data-utils/nosql/morphia-legacy`                  | `implementation` | `api`     |
-| `data-utils/nosql/redis`                           | `implementation` | `api`     |
-| `integrations/kafka`                               | `implementation` | `api`     |
-| `integrations/rabbitmq`                            | `implementation` | `api`     |
-| `integrations/rest-assured`                        | `implementation` | `api`     |
-| `integrations/tyrus`                               | `implementation` | `api`     |
-| `integrations/selenide`                            | `compileOnly`    | `api`     |
-| `integrations/selenide-proxy`                      | `compileOnly`    | removed   |
-| `common-utils/signature`                           | `implementation` | removed   |
-| `integrations/{jira,reportportal,testrail}/testng` | `implementation` | unchanged |
+| Module                                                  | Before           | After     |
+| ------------------------------------------------------- | ---------------- | --------- |
+| `data-utils/sql`                                        | `implementation` | `api`     |
+| `data-utils/nosql/mongodb`                              | `implementation` | `api`     |
+| `data-utils/nosql/morphia-legacy`                       | `implementation` | `api`     |
+| `data-utils/nosql/redis`                                | `implementation` | `api`     |
+| `integrations/kafka`                                    | `implementation` | `api`     |
+| `integrations/rabbitmq`                                 | `implementation` | `api`     |
+| `integrations/rest-assured`                             | `implementation` | `api`     |
+| `integrations/tyrus`                                    | `implementation` | `api`     |
+| `integrations/selenide`                                 | `compileOnly`    | `api`     |
+| `integrations/selenide-proxy`: `:testng-extensions`     | `compileOnly`    | removed   |
+| `integrations/selenide-proxy`: `:integrations:selenide` | `implementation` | `api`     |
+| `common-utils/signature`                                | `implementation` | removed   |
+| `integrations/{jira,reportportal,testrail}/testng`      | `implementation` | unchanged |
 
 The explicit `testImplementation project(":testng-extensions")` lines in selenide and selenide-proxy are removed too, because `gradle/dependencies.gradle` already adds that dependency to every module except `:testng-extensions`.
 
 `testng-extensions` itself is unchanged. `AbstractSteps` exposes only `V verify()` and `verifySoftly(Consumer<V>...)`; `SoftAssertions` is used inside a method body, so `implementation libs.assertj.core` stays correct.
 
-Consumers of the nine modules now get the `api` dependencies of `testng-extensions` (`testng`, `allure-testng`, slf4j and the log4j bridge) on their compile classpath. This is expected for a test library.
+Consumers of the ten modules now get the `api` dependencies of `testng-extensions` (`testng`, `allure-testng`, slf4j and the log4j bridge) on their compile classpath. This is expected for a test library.
 
 ## `consumerSmoke`
 
@@ -98,7 +99,7 @@ The matrix, with the failing javac line of the red row, goes into the PR descrip
 
 ## Documentation
 
-- The README of each of the nine modules says that `dev.quokkify:testng` comes transitively.
+- The README of each of the ten modules says that `dev.quokkify:testng` comes transitively.
 - `testng-extensions/README.md` says it is added directly only when listeners or annotations are used without a steps module.
 - `tools/consumer-smoke/README.md` says what the check verifies, how to run it (`./gradlew :data-utils:sql:consumerSmoke`) and how to read a failure.
 
@@ -106,14 +107,14 @@ The matrix, with the failing javac line of the red row, goes into the PR descrip
 
 One PR, `fix(build): publish dev.quokkify:testng as api where steps classes expose it`, with the release-notes sections filled in:
 
-- Highlight: the nine modules work with only their own coordinate;
+- Highlight: the ten modules work with only their own coordinate;
 - Usage example: a consumer with only `dev.quokkify:sql`;
 - Migration: none required; a direct `dev.quokkify:testng` dependency added only to work around this can be removed.
 
 ## Acceptance
 
-- The generated POMs of the nine modules list `dev.quokkify:testng` in `compile` scope; the POMs of signature and selenide-proxy no longer list it.
-- `./gradlew <module>:check` passes for all published modules, and `consumerSmoke` runs (not skipped) for the nine steps modules.
+- The generated POMs of the nine modules that declare `testng-extensions` list `dev.quokkify:testng` in `compile` scope; the POMs of signature and selenide-proxy no longer list it directly, and selenide-proxy lists `dev.quokkify:selenide` in `compile` scope.
+- `./gradlew <module>:check` passes for all published modules, and `consumerSmoke` runs (not skipped) for the ten steps modules.
 - The red/green proof above is recorded in the PR.
 - The real-consumer matrix matches the expected column.
 

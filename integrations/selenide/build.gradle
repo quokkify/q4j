@@ -14,10 +14,9 @@ dependencies {
     implementation project(":common-utils:core")
     implementation project(":common-utils:html")
     implementation project(":common-utils:awaitility")
-    compileOnly project(":testng-extensions")
+    api project(":testng-extensions")
 
     implementation libs.selenide
-    testImplementation project(":testng-extensions")
     testImplementation project(":integrations:selenide-proxy")
     testImplementation libs.allure.selenide
     testImplementation libs.allure.testng
