@@ -184,12 +184,18 @@ safe: without it, `first()` still points at the chip being removed. Backed by
 
 ```java
 ElementsCollection chips = widget.findAll(".chip-row .item");
-for (int remaining = chips.shouldHave(size(4)).size(); remaining > 0; remaining--) {
+
+input.setValue("");
+input.pressEscape();
+for (int remaining = chips.size(); remaining > 0; remaining--) {
   chips.first().find("button").click();
   chips.shouldHave(size(remaining - 1));
 }
 chips.shouldBe(empty);
 ```
+
+Close the popup first (`pressEscape()`): on many widgets an open popup covers the chip row and intercepts the
+clicks.
 
 **Listbox rendered in a portal.** Many widget libraries render the listbox into `<body>`, outside the widget,
 and set `aria-controls` on the combobox only while it is open. Wait for the attribute, then locate the listbox
@@ -208,24 +214,28 @@ listboxOf(input).findAll(byRole("option")).findBy(exactText("Pear")).click();
 ### Migration from `InputDropdown` / `MultiSelectInputDropdown`
 
 Both classes were removed. Page objects that extended them should extend
-`dev.quokkify.elements.base.Component` and use the recipes above on `getSelf()`. `input` and `listbox` below
-are the combobox and its listbox (`listboxOf(input)` for portals).
+`dev.quokkify.elements.base.Component` and use the recipes above on `getSelf()`. Below, `input` is the combobox,
+`listbox` its listbox (`listboxOf(input)` for portals) and `labels` the chip label elements. Only the recipes
+above are backed by tests; the table rows are not tested separately.
 
-| Removed method                | Plain Selenide                                                                                    |
-| ----------------------------- | ------------------------------------------------------------------------------------------------- |
-| `selectExact(text)`           | `input.click(); listbox.findAll(byRole("option")).findBy(exactText(text)).click();`               |
-| `selectPartial(text)`         | the same with `partialText(text)`                                                                 |
-| `typeAndSelectExact(text)`    | `input.setValue(text);` then the option click with `exactText(text)`                              |
-| `typeAndSelectPartial(text)`  | `input.setValue(text);` then the option click with `partialText(text)`                            |
-| `typeAndPressEnter(text)`     | `input.setValue(text).pressEnter();`                                                              |
-| `selectAllExact(texts)`       | the `selectExact` lines for each text                                                             |
-| `selectAllPartial(texts)`     | the `selectPartial` lines for each text                                                           |
-| `selectedTexts()`             | `labels.texts()`, or `labels.shouldHave(exactTexts(..))`, with `labels` = the chip label elements |
-| `removeSelectedPartial(text)` | `labels.findBy(partialText(text)).closest(".item").find("button").click();`                       |
-| `clearSelected()`             | `input.setValue("");` then the clear-all loop above                                               |
+| Removed method                | Plain Selenide                                                                                                                                  |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `selectExact(text)`           | `if (!listbox.isDisplayed()) input.click();` then `listbox.findAll(byRole("option")).findBy(exactText(text)).click();`                          |
+| `selectPartial(text)`         | the same with `partialText(text)`                                                                                                               |
+| `typeAndSelectExact(text)`    | `input.setValue(text);` then the option click with `exactText(text)`                                                                            |
+| `typeAndSelectPartial(text)`  | `input.setValue(text);` then the option click with `partialText(text)`                                                                          |
+| `typeAndPressEnter(text)`     | `input.setValue(text).pressEnter();`                                                                                                            |
+| `selectAllExact(texts)`       | the `selectExact` lines for each text                                                                                                           |
+| `selectAllPartial(texts)`     | the `selectPartial` lines for each text                                                                                                         |
+| `selectedTexts()`             | `labels.texts()` for a snapshot, or `labels.shouldHave(exactTexts(..))` to wait                                                                 |
+| `removeSelectedPartial(text)` | `int n = labels.size(); labels.findBy(partialTextCaseSensitive(text)).closest(".item").find("button").click(); labels.shouldHave(size(n - 1));` |
+| `clearSelected()`             | `input.setValue(""); input.pressEscape();` then the clear-all loop above                                                                        |
 
-The removed classes closed the popup after every operation. When a widget stays open and the next step needs it
-closed, add `input.pressEscape()`.
+Open the popup only when it is closed: on widgets where a click toggles the popup, clicking an open one closes it.
+For portals, check `input` for `aria-expanded="true"` instead of `listbox.isDisplayed()`. Selenide text
+conditions ignore case and collapse whitespace; the removed classes matched case-sensitively, so use the
+`*CaseSensitive` variants where that matters. The removed classes also closed the popup after every operation:
+when a widget stays open and the next step needs it closed, add `input.pressEscape()`.
 
 ---
 

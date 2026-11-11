@@ -84,9 +84,11 @@ public class DropdownRecipeTest extends BaseTest {
     widget.find(byRole("listbox")).findAll(byRole("option")).findBy(exactText("Delta")).click();
     input.setValue("Del");
 
-    input.clear();
+    chips.shouldHave(size(4));
+
+    input.setValue("");
     input.pressEscape();
-    for (int remaining = chips.shouldHave(size(4)).size(); remaining > 0; remaining--) {
+    for (int remaining = chips.size(); remaining > 0; remaining--) {
       chips.first().find("button").click();
       chips.shouldHave(size(remaining - 1));
     }
