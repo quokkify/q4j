@@ -96,7 +96,7 @@ dev.quokkify:<artifact>:<version>
 | `awaitility`     | Polling and timeout abstractions                                 |
 | `reflection`     | Classpath scanning and reflection utilities                      |
 | `files`          | Files, archives, locking, and local resources                    |
-| `html`           | HTML parsing and generated browser-compatibility models          |
+| `html`           | HTML parsing and HTML tag/attribute name constants               |
 | `jwt`            | JWT models, generators, and formatting                           |
 | `crypto`         | Encryption, key, and digital-signature utilities                 |
 | `ssh`            | SSH execution and port forwarding                                |

@@ -32,7 +32,7 @@ ext.modules = [
     ':common-utils:introspection': [artifactId: 'reflection', displayName: 'Q4J Reflection', description: 'Classpath scanning and reflection utilities for Q4J.'],
     ':common-utils:awaitility': [artifactId: 'awaitility', displayName: 'Q4J Awaitility', description: 'Awaitility-based polling and timeout abstractions for Q4J.'],
     ':common-utils:file': [artifactId: 'files', displayName: 'Q4J Files', description: 'File, archive, locking, and local-resource utilities for Q4J.'],
-    ':common-utils:html': [artifactId: 'html', displayName: 'Q4J HTML', description: 'HTML parsing and generated browser-compatibility models for Q4J.'],
+    ':common-utils:html': [artifactId: 'html', displayName: 'Q4J HTML', description: 'HTML parsing and HTML tag/attribute name constants for Q4J.'],
     ':common-utils:jwt': [artifactId: 'jwt', displayName: 'Q4J JWT', description: 'JWT models, generators, and formatting utilities for Q4J.'],
     ':common-utils:config': [artifactId: 'config', displayName: 'Q4J Config', description: 'Typed configuration and locale-provider utilities for Q4J.'],
     ':common-utils:signature': [artifactId: 'crypto', displayName: 'Q4J Crypto', description: 'Encryption, key, and digital-signature utilities for Q4J.'],
