@@ -150,6 +150,95 @@ For `@FindBy` page objects, wrap the helper in a small project component; see th
 Layouts, behaviour, limits and the migration table from the removed table stack are in
 [`docs/table-api.md`](../../docs/table-api.md).
 
+## Dropdowns
+
+Custom dropdowns (comboboxes, chip pickers) need no library type: opening, picking, chips and waiting are
+plain Selenide. The recipes below are copied from
+[`DropdownRecipeTest`](src/test/java/dev/quokkify/test/DropdownRecipeTest.java), which runs them against a
+fixture. In a page object, apply them to the component root (`getSelf()` of a
+`dev.quokkify.elements.base.Component`).
+
+**Single select: type and pick.** Backed by `DropdownRecipeTest#testTypeAndSelectPartialFromClosed`.
+
+```java
+widget.find(byRole("combobox")).setValue("berry");
+widget.find(byRole("listbox")).findAll(byRole("option")).findBy(partialText("berry")).click();
+
+widget.find(".chip-row .item .item-label").shouldHave(exactText("Blueberry"));
+```
+
+**Chips: pick several, remove one by its label.** Match the label element, not the whole chip, so the
+remove button's text never takes part in the match. Backed by `DropdownRecipeTest#testSelectSeveralAndRemoveOne`.
+
+```java
+widget.find(byRole("combobox")).click();
+widget.find(byRole("listbox")).findAll(byRole("option")).findBy(exactText("Gamma")).click();
+widget.find(byRole("combobox")).click();
+widget.find(byRole("listbox")).findAll(byRole("option")).findBy(exactText("Delta")).click();
+widget.findAll(".chip-row .item .item-label").findBy(exactText("Gamma")).closest(".item").find("button").click();
+
+widget.findAll(".chip-row .item .item-label").shouldHave(exactTexts("Alpha", "Beta", "Delta"));
+```
+
+**Clear all chips when removal is asynchronous.** The `shouldHave(size(..))` after each click is what makes this
+safe: without it, `first()` still points at the chip being removed. Backed by
+`DropdownRecipeTest#testClearAllWithAsyncRemoval`.
+
+```java
+ElementsCollection chips = widget.findAll(".chip-row .item");
+
+input.setValue("");
+input.pressEscape();
+for (int remaining = chips.size(); remaining > 0; remaining--) {
+  chips.first().find("button").click();
+  chips.shouldHave(size(remaining - 1));
+}
+chips.shouldBe(empty);
+```
+
+Close the popup first (`pressEscape()`): on many widgets an open popup covers the chip row and intercepts the
+clicks.
+
+**Listbox rendered in a portal.** Many widget libraries render the listbox into `<body>`, outside the widget,
+and set `aria-controls` on the combobox only while it is open. Wait for the attribute, then locate the listbox
+by id. Backed by `DropdownRecipeTest#testPortalSelectByClick`.
+
+```java
+SelenideElement listboxOf(SelenideElement combobox) {
+  combobox.shouldHave(attribute("aria-controls"));
+  return $(By.id(combobox.getAttribute("aria-controls")));
+}
+
+input.click();
+listboxOf(input).findAll(byRole("option")).findBy(exactText("Pear")).click();
+```
+
+### Migration from `InputDropdown` / `MultiSelectInputDropdown`
+
+Both classes were removed. Page objects that extended them should extend
+`dev.quokkify.elements.base.Component` and use the recipes above on `getSelf()`. Below, `input` is the combobox,
+`listbox` its listbox (`listboxOf(input)` for portals) and `labels` the chip label elements. Only the recipes
+above are backed by tests; the table rows are not tested separately.
+
+| Removed method                | Plain Selenide                                                                                                                                  |
+| ----------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- |
+| `selectExact(text)`           | `if (!listbox.isDisplayed()) input.click();` then `listbox.findAll(byRole("option")).findBy(exactText(text)).click();`                          |
+| `selectPartial(text)`         | the same with `partialText(text)`                                                                                                               |
+| `typeAndSelectExact(text)`    | `input.setValue(text);` then the option click with `exactText(text)`                                                                            |
+| `typeAndSelectPartial(text)`  | `input.setValue(text);` then the option click with `partialText(text)`                                                                          |
+| `typeAndPressEnter(text)`     | `input.setValue(text).pressEnter();`                                                                                                            |
+| `selectAllExact(texts)`       | the `selectExact` lines for each text                                                                                                           |
+| `selectAllPartial(texts)`     | the `selectPartial` lines for each text                                                                                                         |
+| `selectedTexts()`             | `labels.texts()` for a snapshot, or `labels.shouldHave(exactTexts(..))` to wait                                                                 |
+| `removeSelectedPartial(text)` | `int n = labels.size(); labels.findBy(partialTextCaseSensitive(text)).closest(".item").find("button").click(); labels.shouldHave(size(n - 1));` |
+| `clearSelected()`             | `input.setValue(""); input.pressEscape();` then the clear-all loop above                                                                        |
+
+Open the popup only when it is closed: on widgets where a click toggles the popup, clicking an open one closes it.
+For portals, check `input` for `aria-expanded="true"` instead of `listbox.isDisplayed()`. Selenide text
+conditions ignore case and collapse whitespace; the removed classes matched case-sensitively, so use the
+`*CaseSensitive` variants where that matters. The removed classes also closed the popup after every operation:
+when a widget stays open and the next step needs it closed, add `input.pressEscape()`.
+
 ---
 
 ## Run tests
