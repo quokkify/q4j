@@ -13,7 +13,7 @@
 ## Global Constraints
 
 - Work only in the worktree `<worktree>`, branch `fix/testng-api-scope`.
-- Steps base type: `dev.quokkify.step.AbstractSteps`. Steps modules: `:data-utils:sql`, `:data-utils:nosql:mongodb`, `:data-utils:nosql:morphia-legacy`, `:data-utils:nosql:redis`, `:integrations:kafka`, `:integrations:rabbitmq`, `:integrations:rest-assured`, `:integrations:selenide`, `:integrations:tyrus`.
+- Steps base type: `dev.quokkify.step.AbstractSteps`. Steps modules: `:data-utils:sql`, `:data-utils:nosql:mongodb`, `:data-utils:nosql:morphia-legacy`, `:data-utils:nosql:redis`, `:integrations:kafka`, `:integrations:rabbitmq`, `:integrations:rest-assured`, `:integrations:selenide`, `:integrations:tyrus`, `:integrations:selenide-proxy` (via `:integrations:selenide`).
 - Smoke repository: `<root>/build/consumer-smoke-repo`; repository name `consumerSmoke` (publish task `publishAllPublicationsToConsumerSmokeRepository`).
 - `tools/consumer-smoke` is not included in the root `settings.gradle`.
 - The consumer build resolves `dev.quokkify` only from the smoke repository (`exclusiveContent`), everything else from `mavenCentral()`.
@@ -95,7 +95,7 @@
 
 **Files:**
 
-- Modify: the `build.gradle` of the nine steps modules that declare it (`implementation`/`compileOnly project(":testng-extensions")` → `api project(":testng-extensions")`)
+- Modify: the `build.gradle` of the nine modules that declare `testng-extensions` (`implementation`/`compileOnly project(":testng-extensions")` → `api project(":testng-extensions")`)
 - Modify: `common-utils/signature/build.gradle` (remove `implementation project(":testng-extensions")`)
 - Modify: `integrations/selenide-proxy/build.gradle` (remove `compileOnly` and `testImplementation project(":testng-extensions")`; `implementation project(":integrations:selenide")` → `api`, because `dev.quokkify.model.ProxyPageSteps` extends `PageSteps`)
 - Modify: `integrations/selenide/build.gradle` (remove the duplicate `testImplementation project(":testng-extensions")`)
@@ -107,12 +107,12 @@
 - [ ] **Step 1: Change the scopes as in the spec table.** In the `pom` and `gmm` consumers this flips the Task 1 red to green.
 
 - [ ] **Step 2: Run the guard on all ten modules.**
-      Run: `./gradlew :data-utils:sql:consumerSmoke :data-utils:nosql:mongodb:consumerSmoke :data-utils:nosql:morphia-legacy:consumerSmoke :data-utils:nosql:redis:consumerSmoke :integrations:kafka:consumerSmoke :integrations:rabbitmq:consumerSmoke :integrations:rest-assured:consumerSmoke :integrations:selenide:consumerSmoke :integrations:tyrus:consumerSmoke --console=plain`
+      Run: `./gradlew :data-utils:sql:consumerSmoke :data-utils:nosql:mongodb:consumerSmoke :data-utils:nosql:morphia-legacy:consumerSmoke :data-utils:nosql:redis:consumerSmoke :integrations:kafka:consumerSmoke :integrations:rabbitmq:consumerSmoke :integrations:rest-assured:consumerSmoke :integrations:selenide:consumerSmoke :integrations:tyrus:consumerSmoke :integrations:selenide-proxy:consumerSmoke --console=plain`
       Expected: BUILD SUCCESSFUL. None of the ten tasks is `SKIPPED`, and each one logs at least one steps class.
 
 - [ ] **Step 3: Check the generated POMs.**
       Run: `./gradlew generatePomFileForMavenPublication -q`, then for each module `grep -A3 '<artifactId>testng</artifactId>' <module>/build/publications/maven/pom-default.xml`.
-      Expected: in the nine steps modules that declare it `dev.quokkify:testng` has `<scope>compile</scope>`, and `integrations/selenide-proxy` lists `dev.quokkify:selenide` in `compile` scope. In the POMs of `common-utils/signature` and `integrations/selenide-proxy` there is no direct `dev.quokkify:testng` (`org.testng:testng`, if it appears transitively, does not count).
+      Expected: in the nine modules that declare `testng-extensions` `dev.quokkify:testng` has `<scope>compile</scope>`, and `integrations/selenide-proxy` lists `dev.quokkify:selenide` in `compile` scope. In the POMs of `common-utils/signature` and `integrations/selenide-proxy` there is no direct `dev.quokkify:testng` (`org.testng:testng`, if it appears transitively, does not count).
 
 - [ ] **Step 4: Red→green proof without `clean`.**
       Temporarily set `:data-utils:sql` back to `implementation` and run `./gradlew :data-utils:sql:consumerSmoke`. Expected: FAIL with the same error as in Task 1, Step 3. Restore `api` and run again. Expected: PASS. Save both excerpts to `<scratchpad>/redgreen-sql.txt`.
