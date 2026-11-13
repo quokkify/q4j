@@ -1,11 +1,21 @@
 description = "TestRail TestNG integration"
 
+// Gradle identifies project modules by group:name, so a distinct group keeps this module apart from the other
+// ":testng" projects when they share a dependency graph (for example in reportportal-testrail).
+group = "${rootProject.group}.testrail"
+
 dependencies {
     implementation project(":integrations:testrail:testrail-core")
     implementation project(":common-utils:core")
     implementation project(":common-utils:config")
     implementation project(":testng-extensions")
+    api project(":integrations:tms")
     api "org.apache.commons:commons-lang3"
 
     implementation libs.allure.testng
+
+    testImplementation libs.assertj.core
+    testImplementation libs.mockito.core
 }
+
+apply from: rootProject.file('gradle/tms-provider.gradle')

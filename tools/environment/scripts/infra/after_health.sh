@@ -25,6 +25,9 @@ for profile in "$@"; do
     reporting)
       ./tools/environment/scripts/infra/hooks/reporting.sh
       ;;
+    testplanit)
+      ./tools/environment/scripts/infra/hooks/testplanit.sh
+      ;;
     messaging)
       ./tools/environment/scripts/infra/hooks/messaging.sh
       ;;

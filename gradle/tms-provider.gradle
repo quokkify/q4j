@@ -1,0 +1,40 @@
+// Shared by every test management system (TMS) provider module. Declares the capabilities that make a second
+// provider fail dependency resolution, and keeps the module resolvable by its published and in-build identity.
+afterEvaluate {
+    def publishedId = "${rootProject.group}:${project.ext.artifactId}"
+    def inBuildId = "${project.group}:${project.name}"
+    ["apiElements", "runtimeElements"].each { name ->
+        configurations.named(name) {
+            outgoing.capability("dev.quokkify:tms-provider:${project.version}")
+            outgoing.capability("${publishedId}:${project.version}")
+            if (inBuildId != publishedId) {
+                outgoing.capability("${inBuildId}:${project.version}")
+            }
+        }
+    }
+}
+
+def verifyTask = tasks.register("verifyTmsProviderCapabilities") {
+    group = "verification"
+    description = "Fails unless the published Gradle Module Metadata advertises the TMS provider and module capabilities."
+    // The publishing plugin is applied after this script, so the metadata task is looked up lazily.
+    dependsOn { tasks.named("generateMetadataFileForMavenPublication") }
+    doLast {
+        def moduleJson = tasks.named("generateMetadataFileForMavenPublication").flatMap { it.outputFile }
+        def expected = ["dev.quokkify:tms-provider", "${rootProject.group}:${project.ext.artifactId}".toString()]
+        def variants = new groovy.json.JsonSlurper().parse(moduleJson.get().asFile).variants
+        ["apiElements", "runtimeElements"].each { name ->
+            def variant = variants.find { it.name == name }
+            if (variant == null) {
+                throw new GradleException("Variant '${name}' is missing in ${moduleJson.get().asFile}")
+            }
+            def advertised = variant.capabilities.collect { "${it.group}:${it.name}".toString() }
+            expected.each {
+                if (!advertised.contains(it)) {
+                    throw new GradleException("Variant '${name}' does not advertise capability '${it}', found ${advertised}")
+                }
+            }
+        }
+    }
+}
+tasks.named("check") { dependsOn(verifyTask) }

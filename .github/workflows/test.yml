@@ -367,8 +367,8 @@ jobs:
       module: ":integrations:jira:testng"
       slug: integrations-jira-testng
 
-  integrations-jira-testrail:
-    name: jira-testrail
+  integrations-jira-tms:
+    name: jira-tms
     needs: [detect-runner, build-common]
     if: ${{ github.event_name != 'pull_request_target' }}
     uses: ./.github/workflows/reusable-module-pipeline.yml
@@ -376,9 +376,37 @@ jobs:
       runs-on: ${{ needs.detect-runner.outputs.runs_on }}
       self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
       group: integrations
-      name: jira-testrail
-      module: ":integrations:jira:testrail"
-      slug: integrations-jira-testrail
+      name: jira-tms
+      module: ":integrations:jira:jira-tms"
+      slug: integrations-jira-tms
+
+  integrations-tms:
+    name: tms
+    needs: [detect-runner, build-common]
+    if: ${{ github.event_name != 'pull_request_target' }}
+    uses: ./.github/workflows/reusable-module-pipeline.yml
+    with:
+      runs-on: ${{ needs.detect-runner.outputs.runs_on }}
+      self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
+      group: integrations
+      name: tms
+      module: ":integrations:tms"
+      slug: integrations-tms
+
+  integrations-testplanit:
+    name: testplanit
+    needs: [detect-runner, build-common]
+    if: ${{ github.event_name != 'pull_request_target' }}
+    uses: ./.github/workflows/reusable-module-pipeline.yml
+    with:
+      runs-on: ${{ needs.detect-runner.outputs.runs_on }}
+      self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
+      group: integrations
+      name: testplanit
+      module: ":integrations:testplanit"
+      slug: integrations-testplanit
+      run-tests: true
+      profile: testplanit
 
   integrations-testrail-core:
     name: testrail-core
@@ -571,7 +599,9 @@ jobs:
         integrations-rabbitmq,
         integrations-jira-core,
         integrations-jira-testng,
-        integrations-jira-testrail,
+        integrations-jira-tms,
+        integrations-tms,
+        integrations-testplanit,
         integrations-testrail-core,
         integrations-testrail-testng,
         integrations-reportportal-core,

@@ -133,7 +133,9 @@ dev.quokkify:<artifact>:<version>
 | `tyrus`                 | WebSocket testing with Tyrus                |
 | `jira-core`             | Jira client and ticket abstractions         |
 | `jira-testng`           | Jira integration for TestNG                 |
-| `jira-testrail`         | Jira ticket sources for TestRail workflows  |
+| `jira-tms`              | Jira ticket sources for TMS workflows       |
+| `tms`                   | Common TMS contract and TestNG listener     |
+| `testplanit`            | TestPlanIt integration                      |
 | `testrail-core`         | TestRail API models and services            |
 | `testrail-testng`       | TestRail lifecycle integration for TestNG   |
 | `reportportal-core`     | ReportPortal configuration and API services |
@@ -197,11 +199,12 @@ Choose only the systems exercised by the test suite. Each integration is publish
 dependencies {
     testImplementation("dev.quokkify:reportportal-testng:<version>")
     testImplementation("dev.quokkify:testrail-testng:<version>")
+    testImplementation("dev.quokkify:testplanit:<version>")
     testImplementation("dev.quokkify:jira-testng:<version>")
 }
 ```
 
-The integration modules connect test lifecycle events to ReportPortal, TestRail, and Jira without forcing those systems into the Q4J core.
+The integration modules connect test lifecycle events to ReportPortal, TestRail, TestPlanIt, and Jira without forcing those systems into the Q4J core. A project connects exactly one TMS provider (`testrail-testng` or `testplanit`) and registers `dev.quokkify.tms.listeners.TmsListener`; see [`tms`](integrations/tms/README.md).
 
 </details>
 

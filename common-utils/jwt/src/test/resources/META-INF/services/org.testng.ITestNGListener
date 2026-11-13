@@ -1,2 +1,3 @@
 dev.quokkify.listener.lifecycle.TestListener
 io.qameta.allure.testng.AllureTestNg
+dev.quokkify.tms.listeners.TmsListener

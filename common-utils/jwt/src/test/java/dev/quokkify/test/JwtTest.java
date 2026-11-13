@@ -37,7 +37,7 @@ public class JwtTest {
     generatedJwtKeyPair = JwtKeyPairGenerator.generateRs512();
   }
 
-  @TmsLink("JWT_ID_1")
+  @TmsLink("6")
   @TestGroup("Jwt")
   @Test(description = "Verify JWT functionality using JwtKeyPair")
   public void testJwtFunctionalityUsingJwtKeyPair() {
@@ -49,7 +49,7 @@ public class JwtTest {
     });
   }
 
-  @TmsLink("JWT_ID_2")
+  @TmsLink("7")
   @TestGroup("Jwt")
   @Test(description = "Verify JWT functionality using private and public keys")
   public void testJwtFunctionalityPrivatePublicKeys() {
@@ -64,7 +64,7 @@ public class JwtTest {
     });
   }
 
-  @TmsLink("JWT_ID_3")
+  @TmsLink("8")
   @TestGroup("Jwt")
   @Test(description = "Decrypt payload JSON from compact JWT and map to Payload")
   public void testDecryptPayloadFromJwt() {

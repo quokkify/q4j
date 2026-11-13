@@ -3,6 +3,7 @@ description = "TestRail description provider for ReportPortal"
 dependencies {
     implementation project(":integrations:reportportal:testng")
     implementation project(":integrations:testrail:testrail-core")
+    api project(":integrations:testrail:testng")
     implementation project(":common-utils:config")
 
     api "org.apache.commons:commons-lang3"

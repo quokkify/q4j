@@ -12,4 +12,6 @@ dependencies {
 }
 ```
 
+This module depends on `testrail-testng`, so it carries the TMS provider capability `dev.quokkify:tms-provider` and cannot be combined with `testplanit`.
+
 See the [Q4J module catalog](../../../README.md) for the complete list of modules and common setups.

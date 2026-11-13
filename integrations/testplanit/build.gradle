@@ -1,0 +1,14 @@
+dependencies {
+    api project(":integrations:tms")
+    implementation project(":common-utils:config")
+    implementation project(":common-utils:core")
+    implementation libs.feign.core
+    implementation libs.feign.jackson
+    implementation libs.feign.okhttp
+    api "org.apache.commons:commons-lang3"
+
+    testImplementation libs.assertj.core
+    testImplementation libs.mockito.core
+}
+
+apply from: rootProject.file('gradle/tms-provider.gradle')
