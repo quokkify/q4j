@@ -1,0 +1,1 @@
+{"id":"b8c4ddb8ecab0cf657f411d480e6b5ad.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DropdownRecipeTest.testPortalSelectByClick","name":"Plain Selenide: select an option from a listbox rendered in a portal outside the widget root","status":"passed","testResultsByEnv":{"ubuntu-26-04":"ef9fe04faeb58c673c5a348b907e251b"}}
