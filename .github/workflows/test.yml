@@ -379,6 +379,7 @@ jobs:
       name: jira-tms
       module: ":integrations:jira:jira-tms"
       slug: integrations-jira-tms
+      run-tests: true
 
   integrations-tms-core:
     name: tms-core
@@ -392,6 +393,7 @@ jobs:
       name: tms-core
       module: ":integrations:tms:tms-core"
       slug: integrations-tms-core
+      run-tests: true
 
   integrations-tms-testng:
     name: tms-testng
@@ -405,6 +407,7 @@ jobs:
       name: tms-testng
       module: ":integrations:tms:tms-testng"
       slug: integrations-tms-testng
+      run-tests: true
 
   integrations-testplanit:
     name: testplanit
@@ -446,6 +449,7 @@ jobs:
       name: testrail-testng
       module: ":integrations:testrail:testng"
       slug: integrations-testrail-testng
+      run-tests: true
 
   integrations-reportportal-core:
     name: reportportal-core

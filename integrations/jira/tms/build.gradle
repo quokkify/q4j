@@ -8,5 +8,6 @@ dependencies {
 
     api "org.apache.commons:commons-lang3"
 
+    testImplementation project(":testng-extensions")
     testImplementation libs.assertj.core
 }

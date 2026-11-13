@@ -1,32 +1,35 @@
 package dev.quokkify.testplanit.services;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.CopyOnWriteArrayList;
+import java.util.concurrent.atomic.AtomicInteger;
 
 import dev.quokkify.testplanit.models.ResultSubmission;
 import dev.quokkify.testplanit.models.RunCase;
 import dev.quokkify.testplanit.models.TestPlanItRun;
 
 /**
- * In-memory TestPlanIt with the statuses of a default project.
+ * In-memory TestPlanIt with the statuses of a default project. Collections are concurrent so that
+ * tests may call it from several threads; the scalar fields are written by single-threaded calls only.
  */
 final class FakeTestPlanItClient implements TestPlanItClient {
 
-  final Map<Integer, TestPlanItRun> runs = new HashMap<>();
-  final Map<Integer, Integer> caseVersions = new HashMap<>();
-  final Map<String, Integer> statusIds = new HashMap<>(Map.of(
+  final Map<Integer, TestPlanItRun> runs = new ConcurrentHashMap<>();
+  final Map<Integer, Integer> caseVersions = new ConcurrentHashMap<>();
+  final Map<String, Integer> statusIds = new ConcurrentHashMap<>(Map.of(
       "untested", 1, "passed", 2, "failed", 3, "retest", 4, "blocked", 5, "skipped", 6));
-  final Map<Integer, Integer> existingResults = new HashMap<>();
-  final Map<String, RunCase> runCases = new LinkedHashMap<>();
-  final List<ResultSubmission> submitted = new ArrayList<>();
-  final List<Integer> completedRuns = new ArrayList<>();
+  final Map<Integer, Integer> existingResults = new ConcurrentHashMap<>();
+  final Map<String, RunCase> runCases = new ConcurrentHashMap<>();
+  final List<ResultSubmission> submitted = new CopyOnWriteArrayList<>();
+  final List<Integer> completedRuns = new CopyOnWriteArrayList<>();
   int createdRuns;
-  int addCaseCalls;
+  final AtomicInteger addCaseCalls = new AtomicInteger();
+  final AtomicInteger runCaseIds = new AtomicInteger(1000);
   String lastRunName;
   Integer lastConfigId;
   Integer lastMilestoneId;
@@ -56,9 +59,9 @@ final class FakeTestPlanItClient implements TestPlanItClient {
 
   @Override
   public RunCase addCaseToRun(int runId, int caseId, int caseVersion) {
-    addCaseCalls++;
+    addCaseCalls.incrementAndGet();
     return runCases.computeIfAbsent(runId + ":" + caseId, key -> new RunCase(
-        1000 + runCases.size(), caseId, caseVersion, existingResults.getOrDefault(caseId, 0)));
+        runCaseIds.getAndIncrement(), caseId, caseVersion, existingResults.getOrDefault(caseId, 0)));
   }
 
   @Override

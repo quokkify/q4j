@@ -5,6 +5,7 @@ import java.util.List;
 import java.util.Optional;
 import java.util.function.Supplier;
 
+import dev.quokkify.annotation.SingleThread;
 import dev.quokkify.tms.TestManagementSystem;
 import dev.quokkify.tms.listeners.TmsListener;
 import dev.quokkify.tms.tickets.TicketSource;
@@ -46,6 +47,7 @@ public class LegacyListenersTest {
   }
 
   @TmsLink("LEGACY_1")
+  @SingleThread
   @Test(description = "Legacy status listener does nothing while TmsListener is active")
   public void statusListenerIsNoOpWhileTmsListenerActive() throws ReflectiveOperationException {
     TmsListener tmsListener = tmsListenerWithoutProvider();
@@ -60,6 +62,7 @@ public class LegacyListenersTest {
   }
 
   @TmsLink("LEGACY_2")
+  @SingleThread
   @Test(description = "Legacy interceptor returns the methods unchanged while TmsListener is active")
   public void interceptorIsNoOpWhileTmsListenerActive() throws ReflectiveOperationException {
     TmsListener tmsListener = tmsListenerWithoutProvider();
@@ -73,6 +76,7 @@ public class LegacyListenersTest {
   }
 
   @TmsLink("LEGACY_3")
+  @SingleThread
   @Test(description = "Legacy disabled-tests listener reports nothing while TmsListener is active")
   public void addDisabledListenerIsNoOpWhileTmsListenerActive() throws ReflectiveOperationException {
     TmsListener tmsListener = tmsListenerWithoutProvider();
