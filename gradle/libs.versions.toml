@@ -41,7 +41,7 @@ reportportal = "5.4.3"
 jjschema = "1.16"
 rest-assured = "6.3.0"
 selenide = "7.19.1"
-feign = "13.17"
+feign = "13.18"
 tyrus = "2.2.2"
 
 [libraries]
