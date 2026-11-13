@@ -350,7 +350,7 @@ services:
 
   reportportal-api:
     profiles: [reporting]
-    image: reportportal/service-api:5.15.6@sha256:073981492e191aeb4c069ec6546b8b806eec4702015730528a8cd55cdb1e4513
+    image: reportportal/service-api:6.0.0@sha256:54da4235d5cf3565481029b52dc3f4013fd7d8001c4e372f7d4117d929852752
     depends_on:
       reportportal-rabbitmq:
         condition: service_healthy
