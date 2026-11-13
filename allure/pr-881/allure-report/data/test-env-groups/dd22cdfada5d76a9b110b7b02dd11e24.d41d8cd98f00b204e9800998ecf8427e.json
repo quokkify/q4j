@@ -1,0 +1,1 @@
+{"id":"dd22cdfada5d76a9b110b7b02dd11e24.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.testplanit.services.TestPlanItFeignClientTest.requiresUrlAndToken","name":"The client is not created without URL or token","status":"passed","testResultsByEnv":{"ubuntu-26-04":"e8a5eab8676190133789811046bb8ba5"}}
