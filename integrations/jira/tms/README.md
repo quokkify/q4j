@@ -1,6 +1,6 @@
 # Q4J Jira TMS
 
-Jira ticket source integration for Q4J test management system (TMS) workflows.
+Jira ticket source integration for Q4J test management system (TMS) workflows. Depends on [`tms-core`](../../tms/core/README.md).
 
 ## Installation
 

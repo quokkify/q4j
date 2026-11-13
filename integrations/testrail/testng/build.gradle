@@ -9,7 +9,7 @@ dependencies {
     implementation project(":common-utils:core")
     implementation project(":common-utils:config")
     implementation project(":testng-extensions")
-    api project(":integrations:tms")
+    api project(":integrations:tms:tms-testng")
     api "org.apache.commons:commons-lang3"
 
     implementation libs.allure.testng

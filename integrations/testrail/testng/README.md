@@ -12,7 +12,7 @@ dependencies {
 }
 ```
 
-Register `dev.quokkify.tms.listeners.TmsListener` in `META-INF/services/org.testng.ITestNGListener`. The module is a TMS provider (capability `dev.quokkify:tms-provider`), so it cannot be combined with `testplanit` or another provider. The published Gradle metadata also advertises the in-build capability `dev.quokkify.testrail:testng` (used for in-build identity); consumers should depend on `dev.quokkify:testrail-testng`.
+This module brings `tms-testng`. Register `dev.quokkify.tms.listeners.TmsListener` in `META-INF/services/org.testng.ITestNGListener`. The module is a TMS provider (capability `dev.quokkify:tms-provider`), so it cannot be combined with `testplanit` or another provider. The published Gradle metadata also advertises the in-build capability `dev.quokkify.testrail:testng` (used for in-build identity); consumers should depend on `dev.quokkify:testrail-testng`.
 
 Case ids come from `@TmsLink` (repeatable). `TestRailTestFilterRules.needRunTest` decides which tests run. Tests without `@TmsLink` run but are not reported.
 

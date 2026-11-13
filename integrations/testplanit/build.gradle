@@ -1,5 +1,5 @@
 dependencies {
-    api project(":integrations:tms")
+    api project(":integrations:tms:tms-core")
     implementation project(":common-utils:config")
     implementation project(":common-utils:core")
     implementation libs.feign.core

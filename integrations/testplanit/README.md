@@ -6,11 +6,12 @@
 
 ```kotlin
 dependencies {
+    testImplementation("dev.quokkify:tms-testng:0.15.0")
     testImplementation("dev.quokkify:testplanit:0.15.0")
 }
 ```
 
-Register the common listener in `src/test/resources/META-INF/services/org.testng.ITestNGListener`:
+Register the common listener from [`tms-testng`](../tms/testng/README.md) in `src/test/resources/META-INF/services/org.testng.ITestNGListener`:
 
 ```text
 dev.quokkify.tms.listeners.TmsListener

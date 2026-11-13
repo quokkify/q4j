@@ -134,7 +134,8 @@ dev.quokkify:<artifact>:<version>
 | `jira-core`             | Jira client and ticket abstractions         |
 | `jira-testng`           | Jira integration for TestNG                 |
 | `jira-tms`              | Jira ticket sources for TMS workflows       |
-| `tms`                   | Common TMS contract and TestNG listener     |
+| `tms-core`              | TMS provider contract and ticket sources    |
+| `tms-testng`            | TestNG listener for the configured TMS      |
 | `testplanit`            | TestPlanIt integration                      |
 | `testrail-core`         | TestRail API models and services            |
 | `testrail-testng`       | TestRail lifecycle integration for TestNG   |
@@ -198,13 +199,16 @@ Choose only the systems exercised by the test suite. Each integration is publish
 ```kotlin
 dependencies {
     testImplementation("dev.quokkify:reportportal-testng:<version>")
-    testImplementation("dev.quokkify:testrail-testng:<version>")
+    // Test management: one provider only. TestPlanIt shown here;
+    // TestRail uses testrail-testng instead (it brings tms-testng).
+    // Two providers fail the build on the dev.quokkify:tms-provider capability.
+    testImplementation("dev.quokkify:tms-testng:<version>")
     testImplementation("dev.quokkify:testplanit:<version>")
     testImplementation("dev.quokkify:jira-testng:<version>")
 }
 ```
 
-The integration modules connect test lifecycle events to ReportPortal, TestRail, TestPlanIt, and Jira without forcing those systems into the Q4J core. A project connects exactly one TMS provider (`testrail-testng` or `testplanit`) and registers `dev.quokkify.tms.listeners.TmsListener`; see [`tms`](integrations/tms/README.md).
+The integration modules connect test lifecycle events to ReportPortal, TestRail, TestPlanIt, and Jira without forcing those systems into the Q4J core. A project connects exactly one TMS provider (`testrail-testng` or `testplanit`) and registers `dev.quokkify.tms.listeners.TmsListener`; see [`tms-testng`](integrations/tms/testng/README.md).
 
 </details>
 

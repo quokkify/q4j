@@ -2,7 +2,7 @@ description = "Jira TMS TicketSource integration"
 
 dependencies {
     implementation project(":integrations:jira:jira-core")
-    api project(":integrations:tms")
+    api project(":integrations:tms:tms-core")
     implementation project(":common-utils:core")
     implementation project(":common-utils:config")
 

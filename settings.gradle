@@ -20,7 +20,10 @@ project(":integrations:jira:jira-core").projectDir = file("integrations/jira/cor
 include(":integrations:jira:testng")     // Jira TestNG integration
 include(":integrations:jira:jira-tms")   // Jira TMS TicketSource integration
 project(":integrations:jira:jira-tms").projectDir = file("integrations/jira/tms")
-include(":integrations:tms")              // Common test management system (TMS) contract and TestNG listener
+include(":integrations:tms:tms-core")    // Test management system (TMS) provider contract, ticket sources and result model
+project(":integrations:tms:tms-core").projectDir = file("integrations/tms/core")
+include(":integrations:tms:tms-testng")  // TestNG listener for the single configured TMS provider
+project(":integrations:tms:tms-testng").projectDir = file("integrations/tms/testng")
 include(":integrations:testplanit")       // TestPlanIt integration
 include(":integrations:testrail:testrail-core")   // TestRail core integration
 project(":integrations:testrail:testrail-core").projectDir = file("integrations/testrail/core")

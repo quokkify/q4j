@@ -1,8 +1,7 @@
 dependencies {
     implementation project(":common-utils:core")
     implementation project(":common-utils:config")
-    api project(":testng-extensions")
 
+    testImplementation project(":testng-extensions")
     testImplementation libs.assertj.core
-    testImplementation libs.mockito.core
 }

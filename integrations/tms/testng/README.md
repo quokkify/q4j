@@ -1,16 +1,19 @@
-# Q4J TMS
+# Q4J TMS TestNG
 
-Common test management system (TMS) contract and the single TestNG entry point, `TmsListener`, that reports results to the connected TMS provider.
+The single TestNG entry point, `TmsListener`, that reports results to the one configured test management system (TMS) provider. The provider contract lives in [`tms-core`](../core/README.md).
 
 ## Installation
 
-Add this module together with exactly one provider, for example `testplanit`:
+Add this module together with exactly one provider. For TestPlanIt:
 
 ```kotlin
 dependencies {
+    testImplementation("dev.quokkify:tms-testng:0.15.0")
     testImplementation("dev.quokkify:testplanit:0.15.0")
 }
 ```
+
+For TestRail, add only `dev.quokkify:testrail-testng`; it brings `tms-testng`.
 
 Register the listener in `META-INF/services/org.testng.ITestNGListener` of the test project. Providers never register it themselves:
 
@@ -43,15 +46,13 @@ Tests without `@TmsLink` run but are not reported. Link values are plain case id
 
 ## Configuration
 
-Values are read from system properties, environment variables or `tms-config.properties` on the classpath.
-
 | Key            | Default | Description                                                          |
 | -------------- | ------- | -------------------------------------------------------------------- |
 | `TMS_REQUIRED` | `false` | `true` fails the run when no configured provider is on the classpath |
 
-## Provider contract
+Values are read from system properties, environment variables or `tms-config.properties` on the classpath.
 
-A provider implements `TestManagementSystem` and registers it through `ServiceLoader`. `shouldRun(String caseId)` lets a provider filter tests; a test runs when any of its case ids should run. Excluded methods that are disabled, or that have a ticket comment from a `TicketSource`, are reported as `BLOCKED`; the ticket comment wins over the "disabled" comment.
+Excluded methods that are disabled, or that have a ticket comment from a `TicketSource`, are reported as `BLOCKED`; the ticket comment wins over the "disabled" comment.
 
 ## Migrating from TestRail listeners
 
@@ -61,4 +62,4 @@ A provider implements `TestManagementSystem` and registers it through `ServiceLo
 
 Moving a project from one TMS to another is one change: swap the provider dependency, rewrite `@TmsLink` values with a mapping table, and change `allure.link.tms.pattern`.
 
-See the [Q4J module catalog](../../README.md) for the complete list of modules and common setups.
+See the [Q4J module catalog](../../../README.md) for the complete list of modules and common setups.
