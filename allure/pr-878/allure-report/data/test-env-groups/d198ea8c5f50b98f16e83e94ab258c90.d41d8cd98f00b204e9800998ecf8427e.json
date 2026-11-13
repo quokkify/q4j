@@ -1,1 +1,1 @@
-{"id":"d198ea8c5f50b98f16e83e94ab258c90.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.model.JsonPojoTest.testMutationMethodsChaining","name":"Verify mutation methods chaining","status":"passed","testResultsByEnv":{"ubuntu-26-04":"b5f861670858e76e7af3e405cc5516ce"}}
+{"id":"d198ea8c5f50b98f16e83e94ab258c90.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.model.JsonPojoTest.testMutationMethodsChaining","name":"Verify mutation methods chaining","status":"passed","testResultsByEnv":{"ubuntu-26-04":"2aaf8485380387061e60cb7d21b3d3ef"}}
