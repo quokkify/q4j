@@ -1,0 +1,1 @@
+{"id":"f3e90095cbfdf370cb11952542cc4a8f.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.ConsumerEntityDiscoveryTest.checkSubclassOverrideOfManagedClassesWins","name":"Guards the override contract: a subclass's managed classes replace the discovered ones","status":"passed","testResultsByEnv":{"ubuntu-26-04":"5384b0a2276604d6c2f00c507378def4"}}

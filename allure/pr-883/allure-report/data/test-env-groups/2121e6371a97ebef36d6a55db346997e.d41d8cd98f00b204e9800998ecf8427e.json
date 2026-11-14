@@ -1,0 +1,1 @@
+{"id":"2121e6371a97ebef36d6a55db346997e.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.testplanit.services.TestPlanItServiceTest.failsWithoutRequiredStatus","name":"A run is not started when a required status is not enabled for automation","status":"passed","testResultsByEnv":{"ubuntu-26-04":"0c4f74a5425839b6903fe0fc277eed1d"}}

@@ -1,0 +1,1 @@
+{"id":"0e2a0f33d3b64a84c6c2217aa368e61a.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.testplanit.services.TestPlanItServiceTest.skipsCaseIdOutOfIntRange","name":"Regression guard: a case id that does not fit an int is skipped, not fatal for the suite","status":"passed","testResultsByEnv":{"ubuntu-26-04":"da3d270f913f65219220451a5c4e7775"}}

@@ -1,0 +1,1 @@
+{"id":"91511ac0985ebf2bdeab8b7b594dedcc.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.testplanit.TestPlanItManagementSystemTest.requiresUrlTokenAndProject","name":"The system is configured only with URL, token and project, and when not disabled","status":"passed","testResultsByEnv":{"ubuntu-26-04":"bdc370a7655f294dde0aa9467e301733"}}

@@ -1,0 +1,1 @@
+{"id":"c1b737512bf0421828444a2160a54c8c.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.testplanit.services.TestPlanItServiceTest.nonNumericCaseIdIsNotReported","name":"A non-numeric case id from another TMS is not reported and the client is not called","status":"passed","testResultsByEnv":{"ubuntu-26-04":"eec91f3c9d3287a9639e72c45f203095"}}

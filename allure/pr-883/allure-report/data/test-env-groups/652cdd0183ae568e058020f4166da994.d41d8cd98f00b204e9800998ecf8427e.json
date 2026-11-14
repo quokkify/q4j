@@ -1,0 +1,1 @@
+{"id":"652cdd0183ae568e058020f4166da994.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.testplanit.services.TestPlanItServiceTest.completesRunOnlyWhenEnabled","name":"The run is completed only when completeRun is enabled","status":"passed","testResultsByEnv":{"ubuntu-26-04":"24924b948f5011350b16c62fcc78a54a"}}

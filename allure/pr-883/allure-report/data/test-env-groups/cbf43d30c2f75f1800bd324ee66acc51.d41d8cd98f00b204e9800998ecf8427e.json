@@ -1,0 +1,1 @@
+{"id":"cbf43d30c2f75f1800bd324ee66acc51.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.testrail.listeners.LegacyListenersTest.interceptorIsNoOpWhileTmsListenerActive","name":"Legacy interceptor returns the methods unchanged while TmsListener is active","status":"passed","testResultsByEnv":{"ubuntu-26-04":"58d478b05f348970a8760ed91bfc7be7"}}

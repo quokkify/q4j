@@ -1,0 +1,1 @@
+{"id":"aab1ab951eb23337e736610dedd54984.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.testrail.listeners.LegacyListenersTest.addDisabledListenerIsNoOpWhileTmsListenerActive","name":"Legacy disabled-tests listener reports nothing while TmsListener is active","status":"passed","testResultsByEnv":{"ubuntu-26-04":"13b680a398401891dfc1782f809059fc"}}

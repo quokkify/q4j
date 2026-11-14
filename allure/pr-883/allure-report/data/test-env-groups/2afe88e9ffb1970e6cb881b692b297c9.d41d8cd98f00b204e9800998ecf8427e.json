@@ -1,0 +1,1 @@
+{"id":"2afe88e9ffb1970e6cb881b692b297c9.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.testplanit.services.TestPlanItFeignClientTest.addsCaseWithUpsert","name":"A case is added with upsert on the run and case pair, and its results are counted","status":"passed","testResultsByEnv":{"ubuntu-26-04":"8195c2cf2c734fcf40ee412983b0033b"}}
