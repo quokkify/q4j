@@ -1,5 +1,70 @@
 # Changelog
 
+## [0.16.0](https://github.com/quokkify/q4j/compare/v0.15.0...v0.16.0) (2026-11-14)
+
+<!-- project-toolkit:release-notes v2 -->
+**At a glance:** ⚠️ 1 breaking · 8 internal
+
+### ⚠️ Breaking changes
+
+> [!WARNING]
+> **tms:** single TMS entry point with TestPlanIt provider — **TestPlanIt joins TestRail behind one TMS entry point.** A test project adds `tms-testng` with exactly one provider and registers `TmsListener`; case ids come from Allure `@TmsLink`, and two providers on one classpath fail the build. ([#881](https://github.com/quokkify/q4j/pull/881))
+>
+> - **TestRail users:**
+>   - replace `TestStatusTestRailListener`, `AddDisabledTestsToTestRailListener` and `TestRailInterceptor` in `META-INF/services/org.testng.ITestNGListener` with `dev.quokkify.tms.listeners.TmsListener`;
+>   - `@TmsLink` values stay as they are;
+>   - under `TmsListener`, tests without `@TmsLink` run but are not reported.
+> - **Jira tickets:** replace `dev.quokkify:jira-testrail` with `dev.quokkify:jira-tms`. Upgrade both artifacts together. With an old `jira-testrail` next to the new `testrail-testng`, Jira comments on disabled tests silently disappear.
+> - **Custom `TicketSource` implementations:** move from `dev.quokkify.testrail.tickets` to `dev.quokkify.tms.tickets`. The disabled-test comment now reads `<id> is disabled via ...` instead of `TC-<id> ...`.
+> - **One provider only:** keep only one of `testplanit` and `testrail-testng` on the test classpath. `reportportal-testrail` carries `testrail-testng`, so do not combine it with `testplanit`.
+> - **Switching a project to another TMS:**
+>   - swap the provider dependency;
+>   - rewrite the `@TmsLink` values to the new system's ids;
+>   - change `allure.link.tms.pattern`.
+>
+> ---
+>
+> ```kotlin
+> dependencies {
+>     testImplementation("dev.quokkify:tms-testng:<version>")
+>     testImplementation("dev.quokkify:testplanit:<version>")
+>     // TestRail: testImplementation("dev.quokkify:testrail-testng:<version>") instead; never two providers
+> }
+> ```
+>
+> ```text
+> # src/test/resources/META-INF/services/org.testng.ITestNGListener
+> dev.quokkify.tms.listeners.TmsListener
+> ```
+>
+> ```java
+> @TmsLink("42") // TestPlanIt case id
+> @Test
+> public void userCanLogIn() { }
+> ```
+>
+> ```bash
+> TESTPLANIT_API_URL=https://testplanit.example.com TESTPLANIT_API_TOKEN=tpi_... TESTPLANIT_PROJECT_ID=1 ./gradlew test
+> ```
+
+<details><summary>Internal changes (8 PRs)</summary>
+
+**Dependencies**
+
+- gradle 9.9.0 → 9.9.1 ([#866](https://github.com/quokkify/q4j/pull/866))
+- io.github.openfeign:feign-core, io.github.openfeign:feign-jackson, io.github.openfeign:feign-okhttp 13.17 → 13.18 ([#876](https://github.com/quokkify/q4j/pull/876))
+- org.apache.commons:commons-lang3 3.21.0 → 3.22.0 ([#873](https://github.com/quokkify/q4j/pull/873))
+- org.bouncycastle:bcprov-jdk18on 1.86 → 1.87 ([#874](https://github.com/quokkify/q4j/pull/874))
+- reportportal/service-auto-analyzer 5.15.6 → 6.0.0 · major ([#879](https://github.com/quokkify/q4j/pull/879))
+- reportportal/service-jobs 5.15.3 → 6.0.0 · major ([#880](https://github.com/quokkify/q4j/pull/880))
+
+**Maintenance**
+
+- **modules:** update q4j module documentation to v0.15.0 ([#872](https://github.com/quokkify/q4j/pull/872))
+- **release:** publish to Maven Central after Release Please ([#871](https://github.com/quokkify/q4j/pull/871))
+
+</details>
+
 ## [0.15.0](https://github.com/quokkify/q4j/compare/v0.14.1...v0.15.0) (2026-11-11)
 
 <!-- project-toolkit:release-notes v2 -->
