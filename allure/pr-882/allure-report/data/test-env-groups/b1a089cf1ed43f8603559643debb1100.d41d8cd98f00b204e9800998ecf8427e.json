@@ -1,0 +1,1 @@
+{"id":"b1a089cf1ed43f8603559643debb1100.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.testplanit.services.TestPlanItFeignClientTest.createsRunWithConnectRelations","name":"A run is created in the IN_PROGRESS state with relations in connect syntax","status":"passed","testResultsByEnv":{"ubuntu-26-04":"83c3c614eb2af21107a9b4d73e9b0714"}}

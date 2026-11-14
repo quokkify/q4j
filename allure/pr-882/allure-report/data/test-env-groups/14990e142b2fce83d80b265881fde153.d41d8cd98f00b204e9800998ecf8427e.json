@@ -1,0 +1,1 @@
+{"id":"14990e142b2fce83d80b265881fde153.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.testplanit.services.TestPlanItFeignClientTest.wrapsHttpErrorsWithoutToken","name":"An HTTP error names the endpoint and response, and never the token","status":"passed","testResultsByEnv":{"ubuntu-26-04":"6b2954424d0b7f967555eb8bf694826a"}}

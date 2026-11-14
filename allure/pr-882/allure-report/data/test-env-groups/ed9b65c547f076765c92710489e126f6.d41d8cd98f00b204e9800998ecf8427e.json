@@ -1,0 +1,1 @@
+{"id":"ed9b65c547f076765c92710489e126f6.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.testplanit.services.TestPlanItServiceTest.rejectsUnusableConfiguredRun","name":"A configured run that is missing, completed or in another project is rejected","status":"passed","testResultsByEnv":{"ubuntu-26-04":"b4f6f5229f26d810595803cb0e8f72f5"}}

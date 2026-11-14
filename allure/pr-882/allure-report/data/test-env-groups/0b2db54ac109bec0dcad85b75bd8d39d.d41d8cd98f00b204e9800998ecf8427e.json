@@ -1,0 +1,1 @@
+{"id":"0b2db54ac109bec0dcad85b75bd8d39d.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.testplanit.services.TestPlanItServiceTest.roundsSubSecondElapsedUp","name":"A sub-second test is reported as 1 second, a zero duration as 0","status":"passed","testResultsByEnv":{"ubuntu-26-04":"d6919b16e6755a099289d55e0aff5f80"}}

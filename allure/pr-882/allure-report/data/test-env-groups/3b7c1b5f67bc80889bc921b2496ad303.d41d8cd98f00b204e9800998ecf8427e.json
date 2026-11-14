@@ -1,0 +1,1 @@
+{"id":"3b7c1b5f67bc80889bc921b2496ad303.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.testplanit.services.TestPlanItServiceTest.mapsResultFields","name":"Statuses map to the project status ids; notes, elapsed seconds and case version are sent","status":"passed","testResultsByEnv":{"ubuntu-26-04":"4725ded4283417d4d1b8da6b4da1860a"}}

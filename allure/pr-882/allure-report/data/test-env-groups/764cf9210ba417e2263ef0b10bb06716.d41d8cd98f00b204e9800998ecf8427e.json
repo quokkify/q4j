@@ -1,0 +1,1 @@
+{"id":"764cf9210ba417e2263ef0b10bb06716.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.testplanit.services.TestPlanItFeignClientTest.readsWithBearerTokenAndJsonQuery","name":"Requests carry the Bearer token; reads send the query as JSON in q","status":"passed","testResultsByEnv":{"ubuntu-26-04":"55a8619f2fe3f8fbfbe4a40bf1e11439"}}

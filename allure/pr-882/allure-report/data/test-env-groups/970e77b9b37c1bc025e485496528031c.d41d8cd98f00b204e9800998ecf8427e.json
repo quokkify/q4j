@@ -1,0 +1,1 @@
+{"id":"970e77b9b37c1bc025e485496528031c.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.testrail.tms.TestRailManagementSystemTest.configuredLikeTestRailListeners","name":"TestRail is configured with the same rule as its listeners: not disabled and TESTRAIL_ID set","status":"passed","testResultsByEnv":{"ubuntu-26-04":"541dfda469b573aab48c2e372205b867"}}

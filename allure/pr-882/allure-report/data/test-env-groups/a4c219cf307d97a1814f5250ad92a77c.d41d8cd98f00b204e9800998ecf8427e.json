@@ -1,0 +1,1 @@
+{"id":"a4c219cf307d97a1814f5250ad92a77c.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.testplanit.services.TestPlanItServiceTest.skipsUnknownCase","name":"A case id that does not exist in the project is skipped and looked up once","status":"passed","testResultsByEnv":{"ubuntu-26-04":"d0545ccd9d10e65ba25760cc3f97961b"}}

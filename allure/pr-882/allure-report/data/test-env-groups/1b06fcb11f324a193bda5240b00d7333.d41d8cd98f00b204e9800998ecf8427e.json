@@ -1,0 +1,1 @@
+{"id":"1b06fcb11f324a193bda5240b00d7333.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.testplanit.services.TestPlanItFeignClientTest.readsCaseVersionsAndStatuses","name":"Case versions and automation statuses are read from the project","status":"passed","testResultsByEnv":{"ubuntu-26-04":"97f561a4af65faed900b34c9997fe8da"}}

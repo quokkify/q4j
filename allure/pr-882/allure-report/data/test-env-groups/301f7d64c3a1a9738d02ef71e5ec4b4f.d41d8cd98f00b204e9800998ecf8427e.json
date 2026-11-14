@@ -1,0 +1,1 @@
+{"id":"301f7d64c3a1a9738d02ef71e5ec4b4f.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.testplanit.services.TestPlanItServiceTest.createsRunOnce","name":"One run is created with the configured name, configuration and milestone","status":"passed","testResultsByEnv":{"ubuntu-26-04":"b10602c0741c70882ebcedf86361ef43"}}
