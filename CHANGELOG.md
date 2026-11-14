@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.16.0](https://github.com/quokkify/q4j/compare/v0.15.0...v0.16.0) (2026-11-14)
+
+
+### ⚠ BREAKING CHANGES
+
+* **tms:** single TMS entry point with TestPlanIt provider ([#881](https://github.com/quokkify/q4j/issues/881))
+
+### ✨ Features
+
+* **tms:** single TMS entry point with TestPlanIt provider ([#881](https://github.com/quokkify/q4j/issues/881)) ([6b9511b](https://github.com/quokkify/q4j/commit/6b9511b4dabd2870509bb4cc1313d1fc58207bd6))
+
+
+### 📦 Dependencies
+
+* **docker-compose:** update reportportal/service-auto-analyzer docker tag to v6 ([#879](https://github.com/quokkify/q4j/issues/879)) ([8c3d66b](https://github.com/quokkify/q4j/commit/8c3d66be03b3446ee4cd028dcd79556d8c74012d))
+* **docker-compose:** update reportportal/service-jobs docker tag to v6 ([#880](https://github.com/quokkify/q4j/issues/880)) ([8c09945](https://github.com/quokkify/q4j/commit/8c099454abdf51767599377745186c100604ebb4))
+* **gradle-wrapper:** update gradle to v9.9.1 ([#866](https://github.com/quokkify/q4j/issues/866)) ([5454f6a](https://github.com/quokkify/q4j/commit/5454f6a37d59e651caec71735de039d057552e7a))
+* **gradle:** update feign monorepo to v13.18 ([#876](https://github.com/quokkify/q4j/issues/876)) ([658e8b0](https://github.com/quokkify/q4j/commit/658e8b083a67ab928b776e4007d57add9ff773b5))
+* **gradle:** update org.apache.commons:commons-lang3 to v3.22.0 ([#873](https://github.com/quokkify/q4j/issues/873)) ([5c96d0f](https://github.com/quokkify/q4j/commit/5c96d0f04316eb1079fd345ea181d5c5e9d32cd1))
+* **gradle:** update org.bouncycastle:bcprov-jdk18on to v1.87 ([#874](https://github.com/quokkify/q4j/issues/874)) ([a6a5d27](https://github.com/quokkify/q4j/commit/a6a5d27e0a90b27b0e6862a4dca324e2ac03f679))
+
+
+### 📚 Documentation
+
+* **modules:** update q4j module documentation to v0.15.0 ([#872](https://github.com/quokkify/q4j/issues/872)) ([8717b83](https://github.com/quokkify/q4j/commit/8717b83579fa4aaca408b5265f44fd4f369177e6))
+
 ## [0.15.0](https://github.com/quokkify/q4j/compare/v0.14.1...v0.15.0) (2026-11-11)
 
 <!-- project-toolkit:release-notes v2 -->
