@@ -1,0 +1,13 @@
+description = "Jira TMS TicketSource integration"
+
+dependencies {
+    implementation project(":integrations:jira:jira-core")
+    api project(":integrations:tms:tms-core")
+    implementation project(":common-utils:core")
+    implementation project(":common-utils:config")
+
+    api "org.apache.commons:commons-lang3"
+
+    testImplementation project(":testng-extensions")
+    testImplementation libs.assertj.core
+}

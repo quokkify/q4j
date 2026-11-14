@@ -5,7 +5,7 @@
 # former inline workflow step (bash -eo pipefail) allowed.
 set -eo pipefail
 
-for env_file in selenium-grid mock-server mongo postgres redis nginx reportportal kafka rabbitmq; do
+for env_file in selenium-grid mock-server mongo postgres redis nginx reportportal testplanit kafka rabbitmq; do
   if [[ -f "tools/environment/.${env_file}.env" ]]; then
     set -a
     # shellcheck source=/dev/null

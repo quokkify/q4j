@@ -36,3 +36,6 @@ services:
     ports:
       - "${REPORTPORTAL_PUBLISHED_PORT:-0}:8080"
       - "${REPORTPORTAL_DASHBOARD_PORT:-0}:8081"
+  testplanit:
+    ports:
+      - "${TESTPLANIT_PUBLISHED_PORT:-0}:3000"

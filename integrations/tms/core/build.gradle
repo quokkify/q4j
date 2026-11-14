@@ -1,0 +1,7 @@
+dependencies {
+    implementation project(":common-utils:core")
+    implementation project(":common-utils:config")
+
+    testImplementation project(":testng-extensions")
+    testImplementation libs.assertj.core
+}

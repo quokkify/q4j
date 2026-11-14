@@ -1,0 +1,9 @@
+dependencies {
+    api project(":integrations:tms:tms-core")
+    api project(":testng-extensions")
+    implementation project(":common-utils:core")
+    implementation project(":common-utils:config")
+
+    testImplementation libs.assertj.core
+    testImplementation libs.mockito.core
+}

@@ -5,6 +5,8 @@ dependencies {
     implementation project(":common-utils:signature")
     implementation project(":common-utils:config")
     testImplementation project(":testng-extensions")
+    testImplementation project(":integrations:testplanit")
+    testImplementation project(":integrations:tms:tms-testng")
     implementation libs.jjwt.api
     runtimeOnly libs.jjwt.impl
     runtimeOnly libs.jjwt.jackson

@@ -2,12 +2,11 @@ package dev.quokkify.listener.extension;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Objects;
 import java.util.stream.Collectors;
 
 import dev.quokkify.util.SplitUtils;
+import dev.quokkify.util.TestUtils;
 
-import io.qameta.allure.TmsLink;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.testng.IMethodInstance;
@@ -29,11 +28,10 @@ public class CustomCasesInterceptor implements IMethodInterceptor {
     List<String> filteredTestCases = new ArrayList<>();
     List<IMethodInstance> filteredMethods = methods.stream()
         .filter(methodInstance -> {
-          TmsLink testCaseIdAnnotation = methodInstance.getMethod().getConstructorOrMethod().getMethod()
-              .getAnnotation(TmsLink.class);
-          boolean isTestRequired = isTestRequired(testCaseIdAnnotation);
+          List<String> caseIds = TestUtils.getTmsLinks(methodInstance.getMethod());
+          boolean isTestRequired = isTestRequired(caseIds, TEST_CASE_IDS);
           if (isTestRequired) {
-            filteredTestCases.add(testCaseIdAnnotation.value());
+            filteredTestCases.addAll(caseIds);
           }
           return isTestRequired;
         })
@@ -43,10 +41,7 @@ public class CustomCasesInterceptor implements IMethodInterceptor {
     return filteredMethods;
   }
 
-  private boolean isTestRequired(TmsLink testCaseIdAnnotation) {
-    if (Objects.isNull(testCaseIdAnnotation) || Objects.isNull(testCaseIdAnnotation.value())) {
-      return false;
-    }
-    return TEST_CASE_IDS.contains(testCaseIdAnnotation.value());
+  static boolean isTestRequired(List<String> caseIds, List<String> requiredIds) {
+    return caseIds.stream().anyMatch(requiredIds::contains);
   }
 }

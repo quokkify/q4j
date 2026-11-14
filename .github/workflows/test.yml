@@ -367,8 +367,8 @@ jobs:
       module: ":integrations:jira:testng"
       slug: integrations-jira-testng
 
-  integrations-jira-testrail:
-    name: jira-testrail
+  integrations-jira-tms:
+    name: jira-tms
     needs: [detect-runner, build-common]
     if: ${{ github.event_name != 'pull_request_target' }}
     uses: ./.github/workflows/reusable-module-pipeline.yml
@@ -376,9 +376,53 @@ jobs:
       runs-on: ${{ needs.detect-runner.outputs.runs_on }}
       self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
       group: integrations
-      name: jira-testrail
-      module: ":integrations:jira:testrail"
-      slug: integrations-jira-testrail
+      name: jira-tms
+      module: ":integrations:jira:jira-tms"
+      slug: integrations-jira-tms
+      run-tests: true
+
+  integrations-tms-core:
+    name: tms-core
+    needs: [detect-runner, build-common]
+    if: ${{ github.event_name != 'pull_request_target' }}
+    uses: ./.github/workflows/reusable-module-pipeline.yml
+    with:
+      runs-on: ${{ needs.detect-runner.outputs.runs_on }}
+      self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
+      group: integrations
+      name: tms-core
+      module: ":integrations:tms:tms-core"
+      slug: integrations-tms-core
+      run-tests: true
+
+  integrations-tms-testng:
+    name: tms-testng
+    needs: [detect-runner, build-common]
+    if: ${{ github.event_name != 'pull_request_target' }}
+    uses: ./.github/workflows/reusable-module-pipeline.yml
+    with:
+      runs-on: ${{ needs.detect-runner.outputs.runs_on }}
+      self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
+      group: integrations
+      name: tms-testng
+      module: ":integrations:tms:tms-testng"
+      slug: integrations-tms-testng
+      run-tests: true
+
+  integrations-testplanit:
+    name: testplanit
+    needs: [detect-runner, build-common]
+    if: ${{ github.event_name != 'pull_request_target' }}
+    uses: ./.github/workflows/reusable-module-pipeline.yml
+    with:
+      runs-on: ${{ needs.detect-runner.outputs.runs_on }}
+      self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
+      group: integrations
+      name: testplanit
+      module: ":integrations:testplanit"
+      slug: integrations-testplanit
+      run-tests: true
+      profile: testplanit
 
   integrations-testrail-core:
     name: testrail-core
@@ -405,6 +449,7 @@ jobs:
       name: testrail-testng
       module: ":integrations:testrail:testng"
       slug: integrations-testrail-testng
+      run-tests: true
 
   integrations-reportportal-core:
     name: reportportal-core
@@ -571,7 +616,10 @@ jobs:
         integrations-rabbitmq,
         integrations-jira-core,
         integrations-jira-testng,
-        integrations-jira-testrail,
+        integrations-jira-tms,
+        integrations-tms-core,
+        integrations-tms-testng,
+        integrations-testplanit,
         integrations-testrail-core,
         integrations-testrail-testng,
         integrations-reportportal-core,
