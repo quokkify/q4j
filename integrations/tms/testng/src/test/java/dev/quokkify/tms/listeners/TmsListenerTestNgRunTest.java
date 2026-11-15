@@ -81,7 +81,7 @@ public class TmsListenerTestNgRunTest {
   }
 
   @TmsLink("TMS_LISTENER_RUN_3")
-  @SingleThread
+  @Sequential
   @Test(description = "Regression guard: a passing last data provider row does not hide earlier failures")
   public void dataProviderRowsBecomeOneWorstStatusResult() {
     RecordingSystem system = new RecordingSystem();
@@ -100,7 +100,7 @@ public class TmsListenerTestNgRunTest {
   }
 
   @TmsLink("TMS_LISTENER_RUN_4")
-  @SingleThread
+  @Sequential
   @Test(description = "A data provider with all rows passing is reported as one PASSED result")
   public void passingDataProviderRowsBecomeOnePassedResult() {
     RecordingSystem system = new RecordingSystem();
@@ -117,7 +117,7 @@ public class TmsListenerTestNgRunTest {
   }
 
   @TmsLink("TMS_LISTENER_RUN_5")
-  @SingleThread
+  @Sequential
   @Test(description = "Invocations of a method with invocationCount are reported as one FAILED result")
   public void invocationCountBecomesOneWorstStatusResult() {
     RecordingSystem system = new RecordingSystem();
@@ -134,7 +134,7 @@ public class TmsListenerTestNgRunTest {
   }
 
   @TmsLink("TMS_LISTENER_RUN_6")
-  @SingleThread
+  @Sequential
   @Test(description = "Rows of a parallel data provider are reported as one result")
   public void parallelDataProviderRowsBecomeOneResult() {
     RecordingSystem system = new RecordingSystem();
@@ -150,7 +150,7 @@ public class TmsListenerTestNgRunTest {
   }
 
   @TmsLink("TMS_LISTENER_RUN_7")
-  @SingleThread
+  @Sequential
   @Test(description = "A data-driven method linked to two cases yields one result per case")
   public void dataDrivenMethodYieldsOneResultPerCase() {
     RecordingSystem system = new RecordingSystem();
@@ -163,7 +163,7 @@ public class TmsListenerTestNgRunTest {
   }
 
   @TmsLink("TMS_LISTENER_RUN_8")
-  @SingleThread
+  @Sequential
   @Test(description = "A plain method is still reported once as PASSED without a comment")
   public void plainMethodIsReportedOnce() {
     RecordingSystem system = new RecordingSystem();
@@ -180,7 +180,7 @@ public class TmsListenerTestNgRunTest {
   }
 
   @TmsLink("TMS_LISTENER_RUN_9")
-  @SingleThread
+  @Sequential
   @Test(description = "Results of a data-driven method are reported when the suite finishes, before execution finish")
   public void dataDrivenResultsAreReportedBeforeExecutionFinish() {
     RecordingSystem system = new RecordingSystem();
@@ -200,7 +200,7 @@ public class TmsListenerTestNgRunTest {
   }
 
   @TmsLink("TMS_LISTENER_RUN_10")
-  @SingleThread
+  @Sequential
   @Test(description = "Regression guard: pooled invocationCount invocations are reported as one result")
   public void pooledInvocationCountBecomesOneResult() {
     RecordingSystem system = new RecordingSystem();
@@ -216,7 +216,7 @@ public class TmsListenerTestNgRunTest {
   }
 
   @TmsLink("TMS_LISTENER_RUN_11")
-  @SingleThread
+  @Sequential
   @Test(description = "Regression guard: a parameter with a throwing toString does not break reporting")
   public void throwingParameterDoesNotBreakReporting() {
     RecordingSystem system = new RecordingSystem();
@@ -234,7 +234,7 @@ public class TmsListenerTestNgRunTest {
   }
 
   @TmsLink("TMS_LISTENER_RUN_12")
-  @SingleThread
+  @Sequential
   @Test(description = "Regression guard: results of a repeated method are reported when its class finishes")
   public void repeatedResultsAreReportedWhenClassFinishes() {
     RecordingSystem system = new RecordingSystem();

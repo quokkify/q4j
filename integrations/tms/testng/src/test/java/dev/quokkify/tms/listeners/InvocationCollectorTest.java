@@ -7,7 +7,7 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import dev.quokkify.annotation.SingleThread;
+import dev.quokkify.annotation.Sequential;
 import dev.quokkify.tms.TmsResult;
 import dev.quokkify.tms.TmsStatus;
 import dev.quokkify.tms.listeners.InvocationCollector.Invocation;
@@ -35,7 +35,7 @@ public class InvocationCollectorTest {
   }
 
   @TmsLink("TMS_COLLECTOR_1")
-  @SingleThread
+  @Sequential
   @Test(description = "A failure wins over a skip and a pass, and non-passed invocations are listed")
   public void failedWinsOverSkippedAndPassed() {
     collector.add(method, CASE_ID, invocation(TmsStatus.FAILED, "boom"));
@@ -50,7 +50,7 @@ public class InvocationCollectorTest {
   }
 
   @TmsLink("TMS_COLLECTOR_2")
-  @SingleThread
+  @Sequential
   @Test(description = "A skip wins over a pass")
   public void skippedWinsOverPassed() {
     collector.add(method, CASE_ID, invocation(TmsStatus.SKIPPED, "skip"));
@@ -60,7 +60,7 @@ public class InvocationCollectorTest {
   }
 
   @TmsLink("TMS_COLLECTOR_3")
-  @SingleThread
+  @Sequential
   @Test(description = "All passed invocations give a PASSED result with the summary line only")
   public void allPassedGivesSummaryOnly() {
     for (int i = 0; i < 3; i++) {
@@ -74,7 +74,7 @@ public class InvocationCollectorTest {
   }
 
   @TmsLink("TMS_COLLECTOR_4")
-  @SingleThread
+  @Sequential
   @Test(description = "Elapsed time is the sum of the known durations, null when none is known")
   public void sumsElapsed() {
     collector.add(method, CASE_ID, new Invocation(TmsStatus.PASSED, null, Duration.ofSeconds(1), null));
@@ -87,7 +87,7 @@ public class InvocationCollectorTest {
   }
 
   @TmsLink("TMS_COLLECTOR_5")
-  @SingleThread
+  @Sequential
   @Test(description = "An invocation without parameters is rendered without parentheses")
   public void rendersNoParametersWithoutParentheses() {
     collector.add(method, CASE_ID, new Invocation(TmsStatus.PASSED, null, null, InvocationCollector.render(new Object[0])));
@@ -98,7 +98,7 @@ public class InvocationCollectorTest {
   }
 
   @TmsLink("TMS_COLLECTOR_6")
-  @SingleThread
+  @Sequential
   @Test(description = "A long parameter list is truncated to the maximum length with an ellipsis")
   public void truncatesLongParameters() {
     collector.add(method, CASE_ID, new Invocation(TmsStatus.FAILED, "boom", null,
@@ -112,7 +112,7 @@ public class InvocationCollectorTest {
   }
 
   @TmsLink("TMS_COLLECTOR_7")
-  @SingleThread
+  @Sequential
   @Test(description = "A multi-line message is collapsed into a single detail line")
   public void collapsesMultiLineMessage() {
     collector.add(method, CASE_ID, invocation(TmsStatus.FAILED, "Expecting:\n  <1>\r\nto be equal to:\n  <2>\n"));
@@ -124,7 +124,7 @@ public class InvocationCollectorTest {
   }
 
   @TmsLink("TMS_COLLECTOR_8")
-  @SingleThread
+  @Sequential
   @Test(description = "One method linked to two cases yields one result per case id")
   public void yieldsOneResultPerCaseId() {
     collector.add(method, "1", invocation(TmsStatus.PASSED, null));
@@ -137,7 +137,7 @@ public class InvocationCollectorTest {
   }
 
   @TmsLink("TMS_COLLECTOR_9")
-  @SingleThread
+  @Sequential
   @Test(description = "Draining some methods leaves the entries of the others, and draining twice returns nothing")
   public void drainsOnlyRequestedMethods() {
     ITestNGMethod other = mock(ITestNGMethod.class);
@@ -150,7 +150,7 @@ public class InvocationCollectorTest {
   }
 
   @TmsLink("TMS_COLLECTOR_10")
-  @SingleThread
+  @Sequential
   @Test(description = "Invocations added from several threads are all counted")
   public void countsConcurrentInvocations() throws Exception {
     ExecutorService pool = Executors.newFixedThreadPool(8);
@@ -171,7 +171,7 @@ public class InvocationCollectorTest {
   }
 
   @TmsLink("TMS_COLLECTOR_11")
-  @SingleThread
+  @Sequential
   @Test(description = "Truncation does not cut a surrogate pair in half")
   public void truncationKeepsSurrogatePairs() {
     String emoji = "\uD83D\uDE00";
@@ -182,14 +182,14 @@ public class InvocationCollectorTest {
   }
 
   @TmsLink("TMS_COLLECTOR_12")
-  @SingleThread
+  @Sequential
   @Test(description = "Line breaks in parameter values are collapsed")
   public void collapsesLineBreaksInParameters() {
     assertThat(InvocationCollector.render(new Object[] {"a\n b", "c\r\nd"})).isEqualTo("a b, c d");
   }
 
   @TmsLink("TMS_COLLECTOR_13")
-  @SingleThread
+  @Sequential
   @Test(description = "A parameter whose toString throws is rendered as a placeholder")
   public void rendersThrowingParameter() {
     Object throwing = new Object() {
@@ -204,7 +204,7 @@ public class InvocationCollectorTest {
   }
 
   @TmsLink("TMS_COLLECTOR_14")
-  @SingleThread
+  @Sequential
   @Test(description = "A single invocation uses the singular form")
   public void usesSingularForSingleInvocation() {
     collector.add(method, CASE_ID, invocation(TmsStatus.PASSED, null));
@@ -214,7 +214,7 @@ public class InvocationCollectorTest {
   }
 
   @TmsLink("TMS_COLLECTOR_15")
-  @SingleThread
+  @Sequential
   @Test(description = "A passed invocation with a comment, tolerated by successPercentage, keeps its detail line")
   public void keepsCommentOfPassedInvocation() {
     collector.add(method, CASE_ID, invocation(TmsStatus.PASSED, null));

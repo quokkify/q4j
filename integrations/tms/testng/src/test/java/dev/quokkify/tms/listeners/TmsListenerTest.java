@@ -240,7 +240,7 @@ public class TmsListenerTest {
   }
 
   @TmsLink("TMS_LISTENER_17")
-  @SingleThread
+  @Sequential
   @Test(description = "Repeated invocations are not collected while the run is unavailable")
   public void doesNotCollectRepeatedInvocationsWhenRunStartFails() throws NoSuchMethodException {
     system.failOnStart = true;
