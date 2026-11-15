@@ -16,6 +16,7 @@ import dev.quokkify.tms.tickets.TicketSource;
 
 import io.qameta.allure.TmsLink;
 import org.testng.IMethodInstance;
+import org.testng.ITestContext;
 import org.testng.ITestNGMethod;
 import org.testng.ITestResult;
 import org.testng.annotations.AfterMethod;
@@ -236,6 +237,25 @@ public class TmsListenerTest {
 
     another.onExecutionFinish();
     assertThat(TmsListener.isActive()).as("Active after execution finish").isFalse();
+  }
+
+  @TmsLink("TMS_LISTENER_17")
+  @SingleThread
+  @Test(description = "Repeated invocations are not reported and do not throw after a failed run start")
+  public void skipsRepeatedInvocationsWhenRunStartFails() throws NoSuchMethodException {
+    system.failOnStart = true;
+    listener.startRun(List.of(testMethod("linkedToOneCase")));
+    ITestResult failed = result("linkedToOneCase", 0, 10, new AssertionError("boom"));
+    ITestNGMethod repeated = failed.getMethod();
+    when(repeated.isDataDriven()).thenReturn(true);
+    ITestContext context = mock(ITestContext.class);
+    when(context.getAllTestMethods()).thenReturn(new ITestNGMethod[] {repeated});
+
+    listener.onTestFailure(failed);
+    listener.onFinish(context);
+    listener.onExecutionFinish();
+
+    assertThat(system.reported).isEmpty();
   }
 
   private static ITestResult result(String methodName, long start, long end, Throwable throwable)

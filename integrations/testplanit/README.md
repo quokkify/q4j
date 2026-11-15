@@ -52,7 +52,7 @@ Values are read from system properties, environment variables or `testplanit-con
 - Every result is submitted through `POST /api/test-runs/submit-result`, so the run case status follows the latest result. A repeated execution of the same case adds a new attempt instead of a new case.
 - Status mapping: passed → `passed`, failed → `failed`, skipped → `skipped`, disabled (`@Test(enabled = false)`) → `blocked`. Retried attempts are not reported, only the final one.
 - The failure message is stored in the result notes; the execution time goes to the result `elapsed` field in whole seconds (a sub-second test counts as 1 second).
-- Results within `successPercentage` are reported as passed. Several results of one case in one execution (data providers, `invocationCount`, shards sharing `TESTPLANIT_RUN_ID`) become separate attempts; the run case shows the status of the last one received.
+- Results within `successPercentage` are reported as passed. Data provider rows and `invocationCount` invocations of one method are reported as a single attempt per case with the worst status (failed, then skipped, then passed); the comment lists the non-passed invocations with their parameters. Shards sharing `TESTPLANIT_RUN_ID` add one attempt each; the run case shows the status of the last one received.
 
 ## Local and CI environment
 

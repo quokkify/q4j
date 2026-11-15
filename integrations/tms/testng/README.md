@@ -44,6 +44,18 @@ public void userCanLogIn() { }
 
 Tests without `@TmsLink` run but are not reported. Link values are plain case ids of the connected system. To render them as URLs in Allure, set `allure.link.tms.pattern` in `allure.properties`, for example `allure.link.tms.pattern=https://tms.example.com/cases/{}`.
 
+## Repeated tests
+
+A method that runs several times in one execution (data provider rows, `invocationCount`) produces one result per linked case, not one per invocation. The worst status wins (`FAILED` > `SKIPPED` > `PASSED`), `elapsed` is the sum of the invocations, and the result is reported when the enclosing `<test>` finishes. Results still collected when the execution finishes are reported before the run is finished.
+
+The comment is a summary line followed by one line per non-passed invocation, with its parameters:
+
+```text
+3 invocations: 2 failed, 1 passed
+[1] FAILED (row-1, false): row-1 failed
+[2] FAILED (row-2, false): row-2 failed
+```
+
 ## Configuration
 
 | Key            | Default | Description                                                          |

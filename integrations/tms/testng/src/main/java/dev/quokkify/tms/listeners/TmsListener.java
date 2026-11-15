@@ -35,6 +35,8 @@ import org.testng.ITestResult;
 /**
  * Single entry point of the test management system (TMS) integration.
  * Reports TestNG results to the only TMS provider on the classpath; case ids come from {@code @TmsLink}.
+ * Methods that run repeatedly (data provider rows, {@code invocationCount}) produce one result per case, with the
+ * worst status of their invocations, when their {@code <test>} finishes.
  * Tests without {@code @TmsLink} are executed but not reported. Reporting errors are logged and never fail the tests.
  * The provider is resolved once in {@link #onExecutionStart()}; a {@code TmsConfigurationException} aborts the run.
  *
@@ -55,6 +57,7 @@ public class TmsListener implements IExecutionListener, ISuiteListener, ITestLis
 
   private final Supplier<Optional<TestManagementSystem>> resolver;
   private final Supplier<List<TicketSource>> tickets;
+  private final InvocationCollector collector = new InvocationCollector();
   private volatile Optional<TestManagementSystem> system = Optional.empty();
   private volatile boolean started;
   private volatile boolean runAvailable = true;
@@ -94,6 +97,7 @@ public class TmsListener implements IExecutionListener, ISuiteListener, ITestLis
     }
     try {
       system.ifPresent(tms -> {
+        collector.drainAll().forEach(result -> report(tms, result));
         try {
           tms.finishRun();
         } catch (RuntimeException e) {
@@ -118,6 +122,12 @@ public class TmsListener implements IExecutionListener, ISuiteListener, ITestLis
   @Override
   public void onStart(ISuite suite) {
     startRun(suite.getAllMethods());
+  }
+
+  @Override
+  public void onFinish(ITestContext context) {
+    system.ifPresent(tms -> collector.drain(List.of(context.getAllTestMethods()))
+        .forEach(result -> report(tms, result)));
   }
 
   @Override
@@ -179,7 +189,14 @@ public class TmsListener implements IExecutionListener, ISuiteListener, ITestLis
   private void reportResult(ITestResult result, TmsStatus status, String comment) {
     system.ifPresent(tms -> {
       Duration elapsed = Duration.ofMillis(Math.max(0, result.getEndMillis() - result.getStartMillis()));
-      TestUtils.getTmsLinks(result.getMethod())
+      ITestNGMethod method = result.getMethod();
+      if (isRepeated(method)) {
+        InvocationCollector.Invocation invocation =
+            new InvocationCollector.Invocation(status, comment, elapsed, result.getParameters());
+        TestUtils.getTmsLinks(method).forEach(caseId -> collector.add(method, caseId, invocation));
+        return;
+      }
+      TestUtils.getTmsLinks(method)
           .forEach(caseId -> report(tms, new TmsResult(caseId, status, comment, elapsed)));
     });
   }
@@ -205,6 +222,10 @@ public class TmsListener implements IExecutionListener, ISuiteListener, ITestLis
       }
     }
     return ticketComments;
+  }
+
+  private static boolean isRepeated(ITestNGMethod method) {
+    return method.isDataDriven() || method.getInvocationCount() > 1;
   }
 
   private static boolean shouldRun(TestManagementSystem tms, List<String> caseIds) {
