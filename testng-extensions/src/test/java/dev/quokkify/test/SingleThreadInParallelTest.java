@@ -16,7 +16,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
-import dev.quokkify.annotation.SingleThread;
+import dev.quokkify.annotation.Sequential;
 import dev.quokkify.config.ConfigRegistry;
 import dev.quokkify.config.TestNGExtension;
 import dev.quokkify.listener.lifecycle.SuiteListener;
@@ -40,7 +40,7 @@ public class SingleThreadInParallelTest {
   private static final String PROBE = "single-thread-probe";
   private static final long OVERLAP_TIMEOUT_SECONDS = 30;
 
-  @SingleThread
+  @Sequential
   @Test(description = "Single thread tests start after the concurrent tests by default")
   public void testSingleThreadTestsRunAfterConcurrentTestsByDefault() {
     Probe probe = new Probe(false);
@@ -54,7 +54,7 @@ public class SingleThreadInParallelTest {
     assertSingleThreadTestsRanOneByOne(probe);
   }
 
-  @SingleThread
+  @Sequential
   @Test(description = "Single thread tests run alongside the concurrent tests when the option is enabled")
   public void testSingleThreadTestsRunAlongsideConcurrentTestsWhenEnabled() {
     Probe probe = new Probe(true);
@@ -141,13 +141,13 @@ public class SingleThreadInParallelTest {
       probe.events.add("concurrent:end");
     }
 
-    @SingleThread
+    @Sequential
     @Test(enabled = false)
     public void firstSingleThread(ITestContext context) {
       runSingleThread(context);
     }
 
-    @SingleThread
+    @Sequential
     @Test(enabled = false)
     public void secondSingleThread(ITestContext context) {
       runSingleThread(context);

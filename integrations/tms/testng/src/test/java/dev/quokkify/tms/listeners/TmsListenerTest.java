@@ -7,7 +7,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.Set;
 
-import dev.quokkify.annotation.SingleThread;
+import dev.quokkify.annotation.Sequential;
 import dev.quokkify.tms.TestManagementSystem;
 import dev.quokkify.tms.TmsResult;
 import dev.quokkify.tms.TmsStatus;
@@ -47,7 +47,7 @@ public class TmsListenerTest {
   }
 
   @TmsLink("TMS_LISTENER_1")
-  @SingleThread
+  @Sequential
   @Test(description = "A passed test is reported as PASSED with its execution time")
   public void reportsPassedTest() throws NoSuchMethodException {
     listener.onTestSuccess(result("linkedToTwoCases", 1_000, 3_500, null));
@@ -61,7 +61,7 @@ public class TmsListenerTest {
   }
 
   @TmsLink("TMS_LISTENER_2")
-  @SingleThread
+  @Sequential
   @Test(description = "A failed test is reported as FAILED with the error message")
   public void reportsFailedTestWithMessage() throws NoSuchMethodException {
     listener.onTestFailure(result("linkedToOneCase", 0, 10, new AssertionError("expected 1 but was 2")));
@@ -73,7 +73,7 @@ public class TmsListenerTest {
   }
 
   @TmsLink("TMS_LISTENER_3")
-  @SingleThread
+  @Sequential
   @Test(description = "A skipped test is reported as SKIPPED, a retried attempt is not reported")
   public void reportsSkippedButNotRetriedTest() throws NoSuchMethodException {
     ITestResult retried = result("linkedToOneCase", 0, 10, new IllegalStateException("flaky"));
@@ -88,7 +88,7 @@ public class TmsListenerTest {
   }
 
   @TmsLink("TMS_LISTENER_4")
-  @SingleThread
+  @Sequential
   @Test(description = "A test without case ids is not reported")
   public void ignoresTestWithoutCaseIds() throws NoSuchMethodException {
     listener.onTestSuccess(result("notLinked", 0, 10, null));
@@ -97,7 +97,7 @@ public class TmsListenerTest {
   }
 
   @TmsLink("TMS_LISTENER_5")
-  @SingleThread
+  @Sequential
   @Test(description = "Suite start passes case ids of all suite methods to the system once each")
   public void startsRunWithSuiteCaseIds() throws NoSuchMethodException {
     listener.startRun(List.of(
@@ -107,7 +107,7 @@ public class TmsListenerTest {
   }
 
   @TmsLink("TMS_LISTENER_6")
-  @SingleThread
+  @Sequential
   @Test(description = "When the run can not be started, results are not reported and tests are not failed")
   public void skipsReportingWhenRunStartFails() throws NoSuchMethodException {
     system.failOnStart = true;
@@ -118,7 +118,7 @@ public class TmsListenerTest {
   }
 
   @TmsLink("TMS_LISTENER_7")
-  @SingleThread
+  @Sequential
   @Test(description = "A reporting error does not propagate to the test")
   public void swallowsReportingErrors() throws NoSuchMethodException {
     system.failOnReport = true;
@@ -129,7 +129,7 @@ public class TmsListenerTest {
   }
 
   @TmsLink("TMS_LISTENER_8")
-  @SingleThread
+  @Sequential
   @Test(description = "Tests disabled via 'enabled' are reported as BLOCKED when the suite finishes")
   public void reportsDisabledTestsAsBlocked() throws NoSuchMethodException {
     ITestNGMethod disabled = testMethod("linkedToOneCase");
@@ -146,7 +146,7 @@ public class TmsListenerTest {
   }
 
   @TmsLink("TMS_LISTENER_9")
-  @SingleThread
+  @Sequential
   @Test(description = "The run is finished once after all suites")
   public void finishesRunAfterExecution() {
     listener.onExecutionFinish();
@@ -155,7 +155,7 @@ public class TmsListenerTest {
   }
 
   @TmsLink("TMS_LISTENER_10")
-  @SingleThread
+  @Sequential
   @Test(description = "Nothing is reported when no system is selected")
   public void doesNothingWithoutSelectedSystem() throws NoSuchMethodException {
     TmsListener disabledListener = new TmsListener(Optional::empty, List::of);
@@ -169,7 +169,7 @@ public class TmsListenerTest {
   }
 
   @TmsLink("TMS_LISTENER_12")
-  @SingleThread
+  @Sequential
   @Test(description = "Reporting resumes when a later suite starts the run successfully")
   public void resumesAfterSuccessfulStart() throws NoSuchMethodException {
     system.failOnStart = true;
@@ -183,7 +183,7 @@ public class TmsListenerTest {
   }
 
   @TmsLink("TMS_LISTENER_13")
-  @SingleThread
+  @Sequential
   @Test(description = "A failure within successPercentage is reported as PASSED")
   public void reportsFailureWithinSuccessPercentageAsPassed() throws NoSuchMethodException {
     listener.onTestFailedButWithinSuccessPercentage(result("linkedToOneCase", 0, 10, new AssertionError("1 of 10")));
@@ -192,7 +192,7 @@ public class TmsListenerTest {
   }
 
   @TmsLink("TMS_LISTENER_14")
-  @SingleThread
+  @Sequential
   @Test(description = "An excluded enabled test with a ticket is reported as BLOCKED with the ticket comment")
   public void excludedEnabledTestWithTicketIsBlocked() throws NoSuchMethodException {
     TicketSource jira = new StubTicketSource(Map.of("6", List.of("J-1")));
@@ -210,7 +210,7 @@ public class TmsListenerTest {
   }
 
   @TmsLink("TMS_LISTENER_15")
-  @SingleThread
+  @Sequential
   @Test(description = "The interceptor drops tests whose case ids the system rejects and keeps unlinked tests")
   public void interceptorDropsTestsTheSystemRejects() throws NoSuchMethodException {
     system.rejected.add("3");
@@ -224,7 +224,7 @@ public class TmsListenerTest {
   }
 
   @TmsLink("TMS_LISTENER_16")
-  @SingleThread
+  @Sequential
   @Test(description = "The listener is active only between execution start and finish")
   public void activeOnlyDuringExecution() {
     listener.onExecutionFinish();

@@ -14,6 +14,7 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import dev.quokkify.annotation.Sequential;
 import dev.quokkify.annotation.SingleThread;
 import dev.quokkify.config.ConfigRegistry;
 import dev.quokkify.config.TestNGExtension;
@@ -243,7 +244,8 @@ public class SuiteListener implements IAlterSuiteListener, IInvokedMethodListene
 
   /**
    * Generate xml suite from provided classes with tests.
-   * Contains tests for multiply threads and single threads.
+   * Contains tests for multiply threads and single threads; methods annotated with {@link Sequential}
+   * go to the single thread test.
    * The single thread test starts after the multiply threads test has finished, unless
    * SINGLE_THREAD_TESTS_IN_PARALLEL is enabled: then both tests run at the same time,
    * while single thread tests are still executed one by one.
@@ -300,11 +302,24 @@ public class SuiteListener implements IAlterSuiteListener, IInvokedMethodListene
    */
   protected List<XmlInclude> getXmlIncludeTests(List<Method> methods, ThreadGroup threadGroup) {
     Predicate<Method> methodThreadsPredicate = threadGroup.equals(ThreadGroup.MULTIPLY_THREADS)
-        ? method -> !isMethodSingleThread(method)
-        : this::isMethodSingleThread;
+        ? method -> !isMethodSequential(method)
+        : this::isMethodSequential;
     return methods.stream().filter(methodThreadsPredicate)
         .map(method -> new XmlInclude(method.getName()))
         .collect(Collectors.toList());
+  }
+
+  /**
+   * Check is method should be executed in the sequential test.
+   * If method has {@link Sequential} annotation or the deprecated {@link SingleThread} annotation - return true.
+   * Else - return false.
+   *
+   * @param method provided test method
+   * @return method sequential status as {@link Boolean}
+   */
+  @SuppressWarnings("removal")
+  protected boolean isMethodSequential(Method method) {
+    return Objects.nonNull(method.getAnnotation(Sequential.class)) || isMethodSingleThread(method);
   }
 
   /**
@@ -314,7 +329,10 @@ public class SuiteListener implements IAlterSuiteListener, IInvokedMethodListene
    *
    * @param method provided test method
    * @return method single thread status as {@link Boolean}
+   * @deprecated override {@link #isMethodSequential(Method)} instead
    */
+  @Deprecated(since = "0.16.0", forRemoval = true)
+  @SuppressWarnings("removal")
   protected boolean isMethodSingleThread(Method method) {
     return Objects.nonNull(method.getAnnotation(SingleThread.class));
   }

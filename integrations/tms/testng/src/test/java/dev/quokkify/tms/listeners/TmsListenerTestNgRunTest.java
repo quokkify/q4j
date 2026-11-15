@@ -7,7 +7,7 @@ import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import dev.quokkify.annotation.SingleThread;
+import dev.quokkify.annotation.Sequential;
 import dev.quokkify.tms.TestManagementSystem;
 import dev.quokkify.tms.TmsConfigurationException;
 import dev.quokkify.tms.TmsResult;
@@ -34,7 +34,7 @@ public class TmsListenerTestNgRunTest {
   }
 
   @TmsLink("TMS_LISTENER_RUN_1")
-  @SingleThread
+  @Sequential
   @Test(description = "Ambiguous providers abort the TestNG run before any test body executes")
   public void ambiguousProvidersAbortRunBeforeTests() {
     TestNG testNg = testNg();
@@ -51,7 +51,7 @@ public class TmsListenerTestNgRunTest {
   }
 
   @TmsLink("TMS_LISTENER_RUN_2")
-  @SingleThread
+  @Sequential
   @Test(description = "Two registered listener instances report a result only once")
   public void listenerRegisteredTwiceReportsOnce() {
     RecordingSystem system = new RecordingSystem();

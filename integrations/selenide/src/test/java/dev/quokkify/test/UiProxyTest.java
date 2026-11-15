@@ -4,7 +4,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.NoSuchElementException;
 
-import dev.quokkify.annotation.SingleThread;
+import dev.quokkify.annotation.Sequential;
 import dev.quokkify.parser.HarParser;
 import dev.quokkify.service.ProxyBrowser;
 
@@ -32,7 +32,7 @@ public class UiProxyTest extends BaseTest {
   }
 
   @TmsLink("UI_PROXY_ID_1")
-  @SingleThread
+  @Sequential
   @Test(description = "Verify proxy 'Har' recording")
   public void testProxyHar() {
     String requestRelativePath = "/external/speedtest/assets/speedtestpl-logo.webp";

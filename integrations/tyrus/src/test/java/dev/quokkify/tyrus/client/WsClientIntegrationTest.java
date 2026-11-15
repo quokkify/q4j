@@ -2,7 +2,7 @@ package dev.quokkify.tyrus.client;
 
 import java.time.Duration;
 
-import dev.quokkify.annotation.SingleThread;
+import dev.quokkify.annotation.Sequential;
 import dev.quokkify.tyrus.server.EchoServerEndpoint;
 import dev.quokkify.tyrus.steps.WsSteps;
 
@@ -34,7 +34,7 @@ public class WsClientIntegrationTest {
     }
   }
 
-  @SingleThread
+  @Sequential
   @Test
   public void connect_receivesEchoedMessage() {
     wsSteps.clearMessages()
@@ -45,7 +45,7 @@ public class WsClientIntegrationTest {
         .containsMessage("hello");
   }
 
-  @SingleThread
+  @Sequential
   @Test
   public void sendJson_verifyJsonField() {
     wsSteps.clearMessages()
@@ -55,7 +55,7 @@ public class WsClientIntegrationTest {
         .hasJsonField("orderId", "42");
   }
 
-  @SingleThread
+  @Sequential
   @Test
   public void multipleMessages_verifiedInOrder() {
     wsSteps.clearMessages()
@@ -66,7 +66,7 @@ public class WsClientIntegrationTest {
         .messagesInOrder("step one", "step two", "step three");
   }
 
-  @SingleThread
+  @Sequential
   @Test
   public void absence_assertedCorrectly() {
     wsSteps.clearMessages()
