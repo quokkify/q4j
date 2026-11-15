@@ -34,12 +34,50 @@ final class InvocationCollector {
    * @param status     status of the invocation
    * @param comment    error message, may be {@code null}
    * @param elapsed    execution time, may be {@code null}
-   * @param parameters data provider parameters, may be {@code null} or empty
+   * @param parameters parameters rendered by {@link #render(Object[])}, may be {@code null} or empty
    */
-  record Invocation(TmsStatus status, String comment, Duration elapsed, Object[] parameters) {
+  record Invocation(TmsStatus status, String comment, Duration elapsed, String parameters) {
   }
 
   private record Key(ITestNGMethod method, String caseId) {
+  }
+
+  /**
+   * Renders data provider parameters on one line, truncated to {@link #MAX_PARAMETERS_LENGTH} characters.
+   * A parameter whose {@code toString()} throws is rendered as a placeholder with the exception class.
+   *
+   * @return the rendered parameters, empty when there are none
+   */
+  static String render(Object[] parameters) {
+    if (Objects.isNull(parameters) || parameters.length == 0) {
+      return "";
+    }
+    String joined = Arrays.stream(parameters).map(InvocationCollector::renderParameter)
+        .collect(Collectors.joining(", "));
+    return truncate(oneLine(joined));
+  }
+
+  private static String renderParameter(Object parameter) {
+    try {
+      return String.valueOf(parameter);
+    } catch (RuntimeException e) {
+      return "<toString failed: %s>".formatted(e.getClass().getSimpleName());
+    }
+  }
+
+  private static String truncate(String text) {
+    if (text.length() <= MAX_PARAMETERS_LENGTH) {
+      return text;
+    }
+    int end = MAX_PARAMETERS_LENGTH - TRUNCATION_MARK.length();
+    if (Character.isHighSurrogate(text.charAt(end - 1))) {
+      end--;
+    }
+    return text.substring(0, end) + TRUNCATION_MARK;
+  }
+
+  private static String oneLine(String text) {
+    return text.strip().replaceAll(LINE_BREAKS, " ");
   }
 
   synchronized void add(ITestNGMethod method, String caseId, Invocation invocation) {
@@ -97,10 +135,11 @@ final class InvocationCollector {
       counts.add(passed + " passed");
     }
     StringBuilder comment =
-        new StringBuilder("%d invocations: %s".formatted(collected.size(), String.join(", ", counts)));
+        new StringBuilder("%d %s: %s".formatted(
+            collected.size(), collected.size() == 1 ? "invocation" : "invocations", String.join(", ", counts)));
     for (int i = 0; i < collected.size(); i++) {
       Invocation invocation = collected.get(i);
-      if (invocation.status() != TmsStatus.PASSED) {
+      if (invocation.status() != TmsStatus.PASSED || Objects.nonNull(invocation.comment())) {
         comment.append('\n').append(detail(i + 1, invocation));
       }
     }
@@ -109,24 +148,13 @@ final class InvocationCollector {
 
   private static String detail(int number, Invocation invocation) {
     StringBuilder line = new StringBuilder("[%d] %s".formatted(number, invocation.status()));
-    String parameters = parameters(invocation.parameters());
-    if (!parameters.isEmpty()) {
-      line.append(" (").append(parameters).append(')');
+    if (Objects.nonNull(invocation.parameters()) && !invocation.parameters().isEmpty()) {
+      line.append(" (").append(invocation.parameters()).append(')');
     }
     if (Objects.nonNull(invocation.comment())) {
-      line.append(": ").append(invocation.comment().strip().replaceAll(LINE_BREAKS, " "));
+      line.append(": ").append(oneLine(invocation.comment()));
     }
     return line.toString();
-  }
-
-  private static String parameters(Object[] parameters) {
-    if (Objects.isNull(parameters) || parameters.length == 0) {
-      return "";
-    }
-    String joined = Arrays.stream(parameters).map(String::valueOf).collect(Collectors.joining(", "));
-    return joined.length() > MAX_PARAMETERS_LENGTH
-        ? joined.substring(0, MAX_PARAMETERS_LENGTH - TRUNCATION_MARK.length()) + TRUNCATION_MARK
-        : joined;
   }
 
   private static Duration elapsed(List<Invocation> collected) {

@@ -9,6 +9,7 @@ import java.util.Objects;
 import java.util.Optional;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
 import dev.quokkify.annotation.SingleThread;
 import dev.quokkify.tms.TestManagementSystem;
@@ -35,6 +36,8 @@ import static org.assertj.core.api.Assertions.catchThrowable;
 public class TmsListenerTestNgRunTest {
 
   private static final AtomicInteger SAMPLE_EXECUTIONS = new AtomicInteger();
+  private static final AtomicInteger REPORTED_BEFORE_SECOND_CLASS = new AtomicInteger();
+  private static final AtomicReference<RecordingSystem> FIRST_CLASS_SYSTEM = new AtomicReference<>();
 
   @BeforeMethod
   public void resetCounter() {
@@ -196,6 +199,56 @@ public class TmsListenerTestNgRunTest {
     assertThat(reportedAtSuiteFinish).as("Results reported at suite finish").hasValue(1);
   }
 
+  @TmsLink("TMS_LISTENER_RUN_10")
+  @SingleThread
+  @Test(description = "Regression guard: pooled invocationCount invocations are reported as one result")
+  public void pooledInvocationCountBecomesOneResult() {
+    RecordingSystem system = new RecordingSystem();
+    TestNG testNg = testNg(PooledInvocationCountSampleTest.class);
+    testNg.addListener(new TmsListener(() -> Optional.of(system), List::of));
+
+    testNg.run();
+
+    assertThat(system.reported).singleElement().satisfies(result -> {
+      assertThat(result.status()).isEqualTo(TmsStatus.FAILED);
+      assertThat(result.comment().lines()).first().isEqualTo("3 invocations: 1 failed, 2 passed");
+    });
+  }
+
+  @TmsLink("TMS_LISTENER_RUN_11")
+  @SingleThread
+  @Test(description = "Regression guard: a parameter with a throwing toString does not break reporting")
+  public void throwingParameterDoesNotBreakReporting() {
+    RecordingSystem system = new RecordingSystem();
+    TestNG testNg = testNg(ThrowingParameterSampleTest.class);
+    testNg.addListener(new TmsListener(() -> Optional.of(system), List::of));
+
+    testNg.run();
+
+    assertThat(system.reported).singleElement().satisfies(result -> {
+      assertThat(result.status()).isEqualTo(TmsStatus.FAILED);
+      assertThat(result.comment().lines()).first().isEqualTo("1 invocation: 1 failed");
+      assertThat(result.comment()).contains("[1] FAILED");
+    });
+    assertThat(system.finished).as("Run finished").hasValue(1);
+  }
+
+  @TmsLink("TMS_LISTENER_RUN_12")
+  @SingleThread
+  @Test(description = "Regression guard: results of a repeated method are reported when its class finishes")
+  public void repeatedResultsAreReportedWhenClassFinishes() {
+    RecordingSystem system = new RecordingSystem();
+    FIRST_CLASS_SYSTEM.set(system);
+    REPORTED_BEFORE_SECOND_CLASS.set(-1);
+    TestNG testNg = testNg(DataDrivenSampleTest.class, AfterDataDrivenSampleTest.class);
+    testNg.addListener(new TmsListener(() -> Optional.of(system), List::of));
+
+    testNg.run();
+
+    assertThat(REPORTED_BEFORE_SECOND_CLASS).as("Results reported before the second class").hasValue(1);
+    assertThat(system.reported).hasSize(1);
+  }
+
   private static TestNG testNg(Class<?>... testClasses) {
     TestNG testNg = new TestNG(false);
     testNg.setVerbose(0);
@@ -215,8 +268,7 @@ public class TmsListenerTestNgRunTest {
   }
 
   /**
-   * Executed only by the programmatic TestNG runs above. Sample classes with failing tests are disabled so the outer
-   * run skips them; {@code testNg} enables them for the nested run only.
+   * Executed only by the programmatic TestNG runs above.
    */
   private static final class SampleTest {
 
@@ -227,6 +279,7 @@ public class TmsListenerTestNgRunTest {
     }
   }
 
+  // The sample classes below are disabled so the outer run skips them; testNg enables them for the nested run only.
   private static final class DataDrivenSampleTest {
 
     @DataProvider
@@ -299,9 +352,51 @@ public class TmsListenerTestNgRunTest {
     }
   }
 
+  private static final class PooledInvocationCountSampleTest {
+
+    private final AtomicInteger invocations = new AtomicInteger();
+
+    @TmsLink("9")
+    @Test(enabled = false, invocationCount = 3, threadPoolSize = 3)
+    public void repeated() {
+      assertThat(invocations.incrementAndGet()).as("invocation").isNotEqualTo(2);
+    }
+  }
+
+  private static final class ThrowingParameterSampleTest {
+
+    @DataProvider
+    public Object[][] rows() {
+      return new Object[][] {{new ThrowingToString()}};
+    }
+
+    @TmsLink("9")
+    @Test(enabled = false, dataProvider = "rows")
+    public void parameterized(Object row) {
+      assertThat(1).as("row").isEqualTo(2);
+    }
+  }
+
+  private static final class ThrowingToString {
+
+    @Override
+    public String toString() {
+      throw new IllegalStateException("no string for you");
+    }
+  }
+
+  private static final class AfterDataDrivenSampleTest {
+
+    @Test(enabled = false)
+    public void records() {
+      REPORTED_BEFORE_SECOND_CLASS.set(FIRST_CLASS_SYSTEM.get().reported.size());
+    }
+  }
+
   private static final class RecordingSystem implements TestManagementSystem {
 
     private final List<TmsResult> reported = new CopyOnWriteArrayList<>();
+    private final AtomicInteger finished = new AtomicInteger();
 
     @Override
     public String id() {
@@ -316,6 +411,11 @@ public class TmsListenerTestNgRunTest {
     @Override
     public void report(TmsResult result) {
       reported.add(result);
+    }
+
+    @Override
+    public void finishRun() {
+      finished.incrementAndGet();
     }
   }
 }

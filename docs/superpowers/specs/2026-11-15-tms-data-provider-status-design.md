@@ -42,12 +42,19 @@ current behaviour.
 - A method is _repeated_ when it has a data provider or `invocationCount > 1`. Results of any other
   method are reported immediately, exactly as today.
 - Results of a repeated method are collected per test method and case id instead of being reported.
-- The collected results are reported when the enclosing `<test>` finishes
-  (`ITestListener.onFinish(ITestContext)`), one `TmsResult` per case id. Anything still collected at
-  `onExecutionFinish` is reported there before `finishRun`, so an aborted run does not lose results.
+- The collected results are reported when the test class finishes (`IClassListener.onAfterClass`), one
+  `TmsResult` per case id, so results are not held until the end of a single-`<test>` run. When the enclosing
+  `<test>` finishes (`ITestListener.onFinish(ITestContext)`), and at `onExecutionFinish` before `finishRun`,
+  anything still collected is reported, so an aborted run does not lose results. A failure while reporting is
+  logged and never prevents `finishRun`.
+- A method is repeated also when it runs with `invocationCount > 1` on a thread pool: TestNG runs those
+  invocations on clones with an invocation count of 1, so the count is read from the original method of the
+  test context.
+- Invocations are not collected while the run is unavailable.
 - Status precedence: `FAILED` > `SKIPPED` > `PASSED`.
 - `elapsed` is the sum of the invocations.
-- Comment: a summary line followed by one line per non-passed invocation, in invocation order:
+- Comment: a summary line followed by one line per non-passed invocation, and per invocation that carries a
+  comment (a failure tolerated by `successPercentage`, reported as `PASSED`), in invocation order:
 
   ```text
   3 invocations: 2 failed, 1 passed
@@ -55,8 +62,10 @@ current behaviour.
   [2] FAILED (row-2, false): row-2 failed
   ```
 
-  Parameters are rendered with `String.valueOf` and the parameter list is truncated to a fixed length.
-  When every invocation passed, the comment is the summary line only.
+  Parameters are rendered with `String.valueOf` when the invocation is collected; a parameter whose
+  `toString()` throws gets a fallback text. Line breaks are collapsed and the parameter list is truncated to a
+  fixed length without cutting a surrogate pair. The summary reads `1 invocation` or `N invocations`. When
+  every invocation passed without a comment, the comment is the summary line only.
 
 - `README.md` of `tms-testng` and of `testplanit`: replace "separate attempts, last one wins" with the
   aggregated behaviour. Shards that share `TESTPLANIT_RUN_ID` still add one attempt each; that stays

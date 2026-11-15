@@ -90,7 +90,7 @@ public class InvocationCollectorTest {
   @SingleThread
   @Test(description = "An invocation without parameters is rendered without parentheses")
   public void rendersNoParametersWithoutParentheses() {
-    collector.add(method, CASE_ID, new Invocation(TmsStatus.PASSED, null, null, new Object[0]));
+    collector.add(method, CASE_ID, new Invocation(TmsStatus.PASSED, null, null, InvocationCollector.render(new Object[0])));
     collector.add(method, CASE_ID, new Invocation(TmsStatus.FAILED, "boom", null, null));
 
     assertThat(collector.drainAll()).singleElement()
@@ -101,8 +101,8 @@ public class InvocationCollectorTest {
   @SingleThread
   @Test(description = "A long parameter list is truncated to the maximum length with an ellipsis")
   public void truncatesLongParameters() {
-    collector.add(method, CASE_ID,
-        new Invocation(TmsStatus.FAILED, "boom", null, new Object[] {null, "x".repeat(500)}));
+    collector.add(method, CASE_ID, new Invocation(TmsStatus.FAILED, "boom", null,
+        InvocationCollector.render(new Object[] {null, "x".repeat(500)})));
 
     assertThat(collector.drainAll()).singleElement().satisfies(result -> {
       String line = result.comment().lines().skip(1).findFirst().orElseThrow();
@@ -168,6 +168,62 @@ public class InvocationCollectorTest {
 
     assertThat(collector.drainAll()).singleElement()
         .satisfies(result -> assertThat(result.comment().lines()).first().isEqualTo("50 invocations: 50 passed"));
+  }
+
+  @TmsLink("TMS_COLLECTOR_11")
+  @SingleThread
+  @Test(description = "Truncation does not cut a surrogate pair in half")
+  public void truncationKeepsSurrogatePairs() {
+    String emoji = "\uD83D\uDE00";
+    String rendered = InvocationCollector.render(
+        new Object[] {"x".repeat(InvocationCollector.MAX_PARAMETERS_LENGTH - 2) + emoji + "yy"});
+
+    assertThat(rendered).isEqualTo("x".repeat(InvocationCollector.MAX_PARAMETERS_LENGTH - 2) + "…");
+  }
+
+  @TmsLink("TMS_COLLECTOR_12")
+  @SingleThread
+  @Test(description = "Line breaks in parameter values are collapsed")
+  public void collapsesLineBreaksInParameters() {
+    assertThat(InvocationCollector.render(new Object[] {"a\n b", "c\r\nd"})).isEqualTo("a b, c d");
+  }
+
+  @TmsLink("TMS_COLLECTOR_13")
+  @SingleThread
+  @Test(description = "A parameter whose toString throws is rendered as a placeholder")
+  public void rendersThrowingParameter() {
+    Object throwing = new Object() {
+      @Override
+      public String toString() {
+        throw new IllegalStateException("no string");
+      }
+    };
+
+    assertThat(InvocationCollector.render(new Object[] {"a", throwing}))
+        .isEqualTo("a, <toString failed: IllegalStateException>");
+  }
+
+  @TmsLink("TMS_COLLECTOR_14")
+  @SingleThread
+  @Test(description = "A single invocation uses the singular form")
+  public void usesSingularForSingleInvocation() {
+    collector.add(method, CASE_ID, invocation(TmsStatus.PASSED, null));
+
+    assertThat(collector.drainAll()).singleElement()
+        .satisfies(result -> assertThat(result.comment()).isEqualTo("1 invocation: 1 passed"));
+  }
+
+  @TmsLink("TMS_COLLECTOR_15")
+  @SingleThread
+  @Test(description = "A passed invocation with a comment, tolerated by successPercentage, keeps its detail line")
+  public void keepsCommentOfPassedInvocation() {
+    collector.add(method, CASE_ID, invocation(TmsStatus.PASSED, null));
+    collector.add(method, CASE_ID, invocation(TmsStatus.PASSED, "1 of 10"));
+
+    assertThat(collector.drainAll()).singleElement().satisfies(result -> {
+      assertThat(result.status()).isEqualTo(TmsStatus.PASSED);
+      assertThat(result.comment()).isEqualTo("2 invocations: 2 passed\n[2] PASSED: 1 of 10");
+    });
   }
 
   private static Invocation invocation(TmsStatus status, String comment) {

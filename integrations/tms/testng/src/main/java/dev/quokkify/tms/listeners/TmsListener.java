@@ -1,6 +1,7 @@
 package dev.quokkify.tms.listeners;
 
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -22,11 +23,13 @@ import dev.quokkify.util.TestUtils;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.testng.IClassListener;
 import org.testng.IExecutionListener;
 import org.testng.IMethodInstance;
 import org.testng.IMethodInterceptor;
 import org.testng.ISuite;
 import org.testng.ISuiteListener;
+import org.testng.ITestClass;
 import org.testng.ITestContext;
 import org.testng.ITestListener;
 import org.testng.ITestNGMethod;
@@ -36,7 +39,8 @@ import org.testng.ITestResult;
  * Single entry point of the test management system (TMS) integration.
  * Reports TestNG results to the only TMS provider on the classpath; case ids come from {@code @TmsLink}.
  * Methods that run repeatedly (data provider rows, {@code invocationCount}) produce one result per case, with the
- * worst status of their invocations, when their {@code <test>} finishes.
+ * worst status of their invocations, when their test class finishes; the end of the {@code <test>} and of the
+ * execution are fallbacks. Invocations are not collected while the run is unavailable.
  * Tests without {@code @TmsLink} are executed but not reported. Reporting errors are logged and never fail the tests.
  * The provider is resolved once in {@link #onExecutionStart()}; a {@code TmsConfigurationException} aborts the run.
  *
@@ -49,7 +53,7 @@ import org.testng.ITestResult;
  *     same run is never called and needs no duplicate guard.</li>
  * </ul>
  */
-public class TmsListener implements IExecutionListener, ISuiteListener, ITestListener, IMethodInterceptor {
+public class TmsListener implements IExecutionListener, ISuiteListener, ITestListener, IClassListener, IMethodInterceptor {
 
   private static final Logger LOG = LogManager.getLogger(TmsListener.class);
   private static final String NO_ERROR_MESSAGE = "Error message not found";
@@ -97,7 +101,7 @@ public class TmsListener implements IExecutionListener, ISuiteListener, ITestLis
     }
     try {
       system.ifPresent(tms -> {
-        collector.drainAll().forEach(result -> report(tms, result));
+        reportCollected(tms, collector::drainAll);
         try {
           tms.finishRun();
         } catch (RuntimeException e) {
@@ -126,8 +130,12 @@ public class TmsListener implements IExecutionListener, ISuiteListener, ITestLis
 
   @Override
   public void onFinish(ITestContext context) {
-    system.ifPresent(tms -> collector.drain(List.of(context.getAllTestMethods()))
-        .forEach(result -> report(tms, result)));
+    system.ifPresent(tms -> reportCollected(tms, () -> collector.drain(List.of(context.getAllTestMethods()))));
+  }
+
+  @Override
+  public void onAfterClass(ITestClass testClass) {
+    system.ifPresent(tms -> reportCollected(tms, () -> collector.drain(List.of(testClass.getTestMethods()))));
   }
 
   @Override
@@ -188,12 +196,16 @@ public class TmsListener implements IExecutionListener, ISuiteListener, ITestLis
 
   private void reportResult(ITestResult result, TmsStatus status, String comment) {
     system.ifPresent(tms -> {
-      Duration elapsed = Duration.ofMillis(Math.max(0, result.getEndMillis() - result.getStartMillis()));
       ITestNGMethod method = result.getMethod();
-      if (isRepeated(method)) {
-        InvocationCollector.Invocation invocation =
-            new InvocationCollector.Invocation(status, comment, elapsed, result.getParameters());
-        TestUtils.getTmsLinks(method).forEach(caseId -> collector.add(method, caseId, invocation));
+      boolean repeated = isRepeated(result);
+      if (repeated && !runAvailable) {
+        return;
+      }
+      Duration elapsed = Duration.ofMillis(Math.max(0, result.getEndMillis() - result.getStartMillis()));
+      if (repeated) {
+        InvocationCollector.Invocation invocation = new InvocationCollector.Invocation(
+            status, comment, elapsed, InvocationCollector.render(result.getParameters()));
+        TestUtils.getTmsLinks(method).forEach(caseId -> collector.add(collectedMethod(result), caseId, invocation));
         return;
       }
       TestUtils.getTmsLinks(method)
@@ -224,8 +236,30 @@ public class TmsListener implements IExecutionListener, ISuiteListener, ITestLis
     return ticketComments;
   }
 
-  private static boolean isRepeated(ITestNGMethod method) {
-    return method.isDataDriven() || method.getInvocationCount() > 1;
+  private void reportCollected(TestManagementSystem tms, Supplier<List<TmsResult>> drain) {
+    try {
+      drain.get().forEach(result -> report(tms, result));
+    } catch (RuntimeException e) {
+      LOG.error("Can not report repeated invocations to '{}': {}", tms.id(), e.getMessage(), e);
+    }
+  }
+
+  /**
+   * TestNG runs pooled invocations on clones of the method with an invocation count of 1, so the repeat is read
+   * from the original method of the test context.
+   */
+  private static boolean isRepeated(ITestResult result) {
+    ITestNGMethod method = result.getMethod();
+    return method.isDataDriven() || method.getInvocationCount() > 1 || collectedMethod(result).getInvocationCount() > 1;
+  }
+
+  private static ITestNGMethod collectedMethod(ITestResult result) {
+    ITestNGMethod method = result.getMethod();
+    ITestContext context = result.getTestContext();
+    if (Objects.isNull(context)) {
+      return method;
+    }
+    return Arrays.stream(context.getAllTestMethods()).filter(method::equals).findFirst().orElse(method);
   }
 
   private static boolean shouldRun(TestManagementSystem tms, List<String> caseIds) {

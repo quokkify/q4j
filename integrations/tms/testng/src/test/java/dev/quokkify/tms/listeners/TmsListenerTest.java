@@ -241,8 +241,8 @@ public class TmsListenerTest {
 
   @TmsLink("TMS_LISTENER_17")
   @SingleThread
-  @Test(description = "Repeated invocations are not reported and do not throw after a failed run start")
-  public void skipsRepeatedInvocationsWhenRunStartFails() throws NoSuchMethodException {
+  @Test(description = "Repeated invocations are not collected while the run is unavailable")
+  public void doesNotCollectRepeatedInvocationsWhenRunStartFails() throws NoSuchMethodException {
     system.failOnStart = true;
     listener.startRun(List.of(testMethod("linkedToOneCase")));
     ITestResult failed = result("linkedToOneCase", 0, 10, new AssertionError("boom"));
@@ -252,6 +252,8 @@ public class TmsListenerTest {
     when(context.getAllTestMethods()).thenReturn(new ITestNGMethod[] {repeated});
 
     listener.onTestFailure(failed);
+    system.failOnStart = false;
+    listener.startRun(List.of(repeated));
     listener.onFinish(context);
     listener.onExecutionFinish();
 
