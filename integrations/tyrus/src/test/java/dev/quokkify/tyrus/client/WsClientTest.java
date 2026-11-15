@@ -2,7 +2,7 @@ package dev.quokkify.tyrus.client;
 
 import java.time.Duration;
 
-import dev.quokkify.annotation.SingleThread;
+import dev.quokkify.annotation.Sequential;
 import dev.quokkify.tyrus.steps.WsVerifier;
 import dev.quokkify.tyrus.steps.WsVerifierFactory;
 
@@ -31,7 +31,7 @@ public class WsClientTest {
     simulator.clear();
   }
 
-  @SingleThread
+  @Sequential
   @Test
   public void messageCollector_storesMessages() {
     simulator.send("hello world").send("second message");
@@ -41,7 +41,7 @@ public class WsClientTest {
     Assert.assertEquals(client.getMessages().get(1).payload(), "second message");
   }
 
-  @SingleThread
+  @Sequential
   @Test
   public void clearMessages_emptiesQueue() {
     simulator.send("to be cleared");
@@ -51,7 +51,7 @@ public class WsClientTest {
     Assert.assertTrue(client.getMessages().isEmpty());
   }
 
-  @SingleThread
+  @Sequential
   @Test
   public void verifier_containsMessage_passes() {
     simulator.send("order status updated");
@@ -59,7 +59,7 @@ public class WsClientTest {
     verifier.containsMessage("order status");
   }
 
-  @SingleThread
+  @Sequential
   @Test
   public void verifier_containsMessage_byPredicate_passes() {
     simulator.send("payment confirmed");
@@ -67,7 +67,7 @@ public class WsClientTest {
     verifier.containsMessage(msg -> msg.payload().startsWith("payment"));
   }
 
-  @SingleThread
+  @Sequential
   @Test
   public void verifier_doesNotContainMessage_passes() {
     simulator.send("expected message");
@@ -78,7 +78,7 @@ public class WsClientTest {
         .doesNotContainMessage("absent substring");
   }
 
-  @SingleThread
+  @Sequential
   @Test
   public void verifier_hasJsonField_passes() {
     simulator.send("{\"status\":\"active\",\"userId\":\"42\"}");
@@ -86,7 +86,7 @@ public class WsClientTest {
     verifier.hasJsonField("status", "active");
   }
 
-  @SingleThread
+  @Sequential
   @Test
   public void verifier_hasMessageCount_passes() {
     simulator.send("first").send("second").send("third");
@@ -94,7 +94,7 @@ public class WsClientTest {
     verifier.hasMessageCount(3);
   }
 
-  @SingleThread
+  @Sequential
   @Test
   public void verifier_messagesInOrder_passes() {
     simulator.send("step one complete")
@@ -104,7 +104,7 @@ public class WsClientTest {
     verifier.messagesInOrder("step one", "step two", "step three");
   }
 
-  @SingleThread
+  @Sequential
   @Test
   public void verifier_containsMessage_withDelay_passes() {
     simulator.sendAfterDelay("delayed arrival", 200);

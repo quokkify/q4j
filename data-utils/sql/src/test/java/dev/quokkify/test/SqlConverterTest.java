@@ -3,7 +3,7 @@ package dev.quokkify.test;
 import java.util.List;
 import java.util.UUID;
 
-import dev.quokkify.annotation.SingleThread;
+import dev.quokkify.annotation.Sequential;
 import dev.quokkify.converter.SqlConverter;
 import dev.quokkify.entity.DatabaseTestUser;
 import dev.quokkify.entity.QDatabaseTestUser;
@@ -55,7 +55,7 @@ public class SqlConverterTest extends BaseDatabaseTest {
 
   @TmsLink("SQL_CONVERTER_ID_1")
   @Test(description = "Check sql converting when 'fetchFirst'")
-  @SingleThread
+  @Sequential
   public void checkConvertingWhenFetchFirst() {
     int questions = 3;
     TestLogAppender appender = withLogging(() -> databaseSteps
@@ -76,7 +76,7 @@ public class SqlConverterTest extends BaseDatabaseTest {
 
   @TmsLink("SQL_CONVERTER_ID_2")
   @Test(description = "Check sql converting when 'fetch'")
-  @SingleThread
+  @Sequential
   public void checkConvertingWhenFetch() {
     int questions = 2;
     TestLogAppender appender = withLogging(() -> databaseSteps
@@ -97,7 +97,7 @@ public class SqlConverterTest extends BaseDatabaseTest {
 
   @TmsLink("SQL_CONVERTER_ID_3")
   @Test(description = "Check sql converting when 'fetchOne'")
-  @SingleThread
+  @Sequential
   public void checkConvertingWhenFetchOne() {
     int questions = 2;
     TestLogAppender appender = withLogging(() -> databaseSteps
@@ -118,7 +118,7 @@ public class SqlConverterTest extends BaseDatabaseTest {
 
   @TmsLink("SQL_CONVERTER_ID_4")
   @Test(description = "Escaping: single quote in string parameter should be doubled in Executable SQL")
-  @SingleThread
+  @Sequential
   public void checkEscapingSingleQuote() {
     DatabaseTestUser testEntity = new DatabaseTestUser("O'Hara", "D'Angelo");
     TestLogAppender appender = withLogging(() -> databaseSteps
@@ -141,7 +141,7 @@ public class SqlConverterTest extends BaseDatabaseTest {
 
   @TmsLink("SQL_CONVERTER_ID_5")
   @Test(description = "Limit/Offset: placeholders should be replaced with numeric values in Executable SQL")
-  @SingleThread
+  @Sequential
   public void checkLimitAndOffsetReplacement() {
     DatabaseTestUser testEntity = new DatabaseTestUser(name, lastName);
     TestLogAppender appender = withLogging(() -> databaseSteps
@@ -163,7 +163,7 @@ public class SqlConverterTest extends BaseDatabaseTest {
 
   @TmsLink("SQL_CONVERTER_ID_6")
   @Test(description = "IN: simple string collection should expand into ('a','b','c')")
-  @SingleThread
+  @Sequential
   public void checkInWithStringCollection() {
     var names = List.of("Alice", "Bob", "Charlie");
     TestLogAppender appender = withLogging(() -> databaseSteps
@@ -183,7 +183,7 @@ public class SqlConverterTest extends BaseDatabaseTest {
 
   @TmsLink("SQL_CONVERTER_ID_7")
   @Test(description = "IN: string items with single quotes must be escaped (O'Hara -> O''Hara)")
-  @SingleThread
+  @Sequential
   public void checkInWithEscapingInCollection() {
     var tricky = List.of("O'Hara", "D'Angelo");
     TestLogAppender appender = withLogging(() -> databaseSteps
@@ -202,7 +202,7 @@ public class SqlConverterTest extends BaseDatabaseTest {
 
   @TmsLink("SQL_CONVERTER_ID_8")
   @Test(description = "IN: numeric collection should render without quotes")
-  @SingleThread
+  @Sequential
   public void checkInWithNumericCollection() {
     var ids = List.of(1L, 2L, 3L);
     TestLogAppender appender = withLogging(() -> databaseSteps

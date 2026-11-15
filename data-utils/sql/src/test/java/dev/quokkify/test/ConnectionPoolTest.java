@@ -14,7 +14,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import dev.quokkify.annotation.SingleThread;
+import dev.quokkify.annotation.Sequential;
 import dev.quokkify.entity.DatabaseTestUser;
 import dev.quokkify.entity.QDatabaseTestUser;
 import dev.quokkify.persistence.PersistenceConfigurationFactory;
@@ -69,7 +69,7 @@ public class ConnectionPoolTest extends BaseDatabaseTest {
   }
 
   @Test(description = "Check pool grows on demand only")
-  @SingleThread
+  @Sequential
   public void checkPoolGrowsOnDemandOnly() throws InterruptedException, SQLException {
     String app = applicationName();
     sqlFactory = bootstrap(app, 100);
@@ -81,7 +81,7 @@ public class ConnectionPoolTest extends BaseDatabaseTest {
   }
 
   @Test(description = "Check pool never exceeds max size")
-  @SingleThread
+  @Sequential
   public void checkPoolNeverExceedsMaxSize() throws InterruptedException, SQLException {
     String app = applicationName();
     sqlFactory = bootstrap(app, 5);
@@ -91,7 +91,7 @@ public class ConnectionPoolTest extends BaseDatabaseTest {
   }
 
   @Test(description = "Check pool releases connections on close")
-  @SingleThread
+  @Sequential
   public void checkPoolReleasesConnectionsOnClose() throws InterruptedException, SQLException {
     String app = applicationName();
     sqlFactory = bootstrap(app, 5);

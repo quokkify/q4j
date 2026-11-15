@@ -3,7 +3,7 @@ package dev.quokkify.test;
 import java.time.Duration;
 import java.util.stream.IntStream;
 
-import dev.quokkify.annotation.SingleThread;
+import dev.quokkify.annotation.Sequential;
 import dev.quokkify.elements.table.HorizontalTable;
 import dev.quokkify.elements.table.Table;
 import dev.quokkify.elements.table.TableColumnException;
@@ -113,7 +113,7 @@ public class TableModelContractTest extends BaseTest {
 
   @Test(dataProvider = "tableModelContractIterations",
       description = "Required lookup waits for a row restored asynchronously")
-  @SingleThread
+  @Sequential
   public void waitsForDelayedRow(String iteration) {
     openClassicVariantsFixture();
     Table classic = classic("#classic");
@@ -126,7 +126,7 @@ public class TableModelContractTest extends BaseTest {
 
   @Test(dataProvider = "tableModelContractIterations",
       description = "A row reference resolves again after a deterministic DOM remount")
-  @SingleThread
+  @Sequential
   public void rowReferenceSurvivesRemount(String iteration) {
     openClassicVariantsFixture();
     TableRow row = classic("#classic").row("Company", "Alfreds");
@@ -214,7 +214,7 @@ public class TableModelContractTest extends BaseTest {
   }
 
   @Test(description = "Custom adapter waits once for a late root and row, then remount-safe handles resolve")
-  @SingleThread
+  @Sequential
   public void customAdapterWaitsAndSurvivesRemount() {
     openCustomGridsFixture();
     Table grid = grid("#custom-grid");

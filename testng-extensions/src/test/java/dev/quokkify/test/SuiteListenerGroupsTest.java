@@ -10,7 +10,7 @@ import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.function.Consumer;
 
-import dev.quokkify.annotation.SingleThread;
+import dev.quokkify.annotation.Sequential;
 import dev.quokkify.listener.lifecycle.SuiteListener;
 
 import org.assertj.core.api.Assertions;
@@ -82,7 +82,7 @@ public class SuiteListenerGroupsTest {
     });
   }
 
-  @SingleThread
+  @Sequential
   @Test(description = "Methods of a group excluded via TestNG#setExcludedGroups do not run")
   public void testExcludedGroupMethodsDoNotRun() {
     List<String> executed = run(testng -> testng.setExcludedGroups(API_GROUP));
@@ -91,7 +91,7 @@ public class SuiteListenerGroupsTest {
     Assertions.assertThat(executed).contains(CONFIG_PREFIX + "alwaysRunSetUp", CONFIG_PREFIX + "plainSetUp");
   }
 
-  @SingleThread
+  @Sequential
   @Test(description = "Only methods of a group included via TestNG#setGroups run, alwaysRun configuration still runs")
   public void testOnlyIncludedGroupMethodsRun() {
     List<String> executed = run(testng -> testng.setGroups(API_GROUP));
@@ -100,7 +100,7 @@ public class SuiteListenerGroupsTest {
     Assertions.assertThat(executed).contains(CONFIG_PREFIX + "alwaysRunSetUp").doesNotContain(CONFIG_PREFIX + "plainSetUp");
   }
 
-  @SingleThread
+  @Sequential
   @Test(description = "All methods run when no groups are selected")
   public void testAllMethodsRunWithoutGroups() {
     List<String> executed = run(testng -> { });
@@ -191,7 +191,7 @@ public class SuiteListenerGroupsTest {
     public void api() {
     }
 
-    @SingleThread
+    @Sequential
     @Test(enabled = false, groups = API_GROUP)
     public void apiSingleThread() {
     }
@@ -200,7 +200,7 @@ public class SuiteListenerGroupsTest {
     public void plain() {
     }
 
-    @SingleThread
+    @Sequential
     @Test(enabled = false)
     public void plainSingleThread() {
     }
