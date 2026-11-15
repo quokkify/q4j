@@ -17,14 +17,14 @@ only when you use the listeners or annotations without a steps module.
 
 ## Environment variables
 
-| Variable                          | Default         | Description                                                        |
-| --------------------------------- | --------------- | ------------------------------------------------------------------ |
-| `RETRY_COUNT`                     | `2`             | Number of retries for failed tests                                 |
-| `TEST_THREAD_COUNT`               | `5`             | Parallel thread count                                              |
-| `TEST_GROUP`                      | —               | Group name filter (used by `SingleGroupListener`)                  |
-| `SUITE_NAME`                      | `Default suite` | TestNG suite name                                                  |
-| `EXECUTION_MODE`                  | `LOCAL`         | Execution environment: `LOCAL`/`CI`/`DIND`                         |
-| `SINGLE_THREAD_TESTS_IN_PARALLEL` | `false`         | Run `@SingleThread` tests alongside the parallel tests (see below) |
+| Variable                          | Default         | Description                                                      |
+| --------------------------------- | --------------- | ---------------------------------------------------------------- |
+| `RETRY_COUNT`                     | `2`             | Number of retries for failed tests                               |
+| `TEST_THREAD_COUNT`               | `5`             | Parallel thread count                                            |
+| `TEST_GROUP`                      | —               | Group name filter (used by `SingleGroupListener`)                |
+| `SUITE_NAME`                      | `Default suite` | TestNG suite name                                                |
+| `EXECUTION_MODE`                  | `LOCAL`         | Execution environment: `LOCAL`/`CI`/`DIND`                       |
+| `SINGLE_THREAD_TESTS_IN_PARALLEL` | `false`         | Run `@Sequential` tests alongside the parallel tests (see below) |
 
 Config is read from environment variables or `testng.properties`:
 
@@ -34,15 +34,15 @@ TEST_THREAD_COUNT=10
 EXECUTION_MODE=CI
 ```
 
-## Running `@SingleThread` tests alongside parallel tests
+## Running `@Sequential` tests alongside parallel tests
 
 `SuiteListener` splits the suite into two `<test>` blocks: `Concurrency` (parallel, `TEST_THREAD_COUNT`
-threads) and `Sequential` (`@SingleThread` tests, one thread). By default `Sequential` starts only after
+threads) and `Sequential` (`@Sequential` tests, one thread). By default `Sequential` starts only after
 `Concurrency` has finished.
 
-Set `SINGLE_THREAD_TESTS_IN_PARALLEL=true` to run both blocks at the same time. `@SingleThread` tests
+Set `SINGLE_THREAD_TESTS_IN_PARALLEL=true` to run both blocks at the same time. `@Sequential` tests
 still run one by one on a single thread; they no longer wait for the parallel tests to finish. Enable it
-only when `@SingleThread` tests do not conflict with the parallel ones.
+only when `@Sequential` tests do not conflict with the parallel ones.
 
 ```properties
 SINGLE_THREAD_TESTS_IN_PARALLEL=true
@@ -151,7 +151,7 @@ public class UserTest extends BaseTest {
         );
     }
 
-    @SingleThread
+    @Sequential
     @Test
     public void checkSequentialOperation() {
         userSteps.verifySoftly(
@@ -172,4 +172,5 @@ public class UserTest extends BaseTest {
 | `SuiteListener` / `TestListener` / `StepTestListener` | Lifecycle hooks for suite/test/step events                                             |
 | `CustomCasesInterceptor`                              | Filter test cases before execution                                                     |
 | `@TestGroup("name")`                                  | Tag a test method with a group name                                                    |
-| `@SingleThread`                                       | Force single-thread execution for annotated test                                       |
+| `@Sequential`                                         | Run the annotated test in the `Sequential` block, one test at a time                   |
+| `@SingleThread`                                       | Deprecated, use `@Sequential`                                                          |

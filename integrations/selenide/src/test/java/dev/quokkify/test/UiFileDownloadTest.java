@@ -2,7 +2,7 @@ package dev.quokkify.test;
 
 import java.io.File;
 
-import dev.quokkify.annotation.SingleThread;
+import dev.quokkify.annotation.Sequential;
 
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.FileDownloadMode;
@@ -27,13 +27,13 @@ public class UiFileDownloadTest extends BaseTest {
     Configuration.proxyEnabled = false;
   }
 
-  @SingleThread
+  @Sequential
   @Test(description = "Download nginx file through HTTP")
   public void testHttpDownload() {
     verifyDownload(FileDownloadMode.HTTPGET);
   }
 
-  @SingleThread
+  @Sequential
   @Test(description = "Download nginx file through proxy")
   public void testProxyDownload() {
     verifyDownload(FileDownloadMode.PROXY);

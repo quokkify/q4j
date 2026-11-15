@@ -2,7 +2,7 @@ package dev.quokkify.test;
 
 import java.util.List;
 
-import dev.quokkify.annotation.SingleThread;
+import dev.quokkify.annotation.Sequential;
 import dev.quokkify.persistence.PersistenceItem;
 import dev.quokkify.provider.PersistenceItemProvider;
 import dev.quokkify.service.DatabaseService;
@@ -21,7 +21,7 @@ public class ConnectionProviderTest extends BaseDatabaseTest {
 
   @TmsLink("SQL_DATABASE_CONNECTION_PROVIDER_ID_1")
   @Test(description = "Check connection via Xml")
-  @SingleThread
+  @Sequential
   public void checkAgroalProviderViaXml() {
     TestLogAppender appender = withLogging(() -> DatabaseService.getInstance().createSqlQuery("hsql"));
     Assertions.assertThat(appender.getCombinedLog())
@@ -31,7 +31,7 @@ public class ConnectionProviderTest extends BaseDatabaseTest {
 
   @TmsLink("SQL_DATABASE_CONNECTION_PROVIDER_ID_2")
   @Test(description = "Check connection via Provider")
-  @SingleThread
+  @Sequential
   public void checkAgroalProviderViaPersistenceProvider() {
     HibernatePersistenceConfiguration configuration = PersistenceItemProvider.getPersistenceConfiguration(getStage());
     TestLogAppender appender = withLogging(() -> DatabaseService.getInstance().createSqlQuery(configuration));
@@ -42,7 +42,7 @@ public class ConnectionProviderTest extends BaseDatabaseTest {
 
   @TmsLink("SQL_DATABASE_CONNECTION_PROVIDER_ID_3")
   @Test(description = "Check connection via PersistenceItem")
-  @SingleThread
+  @Sequential
   @SuppressWarnings("removal")
   public void checkAgroalProviderViaPersistenceItem() {
     PersistenceItem persistenceItem = new PersistenceItem("test", getH2Properties());

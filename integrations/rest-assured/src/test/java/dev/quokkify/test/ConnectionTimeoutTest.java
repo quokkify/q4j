@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 
-import dev.quokkify.annotation.SingleThread;
+import dev.quokkify.annotation.Sequential;
 import dev.quokkify.annotation.TestGroup;
 import dev.quokkify.service.SlowApiService;
 
@@ -45,7 +45,7 @@ public class ConnectionTimeoutTest {
     slowServer.close();
   }
 
-  @SingleThread
+  @Sequential
   @TestGroup("API")
   @Test(groups = "api", description = "Verify connection is closed when MAX_RESPONSE_TIME_SECONDS is exceeded")
   public void testConnectionClosedOnTimeout() {

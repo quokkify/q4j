@@ -1,6 +1,6 @@
 package dev.quokkify.test;
 
-import dev.quokkify.annotation.SingleThread;
+import dev.quokkify.annotation.Sequential;
 import dev.quokkify.annotation.TestGroup;
 import dev.quokkify.step.AbstractSteps;
 
@@ -22,7 +22,7 @@ public class VerifySoftlyTest {
             verification -> verification.verifyBoolean(true));
   }
 
-  @SingleThread
+  @Sequential
   @Test(description = "Verify Softly sequentially")
   public void testVerifySoftlySequentially() {
     new VerifySoftSteps()
