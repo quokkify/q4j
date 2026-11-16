@@ -1,0 +1,1 @@
+{"id":"68fa69b8c1c495d0b0e1c5301c35f88c.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.SequentialAnnotationTest.testBothAnnotationsLandInSequential","name":"Regression guard: @Sequential and deprecated @SingleThread both go to the Sequential test","status":"passed","testResultsByEnv":{"ubuntu-26-04":"b645d69e5d11755e07c5aa8465168d09"}}
