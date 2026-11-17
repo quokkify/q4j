@@ -1,1 +1,1 @@
-{"id":"93d7d89d492370bf96b2a95c945e707b.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DatabaseNoSqlTest.checkSelectQuery","name":"Check type-safe select by inherited id and field","status":"passed","testResultsByEnv":{"ubuntu-26-04":"41d160301d7c2dc4582a25e47d4e6d9f"}}
+{"id":"93d7d89d492370bf96b2a95c945e707b.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DatabaseNoSqlTest.checkSelectQuery","name":"Check type-safe select by inherited id and field","status":"passed","testResultsByEnv":{"ubuntu-26-04":"628624820308071a1628148de7aad5f4"}}
