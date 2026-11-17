@@ -252,7 +252,7 @@ services:
 
   reportportal-ui:
     profiles: [reporting]
-    image: reportportal/service-ui:5.15.6@sha256:7f604771ce24f9b34a1afca8ff773a7f64ae2d629a09993f010e3205a30c8c6a
+    image: reportportal/service-ui:6.0.0@sha256:85dd589c23addffbd4cae0d1fbcfe66af511c41023fb0c6e7ec0375e474b97f3
     environment:
       RP_SERVER_PORT: "8080"
     healthcheck:
