@@ -113,7 +113,7 @@ One static JS resource (string constant or classpath resource, builder's call), 
 `{kind: "xpath" | "css", expr: "..."}` or `null` for items.
 
 - `find(context, spec)`: XPath through `document.evaluate(expr, context, null,
-  XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null)`; CSS through `context.querySelectorAll(expr)` (`:scope`
+XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null)`; CSS through `context.querySelectorAll(expr)` (`:scope`
   works). Results in document order, elements only.
 - `text(el)`: `""` when the element is not rendered (`el.getClientRects().length === 0`, or
   `checkVisibility()` returns false where available); otherwise `el.innerText`. Java side normalizes.
@@ -132,7 +132,7 @@ validated before the browser call. `TableLayout.xpath` stays as is; the helper m
 
 - **One call:** a test that counts script executions (`executeScript`) for a snapshot of the large fixture
   and asserts exactly 1. Resolving the root `WebElement` (`findElement`) is not counted.
-  *Implementation note:* Selenide 7.19.1 unwraps the listener-decorated driver before `executeScript`
+  _Implementation note:_ Selenide 7.19.1 unwraps the listener-decorated driver before `executeScript`
   (`JavaScript.asJsExecutor`), so a `WebDriverListener` cannot see script calls. The test instead records every
   driver call it can see during a snapshot of a 3-row and a 1200-row grid, asserts both sequences are identical
   and contain no per-element reads (`findElements`, `getText`, `getDomProperty`, `getAttribute`), and the speed
@@ -153,6 +153,7 @@ validated before the browser call. `TableLayout.xpath` stays as is; the helper m
 ## Docs
 
 `docs/table-api.md`:
+
 - Add `TableSnapshot`, `SnapshotRow`, `SnapshotCell` to "Public types".
 - New section "Bulk read (`snapshot`)" with usage, the wait-first recipe, the item locator, hidden-element
   semantics, and the mounted-rows-only limit.

@@ -199,11 +199,11 @@ grid.shouldHave(TableCondition.exactRows(List.of("Name", "Status"), List.of(
 grid.shouldSatisfy(snap -> assertThat(snap.column("Status")).doesNotContain("Failed"));
 ```
 
-| Check                                                     | Passes when                                                              |
-| --------------------------------------------------------- | ------------------------------------------------------------------------ |
-| `exactRows(headers, expected)`                            | the texts of `headers`, row by row in row order, equal `expected`        |
-| `exactValuesBy(keyHeader, valuesHeader, items, expected)` | key text -> items of the value cell equal `expected`; any row order      |
-| `shouldSatisfy([items,] assertions [, timeout])`          | the AssertJ `assertions` pass on the snapshot                            |
+| Check                                                     | Passes when                                                         |
+| --------------------------------------------------------- | ------------------------------------------------------------------- |
+| `exactRows(headers, expected)`                            | the texts of `headers`, row by row in row order, equal `expected`   |
+| `exactValuesBy(keyHeader, valuesHeader, items, expected)` | key text -> items of the value cell equal `expected`; any row order |
+| `shouldSatisfy([items,] assertions [, timeout])`          | the AssertJ `assertions` pass on the snapshot                       |
 
 - The two `TableCondition` checks report a short difference on failure (missing, unexpected and different rows, at
   most 10 of each), not every row. `shouldSatisfy` reports the last AssertJ message, which for large collections can
@@ -234,11 +234,11 @@ assertThat(snap.columnValues("Properties").get(0)).containsExactly("Red", "Blue"
 assertThat(snap.rows().get(1).cell("Name").text()).isEqualTo("Beta");
 ```
 
-| Type            | Content                                                                                     |
-| --------------- | ------------------------------------------------------------------------------------------- |
+| Type            | Content                                                                                                                                                                           |
+| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `TableSnapshot` | `headers()`, `rows()`, `column(header)`, `columnValues(header)`, `texts(headers)` (rows of several columns), `columnBy(key, header)` / `columnValuesBy(key, header)` (keyed maps) |
-| `SnapshotRow`   | `cells()`, `cell(int)`, `cell(header)`                                                      |
-| `SnapshotCell`  | `text()`, `values()` (texts of the `items` found inside the cell; empty without `items`)   |
+| `SnapshotRow`   | `cells()`, `cell(int)`, `cell(header)`                                                                                                                                            |
+| `SnapshotCell`  | `text()`, `values()` (texts of the `items` found inside the cell; empty without `items`)                                                                                          |
 
 - **Point in time.** To verify data, prefer the [bulk checks](#bulk-check-shouldhave-shouldsatisfy). The snapshot
   waits only for the root to exist (Selenide's default timeout). It does not wait

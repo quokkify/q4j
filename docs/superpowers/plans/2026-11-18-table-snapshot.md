@@ -22,6 +22,7 @@
 - Java style: `Objects.isNull` / `Objects.nonNull`, not `== null`.
 
 Commands (from the thin-table plan):
+
 - `COMPILE` = `./gradlew :integrations:selenide:compileTestJava :integrations:selenide:checkstyleMain :integrations:selenide:checkstyleTest --console=plain` → `BUILD SUCCESSFUL`.
 - `UNIT <pattern>` = `./gradlew :integrations:selenide:test --tests '<pattern>' --console=plain` (no browser).
 - `BROWSER <pattern>` = `CI= BASE_URL=http://host.docker.internal:80 NGINX_BASE_URL=http://host.docker.internal:80 BROWSER_REMOTE_URL=http://localhost:4444/wd/hub ./gradlew :integrations:selenide:test --tests '<pattern>' --console=plain`. Requires `env -u CI ./tools/environment/scripts/infra/run_app.sh web` (`curl -s http://localhost:4444/wd/hub/status` shows `"ready": true`).
@@ -39,12 +40,14 @@ Commands (from the thin-table plan):
 ### Task 1: Snapshot value types
 
 **Files:**
+
 - Create: `integrations/selenide/src/main/java/dev/quokkify/elements/table/SnapshotCell.java`
 - Create: `integrations/selenide/src/main/java/dev/quokkify/elements/table/SnapshotRow.java`
 - Create: `integrations/selenide/src/main/java/dev/quokkify/elements/table/TableSnapshot.java`
 - Test: `integrations/selenide/src/test/java/dev/quokkify/elements/table/TableSnapshotParsingTest.java`
 
 **Interfaces:**
+
 - Consumes: `ColumnResolver.normalize(String)`, `ColumnResolver.normalize(List<String>)`, `ColumnResolver.indexOf(List<String>, String, String)`, `TableColumnException`.
 - Produces:
   - `public record SnapshotCell(String text, List<String> values)` — compact constructor: `requireNonNull`, `values = List.copyOf(values)`.
@@ -69,6 +72,7 @@ Commands (from the thin-table plan):
 - [ ] **Step 4: Run** the same `UNIT` command → PASS; then `COMPILE` → `BUILD SUCCESSFUL`.
 
 - [ ] **Step 5: Commit**
+
 ```bash
 git add integrations/selenide/src/main/java/dev/quokkify/elements/table/{SnapshotCell,SnapshotRow,TableSnapshot}.java \
         integrations/selenide/src/test/java/dev/quokkify/elements/table/TableSnapshotParsingTest.java
@@ -78,16 +82,18 @@ git commit -m "feat(selenide): add TableSnapshot value types"
 ### Task 2: Locator translation
 
 **Files:**
+
 - Create: `integrations/selenide/src/main/java/dev/quokkify/elements/table/SnapshotLocator.java`
 - Test: `integrations/selenide/src/test/java/dev/quokkify/elements/table/SnapshotLocatorTest.java`
 
 **Interfaces:**
+
 - Consumes: `TableLayout.xpath(By)` (may reuse).
 - Produces: package-private `record SnapshotLocator(String kind, String expr)` with `static SnapshotLocator of(By by)` (`kind` is `"xpath"` or `"css"`) and `Map<String, String> toScriptArg()` returning `{"kind": kind, "expr": expr}`.
 
 - [ ] **Step 1: Write the failing tests:**
   - `translatesXpath`: `of(By.xpath("./tbody/tr[td]"))` = `new SnapshotLocator("xpath", "./tbody/tr[td]")`.
-  - `translatesXpathUnion`: the `html()` headers XPath (with ` | `) is kept verbatim.
+  - `translatesXpathUnion`: the `html()` headers XPath (with `|`) is kept verbatim.
   - `translatesCss`: `of(By.cssSelector(":scope > .data-row"))` = `("css", ":scope > .data-row")`.
   - `rejectsOtherBy`: `of(By.id("x"))` and `of(By.className("x"))` → `UnsupportedOperationException` with message `snapshot() supports By.xpath and By.cssSelector, got: By.id: x`.
   - `scriptArgShape`: `toScriptArg()` = `Map.of("kind","css","expr",".chip")`.
@@ -103,12 +109,14 @@ git commit -m "feat(selenide): add TableSnapshot value types"
 ### Task 3: `Table.snapshot()` and the browser script
 
 **Files:**
+
 - Create: `integrations/selenide/src/main/resources/dev/quokkify/elements/table/snapshot.js`
 - Modify: `integrations/selenide/src/main/java/dev/quokkify/elements/table/Table.java` (add two public methods after `rows(String, String)`)
 - Test: `integrations/selenide/src/test/java/dev/quokkify/elements/table/TableSnapshotLocatorValidationTest.java` (no browser)
 - Test: `integrations/selenide/src/test/java/dev/quokkify/test/TableSnapshotTest.java` (browser)
 
 **Interfaces:**
+
 - Consumes: `SnapshotLocator.of(By)`, `SnapshotLocator.toScriptArg()`, `TableSnapshot.fromScript(Map<?, ?>, String)`.
 - Produces: `public TableSnapshot snapshot()` (= `snapshot(null)` internally, items spec `null`) and `public TableSnapshot snapshot(By items)` (`items` non-null, `requireNonNull(items, "items")`).
 
@@ -136,20 +144,23 @@ Script contract: `arguments = [root, rowsSpec, cellsSpec, headersSpec, itemsSpec
 ### Task 4: Items, hidden elements, one call, large table
 
 **Files:**
+
 - Create: `tools/environment/assets/nginx/html/table-model-contract/snapshot.html`
 - Modify: `integrations/selenide/src/test/java/dev/quokkify/test/BaseTest.java` (add `protected static void openSnapshotFixture()` → `openTableModelContract("snapshot.html")`)
 - Modify: `integrations/selenide/src/test/java/dev/quokkify/test/TableSnapshotTest.java`
 
 **Interfaces:**
+
 - Consumes: `Table.snapshot(By)`, `TableSnapshot.columnValues(String)`.
 - Produces: fixture ids `#chip-grid`, `#large-grid`.
 
 Fixture `snapshot.html` (same page skeleton as `custom-grids.html`):
+
 - `#chip-grid`, ARIA roles (`role=grid/row/columnheader/gridcell`), visible headers `Name`, `Properties`, `Secret`. Rows:
   1. `Alpha` | cell with `display:flex` holding `<span class="chip">Red</span><span class="chip">Blue</span>` | cell with `style="display:none"` and text `s1`.
   2. `Beta` | inline chips `<span class="chip">Green</span> <span class="chip" hidden>Ghost</span>` | `s2` (visible).
   3. `Gamma` | empty | empty.
-- `#large-grid`, ARIA roles, headers `Name`, `Value`, rows generated on load by an inline script: 1200 rows, row *i* (0-based) = `Name i`, `Value i`.
+- `#large-grid`, ARIA roles, headers `Name`, `Value`, rows generated on load by an inline script: 1200 rows, row _i_ (0-based) = `Name i`, `Value i`.
 
 - [ ] **Step 1: Write the failing tests:**
   - `readsChipsWithItemLocator`: `openSnapshotFixture()`; `Table.of($("#chip-grid"), TableLayout.aria()).snapshot(By.cssSelector(".chip"))` → `column("Name")` = `["Alpha","Beta","Gamma"]`; `columnValues("Properties")` = `[["Red","Blue"],["Green"],[]]` (inline chips and the hidden `Ghost` prove locator-based reading).
@@ -169,6 +180,7 @@ Fixture `snapshot.html` (same page skeleton as `custom-grids.html`):
 ### Task 5: Documentation
 
 **Files:**
+
 - Modify: `docs/table-api.md`
 
 - [ ] **Step 1: Edit** `docs/table-api.md`:
