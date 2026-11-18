@@ -25,19 +25,19 @@ public class TableConditionTest {
       row(List.of("Beta", "Green"), List.of(List.of(), List.of("Green"))));
 
   @Test
-  public void exactValuesByAcceptsSameMapInAnyRowOrder() {
+  public void exactItemsByAcceptsSameMapInAnyRowOrder() {
     Map<String, List<String>> expected = new LinkedHashMap<>();
     expected.put("Beta", List.of("Green"));
     expected.put("Alpha", List.of("Red", "Blue"));
 
-    CheckResult result = TableCondition.exactValuesBy("Name", "Properties", CHIP, expected).evaluate(chips);
+    CheckResult result = TableCondition.exactItemsBy("Name", "Properties", CHIP, expected).evaluate(chips);
 
     assertThat(result.verdict()).isEqualTo(ACCEPT);
   }
 
   @Test
-  public void exactValuesByRejectsWithDifference() {
-    CheckResult result = TableCondition.exactValuesBy("Name", "Properties", CHIP,
+  public void exactItemsByRejectsWithDifference() {
+    CheckResult result = TableCondition.exactItemsBy("Name", "Properties", CHIP,
         Map.of("Alpha", List.of("Blue", "Red"), "Gamma", List.of())).evaluate(chips);
 
     assertThat(result.verdict()).isEqualTo(REJECT);
@@ -50,7 +50,7 @@ public class TableConditionTest {
 
   @Test
   public void missingHeaderRejectsInsteadOfThrowing() {
-    CheckResult result = TableCondition.exactValuesBy("Title", "Properties", CHIP, Map.of()).evaluate(chips);
+    CheckResult result = TableCondition.exactItemsBy("Title", "Properties", CHIP, Map.of()).evaluate(chips);
 
     assertThat(result.verdict()).isEqualTo(REJECT);
     assertThat(result.<String>getActualValue()).contains("Title").contains("not found");
@@ -71,7 +71,7 @@ public class TableConditionTest {
     TableSnapshot snap = parse(List.of("Name", "Properties"),
         row(List.of("Alpha", "x"), null), row(List.of("Alpha", "y"), null));
 
-    CheckResult result = TableCondition.exactValuesBy("Name", "Properties", CHIP, Map.of()).evaluate(snap);
+    CheckResult result = TableCondition.exactItemsBy("Name", "Properties", CHIP, Map.of()).evaluate(snap);
 
     assertThat(result.verdict()).isEqualTo(REJECT);
     assertThat(result.<String>getActualValue()).contains("\"Alpha\"").contains("rows 0 and 1");
@@ -103,7 +103,7 @@ public class TableConditionTest {
   public void rowWithoutKeyCellRejects() {
     TableSnapshot snap = parse(List.of("Name", "Properties"), row(List.of("Alpha", "x"), null), row(List.of(), null));
 
-    CheckResult result = TableCondition.exactValuesBy("Name", "Properties", CHIP, Map.of()).evaluate(snap);
+    CheckResult result = TableCondition.exactItemsBy("Name", "Properties", CHIP, Map.of()).evaluate(snap);
 
     assertThat(result.verdict()).isEqualTo(REJECT);
     assertThat(result.<String>getActualValue()).contains("row 1").contains("\"Name\"");
@@ -117,7 +117,7 @@ public class TableConditionTest {
     }
     TableSnapshot empty = parse(List.of("Name", "Properties"));
 
-    String missing = TableCondition.exactValuesBy("Name", "Properties", CHIP, expected).evaluate(empty)
+    String missing = TableCondition.exactItemsBy("Name", "Properties", CHIP, expected).evaluate(empty)
         .<String>getActualValue();
 
     assertThat(missing.lines().skip(2).limit(TableDiff.LIMIT))
@@ -133,7 +133,7 @@ public class TableConditionTest {
     expected.put("second", List.of("x"));
     expected.put("first", List.of("y"));
 
-    String diff = TableCondition.exactValuesBy("Name", "Properties", CHIP, expected).evaluate(snap)
+    String diff = TableCondition.exactItemsBy("Name", "Properties", CHIP, expected).evaluate(snap)
         .<String>getActualValue();
 
     assertThat(diff.indexOf("first:")).isLessThan(diff.indexOf("second:"));
@@ -141,11 +141,11 @@ public class TableConditionTest {
 
   @Test
   public void nullArgumentsFailAtConstruction() {
-    assertThatThrownBy(() -> TableCondition.exactValuesBy(null, "Properties", CHIP, Map.of()))
+    assertThatThrownBy(() -> TableCondition.exactItemsBy(null, "Properties", CHIP, Map.of()))
         .isInstanceOf(NullPointerException.class).hasMessage("keyHeader");
-    assertThatThrownBy(() -> TableCondition.exactValuesBy("Name", null, CHIP, Map.of()))
-        .isInstanceOf(NullPointerException.class).hasMessage("valuesHeader");
-    assertThatThrownBy(() -> TableCondition.exactValuesBy("Name", "Properties", CHIP, null))
+    assertThatThrownBy(() -> TableCondition.exactItemsBy("Name", null, CHIP, Map.of()))
+        .isInstanceOf(NullPointerException.class).hasMessage("header");
+    assertThatThrownBy(() -> TableCondition.exactItemsBy("Name", "Properties", CHIP, null))
         .isInstanceOf(NullPointerException.class).hasMessage("expected");
     assertThatThrownBy(() -> TableCondition.exactRows(null, List.of()))
         .isInstanceOf(NullPointerException.class).hasMessage("headers");
@@ -155,7 +155,7 @@ public class TableConditionTest {
 
   @Test
   public void descriptionDoesNotPrintExpectedRows() {
-    TableCondition condition = TableCondition.exactValuesBy("Name", "Properties", CHIP,
+    TableCondition condition = TableCondition.exactItemsBy("Name", "Properties", CHIP,
         Map.of("Alpha", List.of("Red", "Blue")));
 
     assertThat(condition).hasToString("\"Properties\" items by \"Name\" (1 rows)");
@@ -163,7 +163,7 @@ public class TableConditionTest {
 
   @Test
   public void unsupportedItemsLocatorFailsBeforeBrowser() {
-    assertThatThrownBy(() -> TableCondition.exactValuesBy("Name", "Properties", By.id("chip"), Map.of()))
+    assertThatThrownBy(() -> TableCondition.exactItemsBy("Name", "Properties", By.id("chip"), Map.of()))
         .isInstanceOf(UnsupportedOperationException.class);
   }
 
@@ -181,8 +181,8 @@ public class TableConditionTest {
   }
 
   @Test
-  public void columnValuesByKeepsRowOrderAndIsUnmodifiable() {
-    Map<String, List<String>> values = chips.columnValuesBy("Name", "Properties");
+  public void columnItemsByKeepsRowOrderAndIsUnmodifiable() {
+    Map<String, List<String>> values = chips.columnItemsBy("Name", "Properties");
 
     assertThat(values.keySet()).containsExactly("Alpha", "Beta");
     assertThatThrownBy(() -> values.put("x", List.of())).isInstanceOf(UnsupportedOperationException.class);
@@ -199,7 +199,7 @@ public class TableConditionTest {
   private static Map<String, Object> row(List<String> texts, List<List<String>> values) {
     Map<String, Object> row = new HashMap<>();
     row.put("texts", new ArrayList<>(texts));
-    row.put("values", values);
+    row.put("items", values);
     return row;
   }
 }

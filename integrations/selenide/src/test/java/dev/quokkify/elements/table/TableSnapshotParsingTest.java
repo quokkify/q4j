@@ -22,7 +22,7 @@ public class TableSnapshotParsingTest {
 
     assertThat(snap.headers()).containsExactly("Country", "Company");
     assertThat(snap.rows().get(1).cell("Company").text()).isEqualTo("Berglunds");
-    assertThat(snap.rows().get(0).cell(0).values()).isEmpty();
+    assertThat(snap.rows().get(0).cell(0).items()).isEmpty();
   }
 
   @Test
@@ -31,7 +31,7 @@ public class TableSnapshotParsingTest {
         row(List.of("  Alfreds \n Futterkiste "), List.of(List.of(" Chip A "))));
 
     assertThat(snap.column("Company Name")).containsExactly("Alfreds Futterkiste");
-    assertThat(snap.columnValues("Company Name")).containsExactly(List.of("Chip A"));
+    assertThat(snap.columnItems("Company Name")).containsExactly(List.of("Chip A"));
   }
 
   @Test
@@ -70,7 +70,7 @@ public class TableSnapshotParsingTest {
         row(List.of("Austria", "Alfreds")), row(List.of("Germany")));
 
     assertThat(snap.column("Company")).containsExactly("Alfreds", "");
-    assertThat(snap.columnValues("Company")).containsExactly(List.of(), List.of());
+    assertThat(snap.columnItems("Company")).containsExactly(List.of(), List.of());
     assertThatThrownBy(() -> snap.rows().get(1).cell("Company"))
         .isInstanceOf(NoSuchElementException.class)
         .hasMessageContaining("row 1")
@@ -85,7 +85,7 @@ public class TableSnapshotParsingTest {
   public void valuesNullMeansEmpty() {
     TableSnapshot snap = parse(List.of("Country", "Company"), row(List.of("Austria", "Alfreds")));
 
-    assertThat(snap.rows().get(0).cells()).allSatisfy(cell -> assertThat(cell.values()).isEmpty());
+    assertThat(snap.rows().get(0).cells()).allSatisfy(cell -> assertThat(cell.items()).isEmpty());
   }
 
   @Test
@@ -96,7 +96,7 @@ public class TableSnapshotParsingTest {
     assertThatThrownBy(() -> snap.rows().add(null)).isInstanceOf(UnsupportedOperationException.class);
     assertThatThrownBy(() -> snap.rows().get(0).cells().add(null))
         .isInstanceOf(UnsupportedOperationException.class);
-    assertThatThrownBy(() -> snap.rows().get(0).cell(0).values().add("x"))
+    assertThatThrownBy(() -> snap.rows().get(0).cell(0).items().add("x"))
         .isInstanceOf(UnsupportedOperationException.class);
   }
 
@@ -132,7 +132,7 @@ public class TableSnapshotParsingTest {
   private static Map<String, Object> row(List<String> texts, List<List<String>> values) {
     Map<String, Object> row = new HashMap<>();
     row.put("texts", new ArrayList<>(texts));
-    row.put("values", values);
+    row.put("items", values);
     return row;
   }
 }

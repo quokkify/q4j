@@ -47,8 +47,8 @@ public final class TableSnapshot {
    *
    * @throws TableColumnException when the header is not displayed or is displayed more than once
    */
-  public List<List<String>> columnValues(String header) {
-    return mapColumn(header, cell -> Objects.isNull(cell) ? List.of() : cell.values());
+  public List<List<String>> columnItems(String header) {
+    return mapColumn(header, cell -> Objects.isNull(cell) ? List.of() : cell.items());
   }
 
   /**
@@ -57,7 +57,7 @@ public final class TableSnapshot {
    *
    * @throws TableColumnException when a header is not displayed or is displayed more than once
    */
-  public List<List<String>> texts(List<String> headers) {
+  List<List<String>> texts(List<String> headers) {
     List<Integer> columns = headers.stream()
         .map(header -> ColumnResolver.indexOf(this.headers, header, table)).toList();
     return rows.stream().map(row -> columns.stream().map(column -> {
@@ -83,8 +83,8 @@ public final class TableSnapshot {
    * @throws TableColumnException when a header is not displayed or is displayed more than once
    * @throws IllegalStateException when a row has no key cell or two rows have the same key
    */
-  public Map<String, List<String>> columnValuesBy(String keyHeader, String header) {
-    return keyed(keyHeader, columnValues(header));
+  public Map<String, List<String>> columnItemsBy(String keyHeader, String header) {
+    return keyed(keyHeader, columnItems(header));
   }
 
   private <T> Map<String, T> keyed(String keyHeader, List<T> values) {
@@ -125,12 +125,12 @@ public final class TableSnapshot {
 
   private static SnapshotRow row(int index, Map<?, ?> raw, List<String> headers, String table) {
     List<String> texts = strings(raw.get("texts"), "texts");
-    Object rawValues = raw.get("values");
-    List<?> values = Objects.isNull(rawValues) ? null : list(rawValues, "values");
+    Object rawValues = raw.get("items");
+    List<?> values = Objects.isNull(rawValues) ? null : list(rawValues, "items");
     List<SnapshotCell> cells = new ArrayList<>(texts.size());
     for (int i = 0; i < texts.size(); i++) {
       List<String> items = Objects.isNull(values) ? List.of()
-          : ColumnResolver.normalize(strings(values.get(i), "values"));
+          : ColumnResolver.normalize(strings(values.get(i), "items"));
       cells.add(new SnapshotCell(ColumnResolver.normalize(texts.get(i)), items));
     }
     return new SnapshotRow(index, cells, headers, table);

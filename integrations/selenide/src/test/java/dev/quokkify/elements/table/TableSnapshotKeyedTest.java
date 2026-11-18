@@ -21,7 +21,7 @@ public class TableSnapshotKeyedTest {
 
     assertThat(snap.columnBy("Name", "Properties")).containsExactly(
         Map.entry("Beta", "Green"), Map.entry("Alpha", "Red Blue"));
-    assertThat(snap.columnValuesBy("Name", "Properties")).containsExactly(
+    assertThat(snap.columnItemsBy("Name", "Properties")).containsExactly(
         Map.entry("Beta", List.of("Green")), Map.entry("Alpha", List.of("Red", "Blue")));
   }
 
@@ -30,7 +30,7 @@ public class TableSnapshotKeyedTest {
     TableSnapshot snap = parse(row(List.of("Alpha"), List.of(List.of())));
 
     assertThat(snap.columnBy("Name", "Properties")).containsExactly(Map.entry("Alpha", ""));
-    assertThat(snap.columnValuesBy("Name", "Properties")).containsExactly(Map.entry("Alpha", List.of()));
+    assertThat(snap.columnItemsBy("Name", "Properties")).containsExactly(Map.entry("Alpha", List.of()));
   }
 
   @Test
@@ -61,7 +61,7 @@ public class TableSnapshotKeyedTest {
 
     assertThatThrownBy(() -> snap.columnBy("Id", "Name")).isInstanceOf(TableColumnException.class)
         .hasMessageContaining("\"Id\" not found");
-    assertThatThrownBy(() -> snap.columnValuesBy("Name", "Chips")).isInstanceOf(TableColumnException.class)
+    assertThatThrownBy(() -> snap.columnItemsBy("Name", "Chips")).isInstanceOf(TableColumnException.class)
         .hasMessageContaining("\"Chips\" not found");
   }
 
@@ -84,7 +84,7 @@ public class TableSnapshotKeyedTest {
   private static Map<String, Object> row(List<String> texts, List<List<String>> values) {
     Map<String, Object> row = new HashMap<>();
     row.put("texts", texts);
-    row.put("values", values);
+    row.put("items", values);
     return row;
   }
 }

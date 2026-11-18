@@ -1,16 +1,23 @@
+// Prepended by SnapshotScript: `const isShown = <Selenium's isDisplayed atom>;` so visibility is exactly Selenium's.
 // arguments: root element, then [kind, expr] for rows, cells and headers, then [kind, expr] or [] for items.
 const [root, rowsSpec, cellsSpec, headersSpec, itemsArg] = arguments;
 const itemsSpec = itemsArg.length === 2 ? itemsArg : null;
 
 function find(context, [kind, expr]) {
   if (kind === "xpath") {
-    const result = document.evaluate(
-      expr,
-      context,
-      null,
-      XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
-      null,
-    );
+    let result;
+    try {
+      result = document.evaluate(
+        expr,
+        context,
+        null,
+        XPathResult.ORDERED_NODE_SNAPSHOT_TYPE,
+        null,
+      );
+    } catch (e) {
+      // Selenide fails fast on messages starting with "invalid selector" instead of retrying until the timeout.
+      throw new Error("invalid selector: " + expr + ": " + e.message);
+    }
     const nodes = [];
     for (let i = 0; i < result.snapshotLength; i++) {
       const node = result.snapshotItem(i);
@@ -23,44 +30,43 @@ function find(context, [kind, expr]) {
   return Array.from(context.querySelectorAll(expr));
 }
 
-// Close to Selenium's isShown, so snapshot text agrees with getText(): no box, visibility:hidden or opacity:0
-// (on the element or an ancestor) is hidden; a display:contents element has no box of its own and is shown when
-// any child is.
-function visible(el) {
-  const style = getComputedStyle(el);
-  if (style.display === "contents") {
-    return Array.from(el.children).some(visible);
+function transform(text, style) {
+  switch (style.textTransform) {
+    case "uppercase":
+      return text.toUpperCase();
+    case "lowercase":
+      return text.toLowerCase();
+    case "capitalize":
+      return text.replace(
+        /(^|\s)(\p{L})/gu,
+        (_, space, letter) => space + letter.toUpperCase(),
+      );
+    default:
+      return text;
   }
-  if (typeof el.checkVisibility === "function") {
-    return (
-      el.checkVisibility({ checkOpacity: true, checkVisibilityCSS: true }) &&
-      el.getClientRects().length > 0
-    );
-  }
-  return (
-    el.getClientRects().length > 0 &&
-    style.visibility !== "hidden" &&
-    Number(style.opacity) > 0
-  );
 }
 
-// Visible text like Selenium's getText(): innerText alone keeps the text of opacity:0 descendants, so an element
-// with child elements is read child by child with the same visibility rule. Whitespace is normalized by the caller.
+// Visible text like Selenium's getText(): an element contributes its own text only when Selenium considers it shown,
+// and its children are judged one by one, so a visible child of a visibility:hidden parent still counts. Block-level
+// children are separated by spaces; whitespace is normalized by the caller.
 function text(el) {
-  if (!visible(el)) {
-    return "";
-  }
-  if (!el.firstElementChild) {
-    return el.innerText;
-  }
+  const shown = isShown(el);
+  const style = getComputedStyle(el);
   let result = "";
   for (const node of el.childNodes) {
     if (node.nodeType === Node.TEXT_NODE) {
-      result += node.textContent;
+      if (shown) {
+        result += transform(node.textContent, style);
+      }
     } else if (node.nodeType === Node.ELEMENT_NODE) {
-      const inline = getComputedStyle(node).display.startsWith("inline");
-      const part = node.tagName === "BR" ? " " : text(node);
-      result += inline ? part : " " + part + " ";
+      if (node.tagName === "BR") {
+        result += shown ? " " : "";
+        continue;
+      }
+      const part = text(node);
+      result += getComputedStyle(node).display.startsWith("inline")
+        ? part
+        : " " + part + " ";
     }
   }
   return result;
@@ -72,8 +78,12 @@ return {
     const cells = find(row, cellsSpec);
     return {
       texts: cells.map(text),
-      values: itemsSpec
-        ? cells.map((cell) => find(cell, itemsSpec).filter(visible).map(text))
+      items: itemsSpec
+        ? cells.map((cell) =>
+            find(cell, itemsSpec)
+              .filter((item) => isShown(item))
+              .map(text),
+          )
         : null,
     };
   }),

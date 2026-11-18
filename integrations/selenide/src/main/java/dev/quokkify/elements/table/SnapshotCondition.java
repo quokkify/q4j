@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
 import com.codeborne.selenide.CheckResult;
 import com.codeborne.selenide.Driver;
@@ -11,27 +12,35 @@ import com.codeborne.selenide.WebElementCondition;
 import org.openqa.selenium.WebElement;
 
 /**
- * Checks a table root by reading a {@link TableSnapshot} in one browser call and running the caller's assertions on
- * it. Selenide re-evaluates the condition until it is accepted, so every attempt is a fresh, consistent read.
+ * The one way a {@link Table} is read: a Selenide condition on the table root that reads a {@link TableSnapshot} in
+ * one browser call with the root's own driver and judges it. Selenide re-locates the root and re-evaluates the
+ * condition until it is accepted, so every attempt is a fresh, consistent read.
  */
 final class SnapshotCondition extends WebElementCondition {
 
   private final String table;
   private final List<List<String>> locators;
-  private final Consumer<TableSnapshot> assertions;
+  private final Function<TableSnapshot, CheckResult> judge;
+  private TableSnapshot last;
 
-  SnapshotCondition(String table, List<List<String>> locators, Consumer<TableSnapshot> assertions) {
-    super("table data satisfying the assertions");
+  SnapshotCondition(String description, String table, List<List<String>> locators,
+      Function<TableSnapshot, CheckResult> judge) {
+    super(description);
     this.table = table;
     this.locators = locators;
-    this.assertions = Objects.requireNonNull(assertions, "assertions");
+    this.judge = Objects.requireNonNull(judge, "judge");
   }
 
   @Override
   public CheckResult check(Driver driver, WebElement root) {
-    Object[] args = Table.scriptArgs(root, locators);
-    return evaluate(TableSnapshot.fromScript(driver.executeJavaScript(SnapshotScript.SOURCE, args), table),
-        assertions);
+    last = TableSnapshot.fromScript(driver.executeJavaScript(SnapshotScript.SOURCE, root, locators.get(0),
+        locators.get(1), locators.get(2), locators.get(3)), table);
+    return judge.apply(last);
+  }
+
+  /** The snapshot read by the last evaluation. */
+  TableSnapshot last() {
+    return last;
   }
 
   /**

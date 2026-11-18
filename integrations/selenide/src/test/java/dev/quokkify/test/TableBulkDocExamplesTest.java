@@ -29,16 +29,18 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 /**
  * Runs every example of {@code docs/table-bulk-checks.md} against the fixtures and asserts its documented result.
- * Each example is also captured as a screenshot in {@code build/reports/table-docs}: a code panel, a result panel and
- * the table with the elements involved highlighted. Copy the images to {@code docs/table-bulk-checks/} to refresh
- * the document.
+ * With {@code ./gradlew :integrations:selenide:tableDocScreenshots} each example is also captured as a screenshot in
+ * {@code build/reports/table-docs}: a code panel, a result panel and the table with the elements involved
+ * highlighted. Copy the images to {@code docs/table-bulk-checks/} to refresh the document.
  */
 public class TableBulkDocExamplesTest extends BaseTest {
 
   private static final Path OUTPUT = Path.of("build", "reports", "table-docs");
+  /** Set by the {@code tableDocScreenshots} Gradle task; a plain test run only checks the examples. */
+  private static final String SCREENSHOTS = "table.docs.screenshots";
   private static final By CHIP = By.cssSelector(".chip");
   private static final int LARGE_ROWS = 1200;
-  private static final int LATE_ROW_MS = 1500;
+  private static final int LATE_ROW_MS = 300;
 
   /** Moves the table into a frame with a code panel, a result panel and a legend; marks it ready for a screenshot. */
   private static final String DECORATE = """
@@ -126,6 +128,7 @@ public class TableBulkDocExamplesTest extends BaseTest {
     TableSnapshot snap = grid.snapshot();
     assertThat(snap.headers()).containsExactly("Name", "Properties", "Secret");
     assertThat(snap.column("Name")).containsExactly("Alpha", "Beta", "Gamma");
+    assertThat(snap.rows().get(1).cell("Secret").text()).isEqualTo("s2");
     shot(grid, "01-snapshot", """
         TableSnapshot snap = grid.snapshot();     // one browser call
         snap.headers();                           // amber
@@ -135,14 +138,14 @@ public class TableBulkDocExamplesTest extends BaseTest {
         new String[] {HEADERS, AMBER}, new String[] {DATA_ROWS, BLUE});
 
     TableSnapshot chips = grid.snapshot(CHIP);
-    assertThat(chips.columnValues("Properties")).containsExactly(List.of("Red", "Blue"), List.of("Green"),
+    assertThat(chips.columnItems("Properties")).containsExactly(List.of("Red", "Blue"), List.of("Green"),
         List.of("Violet"));
     shot(grid, "02-items", """
         TableSnapshot snap = grid.snapshot(By.cssSelector(".chip"));
         snap.column("Properties");        // cell text
-        snap.columnValues("Properties");  // red: items found inside each cell""",
+        snap.columnItems("Properties");  // red: items found inside each cell""",
         "column(\"Properties\")       = " + chips.column("Properties")
-            + "\ncolumnValues(\"Properties\") = " + chips.columnValues("Properties"),
+            + "\ncolumnItems(\"Properties\") = " + chips.columnItems("Properties"),
         List.of(List.of(RED, "items read by the .chip locator")), 0,
         new String[] {".chip:not([hidden])", RED});
 
@@ -152,27 +155,28 @@ public class TableBulkDocExamplesTest extends BaseTest {
         grid.snapshot(By.cssSelector(".chip")).column("Secret");
         // row 1: display:none, row 3: opacity:0 -> "" (same as getText() of the lazy API)
         // row 2 chips: hidden, visibility:hidden and opacity:0 chips are skipped""",
-        "column(\"Secret\")             = " + chips.column("Secret")
-            + "\ncolumnValues(\"Properties\") = " + chips.columnValues("Properties"),
+        "column(\"Secret\")             = " + quoted(chips.column("Secret"))
+            + "\ncolumnItems(\"Properties\") = " + chips.columnItems("Properties"),
         List.of(List.of(GREY, "cell with hidden, invisible and transparent chips"), List.of(RED, "items returned")),
         0, new String[] {"[role=gridcell]:has(> [hidden])", GREY, "dashed"},
         new String[] {VISIBLE_CHIPS, RED});
 
-    Map<String, List<String>> byName = chips.columnValuesBy("Name", "Properties");
+    assertThat(grid.snapshot().columnBy("Name", "Secret"))
+        .containsExactly(Map.entry("Alpha", ""), Map.entry("Beta", "s2"), Map.entry("Gamma", ""));
+    Map<String, List<String>> byName = chips.columnItemsBy("Name", "Properties");
     assertThat(byName).containsExactly(Map.entry("Alpha", List.of("Red", "Blue")), Map.entry("Beta",
         List.of("Green")), Map.entry("Gamma", List.of("Violet")));
     shot(grid, "04-keyed-map", """
         Map<String, List<String>> chips = grid.snapshot(By.cssSelector(".chip"))
-            .columnValuesBy("Name", "Properties");   // key column -> items, in row order""",
-        "columnValuesBy(\"Name\", \"Properties\") = " + byName,
-        List.of(List.of(BLUE, "key cells (Name)"), List.of(RED, "values")), 0,
+            .columnItemsBy("Name", "Properties");   // key column -> items, in row order""",
+        "columnItemsBy(\"Name\", \"Properties\") = " + byName,
+        List.of(List.of(BLUE, "key cells (Name)"), List.of(RED, "items")), 0,
         new String[] {DATA_ROWS + " > :first-child", BLUE}, new String[] {VISIBLE_CHIPS, RED});
   }
 
   @Test(description = "Docs 5-7: whole-table checks wait, report a short diff and compare aligned rows")
   public void checkExamples() {
     openSnapshotFixture();
-    Selenide.executeJavaScript(APPEND_ROW_LATER, LATE_ROW_MS);
     Table grid = chipGrid();
     Map<String, List<String>> expected = new LinkedHashMap<>();
     expected.put("Alpha", List.of("Red", "Blue"));
@@ -180,17 +184,18 @@ public class TableBulkDocExamplesTest extends BaseTest {
     expected.put("Gamma", List.of("Violet"));
     expected.put("Delta", List.of("Gold", "Grey"));
     String code = """
-        grid.shouldHave(TableCondition.exactValuesBy("Name", "Properties", By.cssSelector(".chip"), Map.of(
+        grid.shouldHave(TableCondition.exactItemsBy("Name", "Properties", By.cssSelector(".chip"), Map.of(
             "Alpha", List.of("Red", "Blue"),
             "Beta",  List.of("Green"),
             "Gamma", List.of("Violet"),
-            "Delta", List.of("Gold", "Grey"))));   // Delta is rendered 1.5 s after page load""";
-    TableCondition condition = TableCondition.exactValuesBy("Name", "Properties", CHIP, expected);
+            "Delta", List.of("Gold", "Grey"))));   // the Delta row is rendered later""";
+    TableCondition condition = TableCondition.exactItemsBy("Name", "Properties", CHIP, expected);
     String firstAttempt = failureOf(() -> grid.shouldHave(condition, Duration.ofMillis(1)));
     assertThat(firstAttempt).contains("missing (1):").contains("Delta");
     shot(grid, "05a-wait-before", code, firstAttempt + "\n... not ready yet: read again on the next poll",
         List.of(List.of(BLUE, "rows read in this attempt")), 0, new String[] {DATA_ROWS, BLUE});
 
+    Selenide.executeJavaScript(APPEND_ROW_LATER, LATE_ROW_MS);
     grid.shouldHave(condition);
     shot(grid, "05b-wait-after", code, "passed: 4 rows match",
         List.of(List.of(GREEN, "rows that matched")), 0, new String[] {DATA_ROWS, GREEN});
@@ -201,13 +206,13 @@ public class TableBulkDocExamplesTest extends BaseTest {
     wrong.put("Gamma", List.of("Violet"));
     wrong.put("Epsilon", List.of());
     String diff = failureOf(() -> grid.shouldHave(
-        TableCondition.exactValuesBy("Name", "Properties", CHIP, wrong), Duration.ofSeconds(1)));
+        TableCondition.exactItemsBy("Name", "Properties", CHIP, wrong), Duration.ofMillis(300)));
     assertThat(diff).contains("missing (1):").contains("Epsilon").contains("unexpected (1):").contains("Delta")
         .contains("Alpha: expected [Red] but was [Red, Blue]");
     shot(grid, "06-failure-diff", """
-        grid.shouldHave(TableCondition.exactValuesBy("Name", "Properties", By.cssSelector(".chip"), Map.of(
+        grid.shouldHave(TableCondition.exactItemsBy("Name", "Properties", By.cssSelector(".chip"), Map.of(
             "Alpha", List.of("Red"), "Beta", List.of("Green"), "Gamma", List.of("Violet"),
-            "Epsilon", List.of())), Duration.ofSeconds(1));""", diff,
+            "Epsilon", List.of())), Duration.ofMillis(300));""", diff,
         List.of(List.of(RED, "different"), List.of(AMBER, "unexpected")), 0,
         new String[] {DATA_ROWS + ":nth-child(2)", RED}, new String[] {DATA_ROWS + ":last-child", AMBER});
 
@@ -227,12 +232,12 @@ public class TableBulkDocExamplesTest extends BaseTest {
     Table grid = chipGrid();
     grid.shouldSatisfy(CHIP, snap -> {
       assertThat(snap.column("Name")).doesNotContain("Failed").hasSize(3);
-      assertThat(snap.columnValuesBy("Name", "Properties").get("Alpha")).contains("Red");
+      assertThat(snap.columnItemsBy("Name", "Properties").get("Alpha")).contains("Red");
     });
     shot(grid, "08-should-satisfy", """
         grid.shouldSatisfy(By.cssSelector(".chip"), snap -> {
           assertThat(snap.column("Name")).doesNotContain("Failed").hasSize(3);
-          assertThat(snap.columnValuesBy("Name", "Properties").get("Alpha")).contains("Red");
+          assertThat(snap.columnItemsBy("Name", "Properties").get("Alpha")).contains("Red");
         });   // re-read and re-asserted until it passes or the timeout expires""", "passed",
         List.of(List.of(GREEN, "values the assertions looked at")), 0,
         new String[] {DATA_ROWS + " > :first-child", GREEN}, new String[] {DATA_ROWS + ":nth-child(2) .chip", GREEN});
@@ -257,11 +262,16 @@ public class TableBulkDocExamplesTest extends BaseTest {
     return table;
   }
 
+  private static String quoted(List<String> texts) {
+    return texts.stream().map(text -> "\"" + text + "\"").collect(Collectors.joining(", ", "[", "]"));
+  }
+
   private static String failureOf(Runnable check) {
     try {
       check.run();
     } catch (ElementShould e) {
       String message = e.getMessage();
+      assertThat(message).as("Selenide failure message").contains("Actual value: ");
       return message.substring(message.indexOf("Actual value: ")).lines()
           .takeWhile(line -> !line.startsWith("Screenshot") && !line.startsWith("Page source")
               && !line.startsWith("Timeout"))
@@ -272,6 +282,9 @@ public class TableBulkDocExamplesTest extends BaseTest {
 
   private static void shot(Table table, String name, String code, String result, List<List<String>> legend,
       int maxHeight, String[]... outlines) {
+    if (!Boolean.getBoolean(SCREENSHOTS)) {
+      return;
+    }
     Selenide.executeJavaScript(DECORATE, table.root(), code, result, legend, maxHeight);
     for (String[] outline : outlines) {
       Selenide.executeJavaScript(OUTLINE, table.root(), outline[0], outline[1], outline.length > 2);

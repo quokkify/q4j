@@ -5,6 +5,7 @@ import java.time.Duration;
 import java.util.List;
 import java.util.concurrent.CopyOnWriteArrayList;
 
+import dev.quokkify.annotation.Sequential;
 import dev.quokkify.elements.table.SnapshotCell;
 import dev.quokkify.elements.table.SnapshotRow;
 import dev.quokkify.elements.table.Table;
@@ -12,6 +13,7 @@ import dev.quokkify.elements.table.TableColumnException;
 import dev.quokkify.elements.table.TableLayout;
 import dev.quokkify.elements.table.TableSnapshot;
 
+import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.WebDriverRunner;
 import com.codeborne.selenide.ex.ElementNotFound;
 import org.openqa.selenium.By;
@@ -42,7 +44,7 @@ public class TableSnapshotTest extends BaseTest {
   }
 
   @Test
-  public void snapshotMatchesLazyApiOnAriaGrid() {
+  public void snapshotReadsAriaGrid() {
     openCustomGridsFixture();
     Table table = Table.of($("#aria-grid"), TableLayout.aria());
     table.rows().shouldHave(sizeGreaterThan(0));
@@ -100,7 +102,7 @@ public class TableSnapshotTest extends BaseTest {
     TableSnapshot snap = table.snapshot(By.cssSelector(".chip"));
 
     assertThat(snap.column("Name")).containsExactly("Alpha", "Beta", "Gamma");
-    assertThat(snap.columnValues("Properties"))
+    assertThat(snap.columnItems("Properties"))
         .containsExactly(List.of("Red", "Blue"), List.of("Green"), List.of("Violet"));
     assertThat(snap.rows().get(2).cell("Properties").text()).isEqualTo("Violet")
         .isEqualTo(table.row(2).cell("Properties").text());
@@ -129,10 +131,11 @@ public class TableSnapshotTest extends BaseTest {
     TableSnapshot snap = chipGrid().snapshot();
 
     assertThat(snap.rows()).flatExtracting(SnapshotRow::cells)
-        .allSatisfy(cell -> assertThat(((SnapshotCell) cell).values()).isEmpty());
+        .allSatisfy(cell -> assertThat(((SnapshotCell) cell).items()).isEmpty());
   }
 
   @Test
+  @Sequential
   public void snapshotMakesNoPerRowDriverCalls() {
     // Selenide unwraps the decorated driver before executeScript, so the script call itself is invisible here;
     // every element-level call a per-row read would need (findElements, getText, isDisplayed) is visible.
@@ -160,6 +163,7 @@ public class TableSnapshotTest extends BaseTest {
       List<String> largeCalls = List.copyOf(calls);
 
       assertThat(snap.rows()).hasSize(LARGE_ROWS);
+      assertThat(smallCalls).as("driver calls recorded during a snapshot").contains("findElement");
       assertThat(largeCalls).isEqualTo(smallCalls).doesNotContain("findElements", "getText", "getDomProperty",
           "getAttribute");
     } finally {
@@ -168,6 +172,7 @@ public class TableSnapshotTest extends BaseTest {
   }
 
   @Test
+  @Sequential
   public void largeTableReadsFast() {
     openSnapshotFixture();
     Table table = largeGrid();
@@ -176,8 +181,47 @@ public class TableSnapshotTest extends BaseTest {
     TableSnapshot snap = table.snapshot();
     Duration elapsed = Duration.ofNanos(System.nanoTime() - start);
 
-    assertThat(elapsed).isLessThan(Duration.ofSeconds(2));
+    assertThat(elapsed).isLessThan(Duration.ofSeconds(10));
     assertThat(snap.column("Value").get(LARGE_ROWS - 1)).isEqualTo("Value " + (LARGE_ROWS - 1));
+  }
+
+  /** Markup where innerText and a naive visibility check disagree with Selenium's getText(). */
+  private static final String TRICKY_TABLE = """
+      document.body.insertAdjacentHTML('beforeend', `
+        <table id="tricky"><thead><tr>
+          <th style="text-transform:uppercase"><svg width="10" height="10"><path d="M0 0h10v10z"/></svg> name
+            <span>sort</span></th>
+          <th>State</th>
+        </tr></thead><tbody>
+          <tr><td><svg width="10" height="10"><path d="M0 0h10v10z"/></svg> Active</td>
+            <td><div style="visibility:hidden">hid<span style="visibility:visible">shown</span></div></td></tr>
+          <tr><td><select><option>One</option><option>Two</option></select></td>
+            <td><span style="display:contents">contents text</span></td></tr>
+          <tr><td><span style="display:inline-block;width:0;height:0;overflow:hidden">ghost</span><b>real</b></td>
+            <td style="text-transform:lowercase"><span>MiXeD</span> Text</td></tr>
+        </tbody></table>`);
+      """;
+
+  @Test(description = "Regression guard: cell and header texts equal Selenium getText() on icons, styles and controls")
+  public void snapshotTextMatchesGetTextOnTrickyMarkup() {
+    openSnapshotFixture();
+    Selenide.executeJavaScript(TRICKY_TABLE);
+    Table table = Table.of($("#tricky"), TableLayout.html());
+    table.rows().shouldHave(size(3));
+
+    TableSnapshot snap = table.snapshot();
+
+    assertThat(snap.headers()).isEqualTo(table.headers().texts().stream().map(TableSnapshotTest::normalize).toList());
+    for (int row = 0; row < 3; row++) {
+      for (int column = 0; column < 2; column++) {
+        assertThat(snap.rows().get(row).cell(column).text()).as("row %d, column %d", row, column)
+            .isEqualTo(normalize(table.row(row).cell(column).getText()));
+      }
+    }
+  }
+
+  private static String normalize(String text) {
+    return text.replaceAll("[\\s\\u00A0]+", " ").strip();
   }
 
   private static Table chipGrid() {

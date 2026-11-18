@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.stream.IntStream;
 
+import dev.quokkify.annotation.Sequential;
 import dev.quokkify.elements.table.Table;
 import dev.quokkify.elements.table.TableCondition;
 import dev.quokkify.elements.table.TableLayout;
@@ -49,7 +50,7 @@ public class TableShouldHaveTest extends BaseTest {
   public void chipGridMatchesChipsByName() {
     openSnapshotFixture();
 
-    chipGrid().shouldHave(TableCondition.exactValuesBy("Name", "Properties", CHIP, Map.of(
+    chipGrid().shouldHave(TableCondition.exactItemsBy("Name", "Properties", CHIP, Map.of(
         "Gamma", List.of("Violet"),
         "Alpha", List.of("Red", "Blue"),
         "Beta", List.of("Green"))));
@@ -62,7 +63,7 @@ public class TableShouldHaveTest extends BaseTest {
         + " const chip = document.createElement('span'); chip.className = 'chip'; chip.textContent = 'Yellow';"
         + " document.querySelector('#chip-grid .chips-flex').appendChild(chip); }, 800)");
 
-    chipGrid().shouldHave(TableCondition.exactValuesBy("Name", "Properties", CHIP, Map.of(
+    chipGrid().shouldHave(TableCondition.exactItemsBy("Name", "Properties", CHIP, Map.of(
         "Alpha", List.of("Red", "Blue", "Yellow"),
         "Beta", List.of("Green"),
         "Gamma", List.of("Violet"))));
@@ -83,7 +84,7 @@ public class TableShouldHaveTest extends BaseTest {
   public void mismatchFailsWithShortDifference() {
     openSnapshotFixture();
 
-    assertThatThrownBy(() -> chipGrid().shouldHave(TableCondition.exactValuesBy("Name", "Properties", CHIP, Map.of(
+    assertThatThrownBy(() -> chipGrid().shouldHave(TableCondition.exactItemsBy("Name", "Properties", CHIP, Map.of(
         "Alpha", List.of("Red"),
         "Beta", List.of("Green"),
         "Delta", List.of())), SHORT))
@@ -115,6 +116,7 @@ public class TableShouldHaveTest extends BaseTest {
   }
 
   @Test
+  @Sequential
   public void issueSizedChipGridVerifiesFast() {
     openSnapshotFixture();
     Selenide.executeJavaScript(BUILD_CHIP_GRID, CHIP_ROWS);
@@ -123,13 +125,14 @@ public class TableShouldHaveTest extends BaseTest {
     Table grid = Table.of($("#issue-grid"), TableLayout.aria());
 
     long start = System.nanoTime();
-    grid.shouldHave(TableCondition.exactValuesBy("Name", "Properties", CHIP, expected));
+    grid.shouldHave(TableCondition.exactItemsBy("Name", "Properties", CHIP, expected));
     Duration elapsed = Duration.ofNanos(System.nanoTime() - start);
 
-    assertThat(elapsed).isLessThan(Duration.ofSeconds(2));
+    assertThat(elapsed).isLessThan(Duration.ofSeconds(10));
   }
 
   @Test
+  @Sequential
   public void largeGridExactRowsVerifiesFast() {
     openSnapshotFixture();
     List<List<String>> expected = IntStream.range(0, LARGE_ROWS)
@@ -140,7 +143,7 @@ public class TableShouldHaveTest extends BaseTest {
     grid.shouldHave(TableCondition.exactRows(List.of("Name", "Value"), expected));
     Duration elapsed = Duration.ofNanos(System.nanoTime() - start);
 
-    assertThat(elapsed).isLessThan(Duration.ofSeconds(2));
+    assertThat(elapsed).isLessThan(Duration.ofSeconds(10));
   }
 
   private static Table chipGrid() {

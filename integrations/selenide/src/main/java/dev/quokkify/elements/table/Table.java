@@ -4,17 +4,16 @@ import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
 import java.util.function.Consumer;
+import java.util.function.Function;
 
+import com.codeborne.selenide.CheckResult;
 import com.codeborne.selenide.ElementsCollection;
-import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.ex.UIAssertionError;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 
 import static com.codeborne.selenide.CollectionCondition.anyMatch;
 import static com.codeborne.selenide.CollectionCondition.itemWithText;
-import static com.codeborne.selenide.Condition.exist;
 
 /**
  * Thin header-aware view over a table-like element. Returned elements and collections are lazy:
@@ -83,16 +82,16 @@ public final class Table {
 
   /**
    * Like {@link #snapshot()}, and also reads the texts of the elements matching {@code items} inside each cell (for
-   * example chips or tags) into {@link SnapshotCell#values()}. Hidden items are skipped.
+   * example chips or tags) into {@link SnapshotCell#items()}. Hidden items are skipped.
    */
   public TableSnapshot snapshot(By items) {
     return read(SnapshotLocator.of(Objects.requireNonNull(items, "items")));
   }
 
   private TableSnapshot read(SnapshotLocator items) {
-    List<List<String>> locators = scriptLocators(items);
-    Object[] args = scriptArgs(root.should(exist).toWebElement(), locators);
-    return TableSnapshot.fromScript(Selenide.executeJavaScript(SnapshotScript.SOURCE, args), root.toString());
+    SnapshotCondition read = condition("be readable as a table", items, snapshot -> CheckResult.accepted());
+    root.should(read);
+    return read.last();
   }
 
   /**
@@ -101,13 +100,13 @@ public final class Table {
    * Selenide {@code ElementShould} on the root whose actual value describes the difference.
    */
   public Table shouldHave(TableCondition condition) {
-    root.shouldHave(condition.bind(this));
+    root.shouldHave(condition(condition.toString(), condition.items(), condition::evaluate));
     return this;
   }
 
   /** Like {@link #shouldHave(TableCondition)}, with an explicit timeout. */
   public Table shouldHave(TableCondition condition, Duration timeout) {
-    root.shouldHave(condition.bind(this), timeout);
+    root.shouldHave(condition(condition.toString(), condition.items(), condition::evaluate), timeout);
     return this;
   }
 
@@ -142,25 +141,21 @@ public final class Table {
   }
 
   private SnapshotCondition satisfying(SnapshotLocator items, Consumer<TableSnapshot> assertions) {
-    return new SnapshotCondition(root.toString(), scriptLocators(items), assertions);
+    Objects.requireNonNull(assertions, "assertions");
+    return condition("table data satisfying the assertions", items,
+        snapshot -> SnapshotCondition.evaluate(snapshot, assertions));
   }
 
   /**
-   * The {@code [kind, expr]} locator arguments of {@link SnapshotScript}: rows, cells, headers, then items or
-   * {@code []}. Throws {@link UnsupportedOperationException} for a locator other than XPath or CSS.
+   * A condition reading this table with the script locators of rows, cells, headers and {@code items}; rejects a
+   * locator other than XPath or CSS with {@link UnsupportedOperationException} before any browser call.
    */
-  List<List<String>> scriptLocators(SnapshotLocator items) {
-    return List.of(SnapshotLocator.of(layout.rows()).toScriptArg(), SnapshotLocator.of(layout.cells()).toScriptArg(),
-        SnapshotLocator.of(layout.headers()).toScriptArg(), Objects.isNull(items) ? List.of() : items.toScriptArg());
-  }
-
-  static Object[] scriptArgs(WebElement rootElement, List<List<String>> locators) {
-    Object[] args = new Object[locators.size() + 1];
-    args[0] = rootElement;
-    for (int i = 0; i < locators.size(); i++) {
-      args[i + 1] = locators.get(i);
-    }
-    return args;
+  private SnapshotCondition condition(String description, SnapshotLocator items,
+      Function<TableSnapshot, CheckResult> judge) {
+    List<List<String>> locators = List.of(SnapshotLocator.of(layout.rows()).toScriptArg(),
+        SnapshotLocator.of(layout.cells()).toScriptArg(), SnapshotLocator.of(layout.headers()).toScriptArg(),
+        Objects.isNull(items) ? List.of() : items.toScriptArg());
+    return new SnapshotCondition(description, root.toString(), locators, judge);
   }
 
   /**

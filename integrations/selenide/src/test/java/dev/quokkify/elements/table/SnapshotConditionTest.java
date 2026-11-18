@@ -92,7 +92,7 @@ public class SnapshotConditionTest {
   private static Map<String, Object> row(String name) {
     Map<String, Object> row = new HashMap<>();
     row.put("texts", List.of(name, "x"));
-    row.put("values", null);
+    row.put("items", null);
     return row;
   }
 }

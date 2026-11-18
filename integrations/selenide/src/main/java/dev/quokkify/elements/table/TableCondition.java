@@ -8,10 +8,7 @@ import java.util.Objects;
 import java.util.function.Function;
 
 import com.codeborne.selenide.CheckResult;
-import com.codeborne.selenide.Driver;
-import com.codeborne.selenide.WebElementCondition;
 import org.openqa.selenium.By;
-import org.openqa.selenium.WebElement;
 
 /**
  * An expectation on a whole table, checked by {@link Table#shouldHave(TableCondition)}. Every check reads the table
@@ -46,20 +43,20 @@ public final class TableCondition {
   }
 
   /**
-   * The rows keyed by the text of {@code keyHeader} have exactly the {@code items} found in their {@code valuesHeader}
+   * The rows keyed by the text of {@code keyHeader} have exactly the {@code items} found in their {@code header}
    * cell: same keys in any row order, same items in displayed order. Keys must be unique. A failure lists missing keys
    * in the order of {@code expected} and other differences in row order.
    */
-  public static TableCondition exactValuesBy(String keyHeader, String valuesHeader, By items,
+  public static TableCondition exactItemsBy(String keyHeader, String header, By items,
       Map<String, List<String>> expected) {
     Objects.requireNonNull(keyHeader, "keyHeader");
-    Objects.requireNonNull(valuesHeader, "valuesHeader");
+    Objects.requireNonNull(header, "header");
     Map<String, List<String>> values = new LinkedHashMap<>();
     Objects.requireNonNull(expected, "expected").forEach((key, list) -> values.put(Objects.requireNonNull(key, "key"),
         List.copyOf(list)));
-    return new TableCondition("\"" + valuesHeader + "\" items by \"" + keyHeader + "\" (" + values.size() + " rows)",
+    return new TableCondition("\"" + header + "\" items by \"" + keyHeader + "\" (" + values.size() + " rows)",
         SnapshotLocator.of(Objects.requireNonNull(items, "items")),
-        snap -> snap.columnValuesBy(keyHeader, valuesHeader),
+        snap -> snap.columnItemsBy(keyHeader, header),
         Collections.unmodifiableMap(values));
   }
 
@@ -81,16 +78,8 @@ public final class TableCondition {
     return CheckResult.rejected(difference, difference);
   }
 
-  WebElementCondition bind(Table table) {
-    List<List<String>> locators = table.scriptLocators(items);
-    return new WebElementCondition(description) {
-      @Override
-      public CheckResult check(Driver driver, WebElement root) {
-        Object[] args = Table.scriptArgs(root, locators);
-        return evaluate(TableSnapshot.fromScript(driver.executeJavaScript(SnapshotScript.SOURCE, args),
-            table.root().toString()));
-      }
-    };
+  SnapshotLocator items() {
+    return items;
   }
 
   @Override
