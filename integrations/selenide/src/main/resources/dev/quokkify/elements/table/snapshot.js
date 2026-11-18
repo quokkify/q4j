@@ -44,8 +44,26 @@ function visible(el) {
   );
 }
 
+// Visible text like Selenium's getText(): innerText alone keeps the text of opacity:0 descendants, so an element
+// with child elements is read child by child with the same visibility rule. Whitespace is normalized by the caller.
 function text(el) {
-  return visible(el) ? el.innerText : "";
+  if (!visible(el)) {
+    return "";
+  }
+  if (!el.firstElementChild) {
+    return el.innerText;
+  }
+  let result = "";
+  for (const node of el.childNodes) {
+    if (node.nodeType === Node.TEXT_NODE) {
+      result += node.textContent;
+    } else if (node.nodeType === Node.ELEMENT_NODE) {
+      const inline = getComputedStyle(node).display.startsWith("inline");
+      const part = node.tagName === "BR" ? " " : text(node);
+      result += inline ? part : " " + part + " ";
+    }
+  }
+  return result;
 }
 
 return {

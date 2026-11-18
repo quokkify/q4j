@@ -150,6 +150,9 @@ For `@FindBy` page objects, wrap the helper in a small project component; see th
 Layouts, behaviour, limits and the migration table from the removed table stack are in
 [`docs/table-api.md`](../../docs/table-api.md).
 
+To read or check a large table in one browser call (`snapshot()`, `shouldHave(TableCondition)`, `shouldSatisfy`),
+see [`docs/table-bulk-checks.md`](../../docs/table-bulk-checks.md), with a screenshot for every example.
+
 ## Dropdowns
 
 Custom dropdowns (comboboxes, chip pickers) need no library type: opening, picking, chips and waiting are

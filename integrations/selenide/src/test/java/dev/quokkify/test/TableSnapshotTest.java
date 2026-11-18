@@ -116,6 +116,8 @@ public class TableSnapshotTest extends BaseTest {
     assertThat(snap.rows().get(0).cell("Secret").text()).isEmpty();
     assertThat(table.row(0).cell("Secret").text()).isEmpty();
     assertThat(snap.rows().get(1).cell("Secret").text()).isEqualTo("s2");
+    assertThat(snap.rows().get(1).cell("Properties").text()).isEqualTo("Green")
+        .isEqualTo(table.row(1).cell("Properties").text().trim());
     assertThat(snap.rows().get(2).cell("Secret").text()).isEmpty();
     assertThat(table.row(2).cell("Secret").text()).isEmpty();
   }

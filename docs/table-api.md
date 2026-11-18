@@ -181,6 +181,8 @@ predicate) so fewer rows are evaluated. To read a whole table, use `snapshot()` 
 
 ## Bulk check (`shouldHave`, `shouldSatisfy`)
 
+A walkthrough with screenshots of every example is in [Bulk read and whole-table checks](table-bulk-checks.md).
+
 To verify the data of a large table, check it as a whole. Both methods read the table in one browser call per
 attempt, like [`snapshot()`](#bulk-read-snapshot), and retry until Selenide's timeout (or the `Duration` overload),
 so they need no separate wait for rows. A check that times out fails with a Selenide `ElementShould` on the table root
