@@ -216,8 +216,12 @@ assertThat(snap.rows().get(1).cell("Name").text()).isEqualTo("Beta");
   the result stays aligned with `rows()`; `cell(...)` on such a row throws `NoSuchElementException`.
 - **Mounted rows only.** Virtualized grids return the rows currently in the DOM.
 
-Prefer the lazy API for small tables and for assertions that should wait and retry; prefer `snapshot()` to
-verify the data of a large table.
+Selenide already reads a whole collection's texts in one browser call, so a single column of an XPath layout is
+fast without a snapshot, and its assertion waits and retries:
+`table.column("Name").shouldHave(exactTexts(...))`. Use `snapshot()` when you need several columns aligned by row,
+items grouped per cell, or a CSS layout (where `column(...)` is unsupported). Note that `column(...).texts()` also
+reports hidden cell text, while a snapshot reads hidden cells as `""`. Prefer the lazy API for small tables and for
+assertions that should wait and retry.
 
 ## Known limitations
 
