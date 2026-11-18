@@ -3,6 +3,7 @@ package dev.quokkify.elements.table;
 import java.time.Duration;
 import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
 
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.Selenide;
@@ -72,7 +73,8 @@ public final class Table {
 
   /**
    * Reads headers and every row's cell texts in one browser call. The result is plain data read at this moment: it
-   * waits only for the root to exist (Selenide's default timeout), not for rows, so wait for the expected rows first.
+   * waits only for the root to exist (Selenide's default timeout), not for rows. To verify data, prefer
+   * {@link #shouldHave(TableCondition)} or {@link #shouldSatisfy(Consumer)}, which re-read until the check passes.
    * Supports {@code By.xpath} and {@code By.cssSelector} layouts.
    */
   public TableSnapshot snapshot() {
@@ -107,6 +109,39 @@ public final class Table {
   public Table shouldHave(TableCondition condition, Duration timeout) {
     root.shouldHave(condition.bind(this), timeout);
     return this;
+  }
+
+  /**
+   * Waits until {@code assertions} pass on a fresh {@link #snapshot()}, with Selenide's default timeout. Each attempt
+   * reads the whole table in one browser call, so a table that is still rendering or being remounted is simply read
+   * again. A failed assertion, a header not displayed yet and a row or cell not rendered yet are retried; on timeout
+   * it fails like any Selenide {@code should*}, with the last failure as the actual value.
+   */
+  public Table shouldSatisfy(Consumer<TableSnapshot> assertions) {
+    root.should(satisfying(null, assertions));
+    return this;
+  }
+
+  /** Like {@link #shouldSatisfy(Consumer)}, with an explicit timeout. */
+  public Table shouldSatisfy(Consumer<TableSnapshot> assertions, Duration timeout) {
+    root.should(satisfying(null, assertions), timeout);
+    return this;
+  }
+
+  /** Like {@link #shouldSatisfy(Consumer)}, over a snapshot that also reads {@code items} inside each cell. */
+  public Table shouldSatisfy(By items, Consumer<TableSnapshot> assertions) {
+    root.should(satisfying(SnapshotLocator.of(Objects.requireNonNull(items, "items")), assertions));
+    return this;
+  }
+
+  /** Like {@link #shouldSatisfy(By, Consumer)}, with an explicit timeout. */
+  public Table shouldSatisfy(By items, Consumer<TableSnapshot> assertions, Duration timeout) {
+    root.should(satisfying(SnapshotLocator.of(Objects.requireNonNull(items, "items")), assertions), timeout);
+    return this;
+  }
+
+  private SnapshotCondition satisfying(SnapshotLocator items, Consumer<TableSnapshot> assertions) {
+    return new SnapshotCondition(root.toString(), scriptLocators(items), assertions);
   }
 
   /**

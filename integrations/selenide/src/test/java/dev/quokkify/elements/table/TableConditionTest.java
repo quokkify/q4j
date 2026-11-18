@@ -74,7 +74,7 @@ public class TableConditionTest {
     CheckResult result = TableCondition.exactValuesBy("Name", "Properties", CHIP, Map.of()).evaluate(snap);
 
     assertThat(result.verdict()).isEqualTo(REJECT);
-    assertThat(result.<String>getActualValue()).contains("not unique").contains("rows 0 and 1");
+    assertThat(result.<String>getActualValue()).contains("\"Alpha\"").contains("rows 0 and 1");
   }
 
   @Test
@@ -99,11 +99,13 @@ public class TableConditionTest {
   }
 
   @Test
-  public void customConditionComparesProjection() {
-    assertThat(TableCondition.of("row count", snap -> snap.rows().size(), 2).evaluate(chips).verdict())
-        .isEqualTo(ACCEPT);
-    assertThat(TableCondition.of("row count", snap -> snap.rows().size(), 3).evaluate(chips).verdict())
-        .isEqualTo(REJECT);
+  public void rowWithoutKeyCellRejects() {
+    TableSnapshot snap = parse(List.of("Name", "Properties"), row(List.of("Alpha", "x"), null), row(List.of(), null));
+
+    CheckResult result = TableCondition.exactValuesBy("Name", "Properties", CHIP, Map.of()).evaluate(snap);
+
+    assertThat(result.verdict()).isEqualTo(REJECT);
+    assertThat(result.<String>getActualValue()).contains("row 1").contains("\"Name\"");
   }
 
   @Test
@@ -134,8 +136,8 @@ public class TableConditionTest {
   }
 
   @Test
-  public void valuesByKeepsRowOrderAndIsUnmodifiable() {
-    Map<String, List<String>> values = chips.valuesBy("Name", "Properties");
+  public void columnValuesByKeepsRowOrderAndIsUnmodifiable() {
+    Map<String, List<String>> values = chips.columnValuesBy("Name", "Properties");
 
     assertThat(values.keySet()).containsExactly("Alpha", "Beta");
     assertThatThrownBy(() -> values.put("x", List.of())).isInstanceOf(UnsupportedOperationException.class);

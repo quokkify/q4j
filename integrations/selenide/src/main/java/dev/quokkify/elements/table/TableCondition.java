@@ -51,24 +51,9 @@ public final class TableCondition {
     Map<String, List<String>> values = Map.copyOf(expected.entrySet().stream()
         .collect(Collectors.toMap(Map.Entry::getKey, e -> List.copyOf(e.getValue()))));
     return new TableCondition("\"" + valuesHeader + "\" items by \"" + keyHeader + "\" (" + values.size() + " rows)",
-        SnapshotLocator.of(Objects.requireNonNull(items, "items")), snap -> snap.valuesBy(keyHeader, valuesHeader),
+        SnapshotLocator.of(Objects.requireNonNull(items, "items")),
+        snap -> snap.columnValuesBy(keyHeader, valuesHeader),
         values);
-  }
-
-  /**
-   * A custom expectation: {@code actual} applied to the snapshot equals {@code expected}.
-   */
-  public static <T> TableCondition of(String description, Function<TableSnapshot, T> actual, T expected) {
-    return new TableCondition(description, null, actual, expected);
-  }
-
-  /**
-   * Like {@link #of(String, Function, Object)}, reading the texts of {@code items} inside every cell, as
-   * {@link Table#snapshot(By)} does.
-   */
-  public static <T> TableCondition of(String description, By items, Function<TableSnapshot, T> actual, T expected) {
-    return new TableCondition(description, SnapshotLocator.of(Objects.requireNonNull(items, "items")), actual,
-        expected);
   }
 
   /**
@@ -79,7 +64,7 @@ public final class TableCondition {
     Object value;
     try {
       value = actual.apply(snapshot);
-    } catch (TableColumnException | IllegalStateException e) {
+    } catch (TableColumnException | TableKeyException e) {
       return CheckResult.rejected(e.getMessage(), e.getMessage());
     }
     if (expected.equals(value)) {

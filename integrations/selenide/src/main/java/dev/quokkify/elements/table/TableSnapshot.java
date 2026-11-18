@@ -2,6 +2,7 @@ package dev.quokkify.elements.table;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -65,21 +66,41 @@ public final class TableSnapshot {
   }
 
   /**
-   * Items of {@code valuesHeader} keyed by the text of {@code keyHeader}, in row order. Built for comparing a whole
-   * table with an expected {@code Map<key, List<item>>}; {@link Map#equals} ignores row order.
+   * Text of column {@code header} keyed by the text of column {@code keyHeader}, in row order.
    *
    * @throws TableColumnException when a header is not displayed or is displayed more than once
-   * @throws IllegalStateException when two rows have the same key
+   * @throws IllegalStateException when a row has no key cell or two rows have the same key
    */
-  public Map<String, List<String>> valuesBy(String keyHeader, String valuesHeader) {
-    List<String> keys = column(keyHeader);
-    List<List<String>> values = columnValues(valuesHeader);
-    Map<String, List<String>> result = new LinkedHashMap<>();
-    for (int i = 0; i < keys.size(); i++) {
-      if (Objects.nonNull(result.putIfAbsent(keys.get(i), values.get(i)))) {
-        throw new IllegalStateException("\"" + keyHeader + "\" is not unique: \"" + keys.get(i) + "\" in rows "
-            + keys.indexOf(keys.get(i)) + " and " + i + " of " + table);
+  public Map<String, String> columnBy(String keyHeader, String header) {
+    return keyed(keyHeader, column(header));
+  }
+
+  /**
+   * Items of column {@code header} keyed by the text of column {@code keyHeader}, in row order. Built for comparing a
+   * whole table with an expected {@code Map<key, List<item>>}; {@link Map#equals} ignores row order.
+   *
+   * @throws TableColumnException when a header is not displayed or is displayed more than once
+   * @throws IllegalStateException when a row has no key cell or two rows have the same key
+   */
+  public Map<String, List<String>> columnValuesBy(String keyHeader, String header) {
+    return keyed(keyHeader, columnValues(header));
+  }
+
+  private <T> Map<String, T> keyed(String keyHeader, List<T> values) {
+    int keyColumn = ColumnResolver.indexOf(headers, keyHeader, table);
+    Map<String, T> result = new LinkedHashMap<>();
+    Map<String, Integer> seen = new HashMap<>();
+    for (int i = 0; i < rows.size(); i++) {
+      SnapshotCell key = rows.get(i).cellOrNull(keyColumn);
+      if (Objects.isNull(key)) {
+        throw new TableKeyException("row " + i + " has no cell for key column \"" + keyHeader + "\" in " + table);
       }
+      Integer previous = seen.put(key.text(), i);
+      if (Objects.nonNull(previous)) {
+        throw new TableKeyException("rows " + previous + " and " + i + " both have \"" + key.text()
+            + "\" in key column \"" + keyHeader + "\" of " + table);
+      }
+      result.put(key.text(), values.get(i));
     }
     return Collections.unmodifiableMap(result);
   }
