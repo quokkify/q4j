@@ -151,7 +151,7 @@ Layouts, behaviour, limits and the migration table from the removed table stack 
 [`docs/table-api.md`](../../docs/table-api.md).
 
 To read or check a large table in one browser call (`snapshot()`, `shouldHave(TableCondition)`, `shouldSatisfy`),
-see [`docs/table-bulk-checks.md`](../../docs/table-bulk-checks.md), with a screenshot for every example.
+see [`docs/table-bulk-checks.md`](../../docs/table-bulk-checks.md), with screenshots of the examples.
 
 ## Dropdowns
 
