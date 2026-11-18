@@ -1,8 +1,9 @@
 # Table API
 
 A thin, header-aware helper over Selenide in `integrations/selenide`, package `dev.quokkify.elements.table`.
-It covers three things plain Selenide does not give: a column addressed by its displayed header, a row lookup
-scoped to one column, and a failure on ambiguous headers. Everything else (waiting, assertions, cell actions)
+It covers four things plain Selenide does not give: a column addressed by its displayed header, a row lookup
+scoped to one column, a failure on ambiguous headers, and reading or checking a whole table in one browser call
+(see [Bulk read and whole-table checks](table-bulk-checks.md)). Everything else (waiting, assertions, cell actions)
 is ordinary Selenide on the returned `SelenideElement` / `ElementsCollection`.
 
 Public types: `Table`, `TableRow`, `TableLayout`, `HorizontalTable`, `TableColumnException`, for bulk checks
@@ -148,7 +149,8 @@ so it survives header reordering and waits for delayed rows through the normal `
 `cell(header)` resolves the column index when it is called (waiting for the requested header with Selenide's default
 timeout) and returns an element that is lazy by index. Call `cell(header)` again after columns are reordered.
 
-`snapshot()` is the exception: it returns plain data read once (see [Bulk read](#bulk-read-snapshot)).
+`snapshot()` is the exception: it returns plain data read once (see
+[Bulk read and whole-table checks](table-bulk-checks.md)).
 
 ### Header errors
 
@@ -177,97 +179,24 @@ resolved once, when `column` is called.
 
 Each row evaluation in `row(column, value)` / `rows(column, value)` makes several WebDriver calls (headers, the
 row's cells, the cell text); on very large tables prefer a narrow layout (for example rows limited by an XPath
-predicate) so fewer rows are evaluated. To read a whole table, use `snapshot()` (see [Bulk read](#bulk-read-snapshot)).
+predicate) so fewer rows are evaluated. To read or check a whole table, see
+[Bulk read and checks](#bulk-read-and-checks).
 
-## Bulk check (`shouldHave`, `shouldSatisfy`)
+## Bulk read and checks
 
-A walkthrough with screenshots of every example is in [Bulk read and whole-table checks](table-bulk-checks.md).
-
-To verify the data of a large table, check it as a whole. Both methods read the table in one browser call per
-attempt, like [`snapshot()`](#bulk-read-snapshot), and retry until Selenide's timeout (or the `Duration` overload),
-so they need no separate wait for rows. A check that times out fails with a Selenide `ElementShould` on the table root
-(`ElementNotFound` when the root never appears), with the usual screenshot, report step and soft-assert support.
+`snapshot()`, `shouldHave(TableCondition)` and `shouldSatisfy(assertions)` read the whole table in one browser call
+per attempt, so their cost does not grow with the number of rows:
 
 ```java
 Table grid = Table.of($("#properties"), TableLayout.aria());
-By chip = By.cssSelector(".chip");
 
-grid.shouldHave(TableCondition.exactValuesBy("Name", "Properties", chip, Map.of(
-    "Alpha", List.of("Red", "Blue"),
-    "Beta", List.of("Green"))));
-grid.shouldHave(TableCondition.exactRows(List.of("Name", "Status"), List.of(
-    List.of("Alpha", "Active"),
-    List.of("Beta", "Draft"))));
+grid.shouldHave(TableCondition.exactItemsBy("Name", "Properties", By.cssSelector(".chip"), expectedChipsByName));
 grid.shouldSatisfy(snap -> assertThat(snap.column("Status")).doesNotContain("Failed"));
 ```
 
-| Check                                                     | Passes when                                                         |
-| --------------------------------------------------------- | ------------------------------------------------------------------- |
-| `exactRows(headers, expected)`                            | the texts of `headers`, row by row in row order, equal `expected`   |
-| `exactValuesBy(keyHeader, valuesHeader, items, expected)` | key text -> items of the value cell equal `expected`; any row order |
-| `shouldSatisfy([items,] assertions [, timeout])`          | the AssertJ `assertions` pass on the snapshot                       |
-
-- The two `TableCondition` checks report a short difference on failure (missing, unexpected and different rows, at
-  most 10 of each), not every row. `shouldSatisfy` reports the last AssertJ message, which for large collections can
-  be long; prefer a `TableCondition` for whole-table equality.
-- Retried as "not ready yet": a failed assertion or mismatch, a header that is not displayed or is ambiguous, a row
-  or cell that is not rendered, and a key column with a missing cell or a repeated key. Any other exception thrown
-  by your `shouldSatisfy` assertions (for example `Integer.parseInt` on a cell that still shows "Loading…") is not
-  retried: it fails the check at once as itself. Assert on the text first, or parse inside an assertion.
-- Mismatches are listed with missing keys in the order of the expected map and other differences in row order.
-  `exactRows` compares by position, so one inserted row shows as many "different" rows; the headline gives both
-  row counts.
-- Displayed texts are whitespace-normalized; write expected texts with single spaces.
-- Texts, hidden cells and items, short rows and locators behave as in [Bulk read](#bulk-read-snapshot).
-
-## Bulk read (`snapshot`)
-
-Reading every row through `rows()` and `TableRow.cell(header)` costs about ten WebDriver round trips per row,
-which takes tens of seconds on a table with hundreds of rows. `snapshot()` reads the headers and every row's cell
-texts in one browser call and returns immutable data to assert on with AssertJ:
-
-```java
-Table grid = Table.of($("#properties"), TableLayout.aria());
-grid.rows().shouldHave(sizeGreaterThan(0));                  // wait first: a snapshot does not wait for rows
-
-TableSnapshot snap = grid.snapshot(By.cssSelector(".chip"));  // or snapshot() without items
-assertThat(snap.column("Name")).contains("Alpha");
-assertThat(snap.columnValues("Properties").get(0)).containsExactly("Red", "Blue");
-assertThat(snap.rows().get(1).cell("Name").text()).isEqualTo("Beta");
-```
-
-| Type            | Content                                                                                                                                                                           |
-| --------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `TableSnapshot` | `headers()`, `rows()`, `column(header)`, `columnValues(header)`, `texts(headers)` (rows of several columns), `columnBy(key, header)` / `columnValuesBy(key, header)` (keyed maps) |
-| `SnapshotRow`   | `cells()`, `cell(int)`, `cell(header)`                                                                                                                                            |
-| `SnapshotCell`  | `text()`, `values()` (texts of the `items` found inside the cell; empty without `items`)                                                                                          |
-
-- **Point in time.** To verify data, prefer the [bulk checks](#bulk-check-shouldhave-shouldsatisfy). The snapshot
-  waits only for the root to exist (Selenide's default timeout). It does not wait
-  for rows, does not retry and does not follow remounts: wait for the expected state first.
-- **Multi-value cells.** Pass a locator for the items inside a cell (chips, tags) to `snapshot(By items)`; it is
-  evaluated relative to every cell. Do not split `text()` on line breaks: whether items are separated by `\n`
-  or by spaces depends on the page's CSS.
-- **Locators.** The layout and `items` must be `By.xpath` or `By.cssSelector`; any other `By` throws
-  `UnsupportedOperationException` before the browser is called.
-- **Text.** Headers, cell texts and item texts are whitespace-normalized like header lookup. A hidden cell reads
-  as `""`, as in the lazy API; hidden items are skipped. Hidden means no layout box (`display: none`, `hidden`),
-  `visibility: hidden` or `opacity: 0` on the element or an ancestor; a `display: contents` element counts as
-  visible when any of its children is. Text clipped by an `overflow: hidden` ancestor is still read.
-- **Headers.** `column`, `columnValues` and `cell(header)` follow the [header rules](#header-errors) without
-  waiting: `TableColumnException` with `not found` or `ambiguous`.
-- **Short rows.** `column(...)` gives `""` (and `columnValues(...)` an empty list) for a row with too few cells, so
-  the result stays aligned with `rows()`; `cell(...)` on such a row throws `NoSuchElementException`.
-- **Keyed maps.** `columnBy` and `columnValuesBy` keep row order; a row with no key cell or a repeated key throws
-  `IllegalStateException` naming the rows.
-- **Mounted rows only.** Virtualized grids return the rows currently in the DOM.
-
-Selenide already reads a whole collection's texts in one browser call, so a single column of an XPath layout is
-fast without a snapshot, and its assertion waits and retries:
-`table.column("Name").shouldHave(exactTexts(...))`. Use `snapshot()` when you need several columns aligned by row,
-items grouped per cell, or a CSS layout (where `column(...)` is unsupported). Note that `column(...).texts()` also
-reports hidden cell text, while a snapshot reads hidden cells as `""`. Prefer the lazy API for small tables and for
-assertions that should wait and retry.
+Behaviour, rules and limits, with a screenshot of every example, are in
+[Bulk read and whole-table checks](table-bulk-checks.md). Prefer the lazy API above for small tables and for acting
+on a cell (click, type).
 
 ## Known limitations
 
@@ -282,8 +211,9 @@ assertions that should wait and retry.
 
 ## Not covered
 
-Table-specific assertions beyond `TableCondition` and `shouldSatisfy`, typed cell values, wrappers for controls inside cells, sorting,
-filtering, pagination, virtual scrolling, page-factory (`@FindBy`) injection (see the page-object recipe above).
+Table-specific assertions beyond `TableCondition` and `shouldSatisfy`, typed cell values, wrappers for controls
+inside cells, sorting, filtering, pagination, virtual scrolling, page-factory (`@FindBy`) injection (see the
+page-object recipe above).
 
 ## Migration from the removed table stack
 
