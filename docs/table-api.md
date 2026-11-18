@@ -5,7 +5,8 @@ It covers three things plain Selenide does not give: a column addressed by its d
 scoped to one column, and a failure on ambiguous headers. Everything else (waiting, assertions, cell actions)
 is ordinary Selenide on the returned `SelenideElement` / `ElementsCollection`.
 
-Public types: `Table`, `TableRow`, `TableLayout`, `HorizontalTable`, `TableColumnException`.
+Public types: `Table`, `TableRow`, `TableLayout`, `HorizontalTable`, `TableColumnException`, and for bulk reads
+`TableSnapshot`, `SnapshotRow`, `SnapshotCell`.
 
 ## Usage
 
@@ -34,6 +35,8 @@ contact.value("Phone").shouldHave(text("+43"));
 | `rows(column, value)`    | all such rows                                                         |
 | `column(header)`         | cells of that column across rows                                      |
 | `root()`                 | the root `SelenideElement`                                            |
+| `snapshot()`             | headers and every row's cell texts, read in one browser call          |
+| `snapshot(By items)`     | same, plus the texts of `items` inside each cell                      |
 
 ### `TableRow`
 
@@ -143,6 +146,8 @@ so it survives header reordering and waits for delayed rows through the normal `
 `cell(header)` resolves the column index when it is called (waiting for the requested header with Selenide's default
 timeout) and returns an element that is lazy by index. Call `cell(header)` again after columns are reordered.
 
+`snapshot()` is the exception: it returns plain data read once (see [Bulk read](#bulk-read-snapshot)).
+
 ### Header errors
 
 `TableColumnException` is unchecked. Its message names the header, the reason (`not found` or `ambiguous`),
@@ -170,7 +175,47 @@ resolved once, when `column` is called.
 
 Each row evaluation in `row(column, value)` / `rows(column, value)` makes several WebDriver calls (headers, the
 row's cells, the cell text); on very large tables prefer a narrow layout (for example rows limited by an XPath
-predicate) so fewer rows are evaluated.
+predicate) so fewer rows are evaluated. To read a whole table, use `snapshot()` (see [Bulk read](#bulk-read-snapshot)).
+
+## Bulk read (`snapshot`)
+
+Reading every row through `rows()` and `TableRow.cell(header)` costs about ten WebDriver round trips per row,
+which takes tens of seconds on a table with hundreds of rows. `snapshot()` reads the headers and every row's cell
+texts in one browser call and returns immutable data to assert on with AssertJ:
+
+```java
+Table grid = Table.of($("#properties"), TableLayout.aria());
+grid.rows().shouldHave(sizeGreaterThan(0));                  // wait first: a snapshot does not wait for rows
+
+TableSnapshot snap = grid.snapshot(By.cssSelector(".chip"));  // or snapshot() without items
+assertThat(snap.column("Name")).contains("Alpha");
+assertThat(snap.columnValues("Properties").get(0)).containsExactly("Red", "Blue");
+assertThat(snap.rows().get(1).cell("Name").text()).isEqualTo("Beta");
+```
+
+| Type            | Content                                                                                     |
+| --------------- | ------------------------------------------------------------------------------------------- |
+| `TableSnapshot` | `headers()`, `rows()`, `column(header)` (texts), `columnValues(header)` (items per row)     |
+| `SnapshotRow`   | `cells()`, `cell(int)`, `cell(header)`                                                      |
+| `SnapshotCell`  | `text()`, `values()` (texts of the `items` found inside the cell; empty without `items`)   |
+
+- **Point in time.** The snapshot waits only for the root to exist (Selenide's default timeout). It does not wait
+  for rows, does not retry and does not follow remounts: wait for the expected state first.
+- **Multi-value cells.** Pass a locator for the items inside a cell (chips, tags) to `snapshot(By items)`; it is
+  evaluated relative to every cell. Do not split `text()` on line breaks: whether items are separated by `\n`
+  or by spaces depends on the page's CSS.
+- **Locators.** The layout and `items` must be `By.xpath` or `By.cssSelector`; any other `By` throws
+  `UnsupportedOperationException` before the browser is called.
+- **Text.** Headers, cell texts and item texts are whitespace-normalized like header lookup. A hidden cell reads
+  as `""`, as in the lazy API; hidden items are skipped.
+- **Headers.** `column`, `columnValues` and `cell(header)` follow the [header rules](#header-errors) without
+  waiting: `TableColumnException` with `not found` or `ambiguous`.
+- **Short rows.** `column(...)` gives `""` (and `columnValues(...)` an empty list) for a row with too few cells, so
+  the result stays aligned with `rows()`; `cell(...)` on such a row throws `NoSuchElementException`.
+- **Mounted rows only.** Virtualized grids return the rows currently in the DOM.
+
+Prefer the lazy API for small tables and for assertions that should wait and retry; prefer `snapshot()` to
+verify the data of a large table.
 
 ## Known limitations
 

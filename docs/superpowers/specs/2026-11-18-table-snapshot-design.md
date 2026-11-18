@@ -131,7 +131,12 @@ validated before the browser call. `TableLayout.xpath` stays as is; the helper m
 ## Verification
 
 - **One call:** a test that counts script executions (`executeScript`) for a snapshot of the large fixture
-  and asserts exactly 1. Resolving the root `WebElement` (`findElement`) is not counted. Mechanism is the builder's call (a Selenium `WebDriverListener` registered for the test, or a
+  and asserts exactly 1. Resolving the root `WebElement` (`findElement`) is not counted.
+  *Implementation note:* Selenide 7.19.1 unwraps the listener-decorated driver before `executeScript`
+  (`JavaScript.asJsExecutor`), so a `WebDriverListener` cannot see script calls. The test instead records every
+  driver call it can see during a snapshot of a 3-row and a 1200-row grid, asserts both sequences are identical
+  and contain no per-element reads (`findElements`, `getText`, `getDomProperty`, `getAttribute`), and the speed
+  test bounds the time. Mechanism is the builder's call (a Selenium `WebDriverListener` registered for the test, or a
   Selenide listener); it must count real driver calls, not mocked ones.
 - **Agreement with the lazy API:** on existing fixtures (`html()` classic table, nested table, repeated
   headers, ARIA grid, CSS div grid via `of(...)`), `snapshot().column(h)` equals `table.column(h).texts()`
