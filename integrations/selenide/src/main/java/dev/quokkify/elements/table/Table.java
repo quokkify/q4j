@@ -1,5 +1,6 @@
 package dev.quokkify.elements.table;
 
+import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 
@@ -86,10 +87,10 @@ public final class Table {
   }
 
   private TableSnapshot read(SnapshotLocator items) {
-    Map<String, String> rowsSpec = SnapshotLocator.of(layout.rows()).toScriptArg();
-    Map<String, String> cellsSpec = SnapshotLocator.of(layout.cells()).toScriptArg();
-    Map<String, String> headersSpec = SnapshotLocator.of(layout.headers()).toScriptArg();
-    Map<String, String> itemsSpec = Objects.isNull(items) ? null : items.toScriptArg();
+    List<String> rowsSpec = SnapshotLocator.of(layout.rows()).toScriptArg();
+    List<String> cellsSpec = SnapshotLocator.of(layout.cells()).toScriptArg();
+    List<String> headersSpec = SnapshotLocator.of(layout.headers()).toScriptArg();
+    List<String> itemsSpec = Objects.isNull(items) ? List.of() : items.toScriptArg();
     Map<?, ?> result = Selenide.executeJavaScript(SnapshotScript.SOURCE, root.should(exist).toWebElement(), rowsSpec,
         cellsSpec, headersSpec, itemsSpec);
     return TableSnapshot.fromScript(result, root.toString());

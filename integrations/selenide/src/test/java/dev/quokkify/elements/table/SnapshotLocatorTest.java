@@ -1,6 +1,6 @@
 package dev.quokkify.elements.table;
 
-import java.util.Map;
+import java.util.List;
 
 import org.openqa.selenium.By;
 import org.testng.annotations.Test;
@@ -42,6 +42,6 @@ public class SnapshotLocatorTest {
 
   @Test
   public void scriptArgShape() {
-    assertThat(new SnapshotLocator("css", ".chip").toScriptArg()).isEqualTo(Map.of("kind", "css", "expr", ".chip"));
+    assertThat(new SnapshotLocator("css", ".chip").toScriptArg()).isEqualTo(List.of("css", ".chip"));
   }
 }

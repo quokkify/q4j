@@ -1,6 +1,6 @@
 package dev.quokkify.elements.table;
 
-import java.util.Map;
+import java.util.List;
 import java.util.Objects;
 
 import org.openqa.selenium.By;
@@ -24,7 +24,8 @@ record SnapshotLocator(String kind, String expr) {
     throw new UnsupportedOperationException("snapshot() supports By.xpath and By.cssSelector, got: " + description);
   }
 
-  Map<String, String> toScriptArg() {
-    return Map.of("kind", kind, "expr", expr);
+  /** A list of strings, one of the argument types {@code JavascriptExecutor} documents: {@code [kind, expr]}. */
+  List<String> toScriptArg() {
+    return List.of(kind, expr);
   }
 }

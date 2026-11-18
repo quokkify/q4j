@@ -1,8 +1,10 @@
-const [root, rowsSpec, cellsSpec, headersSpec, itemsSpec] = arguments;
+// arguments: root element, then [kind, expr] for rows, cells and headers, then [kind, expr] or [] for items.
+const [root, rowsSpec, cellsSpec, headersSpec, itemsArg] = arguments;
+const itemsSpec = itemsArg.length === 2 ? itemsArg : null;
 
-function find(context, spec) {
-  if (spec.kind === 'xpath') {
-    const result = document.evaluate(spec.expr, context, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
+function find(context, [kind, expr]) {
+  if (kind === 'xpath') {
+    const result = document.evaluate(expr, context, null, XPathResult.ORDERED_NODE_SNAPSHOT_TYPE, null);
     const nodes = [];
     for (let i = 0; i < result.snapshotLength; i++) {
       const node = result.snapshotItem(i);
@@ -12,7 +14,7 @@ function find(context, spec) {
     }
     return nodes;
   }
-  return Array.from(context.querySelectorAll(spec.expr));
+  return Array.from(context.querySelectorAll(expr));
 }
 
 // Close to Selenium's isShown, so snapshot text agrees with getText(): no box, visibility:hidden or opacity:0
