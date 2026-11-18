@@ -1,5 +1,7 @@
 package dev.quokkify.elements.table;
 
+import java.util.List;
+
 import org.openqa.selenium.By;
 import org.testng.annotations.Test;
 
@@ -19,5 +21,14 @@ public class TableSnapshotLocatorValidationTest {
     assertThatThrownBy(() -> html.snapshot(By.name("chip")))
         .isInstanceOf(UnsupportedOperationException.class)
         .hasMessageContaining("By.name: chip");
+  }
+
+  @Test
+  public void shouldHaveRejectsUnsupportedLayoutBeforeBrowserCall() {
+    Table byId = Table.of($("#t"), TableLayout.of(By.id("r"), By.xpath("./td"), By.xpath("./th")));
+
+    assertThatThrownBy(() -> byId.shouldHave(TableCondition.exactRows(List.of("A"), List.of())))
+        .isInstanceOf(UnsupportedOperationException.class)
+        .hasMessageContaining("By.id: r");
   }
 }

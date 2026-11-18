@@ -1,6 +1,8 @@
 package dev.quokkify.elements.table;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -46,6 +48,40 @@ public final class TableSnapshot {
    */
   public List<List<String>> columnValues(String header) {
     return mapColumn(header, cell -> Objects.isNull(cell) ? List.of() : cell.values());
+  }
+
+  /**
+   * Texts of the given columns, one list per row in row order; a row with too few cells contributes {@code ""} for
+   * the missing columns.
+   *
+   * @throws TableColumnException when a header is not displayed or is displayed more than once
+   */
+  public List<List<String>> texts(List<String> headers) {
+    List<Integer> columns = headers.stream().map(header -> ColumnResolver.indexOf(this.headers, header, table)).toList();
+    return rows.stream().map(row -> columns.stream().map(column -> {
+      SnapshotCell cell = row.cellOrNull(column);
+      return Objects.isNull(cell) ? "" : cell.text();
+    }).toList()).toList();
+  }
+
+  /**
+   * Items of {@code valuesHeader} keyed by the text of {@code keyHeader}, in row order. Built for comparing a whole
+   * table with an expected {@code Map<key, List<item>>}; {@link Map#equals} ignores row order.
+   *
+   * @throws TableColumnException when a header is not displayed or is displayed more than once
+   * @throws IllegalStateException when two rows have the same key
+   */
+  public Map<String, List<String>> valuesBy(String keyHeader, String valuesHeader) {
+    List<String> keys = column(keyHeader);
+    List<List<String>> values = columnValues(valuesHeader);
+    Map<String, List<String>> result = new LinkedHashMap<>();
+    for (int i = 0; i < keys.size(); i++) {
+      if (Objects.nonNull(result.putIfAbsent(keys.get(i), values.get(i)))) {
+        throw new IllegalStateException("\"" + keyHeader + "\" is not unique: \"" + keys.get(i) + "\" in rows "
+            + keys.indexOf(keys.get(i)) + " and " + i + " of " + table);
+      }
+    }
+    return Collections.unmodifiableMap(result);
   }
 
   private <T> List<T> mapColumn(String header, Function<SnapshotCell, T> mapper) {

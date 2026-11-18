@@ -1,7 +1,7 @@
 package dev.quokkify.elements.table;
 
+import java.time.Duration;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 import com.codeborne.selenide.ElementsCollection;
@@ -9,6 +9,7 @@ import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.ex.UIAssertionError;
 import org.openqa.selenium.By;
+import org.openqa.selenium.WebElement;
 
 import static com.codeborne.selenide.CollectionCondition.anyMatch;
 import static com.codeborne.selenide.CollectionCondition.itemWithText;
@@ -87,13 +88,43 @@ public final class Table {
   }
 
   private TableSnapshot read(SnapshotLocator items) {
-    List<String> rowsSpec = SnapshotLocator.of(layout.rows()).toScriptArg();
-    List<String> cellsSpec = SnapshotLocator.of(layout.cells()).toScriptArg();
-    List<String> headersSpec = SnapshotLocator.of(layout.headers()).toScriptArg();
-    List<String> itemsSpec = Objects.isNull(items) ? List.of() : items.toScriptArg();
-    Map<?, ?> result = Selenide.executeJavaScript(SnapshotScript.SOURCE, root.should(exist).toWebElement(), rowsSpec,
-        cellsSpec, headersSpec, itemsSpec);
-    return TableSnapshot.fromScript(result, root.toString());
+    List<List<String>> locators = scriptLocators(items);
+    Object[] args = scriptArgs(root.should(exist).toWebElement(), locators);
+    return TableSnapshot.fromScript(Selenide.executeJavaScript(SnapshotScript.SOURCE, args), root.toString());
+  }
+
+  /**
+   * Waits until the table satisfies {@code condition}, with Selenide's default timeout. Each attempt reads the table
+   * in one browser call, like {@link #snapshot()}, so the cost does not grow with the number of rows; a failure is a
+   * Selenide {@code ElementShould} on the root whose actual value describes the difference.
+   */
+  public Table shouldHave(TableCondition condition) {
+    root.shouldHave(condition.bind(this));
+    return this;
+  }
+
+  /** Like {@link #shouldHave(TableCondition)}, with an explicit timeout. */
+  public Table shouldHave(TableCondition condition, Duration timeout) {
+    root.shouldHave(condition.bind(this), timeout);
+    return this;
+  }
+
+  /**
+   * The {@code [kind, expr]} locator arguments of {@link SnapshotScript}: rows, cells, headers, then items or
+   * {@code []}. Throws {@link UnsupportedOperationException} for a locator other than XPath or CSS.
+   */
+  List<List<String>> scriptLocators(SnapshotLocator items) {
+    return List.of(SnapshotLocator.of(layout.rows()).toScriptArg(), SnapshotLocator.of(layout.cells()).toScriptArg(),
+        SnapshotLocator.of(layout.headers()).toScriptArg(), Objects.isNull(items) ? List.of() : items.toScriptArg());
+  }
+
+  static Object[] scriptArgs(WebElement rootElement, List<List<String>> locators) {
+    Object[] args = new Object[locators.size() + 1];
+    args[0] = rootElement;
+    for (int i = 0; i < locators.size(); i++) {
+      args[i + 1] = locators.get(i);
+    }
+    return args;
   }
 
   /**
