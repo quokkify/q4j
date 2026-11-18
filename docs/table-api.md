@@ -5,8 +5,8 @@ It covers three things plain Selenide does not give: a column addressed by its d
 scoped to one column, and a failure on ambiguous headers. Everything else (waiting, assertions, cell actions)
 is ordinary Selenide on the returned `SelenideElement` / `ElementsCollection`.
 
-Public types: `Table`, `TableRow`, `TableLayout`, `HorizontalTable`, `TableColumnException`, and for bulk reads
-`TableSnapshot`, `SnapshotRow`, `SnapshotCell`.
+Public types: `Table`, `TableRow`, `TableLayout`, `HorizontalTable`, `TableColumnException`, for bulk checks
+`TableCondition`, and for bulk reads `TableSnapshot`, `SnapshotRow`, `SnapshotCell`.
 
 ## Usage
 
@@ -35,6 +35,8 @@ contact.value("Phone").shouldHave(text("+43"));
 | `rows(column, value)`    | all such rows                                                         |
 | `column(header)`         | cells of that column across rows                                      |
 | `root()`                 | the root `SelenideElement`                                            |
+| `shouldHave(condition)`  | waits until the whole table matches, one browser call per attempt     |
+| `shouldSatisfy(assert)`  | waits until AssertJ assertions pass on a fresh snapshot               |
 | `snapshot()`             | headers and every row's cell texts, read in one browser call          |
 | `snapshot(By items)`     | same, plus the texts of `items` inside each cell                      |
 
@@ -177,6 +179,40 @@ Each row evaluation in `row(column, value)` / `rows(column, value)` makes severa
 row's cells, the cell text); on very large tables prefer a narrow layout (for example rows limited by an XPath
 predicate) so fewer rows are evaluated. To read a whole table, use `snapshot()` (see [Bulk read](#bulk-read-snapshot)).
 
+## Bulk check (`shouldHave`, `shouldSatisfy`)
+
+To verify the data of a large table, check it as a whole. Both methods read the table in one browser call per
+attempt, like [`snapshot()`](#bulk-read-snapshot), and retry until Selenide's timeout (or the `Duration` overload),
+so they need no separate wait for rows. A failure is a Selenide `ElementShould` on the table root, with the usual
+screenshot, report step and soft-assert support.
+
+```java
+Table grid = Table.of($("#properties"), TableLayout.aria());
+By chip = By.cssSelector(".chip");
+
+grid.shouldHave(TableCondition.exactValuesBy("Name", "Properties", chip, Map.of(
+    "Alpha", List.of("Red", "Blue"),
+    "Beta", List.of("Green"))));
+grid.shouldHave(TableCondition.exactRows(List.of("Name", "Status"), List.of(
+    List.of("Alpha", "Active"),
+    List.of("Beta", "Draft"))));
+grid.shouldSatisfy(snap -> assertThat(snap.column("Status")).doesNotContain("Failed"));
+```
+
+| Check                                                     | Passes when                                                              |
+| --------------------------------------------------------- | ------------------------------------------------------------------------ |
+| `exactRows(headers, expected)`                            | the texts of `headers`, row by row in row order, equal `expected`        |
+| `exactValuesBy(keyHeader, valuesHeader, items, expected)` | key text -> items of the value cell equal `expected`; any row order      |
+| `shouldSatisfy([items,] assertions [, timeout])`          | the AssertJ `assertions` pass on the snapshot                            |
+
+- The two `TableCondition` checks report a short difference on failure (missing, unexpected and different rows, at
+  most 10 of each), not every row. `shouldSatisfy` reports the last AssertJ message, which for large collections can
+  be long; prefer a `TableCondition` for whole-table equality.
+- Retried as "not ready yet": a failed assertion or mismatch, a header that is not displayed or is ambiguous, a row
+  or cell that is not rendered, and a key column with a missing cell or a repeated key. Any other exception thrown
+  by your assertions is retried by Selenide as in any condition and reported as the cause after the timeout.
+- Texts, hidden cells and items, short rows and locators behave as in [Bulk read](#bulk-read-snapshot).
+
 ## Bulk read (`snapshot`)
 
 Reading every row through `rows()` and `TableRow.cell(header)` costs about ten WebDriver round trips per row,
@@ -195,11 +231,12 @@ assertThat(snap.rows().get(1).cell("Name").text()).isEqualTo("Beta");
 
 | Type            | Content                                                                                     |
 | --------------- | ------------------------------------------------------------------------------------------- |
-| `TableSnapshot` | `headers()`, `rows()`, `column(header)` (texts), `columnValues(header)` (items per row)     |
+| `TableSnapshot` | `headers()`, `rows()`, `column(header)`, `columnValues(header)`, `texts(headers)` (rows of several columns), `columnBy(key, header)` / `columnValuesBy(key, header)` (keyed maps) |
 | `SnapshotRow`   | `cells()`, `cell(int)`, `cell(header)`                                                      |
 | `SnapshotCell`  | `text()`, `values()` (texts of the `items` found inside the cell; empty without `items`)   |
 
-- **Point in time.** The snapshot waits only for the root to exist (Selenide's default timeout). It does not wait
+- **Point in time.** To verify data, prefer the [bulk checks](#bulk-check-shouldhave-shouldsatisfy). The snapshot
+  waits only for the root to exist (Selenide's default timeout). It does not wait
   for rows, does not retry and does not follow remounts: wait for the expected state first.
 - **Multi-value cells.** Pass a locator for the items inside a cell (chips, tags) to `snapshot(By items)`; it is
   evaluated relative to every cell. Do not split `text()` on line breaks: whether items are separated by `\n`
@@ -214,6 +251,8 @@ assertThat(snap.rows().get(1).cell("Name").text()).isEqualTo("Beta");
   waiting: `TableColumnException` with `not found` or `ambiguous`.
 - **Short rows.** `column(...)` gives `""` (and `columnValues(...)` an empty list) for a row with too few cells, so
   the result stays aligned with `rows()`; `cell(...)` on such a row throws `NoSuchElementException`.
+- **Keyed maps.** `columnBy` and `columnValuesBy` keep row order; a row with no key cell or a repeated key throws
+  `IllegalStateException` naming the rows.
 - **Mounted rows only.** Virtualized grids return the rows currently in the DOM.
 
 Selenide already reads a whole collection's texts in one browser call, so a single column of an XPath layout is
@@ -236,7 +275,7 @@ assertions that should wait and retry.
 
 ## Not covered
 
-Table-specific assertions or conditions, typed cell values, wrappers for controls inside cells, sorting,
+Table-specific assertions beyond `TableCondition` and `shouldSatisfy`, typed cell values, wrappers for controls inside cells, sorting,
 filtering, pagination, virtual scrolling, page-factory (`@FindBy`) injection (see the page-object recipe above).
 
 ## Migration from the removed table stack
