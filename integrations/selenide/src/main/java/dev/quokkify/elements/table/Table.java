@@ -1,14 +1,17 @@
 package dev.quokkify.elements.table;
 
+import java.util.Map;
 import java.util.Objects;
 
 import com.codeborne.selenide.ElementsCollection;
+import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.ex.UIAssertionError;
 import org.openqa.selenium.By;
 
 import static com.codeborne.selenide.CollectionCondition.anyMatch;
 import static com.codeborne.selenide.CollectionCondition.itemWithText;
+import static com.codeborne.selenide.Condition.exist;
 
 /**
  * Thin header-aware view over a table-like element. Returned elements and collections are lazy:
@@ -63,6 +66,33 @@ public final class Table {
 
   public ElementsCollection rows(String column, String value) {
     return rows().filterBy(new ColumnValueCondition(this, column, value));
+  }
+
+  /**
+   * Reads headers and every row's cell texts in one browser call. The result is plain data read at this moment: it
+   * waits only for the root to exist (Selenide's default timeout), not for rows, so wait for the expected rows first.
+   * Supports {@code By.xpath} and {@code By.cssSelector} layouts.
+   */
+  public TableSnapshot snapshot() {
+    return read(null);
+  }
+
+  /**
+   * Like {@link #snapshot()}, and also reads the texts of the elements matching {@code items} inside each cell (for
+   * example chips or tags) into {@link SnapshotCell#values()}. Hidden items are skipped.
+   */
+  public TableSnapshot snapshot(By items) {
+    return read(SnapshotLocator.of(Objects.requireNonNull(items, "items")));
+  }
+
+  private TableSnapshot read(SnapshotLocator items) {
+    Map<String, String> rowsSpec = SnapshotLocator.of(layout.rows()).toScriptArg();
+    Map<String, String> cellsSpec = SnapshotLocator.of(layout.cells()).toScriptArg();
+    Map<String, String> headersSpec = SnapshotLocator.of(layout.headers()).toScriptArg();
+    Map<String, String> itemsSpec = Objects.isNull(items) ? null : items.toScriptArg();
+    Map<?, ?> result = Selenide.executeJavaScript(SnapshotScript.SOURCE, root.should(exist).toWebElement(), rowsSpec,
+        cellsSpec, headersSpec, itemsSpec);
+    return TableSnapshot.fromScript(result, root.toString());
   }
 
   /**
