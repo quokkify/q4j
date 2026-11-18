@@ -207,7 +207,9 @@ assertThat(snap.rows().get(1).cell("Name").text()).isEqualTo("Beta");
 - **Locators.** The layout and `items` must be `By.xpath` or `By.cssSelector`; any other `By` throws
   `UnsupportedOperationException` before the browser is called.
 - **Text.** Headers, cell texts and item texts are whitespace-normalized like header lookup. A hidden cell reads
-  as `""`, as in the lazy API; hidden items are skipped.
+  as `""`, as in the lazy API; hidden items are skipped. Hidden means no layout box (`display: none`, `hidden`),
+  `visibility: hidden` or `opacity: 0` on the element or an ancestor; a `display: contents` element counts as
+  visible when any of its children is. Text clipped by an `overflow: hidden` ancestor is still read.
 - **Headers.** `column`, `columnValues` and `cell(header)` follow the [header rules](#header-errors) without
   waiting: `TableColumnException` with `not found` or `ambiguous`.
 - **Short rows.** `column(...)` gives `""` (and `columnValues(...)` an empty list) for a row with too few cells, so

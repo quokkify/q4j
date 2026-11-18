@@ -60,7 +60,9 @@
     <p class="overview">
       Verifies <code>Table.snapshot()</code>: a <code>chip-grid</code> whose
       <code>Properties</code> cells hold chips laid out with flex and inline
-      (one chip hidden), with a hidden <code>Secret</code> cell; and a
+      (chips hidden by <code>hidden</code>, <code>visibility</code> and
+      <code>opacity</code>; a <code>display: contents</code> cell), with hidden
+      <code>Secret</code> cells; and a
       <code>large-grid</code> of 1200 rows generated on load.
     </p>
 
@@ -80,14 +82,18 @@
       <div role="row">
         <span role="gridcell">Beta</span>
         <span role="gridcell" class="chips-inline"
-          ><span class="chip">Green</span> <span class="chip" hidden>Ghost</span></span
+          ><span class="chip">Green</span> <span class="chip" hidden>Ghost</span>
+          <span class="chip" style="visibility: hidden">Faded</span>
+          <span class="chip" style="opacity: 0">Clear</span></span
         >
         <span role="gridcell">s2</span>
       </div>
       <div role="row">
         <span role="gridcell">Gamma</span>
-        <span role="gridcell"></span>
-        <span role="gridcell"></span>
+        <span role="gridcell" style="display: contents"
+          ><span class="chip">Violet</span></span
+        >
+        <span role="gridcell" style="opacity: 0">s3</span>
       </div>
     </div>
 

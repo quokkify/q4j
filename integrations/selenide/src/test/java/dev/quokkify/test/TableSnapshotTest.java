@@ -100,7 +100,10 @@ public class TableSnapshotTest extends BaseTest {
     TableSnapshot snap = table.snapshot(By.cssSelector(".chip"));
 
     assertThat(snap.column("Name")).containsExactly("Alpha", "Beta", "Gamma");
-    assertThat(snap.columnValues("Properties")).containsExactly(List.of("Red", "Blue"), List.of("Green"), List.of());
+    assertThat(snap.columnValues("Properties"))
+        .containsExactly(List.of("Red", "Blue"), List.of("Green"), List.of("Violet"));
+    assertThat(snap.rows().get(2).cell("Properties").text()).isEqualTo("Violet")
+        .isEqualTo(table.row(2).cell("Properties").text());
   }
 
   @Test
@@ -113,6 +116,8 @@ public class TableSnapshotTest extends BaseTest {
     assertThat(snap.rows().get(0).cell("Secret").text()).isEmpty();
     assertThat(table.row(0).cell("Secret").text()).isEmpty();
     assertThat(snap.rows().get(1).cell("Secret").text()).isEqualTo("s2");
+    assertThat(snap.rows().get(2).cell("Secret").text()).isEmpty();
+    assertThat(table.row(2).cell("Secret").text()).isEmpty();
   }
 
   @Test

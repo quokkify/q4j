@@ -15,11 +15,18 @@ function find(context, spec) {
   return Array.from(context.querySelectorAll(spec.expr));
 }
 
+// Close to Selenium's isShown, so snapshot text agrees with getText(): no box, visibility:hidden or opacity:0
+// (on the element or an ancestor) is hidden; a display:contents element has no box of its own and is shown when
+// any child is.
 function visible(el) {
-  if (typeof el.checkVisibility === 'function' && !el.checkVisibility()) {
-    return false;
+  const style = getComputedStyle(el);
+  if (style.display === 'contents') {
+    return Array.from(el.children).some(visible);
   }
-  return el.getClientRects().length > 0;
+  if (typeof el.checkVisibility === 'function') {
+    return el.checkVisibility({checkOpacity: true, checkVisibilityCSS: true}) && el.getClientRects().length > 0;
+  }
+  return el.getClientRects().length > 0 && style.visibility !== 'hidden' && Number(style.opacity) > 0;
 }
 
 function text(el) {
