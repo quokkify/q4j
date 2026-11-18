@@ -114,8 +114,9 @@ public final class Table {
   /**
    * Waits until {@code assertions} pass on a fresh {@link #snapshot()}, with Selenide's default timeout. Each attempt
    * reads the whole table in one browser call, so a table that is still rendering or being remounted is simply read
-   * again. A failed assertion, a header not displayed yet and a row or cell not rendered yet are retried; on timeout
-   * it fails like any Selenide {@code should*}, with the last failure as the actual value.
+   * again. A failed assertion, a header not displayed yet or ambiguous, a row or cell not rendered yet and a key column
+   * with a missing cell or repeated key are retried; on timeout it fails like any Selenide {@code should*}, with the
+   * last failure as the actual value. Any other exception thrown by {@code assertions} fails at once, without retry.
    */
   public Table shouldSatisfy(Consumer<TableSnapshot> assertions) {
     root.should(satisfying(null, assertions));

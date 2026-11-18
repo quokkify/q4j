@@ -95,7 +95,8 @@ public class TableConditionTest {
     CheckResult result = TableCondition.exactRows(List.of("Name"),
         List.of(List.of("Alpha"), List.of("Beta"), List.of("Gamma"))).evaluate(chips);
 
-    assertThat(result.<String>getActualValue()).contains("2 rows, expected 3").contains("missing (1):\n  row 2: [Gamma]");
+    assertThat(result.<String>getActualValue()).contains("2 rows, expected 3")
+        .contains("missing (1):\n  row 2: [Gamma]");
   }
 
   @Test
@@ -106,6 +107,50 @@ public class TableConditionTest {
 
     assertThat(result.verdict()).isEqualTo(REJECT);
     assertThat(result.<String>getActualValue()).contains("row 1").contains("\"Name\"");
+  }
+
+  @Test
+  public void cappedDiffFollowsExpectedAndRowOrder() {
+    Map<String, List<String>> expected = new LinkedHashMap<>();
+    for (int i = 0; i < 15; i++) {
+      expected.put("k" + i, List.of());
+    }
+    TableSnapshot empty = parse(List.of("Name", "Properties"));
+
+    String missing = TableCondition.exactValuesBy("Name", "Properties", CHIP, expected).evaluate(empty)
+        .<String>getActualValue();
+
+    assertThat(missing.lines().skip(2).limit(TableDiff.LIMIT))
+        .containsExactly("  k0", "  k1", "  k2", "  k3", "  k4", "  k5", "  k6", "  k7", "  k8", "  k9");
+  }
+
+  @Test
+  public void differentRowsAreListedInRowOrder() {
+    TableSnapshot snap = parse(List.of("Name", "Properties"),
+        row(List.of("first", ""), List.of(List.of(), List.of("a"))),
+        row(List.of("second", ""), List.of(List.of(), List.of("b"))));
+    Map<String, List<String>> expected = new LinkedHashMap<>();
+    expected.put("second", List.of("x"));
+    expected.put("first", List.of("y"));
+
+    String diff = TableCondition.exactValuesBy("Name", "Properties", CHIP, expected).evaluate(snap)
+        .<String>getActualValue();
+
+    assertThat(diff.indexOf("first:")).isLessThan(diff.indexOf("second:"));
+  }
+
+  @Test
+  public void nullArgumentsFailAtConstruction() {
+    assertThatThrownBy(() -> TableCondition.exactValuesBy(null, "Properties", CHIP, Map.of()))
+        .isInstanceOf(NullPointerException.class).hasMessage("keyHeader");
+    assertThatThrownBy(() -> TableCondition.exactValuesBy("Name", null, CHIP, Map.of()))
+        .isInstanceOf(NullPointerException.class).hasMessage("valuesHeader");
+    assertThatThrownBy(() -> TableCondition.exactValuesBy("Name", "Properties", CHIP, null))
+        .isInstanceOf(NullPointerException.class).hasMessage("expected");
+    assertThatThrownBy(() -> TableCondition.exactRows(null, List.of()))
+        .isInstanceOf(NullPointerException.class).hasMessage("headers");
+    assertThatThrownBy(() -> TableCondition.exactRows(List.of("Name"), null))
+        .isInstanceOf(NullPointerException.class).hasMessage("expected");
   }
 
   @Test

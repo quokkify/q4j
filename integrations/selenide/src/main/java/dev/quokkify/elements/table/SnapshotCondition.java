@@ -35,9 +35,10 @@ final class SnapshotCondition extends WebElementCondition {
   }
 
   /**
-   * A failed assertion and a table that is not ready yet (header not displayed, row or cell not rendered, key column
-   * incomplete) reject, so the condition is retried with the failure text as the actual value. Any other exception is
-   * left to Selenide, which retries it like in any condition and reports it as the cause on timeout.
+   * A failed assertion and a table that is not ready yet (header not displayed or ambiguous, row or cell not rendered,
+   * key cell missing or key repeated) reject, so the condition is retried with the failure text as the actual value.
+   * Any other exception, typically a bug in the assertions, is not caught: Selenide does not retry it either, so it
+   * fails the check at once as itself.
    */
   static CheckResult evaluate(TableSnapshot snapshot, Consumer<TableSnapshot> assertions) {
     try {

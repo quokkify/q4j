@@ -118,6 +118,21 @@ public class TableShouldSatisfyTest extends BaseTest {
   }
 
   @Test
+  public void bugInAssertionsFailsImmediatelyWithoutRetry() {
+    openSnapshotFixture();
+    Table table = chipGrid();
+
+    long start = System.nanoTime();
+    assertThatThrownBy(() -> table.shouldSatisfy(snap -> Integer.parseInt(snap.column("Name").get(0)),
+        Duration.ofSeconds(10)))
+        .isInstanceOf(NumberFormatException.class)
+        .hasMessageContaining("Alpha");
+    Duration elapsed = Duration.ofNanos(System.nanoTime() - start);
+
+    assertThat(elapsed).isLessThan(Duration.ofSeconds(5));
+  }
+
+  @Test
   public void missingRootFailsWithElementNotFound() {
     openSnapshotFixture();
     Table table = Table.of($("#no-such-grid"), TableLayout.aria());

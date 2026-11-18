@@ -183,8 +183,8 @@ predicate) so fewer rows are evaluated. To read a whole table, use `snapshot()` 
 
 To verify the data of a large table, check it as a whole. Both methods read the table in one browser call per
 attempt, like [`snapshot()`](#bulk-read-snapshot), and retry until Selenide's timeout (or the `Duration` overload),
-so they need no separate wait for rows. A failure is a Selenide `ElementShould` on the table root, with the usual
-screenshot, report step and soft-assert support.
+so they need no separate wait for rows. A check that times out fails with a Selenide `ElementShould` on the table root
+(`ElementNotFound` when the root never appears), with the usual screenshot, report step and soft-assert support.
 
 ```java
 Table grid = Table.of($("#properties"), TableLayout.aria());
@@ -210,7 +210,12 @@ grid.shouldSatisfy(snap -> assertThat(snap.column("Status")).doesNotContain("Fai
   be long; prefer a `TableCondition` for whole-table equality.
 - Retried as "not ready yet": a failed assertion or mismatch, a header that is not displayed or is ambiguous, a row
   or cell that is not rendered, and a key column with a missing cell or a repeated key. Any other exception thrown
-  by your assertions is retried by Selenide as in any condition and reported as the cause after the timeout.
+  by your `shouldSatisfy` assertions (for example `Integer.parseInt` on a cell that still shows "Loading…") is not
+  retried: it fails the check at once as itself. Assert on the text first, or parse inside an assertion.
+- Mismatches are listed with missing keys in the order of the expected map and other differences in row order.
+  `exactRows` compares by position, so one inserted row shows as many "different" rows; the headline gives both
+  row counts.
+- Displayed texts are whitespace-normalized; write expected texts with single spaces.
 - Texts, hidden cells and items, short rows and locators behave as in [Bulk read](#bulk-read-snapshot).
 
 ## Bulk read (`snapshot`)

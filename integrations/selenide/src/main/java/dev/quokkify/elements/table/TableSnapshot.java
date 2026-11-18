@@ -58,7 +58,8 @@ public final class TableSnapshot {
    * @throws TableColumnException when a header is not displayed or is displayed more than once
    */
   public List<List<String>> texts(List<String> headers) {
-    List<Integer> columns = headers.stream().map(header -> ColumnResolver.indexOf(this.headers, header, table)).toList();
+    List<Integer> columns = headers.stream()
+        .map(header -> ColumnResolver.indexOf(this.headers, header, table)).toList();
     return rows.stream().map(row -> columns.stream().map(column -> {
       SnapshotCell cell = row.cellOrNull(column);
       return Objects.isNull(cell) ? "" : cell.text();
@@ -128,7 +129,8 @@ public final class TableSnapshot {
     List<?> values = Objects.isNull(rawValues) ? null : list(rawValues, "values");
     List<SnapshotCell> cells = new ArrayList<>(texts.size());
     for (int i = 0; i < texts.size(); i++) {
-      List<String> items = Objects.isNull(values) ? List.of() : ColumnResolver.normalize(strings(values.get(i), "values"));
+      List<String> items = Objects.isNull(values) ? List.of()
+          : ColumnResolver.normalize(strings(values.get(i), "values"));
       cells.add(new SnapshotCell(ColumnResolver.normalize(texts.get(i)), items));
     }
     return new SnapshotRow(index, cells, headers, table);

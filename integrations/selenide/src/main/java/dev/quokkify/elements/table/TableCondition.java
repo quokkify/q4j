@@ -1,10 +1,11 @@
 package dev.quokkify.elements.table;
 
+import java.util.Collections;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
 import java.util.function.Function;
-import java.util.stream.Collectors;
 
 import com.codeborne.selenide.CheckResult;
 import com.codeborne.selenide.Driver;
@@ -33,27 +34,33 @@ public final class TableCondition {
   }
 
   /**
-   * The texts of {@code headers} in every row, in row order, are exactly {@code expected}.
+   * The texts of {@code headers} in every row, in row order, are exactly {@code expected}. Rows are compared by
+   * position; a missing cell of a short row reads as {@code ""}, like an empty cell. Displayed texts are
+   * whitespace-normalized, so write expected texts with single spaces.
    */
   public static TableCondition exactRows(List<String> headers, List<List<String>> expected) {
-    List<String> columns = List.copyOf(headers);
-    List<List<String>> rows = expected.stream().map(List::copyOf).toList();
+    List<String> columns = List.copyOf(Objects.requireNonNull(headers, "headers"));
+    List<List<String>> rows = Objects.requireNonNull(expected, "expected").stream().map(List::copyOf).toList();
     return new TableCondition("rows " + columns + " (" + rows.size() + " rows)", null, snap -> snap.texts(columns),
         rows);
   }
 
   /**
    * The rows keyed by the text of {@code keyHeader} have exactly the {@code items} found in their {@code valuesHeader}
-   * cell: same keys in any row order, same items in displayed order. Keys must be unique.
+   * cell: same keys in any row order, same items in displayed order. Keys must be unique. A failure lists missing keys
+   * in the order of {@code expected} and other differences in row order.
    */
   public static TableCondition exactValuesBy(String keyHeader, String valuesHeader, By items,
       Map<String, List<String>> expected) {
-    Map<String, List<String>> values = Map.copyOf(expected.entrySet().stream()
-        .collect(Collectors.toMap(Map.Entry::getKey, e -> List.copyOf(e.getValue()))));
+    Objects.requireNonNull(keyHeader, "keyHeader");
+    Objects.requireNonNull(valuesHeader, "valuesHeader");
+    Map<String, List<String>> values = new LinkedHashMap<>();
+    Objects.requireNonNull(expected, "expected").forEach((key, list) -> values.put(Objects.requireNonNull(key, "key"),
+        List.copyOf(list)));
     return new TableCondition("\"" + valuesHeader + "\" items by \"" + keyHeader + "\" (" + values.size() + " rows)",
         SnapshotLocator.of(Objects.requireNonNull(items, "items")),
         snap -> snap.columnValuesBy(keyHeader, valuesHeader),
-        values);
+        Collections.unmodifiableMap(values));
   }
 
   /**

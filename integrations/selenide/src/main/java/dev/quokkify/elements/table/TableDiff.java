@@ -29,11 +29,14 @@ final class TableDiff {
   private static String maps(Map<?, ?> expected, Map<?, ?> actual) {
     List<String> missing = new ArrayList<>();
     List<String> different = new ArrayList<>();
-    for (Map.Entry<?, ?> entry : expected.entrySet()) {
-      if (!actual.containsKey(entry.getKey())) {
-        missing.add(String.valueOf(entry.getKey()));
-      } else if (!Objects.equals(entry.getValue(), actual.get(entry.getKey()))) {
-        different.add(entry.getKey() + ": expected " + entry.getValue() + " but was " + actual.get(entry.getKey()));
+    for (Object key : expected.keySet()) {
+      if (!actual.containsKey(key)) {
+        missing.add(String.valueOf(key));
+      }
+    }
+    for (Map.Entry<?, ?> entry : actual.entrySet()) {
+      if (expected.containsKey(entry.getKey()) && !Objects.equals(expected.get(entry.getKey()), entry.getValue())) {
+        different.add(entry.getKey() + ": expected " + expected.get(entry.getKey()) + " but was " + entry.getValue());
       }
     }
     List<String> unexpected = actual.keySet().stream().filter(key -> !expected.containsKey(key))
