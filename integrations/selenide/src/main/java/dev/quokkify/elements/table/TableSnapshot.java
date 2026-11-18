@@ -54,7 +54,9 @@ public final class TableSnapshot {
   }
 
   static TableSnapshot fromScript(Map<?, ?> result, String table) {
-    Objects.requireNonNull(result, "snapshot script returned no result");
+    if (Objects.isNull(result)) {
+      throw new IllegalStateException("snapshot script returned no result for " + table);
+    }
     List<String> headers = ColumnResolver.normalize(strings(result.get("headers"), "headers"));
     List<SnapshotRow> rows = new ArrayList<>();
     for (Object raw : list(result.get("rows"), "rows")) {

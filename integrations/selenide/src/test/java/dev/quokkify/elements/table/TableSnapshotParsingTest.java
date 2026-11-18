@@ -109,6 +109,14 @@ public class TableSnapshotParsingTest {
     assertThat(first).isEqualTo(second).hasSameHashCodeAs(second);
   }
 
+  @Test
+  public void missingScriptResultNamesTable() {
+    assertThatThrownBy(() -> TableSnapshot.fromScript(null, TABLE))
+        .isInstanceOf(IllegalStateException.class)
+        .hasMessageContaining("no result")
+        .hasMessageContaining(TABLE);
+  }
+
   @SafeVarargs
   private static TableSnapshot parse(List<String> headers, Map<String, Object>... rows) {
     Map<String, Object> result = new HashMap<>();
