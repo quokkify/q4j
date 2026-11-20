@@ -12,6 +12,7 @@ include(":integrations:rest-assured")    // Wrapper around Rest Assured for HTTP
 include(":integrations:selenide")                  // Selenide - UI testing framework wrapper
 include(":integrations:selenide-proxy")            // Selenide proxy - BrowserUpProxy / HAR recording
 include(":integrations:selenide-grid")             // Selenide grid - Selenium Grid file download support
+include(":integrations:selenide-flutter")          // Selenide Appium - Flutter apps with visible element search
 include(":integrations:kafka")           // Kafka integration
 include(":integrations:rabbitmq")        // RabbitMQ integration
 include(":integrations:tyrus")           // Tyrus WebSocket client wrapper for test automation

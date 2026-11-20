@@ -293,6 +293,20 @@ jobs:
       name: selenide-grid
       module: ":integrations:selenide-grid"
       slug: integrations-selenide-grid
+
+  integrations-selenide-flutter:
+    name: selenide-flutter
+    needs: [detect-runner, build-common]
+    if: ${{ github.event_name != 'pull_request_target' }}
+    uses: ./.github/workflows/reusable-module-pipeline.yml
+    with:
+      runs-on: ${{ needs.detect-runner.outputs.runs_on }}
+      self-hosted: ${{ needs.detect-runner.outputs.is_self_hosted == 'true' }}
+      group: integrations
+      name: selenide-flutter
+      module: ":integrations:selenide-flutter"
+      slug: integrations-selenide-flutter
+      run-tests: true
       run-tests: true
       profile: web
 
@@ -611,6 +625,7 @@ jobs:
         integrations-selenide,
         integrations-selenide-proxy,
         integrations-selenide-grid,
+        integrations-selenide-flutter,
         integrations-tyrus,
         integrations-kafka,
         integrations-rabbitmq,

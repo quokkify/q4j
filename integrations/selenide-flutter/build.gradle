@@ -1,0 +1,17 @@
+description = "Selenide Appium support for Flutter apps with visible element search"
+
+dependencies {
+    api project(":integrations:selenide")
+    api libs.selenide.appium
+
+    implementation project(":common-utils:config")
+    implementation project(":common-utils:core")
+    implementation project(":common-utils:jackson:json")
+    implementation libs.allure.java.commons
+
+    testImplementation libs.allure.testng
+    testImplementation libs.allure.selenide
+    testImplementation libs.mockito.core
+
+    api "org.assertj:assertj-core"
+}

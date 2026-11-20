@@ -145,6 +145,7 @@ rest-assured = { module = "io.rest-assured:rest-assured", version.ref = "rest-as
 json-schema-validator = { module = "io.rest-assured:json-schema-validator", version.ref = "rest-assured" }
 # Selenide
 selenide = { module = "com.codeborne:selenide", version.ref = "selenide" }
+selenide-appium = { module = "com.codeborne:selenide-appium", version.ref = "selenide" }
 selenide-grid = { module = "com.codeborne:selenide-grid", version.ref = "selenide" }
 selenide-proxy = { module = "com.codeborne:selenide-proxy", version.ref = "selenide" }
 # OpenFeign

@@ -5,6 +5,7 @@ ext.modules = [
     ':integrations:selenide': [artifactId: 'selenide', displayName: 'Q4J Selenide', description: 'Selenide components and workflows for browser-based test automation.'],
     ':integrations:selenide-proxy': [artifactId: 'selenide-proxy', displayName: 'Q4J Selenide Proxy', description: 'Proxy and HAR capture support for Q4J Selenide tests.'],
     ':integrations:selenide-grid': [artifactId: 'selenide-grid', displayName: 'Q4J Selenide Grid', description: 'Selenium Grid support for Q4J Selenide tests.'],
+    ':integrations:selenide-flutter': [artifactId: 'selenide-flutter', displayName: 'Q4J Selenide Flutter', description: 'Selenide and Appium support for Flutter apps with visible element search.', publish: false],
     ':integrations:kafka': [artifactId: 'kafka', displayName: 'Q4J Kafka', description: 'Kafka producers, consumers, assertions, and test automation helpers.'],
     ':integrations:rabbitmq': [artifactId: 'rabbitmq', displayName: 'Q4J RabbitMQ', description: 'RabbitMQ messaging helpers for integration and end-to-end tests.'],
     ':integrations:tyrus': [artifactId: 'tyrus', displayName: 'Q4J Tyrus', description: 'Tyrus WebSocket client and verification helpers for automated tests.'],
