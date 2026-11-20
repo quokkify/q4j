@@ -39,6 +39,8 @@ def deviceTestTask = { String name, String taskDescription, String defaultModes,
         }
         systemProperty("mobile.modes", modes)
         systemProperty("mobile.excludeKnownGaps", excludeKnownGaps)
+        systemProperty("allure.results.directory",
+                layout.buildDirectory.dir("allure-results-device/$name").get().asFile.absolutePath)
         configure.delegate = delegate
         configure()
     }
