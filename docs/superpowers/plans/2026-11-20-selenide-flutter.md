@@ -456,7 +456,7 @@ Static Selenide state (`WebDriverRunner`) is reached through a small package-pri
     `@Sources({"system:properties", "system:env", "classpath:flutter.properties"})`, loaded through
     `ConfigRegistry.get(FlutterConfiguration.class)`. Keys and defaults: `APPIUM_URL` = `http://127.0.0.1:4723`;
     `FLUTTER_APP_PATH` = `test-app/build/app/outputs/flutter-apk/app-debug.apk` (relative to the module dir, the
-    Gradle test working dir); `FLUTTER_DEVICE_NAME` = `Android Emulator`; `FLUTTER_DRIVER_FIND_TIMEOUT_MS` = `0`;
+    Gradle test working dir); `FLUTTER_DEVICE_NAME` = `Android Emulator`; `FLUTTER_DRIVER_FIND_TIMEOUT_MS` = `1`;
     `FLUTTER_SERVER_LAUNCH_TIMEOUT_MS` = `120000`.
   - `public class FlutterDriverProvider implements WebDriverProvider` — `createDriver(Capabilities)` returns
     `new FlutterAndroidDriver(new URL(appiumUrl), options(config).merge(capabilities))`;
@@ -612,7 +612,7 @@ works on macOS and Linux (`CI=true` skips step 4 because the emulator action boo
 - [ ] **Step 1:** Add the source set and tasks; `./gradlew :integrations:selenide-flutter:tasks --group verification`
       lists the three tasks.
 - [ ] **Step 2:** Write screens, `ModeLocators`, `BaseMobileTest`, `NativeAndroidDriverProvider` (UiAutomator2,
-      same apk) and the scenario classes.
+      separate native apk built from `lib/main.dart`) and the scenario classes.
 - [ ] **Step 3: Verify flutter mode:** `tools/environment/scripts/flutter/run_device_tests.sh` → all scenarios
       PASS.
 - [ ] **Step 4: Verify the driver timeout:** in the Allure result of `FailureDemoTest.tapsMistypedKey` (run

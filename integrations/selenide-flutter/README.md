@@ -16,8 +16,8 @@ tree, and the closest matches with the reason each was rejected.
 ## Limits
 
 - Android only. iOS is not supported yet.
-- Appium is pinned to 3.x: `appium-flutter-integration-driver` 2.0.3 declares `appium ^3`, and upstream shows no
-  Appium 4 work yet. The pinned versions live in `tools/environment/scripts/flutter/versions.env`.
+- Appium is pinned to 3.x: `appium-flutter-integration-driver` 2.0.3 declares `appium ^3`, and as of 2026-11-20
+  upstream shows no Appium 4 work. The pinned versions live in `tools/environment/scripts/flutter/versions.env`.
 - The app must be a debug or profile build that embeds `appium_flutter_server`. A release build has no server.
 - The server's find uses `hitTestable()`: an element that exists in the tree but cannot receive a hit is not found.
 - The real `renderTree` carries no visible/enabled flags or absolute rects. Suggestions name ancestors whose widget

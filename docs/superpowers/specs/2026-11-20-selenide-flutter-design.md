@@ -321,3 +321,27 @@ Prettier.
   letting Selenide poll avoids depending on it.
 - Emulator boot time and flakiness in CI. Mitigated by path filters, nightly runs and not making the job
   required.
+
+## Amendments
+
+Controller rulings made during the build that change the approved design:
+
+- R7: a widget without `state.visible`/`state.enabled` counts as visible and enabled; a missing flag is not
+  evidence that the widget is hidden or disabled.
+- R9: the WebDriver tracer is registered once globally, the Selenide log listener on every `install()` per thread;
+  tests call `install()` in `@BeforeMethod`.
+- R12: a test that exposes a known gap of a mode runs and fails for real; it carries the TestNG group
+  `known-gap-<mode>`, which `flutterDeviceTest` excludes and `flutterComparison` includes.
+- R13: native mode expresses descendant locators with a UiSelector `childSelector`; only combinations UiSelector
+  cannot express are not reachable.
+- R14: native mode runs a second apk built from `lib/main.dart` without the integration-test binding, instead of
+  the same apk, so the comparison does not blame native automation for a harness artifact.
+- R15: an exact tree match that the server does not find is reported as "exists in the widget tree but is not
+  hit-testable", with hit-blocking ancestors named by widget type; occlusion is not computed.
+- R17: the comparison adds the status `KNOWN_GAP` (a known-gap test that fails); a known gap that passes is
+  `PASSED` and flagged "known gap did not reproduce"; neither breaks the verdict.
+- R18: the native failure-demo excerpt is a compact list of page-source nodes with a resource-id, content-desc or
+  text; the verdict requires an excerpt for every failed demo.
+- R20: hit-blocking ancestors are worded as a possible cause (their flag is not in the tree); a button keyed
+  directly on its widget is compared in both modes to separate driver gaps from keyed-wrapper gaps; the verdict
+  requires every failure demo in every mode that ran.
