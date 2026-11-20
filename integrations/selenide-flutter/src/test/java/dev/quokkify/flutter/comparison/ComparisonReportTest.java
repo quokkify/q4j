@@ -94,6 +94,15 @@ public class ComparisonReportTest {
   }
 
   @Test
+  public void verdictRequiresDemoInEveryModeThatRan() {
+    assertThat(ComparisonReport.verdict(List.of(demo("flutter", FAILED, "x"), scenario("native", PASSED))))
+        .hasValueSatisfying(reason -> assertThat(reason).isEqualTo(
+            "failure demo FailureDemoTest.tapsMistypedKey has no result in native mode"));
+    assertThat(ComparisonReport.verdict(List.of(demo("flutter", FAILED, "x"), scenario("flutter", PASSED))))
+        .isEmpty();
+  }
+
+  @Test
   public void showsOnlyTheClauseOfTheRowsMode() {
     String description = "Login follows the form (known gap in flutter mode: flutter reason; in native mode: native"
         + " reason)";

@@ -5,7 +5,9 @@ import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.TreeMap;
+import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import java.util.stream.Collectors;
@@ -53,6 +55,17 @@ public final class ComparisonReport {
         }
       } else if (result.status() == Status.FAILED) {
         return Optional.of(result.scenario() + " failed in " + result.mode() + " mode");
+      }
+    }
+    Set<String> modes = results.stream().map(ScenarioResult::mode).collect(Collectors.toCollection(TreeSet::new));
+    Map<String, Set<String>> demoModes = results.stream().filter(ScenarioResult::expectedToFail)
+        .collect(Collectors.groupingBy(ScenarioResult::scenario, TreeMap::new,
+            Collectors.mapping(ScenarioResult::mode, Collectors.toSet())));
+    for (Map.Entry<String, Set<String>> demo : demoModes.entrySet()) {
+      for (String mode : modes) {
+        if (!demo.getValue().contains(mode)) {
+          return Optional.of("failure demo " + demo.getKey() + " has no result in " + mode + " mode");
+        }
       }
     }
     return Optional.empty();
