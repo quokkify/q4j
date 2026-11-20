@@ -47,10 +47,13 @@ require java "install a JDK 21+ (https://adoptium.net)"
 require node "install Node.js 20+ (https://nodejs.org)"
 require npm "install Node.js 20+ (https://nodejs.org)"
 require flutter "install Flutter (https://docs.flutter.dev/get-started/install)"
+require curl "install curl with your package manager"
 require adb "$sdk_hint; then: sdkmanager \"platform-tools\""
-require emulator "$sdk_hint; then: sdkmanager \"emulator\""
-require sdkmanager "$sdk_hint"
-require avdmanager "$sdk_hint"
+if [[ "${CI:-}" != "true" ]]; then
+  require emulator "$sdk_hint; then: sdkmanager \"emulator\""
+  require sdkmanager "$sdk_hint"
+  require avdmanager "$sdk_hint"
+fi
 if [[ "$missing" -ne 0 ]]; then
   exit 1
 fi
@@ -59,20 +62,22 @@ mkdir -p "$ENV_DIR" "$APPIUM_HOME"
 
 # --- 2. Appium and drivers (project-local) ------------------------------------------
 APPIUM_BIN="$NPM_PREFIX/node_modules/.bin/appium"
-if [[ ! -x "$APPIUM_BIN" ]] || ! "$APPIUM_BIN" --version 2>/dev/null | grep -qxF "$APPIUM_VERSION"; then
+appium_version="$("$APPIUM_BIN" --version 2>/dev/null || true)"
+if [[ "$appium_version" != "$APPIUM_VERSION" ]]; then
   log "installing appium@$APPIUM_VERSION into build/flutter-env/npm"
   npm install --silent --no-audit --no-fund --prefix "$NPM_PREFIX" "appium@$APPIUM_VERSION"
 fi
 
 installed_drivers="$("$APPIUM_BIN" driver list --installed --json 2>/dev/null || true)"
-if ! grep -qF "\"version\": \"$UIAUTOMATOR2_DRIVER_VERSION\"" <<<"$installed_drivers" ||
-  ! grep -qF "appium-uiautomator2-driver" <<<"$installed_drivers"; then
+driver_version() {
+  node -e 'let s = ""; process.stdin.on("data", (d) => (s += d)).on("end", () => { try { process.stdout.write(JSON.parse(s)[process.argv[1]]?.version ?? ""); } catch { /* not installed */ } });' "$1" <<<"$installed_drivers"
+}
+if [[ "$(driver_version uiautomator2)" != "$UIAUTOMATOR2_DRIVER_VERSION" ]]; then
   log "installing uiautomator2@$UIAUTOMATOR2_DRIVER_VERSION"
   "$APPIUM_BIN" driver uninstall uiautomator2 >/dev/null 2>&1 || true
   "$APPIUM_BIN" driver install "uiautomator2@$UIAUTOMATOR2_DRIVER_VERSION"
 fi
-if ! grep -qF "\"version\": \"$FLUTTER_INTEGRATION_DRIVER_VERSION\"" <<<"$installed_drivers" ||
-  ! grep -qF "appium-flutter-integration-driver" <<<"$installed_drivers"; then
+if [[ "$(driver_version flutter-integration)" != "$FLUTTER_INTEGRATION_DRIVER_VERSION" ]]; then
   log "installing appium-flutter-integration-driver@$FLUTTER_INTEGRATION_DRIVER_VERSION"
   "$APPIUM_BIN" driver uninstall flutter-integration >/dev/null 2>&1 || true
   "$APPIUM_BIN" driver install --source=npm "appium-flutter-integration-driver@$FLUTTER_INTEGRATION_DRIVER_VERSION"
@@ -82,8 +87,10 @@ fi
 "$SCRIPT_DIR/build_app.sh"
 
 # --- 4. emulator --------------------------------------------------------------------
-has_emulator() { adb devices | awk 'NR > 1 && $1 ~ /^emulator-/ && $2 == "device" { found = 1 } END { exit !found }'; }
+# "offline" is an emulator that is still booting; count it so a rerun does not start a second one.
+has_emulator() { adb devices | awk 'NR > 1 && $1 ~ /^emulator-/ && ($2 == "device" || $2 == "offline") { found = 1 } END { exit !found }'; }
 
+emulator_pid=""
 if [[ "${CI:-}" == "true" ]]; then
   log "CI=true: expecting the emulator to be booted already"
 elif has_emulator; then
@@ -101,14 +108,18 @@ else
   fi
   log "booting emulator $AVD_NAME"
   nohup emulator "${emulator_args[@]}" >"$ENV_DIR/emulator.log" 2>&1 &
-  echo $! >"$ENV_DIR/emulator.pid"
+  emulator_pid=$!
+  echo "$emulator_pid" >"$ENV_DIR/emulator.pid"
 fi
 
 if [[ "${CI:-}" != "true" ]]; then
   log "waiting for the emulator to finish booting (up to ${EMULATOR_BOOT_TIMEOUT}s)"
-  adb wait-for-device
   deadline=$((SECONDS + EMULATOR_BOOT_TIMEOUT))
   until [[ "$(adb shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" == "1" ]]; do
+    if [[ -n "$emulator_pid" ]] && ! kill -0 "$emulator_pid" 2>/dev/null; then
+      echo "[flutter-env] emulator exited during boot; see build/flutter-env/emulator.log" >&2
+      exit 1
+    fi
     if ((SECONDS >= deadline)); then
       echo "[flutter-env] emulator did not finish booting within ${EMULATOR_BOOT_TIMEOUT}s; see build/flutter-env/emulator.log" >&2
       exit 1
@@ -125,9 +136,14 @@ if appium_up; then
 else
   log "starting Appium $APPIUM_VERSION"
   nohup "$APPIUM_BIN" --port "$APPIUM_PORT" --log "$ENV_DIR/appium.log" >/dev/null 2>&1 &
-  echo $! >"$ENV_DIR/appium.pid"
+  appium_pid=$!
+  echo "$appium_pid" >"$ENV_DIR/appium.pid"
   deadline=$((SECONDS + APPIUM_READY_TIMEOUT))
   until appium_up; do
+    if ! kill -0 "$appium_pid" 2>/dev/null; then
+      echo "[flutter-env] Appium exited during startup; see build/flutter-env/appium.log" >&2
+      exit 1
+    fi
     if ((SECONDS >= deadline)); then
       echo "[flutter-env] Appium did not become ready within ${APPIUM_READY_TIMEOUT}s; see build/flutter-env/appium.log" >&2
       exit 1
