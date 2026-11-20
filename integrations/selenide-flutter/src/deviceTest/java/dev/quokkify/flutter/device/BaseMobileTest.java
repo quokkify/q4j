@@ -66,12 +66,15 @@ public abstract class BaseMobileTest implements IHookable {
 
   /**
    * Both apks share one package and version, so Appium would keep whichever is installed. The apk is installed once
-   * per run and again whenever the other mode's apk was installed in between.
+   * per run and again whenever the other mode's apk was installed in between. An apk counts as installed only once
+   * a session with it has started.
    */
   private static synchronized boolean mustInstall(String apk) {
-    boolean install = !apk.equals(installedApk);
+    return !apk.equals(installedApk);
+  }
+
+  private static synchronized void markInstalled(String apk) {
     installedApk = apk;
-    return install;
   }
 
   private String appPath() {
@@ -89,6 +92,9 @@ public abstract class BaseMobileTest implements IHookable {
 
   @AfterMethod(alwaysRun = true)
   public void removeListeners() {
+    if (WebDriverRunner.hasWebDriverStarted()) {
+      markInstalled(appPath());
+    }
     FlutterVisibility.uninstall();
     SelenideLogger.removeListener(ALLURE_LISTENER);
   }
