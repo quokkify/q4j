@@ -20,9 +20,9 @@ tree, and the closest matches with the reason each was rejected.
   Appium 4 work yet. The pinned versions live in `tools/environment/scripts/flutter/versions.env`.
 - The app must be a debug or profile build that embeds `appium_flutter_server`. A release build has no server.
 - The server's find uses `hitTestable()`: an element that exists in the tree but cannot receive a hit is not found.
-- The real `renderTree` carries no visible/enabled flags or absolute rects. Hidden reasons are inferred from the
-  widget type of ancestors (`Offstage`, `Visibility`, `Opacity`, `IgnorePointer`, `AbsorbPointer`). Occlusion by
-  another widget is not detected.
+- The real `renderTree` carries no visible/enabled flags or absolute rects. Suggestions name ancestors whose widget
+  type can block a hit (`Offstage`, `Visibility`, `Opacity`, `IgnorePointer`, `AbsorbPointer`) as a possible cause
+  only: the ancestor's flag is not in the tree. Occlusion by another widget is not detected.
 - Keyed-wrapper gotcha: `$(FlutterBy.key(..))` on a `KeyedSubtree` reads the text `""` and `enabled=false`. Assert
   on the child widget (`FlutterBy.descendant(FlutterBy.key(..), FlutterBy.type(..))`).
 - On a deep tree the widget-tree JSON exceeds the java-client nesting limit of 255, so diagnostics fall back to the
@@ -240,7 +240,7 @@ View id="android:id/navigationBarBackground" [0,2337][1080,2400]
 
 ```text
 flutter
-1.00 KeyedSubtree key="hidden_banner" @0,0 94x20 — exact key match exists in the widget tree but is not hit-testable; hidden by Offstage ancestor (detected by widget type)
+1.00 KeyedSubtree key="hidden_banner" @0,0 94x20 — exact key match exists in the widget tree but is not hit-testable; has an Offstage ancestor that may make it non-hit-testable (widget type only; its flag is not in the tree)
 
 native
 FrameLayout id="android:id/content" [0,0][1080,2337]

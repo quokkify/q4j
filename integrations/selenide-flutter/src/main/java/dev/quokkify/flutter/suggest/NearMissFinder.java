@@ -26,6 +26,8 @@ public final class NearMissFinder {
   private static final double MIN_SIMILARITY = 0.5;
   private static final String SEMANTICS_HINT = "value found as semantics label; try FlutterBy.semanticsLabel";
   private static final String NOT_HIT_TESTABLE = " match exists in the widget tree but is not hit-testable";
+  private static final String ANCESTOR_MAY_HIDE =
+      " ancestor that may make it non-hit-testable (widget type only; its flag is not in the tree)";
   // Real Flutter server trees expose no offstage/visible/opacity/ignoring flags, so these ancestors are detected by
   // widget type alone; whether they actually hide the widget is not known.
   private static final Set<String> HIDING_ANCESTORS =
@@ -186,7 +188,7 @@ public final class NearMissFinder {
         .map(WidgetNode::type)
         .filter(HIDING_ANCESTORS::contains)
         .distinct()
-        .forEach(type -> problems.add("hidden by " + type + " ancestor (detected by widget type)"));
+        .forEach(type -> problems.add("has an " + type + ANCESTOR_MAY_HIDE));
     return problems;
   }
 

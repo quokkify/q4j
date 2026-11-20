@@ -38,7 +38,8 @@ public class NearMissFinderTest {
     NearMiss top = NearMissFinder.find(Locators.parse(FlutterBy.key("hidden_banner")), tree, 5).get(0);
     assertThat(top.score()).isEqualTo(1.0);
     assertThat(top.reasons()).containsExactly("exact key match exists in the widget tree but is not hit-testable",
-        "hidden", "zero-size", "hidden by Offstage ancestor (detected by widget type)");
+        "hidden", "zero-size",
+        "has an Offstage ancestor that may make it non-hit-testable (widget type only; its flag is not in the tree)");
   }
 
   @Test
@@ -141,8 +142,8 @@ public class NearMissFinderTest {
                 node("Text", "faded", null, null, true, true, BOX))));
     assertThat(NearMissFinder.find(Locators.parse(FlutterBy.key("faded")), root, 5).get(0).reasons()).containsExactly(
         "exact key match exists in the widget tree but is not hit-testable",
-        "hidden by Opacity ancestor (detected by widget type)",
-        "hidden by IgnorePointer ancestor (detected by widget type)");
+        "has an Opacity ancestor that may make it non-hit-testable (widget type only; its flag is not in the tree)",
+        "has an IgnorePointer ancestor that may make it non-hit-testable (widget type only; its flag is not in the tree)");
   }
 
   @Test
@@ -168,7 +169,7 @@ public class NearMissFinderTest {
     NearMiss top = NearMissFinder.find(Locators.parse(FlutterBy.key("hidden_banner")), recorded, 5).get(0);
     assertThat(top.node().key()).isEqualTo("hidden_banner");
     assertThat(top.reasons()).containsExactly("exact key match exists in the widget tree but is not hit-testable",
-        "hidden by Offstage ancestor (detected by widget type)");
+        "has an Offstage ancestor that may make it non-hit-testable (widget type only; its flag is not in the tree)");
   }
 
   @Test
