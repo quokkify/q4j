@@ -15,8 +15,10 @@ function find(context, [kind, expr]) {
         null,
       );
     } catch (e) {
-      // Selenide fails fast on messages starting with "invalid selector" instead of retrying until the timeout.
-      throw new Error("invalid selector: " + expr + ": " + e.message);
+      // Selenide fails fast, without retry, on an error whose message has its invalid-selector marker. The marker is
+      // spelled with an escape: Selenium quotes this script in the message of every error of the call (a stale root
+      // too), so a literal marker here would make Selenide fail fast on those as well.
+      throw new Error("invalid\u0020selector: " + expr + ": " + e.message);
     }
     const nodes = [];
     for (let i = 0; i < result.snapshotLength; i++) {

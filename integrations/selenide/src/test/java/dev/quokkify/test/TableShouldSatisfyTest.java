@@ -4,6 +4,7 @@ import java.time.Duration;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 import dev.quokkify.annotation.Sequential;
 import dev.quokkify.elements.table.Table;
@@ -13,6 +14,9 @@ import com.codeborne.selenide.Selenide;
 import com.codeborne.selenide.ex.ElementNotFound;
 import com.codeborne.selenide.ex.ElementShould;
 import org.openqa.selenium.By;
+import org.openqa.selenium.InvalidSelectorException;
+import org.openqa.selenium.SearchContext;
+import org.openqa.selenium.WebElement;
 import org.testng.annotations.Test;
 
 import static com.codeborne.selenide.Selenide.$;
@@ -95,6 +99,34 @@ public class TableShouldSatisfyTest extends BaseTest {
     table.shouldSatisfy(snap -> assertThat(snap.column("Name")).containsExactly("Omega", "Beta", "Gamma"));
   }
 
+  /**
+   * Regression guard: the root is remounted right after Selenide locates it and before the table is read, so the
+   * first read hits a stale root; it must be located again and re-read, not fail as an invalid selector.
+   */
+  @Test
+  public void survivesRootRemountBetweenLookupAndRead() {
+    openSnapshotFixture();
+    Table table = Table.of($(new RemountedAfterFirstLookup("chip-grid")), TableLayout.aria());
+
+    table.shouldSatisfy(snap -> assertThat(snap.column("Name")).containsExactly("Omega", "Beta", "Gamma"));
+  }
+
+  @Test
+  public void malformedXpathFailsImmediatelyAsInvalidSelector() {
+    openSnapshotFixture();
+    Table table = Table.of($("#chip-grid"),
+        TableLayout.of(By.xpath("./*[@role='row'"), By.xpath("./*[@role='gridcell']"),
+            By.xpath(".//*[@role='columnheader']")));
+
+    long start = System.nanoTime();
+    assertThatThrownBy(() -> table.shouldSatisfy(snap -> assertThat(snap.rows()).isNotEmpty(),
+        Duration.ofSeconds(10)))
+        .isInstanceOf(InvalidSelectorException.class);
+    Duration elapsed = Duration.ofNanos(System.nanoTime() - start);
+
+    assertThat(elapsed).isLessThan(Duration.ofSeconds(5));
+  }
+
   @Test
   public void failsAfterTimeoutWithAssertionMessage() {
     openSnapshotFixture();
@@ -161,5 +193,37 @@ public class TableShouldSatisfyTest extends BaseTest {
 
   private static Table chipGrid() {
     return Table.of($("#chip-grid"), TableLayout.aria());
+  }
+
+  /** Finds an element by id and, on the first lookup only, remounts it as {@link #REMOUNT_LATER} does, at once. */
+  private static final class RemountedAfterFirstLookup extends By {
+
+    private static final String REMOUNT_NOW = """
+        const old = document.getElementById(arguments[0]);
+        const fresh = old.cloneNode(true);
+        fresh.querySelector('[role=gridcell]').textContent = 'Omega';
+        old.replaceWith(fresh);
+        """;
+
+    private final String id;
+    private final AtomicBoolean remounted = new AtomicBoolean();
+
+    private RemountedAfterFirstLookup(String id) {
+      this.id = id;
+    }
+
+    @Override
+    public List<WebElement> findElements(SearchContext context) {
+      List<WebElement> found = context.findElements(By.id(id));
+      if (remounted.compareAndSet(false, true)) {
+        Selenide.executeJavaScript(REMOUNT_NOW, id);
+      }
+      return found;
+    }
+
+    @Override
+    public String toString() {
+      return "By.id: " + id + " (remounted after its first lookup)";
+    }
   }
 }
