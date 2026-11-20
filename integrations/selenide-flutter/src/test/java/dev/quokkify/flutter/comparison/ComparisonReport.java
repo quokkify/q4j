@@ -1,6 +1,7 @@
 package dev.quokkify.flutter.comparison;
 
 import java.util.Comparator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
@@ -13,13 +14,14 @@ import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
- * Renders the flutter-versus-native comparison and decides whether it is acceptable.
+ * Renders the comparison of the modes a run used and decides whether it is acceptable.
+ *
+ * <p>Modes appear in the order they first ran. A mode named {@code <family>-<variant>} (such as {@code flutter-sync})
+ * shares the known-gap clauses of its family ({@code flutter}).
  */
 public final class ComparisonReport {
 
   public static final String OK = "OK";
-  private static final String FLUTTER = "flutter";
-  private static final String NATIVE = "native";
   private static final Pattern CLAUSE = Pattern.compile("(?:known gap )?in (flutter|native) mode: ");
   private static final String MISSING = "- | - | -";
 
@@ -27,16 +29,30 @@ public final class ComparisonReport {
   }
 
   public static String render(List<ScenarioResult> results) {
-    StringBuilder md = new StringBuilder("# Flutter vs native comparison\n\n");
-    md.append("| Scenario | Flutter | ms | finds | Native | ms | finds |\n");
-    md.append("| --- | --- | --- | --- | --- | --- | --- |\n");
+    List<String> modes = modes(results);
+    StringBuilder md = new StringBuilder("# Flutter vs native comparison\n\n| Scenario |");
+    modes.forEach(mode -> md.append(' ').append(mode).append(" | ms | finds |"));
+    md.append("\n| --- |").append(" --- | --- | --- |".repeat(modes.size())).append('\n');
     Map<String, List<ScenarioResult>> byScenario = results.stream()
         .collect(Collectors.groupingBy(ScenarioResult::scenario, TreeMap::new, Collectors.toList()));
-    byScenario.forEach((scenario, rows) -> md.append("| ").append(cellText(scenario)).append(" | ")
-        .append(cells(rows, FLUTTER)).append(" | ").append(cells(rows, NATIVE)).append(" |\n"));
+    byScenario.forEach((scenario, rows) -> {
+      md.append("| ").append(cellText(scenario)).append(" |");
+      modes.forEach(mode -> md.append(' ').append(cells(rows, mode)).append(" |"));
+      md.append('\n');
+    });
+    appendTiming(md, modes, byScenario);
     appendKnownGaps(md, results);
-    appendDemo(md, results);
+    appendDemo(md, modes, results);
     return md.toString();
+  }
+
+  private static List<String> modes(List<ScenarioResult> results) {
+    return List.copyOf(results.stream().map(ScenarioResult::mode).collect(Collectors.toCollection(LinkedHashSet::new)));
+  }
+
+  static String family(String mode) {
+    int dash = mode.indexOf('-');
+    return dash < 0 ? mode : mode.substring(0, dash);
   }
 
   public static Optional<String> verdict(List<ScenarioResult> results) {
@@ -99,7 +115,7 @@ public final class ComparisonReport {
       if (start < 0) {
         base = reason.substring(0, reason.lastIndexOf('(', clause.start())).trim();
       }
-      if (clause.group(1).equals(row.mode())) {
+      if (clause.group(1).equals(family(row.mode()))) {
         start = clause.end();
         end = clause.find() ? clause.start() : reason.length();
         break;
@@ -138,7 +154,35 @@ public final class ComparisonReport {
         .append(r.scenario()).append(" (").append(reasonFor(r)).append(")\n"));
   }
 
-  private static void appendDemo(StringBuilder md, List<ScenarioResult> results) {
+  /**
+   * Per mode, the time and find attempts of the scenarios that passed in every mode, so the modes are compared on the
+   * same work. ms per find divides scenario time (taps, typing and screen changes included) by find attempts.
+   */
+  private static void appendTiming(StringBuilder md, List<String> modes,
+                                   Map<String, List<ScenarioResult>> byScenario) {
+    List<List<ScenarioResult>> common = byScenario.values().stream()
+        .filter(rows -> modes.stream().allMatch(mode -> rows.stream()
+            .anyMatch(row -> mode.equals(row.mode()) && row.status() == Status.PASSED)))
+        .toList();
+    md.append("\n## Timing\n\n");
+    if (common.isEmpty()) {
+      md.append("No scenario passed in every mode.\n");
+      return;
+    }
+    md.append("Scenarios that passed in every mode: ").append(common.size())
+        .append(". ms per find = scenario ms / finds (scenario time includes taps, typing and screen changes).\n\n")
+        .append("| Mode | ms | finds | ms per find |\n| --- | --- | --- | --- |\n");
+    for (String mode : modes) {
+      List<ScenarioResult> rows = common.stream().flatMap(List::stream).filter(row -> mode.equals(row.mode()))
+          .toList();
+      long ms = rows.stream().mapToLong(ScenarioResult::durationMs).sum();
+      long finds = rows.stream().mapToLong(ScenarioResult::findAttempts).sum();
+      md.append("| ").append(mode).append(" | ").append(ms).append(" | ").append(finds).append(" | ")
+          .append(finds == 0 ? "-" : String.valueOf(Math.round((double) ms / finds))).append(" |\n");
+    }
+  }
+
+  private static void appendDemo(StringBuilder md, List<String> modes, List<ScenarioResult> results) {
     Map<String, List<ScenarioResult>> demos = results.stream().filter(ScenarioResult::expectedToFail)
         .collect(Collectors.groupingBy(ScenarioResult::scenario, TreeMap::new, Collectors.toList()));
     if (demos.isEmpty()) {
@@ -147,7 +191,7 @@ public final class ComparisonReport {
     md.append("\n## Failure demo\n");
     demos.forEach((scenario, rows) -> {
       md.append("\n### ").append(scenario).append("\n");
-      for (String mode : List.of(FLUTTER, NATIVE)) {
+      for (String mode : modes) {
         rows.stream().filter(row -> mode.equals(row.mode())).findFirst().ifPresent(row -> md.append("\n**")
             .append(mode).append("** (").append(row.status()).append(")\n\n```\n")
             .append(row.diagnosticsExcerpt() == null ? "(no diagnostics captured)" : row.diagnosticsExcerpt())
