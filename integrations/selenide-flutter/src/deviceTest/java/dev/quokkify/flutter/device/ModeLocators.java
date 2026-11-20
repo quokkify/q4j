@@ -16,6 +16,7 @@ import org.openqa.selenium.By;
 public final class ModeLocators {
 
   private static final String CONTENT_DESC = "content-desc";
+  private static final String UI_SELECTOR = "new UiSelector()";
 
   private final MobileMode mode;
 
@@ -61,11 +62,15 @@ public final class ModeLocators {
     return mode == MobileMode.FLUTTER ? FlutterBy.descendant(FlutterBy.key(id), FlutterBy.type("Text")) : id(id);
   }
 
+  /**
+   * A widget matching {@code matching} under {@code of}. Natively this is a UiSelector {@code childSelector}, which
+   * UiAutomator2 resolves among all descendants; locators that are not a plain UiSelector are not reachable.
+   */
   public By descendant(By of, By matching) {
-    if (mode == MobileMode.NATIVE) {
-      throw new NotReachableInModeException(mode, "descendant(" + of + ", " + matching + ") has no native locator");
+    if (mode == MobileMode.FLUTTER) {
+      return FlutterBy.descendant(of, matching);
     }
-    return FlutterBy.descendant(of, matching);
+    return AppiumBy.androidUIAutomator(uiSelector(of) + ".childSelector(" + uiSelector(matching) + ")");
   }
 
   /**
@@ -73,6 +78,27 @@ public final class ModeLocators {
    */
   public WebElementCondition shows(String text) {
     return mode == MobileMode.FLUTTER ? Condition.exactText(text) : Condition.attribute(CONTENT_DESC, text);
+  }
+
+  private String uiSelector(By by) {
+    if (by instanceof By.Remotable remotable) {
+      By.Remotable.Parameters parameters = remotable.getRemoteParameters();
+      String value = String.valueOf(parameters.value());
+      switch (parameters.using()) {
+        case "id":
+          return "new UiSelector().resourceId(" + quote(value) + ")";
+        case "accessibility id":
+          return "new UiSelector().description(" + quote(value) + ")";
+        case "-android uiautomator":
+          if (value.startsWith(UI_SELECTOR) && !value.contains(".childSelector(")) {
+            return value;
+          }
+          break;
+        default:
+          break;
+      }
+    }
+    throw new NotReachableInModeException(mode, "descendant part " + by + " has no UiSelector form");
   }
 
   static String quote(String value) {
