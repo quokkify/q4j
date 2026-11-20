@@ -24,6 +24,8 @@ public final class FindTracer implements WebDriverListener {
 
   private static final String FIND_ELEMENT = "findElement";
   private static final String FIND_ELEMENTS = "findElements";
+  // The Appium Flutter server reports a miss as an unknown error (HTTP 500), not as "no such element".
+  private static final String FLUTTER_SERVER_MISS = "is not present in DOM";
 
   private final Clock clock;
   private final BooleanSupplier recording;
@@ -114,11 +116,16 @@ public final class FindTracer implements WebDriverListener {
       return;
     }
     Throwable cause = e.getCause() == null ? e : e.getCause();
-    if (cause instanceof NoSuchElementException) {
+    if (cause instanceof NoSuchElementException || isFlutterServerMiss(cause)) {
       finish(locator, Outcome.NOT_FOUND, null);
     } else {
       finish(locator, Outcome.ERROR, firstLine(cause));
     }
+  }
+
+  private static boolean isFlutterServerMiss(Throwable cause) {
+    String message = cause.getMessage();
+    return message != null && message.contains(FLUTTER_SERVER_MISS);
   }
 
   private void start(By locator) {

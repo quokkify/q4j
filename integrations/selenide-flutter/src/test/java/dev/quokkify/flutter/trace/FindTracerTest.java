@@ -11,6 +11,7 @@ import dev.quokkify.flutter.FlutterBy;
 import org.openqa.selenium.By;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebDriverException;
 import org.openqa.selenium.WebElement;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
@@ -51,6 +52,20 @@ public class FindTracerTest {
     assertThat(attempts.get(0).locator()).isEqualTo("flutter key \"delayed_result\"");
     assertThat(attempts.get(0).by()).isSameAs(by);
     assertThat(tracer.drain()).isEmpty();
+  }
+
+  @Test
+  public void flutterServerMissIsNotFound() {
+    tracer.beforeFindElement(driver, by);
+    tracer.onError(driver, findElementMethod, new Object[] {by},
+        new InvocationTargetException(new WebDriverException("Exception: Element with locator widget with key"
+            + " [<'login_btn'>] (considering only hit-testable widgets with a RenderBox) is not present in DOM"
+            + " with 0 seconds")));
+
+    FindAttempt attempt = tracer.drain().get(0);
+
+    assertThat(attempt.outcome()).isEqualTo(Outcome.NOT_FOUND);
+    assertThat(attempt.detail()).isNull();
   }
 
   @Test
