@@ -40,7 +40,7 @@ public final class NearMissFinder {
     if (spec == null || root == null || !spec.strategy().isFlutter() || limit <= 0) {
       return List.of();
     }
-    return search(spec, root).stream().sorted(BY_SCORE_DESC).limit(limit).toList();
+    return deepestExactMatches(search(spec, root)).stream().sorted(BY_SCORE_DESC).limit(limit).toList();
   }
 
   private static List<NearMiss> search(LocatorSpec spec, WidgetNode root) {
@@ -48,6 +48,19 @@ public final class NearMissFinder {
       case DESCENDANT, ANCESTOR -> searchComposite(spec, root);
       default -> root.flatten().map(node -> score(spec, node, root)).flatMap(Optional::stream).toList();
     };
+  }
+
+  /**
+   * Real trees copy a widget's text onto every wrapper above it, so one widget yields a chain of exact matches; only
+   * the deepest one of each chain is kept.
+   */
+  private static List<NearMiss> deepestExactMatches(List<NearMiss> misses) {
+    List<WidgetNode> exact = misses.stream().filter(m -> m.score() == EXACT_UNHITTABLE_SCORE).map(NearMiss::node)
+        .toList();
+    return misses.stream()
+        .filter(m -> m.score() != EXACT_UNHITTABLE_SCORE || exact.stream().noneMatch(other -> other != m.node()
+            && m.node().flatten().anyMatch(descendant -> descendant == other)))
+        .toList();
   }
 
   private static List<NearMiss> searchComposite(LocatorSpec spec, WidgetNode root) {

@@ -146,6 +146,20 @@ public class NearMissFinderTest {
   }
 
   @Test
+  public void exactMatchChainOfWrappersYieldsOnlyTheDeepestNode() throws IOException {
+    List<NearMiss> m = NearMissFinder.find(Locators.parse(FlutterBy.text("Covered")), recordedOffstage(), 5);
+    assertThat(m).hasSize(1);
+    assertThat(m.get(0).node().type()).isEqualTo("RichText");
+    assertThat(m.get(0).node().children()).isEmpty();
+  }
+
+  private WidgetNode recordedOffstage() throws IOException {
+    try (var in = getClass().getClassLoader().getResourceAsStream("trees/recorded-offstage.json")) {
+      return WidgetTreeParser.parse(new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8));
+    }
+  }
+
+  @Test
   public void recordedOffstageBannerIsExplained() throws IOException {
     WidgetNode recorded;
     try (var in = getClass().getClassLoader().getResourceAsStream("trees/recorded-offstage.json")) {
