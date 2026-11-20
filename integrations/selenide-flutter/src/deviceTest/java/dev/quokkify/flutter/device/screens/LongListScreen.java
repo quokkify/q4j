@@ -2,7 +2,6 @@ package dev.quokkify.flutter.device.screens;
 
 import java.util.Map;
 
-import dev.quokkify.flutter.device.MobileMode;
 import dev.quokkify.flutter.device.ModeLocators;
 import dev.quokkify.impl.Page;
 
@@ -31,7 +30,7 @@ public class LongListScreen implements Page {
    */
   public SelenideElement scrollTo(int index) {
     String id = "list_item_" + index;
-    if (locators.mode() == MobileMode.FLUTTER) {
+    if (locators.mode().isFlutter()) {
       // A raw map: ScrollParameter serializes dragDuration in whole seconds, but the server reads milliseconds.
       ((CanExecuteFlutterScripts) WebDriverRunner.getWebDriver()).executeFlutterCommand("scrollTillVisible", Map.of(
           "finder", Map.of("using", "-flutter key", "value", id),

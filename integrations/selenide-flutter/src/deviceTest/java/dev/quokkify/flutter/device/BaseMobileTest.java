@@ -15,9 +15,9 @@ import dev.quokkify.flutter.report.LogSink;
 
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.WebDriverProvider;
 import com.codeborne.selenide.WebDriverRunner;
 import com.codeborne.selenide.logevents.SelenideLogger;
-import io.appium.java_client.flutter.FlutterIntegrationTestDriver;
 import io.qameta.allure.Allure;
 import io.qameta.allure.selenide.AllureSelenide;
 import org.openqa.selenium.MutableCapabilities;
@@ -55,13 +55,12 @@ public abstract class BaseMobileTest implements IHookable {
 
   @BeforeClass(alwaysRun = true)
   public void selectMode() {
-    if (WebDriverRunner.hasWebDriverStarted()
-        && (WebDriverRunner.getWebDriver() instanceof FlutterIntegrationTestDriver) != (mode == MobileMode.FLUTTER)) {
+    String provider = provider().getName();
+    // flutter and flutter-sync share a driver class but not the server's find wait, so compare the provider.
+    if (WebDriverRunner.hasWebDriverStarted() && !provider.equals(Configuration.browser)) {
       Selenide.closeWebDriver();
     }
-    Configuration.browser = mode == MobileMode.FLUTTER
-        ? FlutterDriverProvider.class.getName()
-        : NativeAndroidDriverProvider.class.getName();
+    Configuration.browser = provider;
     Configuration.timeout = TIMEOUT_MS;
     Configuration.browserSize = null;
     Configuration.browserCapabilities = Configuration.browserCapabilities.merge(new MutableCapabilities(
@@ -81,8 +80,16 @@ public abstract class BaseMobileTest implements IHookable {
     installedApk = apk;
   }
 
+  private Class<? extends WebDriverProvider> provider() {
+    return switch (mode) {
+      case FLUTTER -> FlutterDriverProvider.class;
+      case FLUTTER_SYNC -> FlutterSyncDriverProvider.class;
+      case NATIVE -> NativeAndroidDriverProvider.class;
+    };
+  }
+
   private String appPath() {
-    return mode == MobileMode.FLUTTER
+    return mode.isFlutter()
         ? Path.of(ConfigRegistry.get(FlutterConfiguration.class).appPath()).toAbsolutePath().toString()
         : NativeAndroidDriverProvider.appPath();
   }

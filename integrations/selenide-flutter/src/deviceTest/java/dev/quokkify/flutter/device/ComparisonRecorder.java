@@ -41,8 +41,9 @@ import org.testng.ITestResult;
  *
  * <p>Find attempts come from the per-thread {@link FlutterVisibility#tracer()} total, which is reset when a test
  * starts and read right after the test method returns (the {@code @AfterMethod} of {@link BaseMobileTest} resets it
- * again). The failure demo's diagnostics come from the {@code Flutter: suggestions} attachment in flutter mode,
- * captured through {@link #sink()}, and from the native page source in native mode.
+ * again). The failure demo's diagnostics come from the {@code Flutter: suggestions} attachment in both flutter
+ * modes, captured through {@link #sink()}, and from the native page source in native mode. A test in the
+ * {@code known-gap-<family>} group of its mode family records as a known gap.
  */
 public class ComparisonRecorder implements ITestListener, ISuiteListener, IInvokedMethodListener {
 
@@ -132,7 +133,8 @@ public class ComparisonRecorder implements ITestListener, ISuiteListener, IInvok
 
   private static boolean isKnownGap(ITestResult result) {
     return result.getInstance() instanceof BaseMobileTest test
-        && Arrays.asList(result.getMethod().getGroups()).contains(KnownGapInterceptor.GROUP_PREFIX + test.mode.label());
+        && Arrays.asList(result.getMethod().getGroups())
+            .contains(KnownGapInterceptor.GROUP_PREFIX + test.mode.family().label());
   }
 
   private static String excerpt(MobileMode mode) {

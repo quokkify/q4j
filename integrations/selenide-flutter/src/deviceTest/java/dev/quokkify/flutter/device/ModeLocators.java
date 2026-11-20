@@ -29,15 +29,15 @@ public final class ModeLocators {
   }
 
   public By id(String id) {
-    return mode == MobileMode.FLUTTER ? FlutterBy.key(id) : AppiumBy.id(id);
+    return mode.isFlutter() ? FlutterBy.key(id) : AppiumBy.id(id);
   }
 
   public By label(String label) {
-    return mode == MobileMode.FLUTTER ? FlutterBy.semanticsLabel(label) : AppiumBy.accessibilityId(label);
+    return mode.isFlutter() ? FlutterBy.semanticsLabel(label) : AppiumBy.accessibilityId(label);
   }
 
   public By text(String text) {
-    return mode == MobileMode.FLUTTER
+    return mode.isFlutter()
         ? FlutterBy.text(text)
         : AppiumBy.androidUIAutomator("new UiSelector().description(" + quote(text) + ")");
   }
@@ -48,7 +48,7 @@ public final class ModeLocators {
    * keyed {@code KeyedSubtree}), and natively the {@code Button} is a child of the node with the resource-id.
    */
   public By button(String id) {
-    return mode == MobileMode.FLUTTER
+    return mode.isFlutter()
         ? FlutterBy.descendant(FlutterBy.key(id), FlutterBy.type("ElevatedButton"))
         : AppiumBy.androidUIAutomator("new UiSelector().resourceId(" + quote(id)
             + ").childSelector(new UiSelector().className(\"android.widget.Button\"))");
@@ -59,7 +59,7 @@ public final class ModeLocators {
    * {@code KeyedSubtree}, so flutter mode targets its {@code Text}; natively the tagged node carries the text.
    */
   public By textOf(String id) {
-    return mode == MobileMode.FLUTTER ? FlutterBy.descendant(FlutterBy.key(id), FlutterBy.type("Text")) : id(id);
+    return mode.isFlutter() ? FlutterBy.descendant(FlutterBy.key(id), FlutterBy.type("Text")) : id(id);
   }
 
   /**
@@ -67,7 +67,7 @@ public final class ModeLocators {
    * UiAutomator2 resolves among all descendants; locators that are not a plain UiSelector are not reachable.
    */
   public By descendant(By of, By matching) {
-    if (mode == MobileMode.FLUTTER) {
+    if (mode.isFlutter()) {
       return FlutterBy.descendant(of, matching);
     }
     return AppiumBy.androidUIAutomator(uiSelector(of) + ".childSelector(" + uiSelector(matching) + ")");
@@ -77,7 +77,7 @@ public final class ModeLocators {
    * Checks the text an element from {@link #textOf(String)} shows.
    */
   public WebElementCondition shows(String text) {
-    return mode == MobileMode.FLUTTER ? Condition.exactText(text) : Condition.attribute(CONTENT_DESC, text);
+    return mode.isFlutter() ? Condition.exactText(text) : Condition.attribute(CONTENT_DESC, text);
   }
 
   private String uiSelector(By by) {

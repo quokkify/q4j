@@ -58,8 +58,9 @@ deviceTestTask("flutterFailureDemo", "Runs the intentional Flutter failure demo 
     }
 }
 
-deviceTestTask("flutterComparison", "Runs every device scenario in flutter and native modes for the comparison",
-        "flutter,native", false) {
+deviceTestTask("flutterComparison",
+        "Runs every device scenario in flutter, flutter-sync and native modes for the comparison",
+        "flutter,flutter-sync,native", false) {
     ignoreFailures = true
     useTestNG {
         listeners << "dev.quokkify.flutter.device.ComparisonRecorder"
