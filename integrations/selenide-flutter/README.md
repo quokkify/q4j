@@ -241,6 +241,7 @@ EditText id="login_email" [63,480][1017,543]
 EditText id="login_password" [63,622][1017,685]
 View id="login_button" [63,737][1017,863]
 Button desc="Login" [63,737][1017,863]
+Button id="direct_button" desc="Direct login" [63,916][1017,1042]
 View id="android:id/navigationBarBackground" [0,2337][1080,2400]
 ```
 
