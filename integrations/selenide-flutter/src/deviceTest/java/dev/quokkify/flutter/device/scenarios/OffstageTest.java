@@ -23,7 +23,8 @@ public class OffstageTest extends BaseMobileTest {
     home().openOffstage().hiddenBanner().shouldNotBe(Condition.visible);
   }
 
-  @Test(description = "A button under an opaque cover is not visible")
+  @Test(groups = "known-gap-native", description = "A button under an opaque cover is not visible"
+      + " (known gap in native mode: the accessibility tree reports a covered widget as displayed)")
   public void coveredButtonIsNotVisible() {
     home().openOffstage().coveredButton().shouldNotBe(Condition.visible);
   }

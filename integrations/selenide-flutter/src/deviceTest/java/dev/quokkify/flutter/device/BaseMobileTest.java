@@ -25,12 +25,14 @@ import org.testng.annotations.AfterClass;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeClass;
 import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Listeners;
 
 /**
  * Runs a device scenario in one {@link MobileMode}; scenario classes create one instance per mode with a
  * {@code @Factory}. A {@link NotReachableInModeException} becomes a skip whose reason starts with
  * {@code not reachable in <mode> mode:}.
  */
+@Listeners(KnownGapInterceptor.class)
 public abstract class BaseMobileTest implements IHookable {
 
   private static final String ALLURE_LISTENER = "AllureSelenide";

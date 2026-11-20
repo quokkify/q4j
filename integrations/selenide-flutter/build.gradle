@@ -24,7 +24,9 @@ sourceSets {
     }
 }
 
-def deviceTestTask = { String name, String taskDescription, String modes, Closure configure ->
+def deviceTestTask = { String name, String taskDescription, String defaultModes, boolean excludeKnownGaps,
+                       Closure configure ->
+    def modes = providers.systemProperty("mobile.modes").getOrElse(defaultModes)
     tasks.register(name, Test) {
         description = taskDescription
         group = "verification"
@@ -35,25 +37,26 @@ def deviceTestTask = { String name, String taskDescription, String modes, Closur
         useTestNG {
             groupByInstances = true
         }
-        systemProperty("mobile.modes", providers.systemProperty("mobile.modes").getOrElse(modes))
+        systemProperty("mobile.modes", modes)
+        systemProperty("mobile.excludeKnownGaps", excludeKnownGaps)
         configure.delegate = delegate
         configure()
     }
 }
 
 deviceTestTask("flutterDeviceTest", "Runs the Flutter device scenarios on a running emulator and Appium server",
-        "flutter") {
+        "flutter", true) {
     exclude("**/FailureDemoTest.class")
 }
 
 deviceTestTask("flutterFailureDemo", "Runs the intentional Flutter failure demo in flutter and native modes",
-        "flutter,native") {
+        "flutter,native", false) {
     filter {
         includeTestsMatching("dev.quokkify.flutter.device.FailureDemoTest")
     }
 }
 
 deviceTestTask("flutterComparison", "Runs every device scenario in flutter and native modes for the comparison",
-        "flutter,native") {
+        "flutter,native", false) {
     ignoreFailures = true
 }
