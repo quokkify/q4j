@@ -270,11 +270,11 @@ matching to you.
 `flutterComparison` runs every scenario in three modes and writes `build/flutter-comparison/summary.md` (plus
 `results.json` and `verdict.txt`) under this module:
 
-| Mode           | Driver and apk                                       | Who waits for an element                                                                |
-| -------------- | ---------------------------------------------------- | --------------------------------------------------------------------------------------- |
-| `flutter`      | Flutter integration driver, flutter apk              | Selenide polls; the server checks once per find (`FLUTTER_DRIVER_FIND_TIMEOUT_MS=1`)    |
-| `flutter-sync` | the same driver and apk, `flutterElementWaitTimeout` | the server: one find pumps frames for up to 5 s until the widget exists, Selenide waits |
-| `native`       | UiAutomator2, native apk                             | Selenide polls the accessibility tree                                                   |
+| Mode           | Driver and apk                                       | Who waits for an element                                                                                                                                 |
+| -------------- | ---------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `flutter`      | Flutter integration driver, flutter apk              | Selenide polls; the server checks once per find (`FLUTTER_DRIVER_FIND_TIMEOUT_MS=1`)                                                                     |
+| `flutter-sync` | the same driver and apk, `flutterElementWaitTimeout` | the server: one find pumps frames for up to 5 s until the widget exists (the find result comes from before the wait, see the server bug), Selenide waits |
+| `native`       | UiAutomator2, native apk                             | Selenide polls the accessibility tree                                                                                                                    |
 
 The summary has a per-scenario table with status, duration and find count per mode (columns in the order the modes
 ran), a timing table, the known gaps with their reasons (`known-gap-flutter` covers both flutter modes), and the
@@ -300,11 +300,11 @@ What the traces show:
   (`pumpAndSettle`, up to 200 ms) and sleeps 100 ms before it checks, whatever the timeout. Server-side waiting does
   not make a present widget faster to find.
 - A widget that appears later is found at the same moment in both flutter modes (`DelayedWidgetTest`: 2.35 s vs
-  2.38 s for the step): one blocking attempt instead of four or five polled ones.
+  2.38 s for the step): two attempts (one blocking, then a retry) instead of four or five polled ones.
 - Every miss in `flutter-sync` costs the full server wait (5 s). Negative checks pay it: `shouldNotBe(visible)` on an
   offstage widget takes 5.1 s instead of 0.35 s, and the `is(visible, 2s)` probe that `HomeScreen.reach` uses before
   pressing back takes 5.2 s instead of 2.1 s. Most of the 17 s that `flutter-sync` loses goes there; the rest
-  (0.4–1.1 s per test class) is TestNG running `flutter-sync` first in each class, right after `native`, so its
+  (an estimated 0.4–1.1 s per test class) is TestNG running `flutter-sync` first in each class, right after `native`, so its
   session reinstalls the flutter apk.
 - Server bug, reproduced: the server evaluates the finder once before its wait and throws `Unable to locate element`
   from that stale result even when the widget appeared during the wait. In `DelayedWidgetTest` the first
@@ -314,7 +314,8 @@ What the traces show:
 Trade-off: `flutter` mode (Selenide polling) gives a per-attempt trace and fast negative checks; `flutter-sync` (the
 server waits) gives fewer, longer attempts, no speed gain on this app, and slow misses. Frame synchronisation, which
 made the old `flutter_driver` feel fast, is already part of both flutter modes: the integration server settles
-frames after every tap and before every find check.
+frames after every tap and around every find, but it does not guarantee a fresh find: the finder is evaluated
+before the settle, and that earlier result decides found or missing (reproduced above).
 
 The observed differences between the modes, and how the test app is built, are in
 [`test-app/README.md`](test-app/README.md).

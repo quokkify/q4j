@@ -316,7 +316,8 @@ Prettier.
 
 - Driver stagnation: last release 2025-10, Appium 4 not covered. Pinned versions contain it; revisit before
   iOS.
-- Suspected driver behavior (from source reading, not tested): matches evaluated before the server-side wait, so
+- Driver behavior, reproduced (`DelayedWidgetTest` in flutter-sync: blocked ~1.9 s, then "Unable to locate element";
+  Selenide's retry found it in ~0.2 s): matches are evaluated before the server-side wait, so
   an element that appears during that wait may still be reported missing. Keeping the server-side wait minimal and
   letting Selenide poll avoids depending on it.
 - Emulator boot time and flakiness in CI. Mitigated by path filters, nightly runs and not making the job
@@ -345,3 +346,6 @@ Controller rulings made during the build that change the approved design:
 - R20: hit-blocking ancestors are worded as a possible cause (their flag is not in the tree); a button keyed
   directly on its widget is compared in both modes to separate driver gaps from keyed-wrapper gaps; the verdict
   requires every failure demo in every mode that ran.
+- R21: third comparison mode `flutter-sync` (server-side waiting per session); known-gap groups by mode family;
+  the comparison report covers N modes and has a Timing section. Outcome over 7 scenarios: flutter 62.8 s,
+  native 64.8 s, flutter-sync 79.8 s.
