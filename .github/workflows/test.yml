@@ -293,6 +293,8 @@ jobs:
       name: selenide-grid
       module: ":integrations:selenide-grid"
       slug: integrations-selenide-grid
+      run-tests: true
+      profile: web
 
   integrations-selenide-flutter:
     name: selenide-flutter
@@ -307,8 +309,6 @@ jobs:
       module: ":integrations:selenide-flutter"
       slug: integrations-selenide-flutter
       run-tests: true
-      run-tests: true
-      profile: web
 
   integrations-tyrus:
     name: tyrus
