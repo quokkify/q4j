@@ -11,6 +11,12 @@ tree, and the closest matches with the reason each was rejected.
 > **Experimental.** The module is not published to Maven Central yet. Use it from a checkout of this repository
 > (`project(":integrations:selenide-flutter")`).
 
+**Documentation:** [overview](../../docs/selenide-flutter/README.md) ·
+[quick start](../../docs/selenide-flutter/quick-start.md) · [locators](../../docs/selenide-flutter/locators.md) ·
+[waiting and conditions](../../docs/selenide-flutter/waiting-and-conditions.md) ·
+[reports and diagnostics](../../docs/selenide-flutter/reports-and-diagnostics.md) ·
+[flutter vs native](../../docs/selenide-flutter/flutter-vs-native.md) · [FAQ](../../docs/selenide-flutter/faq.md)
+
 ---
 
 ## Limits

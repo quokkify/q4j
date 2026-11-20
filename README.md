@@ -250,6 +250,7 @@ See [Maven Central publishing](docs/publishing.md) for namespace verification, r
 - [Maven Central publishing](docs/publishing.md)
 - [ReportPortal integration](integrations/reportportal/README.md)
 - [RabbitMQ integration](integrations/rabbitmq/README.md)
+- [Selenide Flutter (experimental)](docs/selenide-flutter/README.md)
 - [Release history](CHANGELOG.md)
 
 ---
