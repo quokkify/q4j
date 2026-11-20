@@ -17,6 +17,7 @@ import dev.quokkify.flutter.suggest.NearMiss;
 import dev.quokkify.flutter.trace.AttemptSummary;
 import dev.quokkify.flutter.trace.FindAttempt;
 import dev.quokkify.flutter.trace.FindTracer;
+import dev.quokkify.flutter.trace.Outcome;
 import dev.quokkify.flutter.tree.WidgetTreeFormatter;
 
 import com.codeborne.selenide.WebDriverRunner;
@@ -156,13 +157,16 @@ public final class FlutterVisibility {
         return;
       }
       attach(SEARCH, TEXT, AttemptSummary.of(attempts).render());
-      if (event.getStatus() != LogEvent.EventStatus.FAIL) {
+      FindAttempt last = attempts.get(attempts.size() - 1);
+      // Only a failed search is diagnosed: when the element was found and a condition failed, the tree would
+      // explain a search that succeeded.
+      if (event.getStatus() != LogEvent.EventStatus.FAIL || last.outcome() != Outcome.NOT_FOUND) {
         return;
       }
       try {
         Optional<WebDriver> driver = currentDriver.get();
         if (driver.isPresent() && driver.get() instanceof JavascriptExecutor js) {
-          attachDiagnostics(diagnostics.collect(js, attempts.get(attempts.size() - 1).by()));
+          attachDiagnostics(diagnostics.collect(js, last.by()));
         }
       } catch (RuntimeException | StackOverflowError e) {
         LOG.warn("Flutter failure diagnostics could not be collected", e);

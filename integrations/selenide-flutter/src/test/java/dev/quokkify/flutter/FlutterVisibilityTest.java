@@ -28,6 +28,7 @@ import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.WebElement;
 import org.openqa.selenium.support.events.WebDriverListener;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
@@ -96,6 +97,22 @@ public class FlutterVisibilityTest {
     assertThat(sink.mimeType(TREE_JSON)).isEqualTo("application/json");
     assertThat(sink.mimeType(TREE)).isEqualTo("text/plain");
     assertThat(sink.content(SUGGESTIONS)).contains("ElevatedButton key=\"login_button\"").contains(" — ");
+  }
+
+  @Test
+  public void foundElementWithFailedConditionGetsNoDiagnostics() throws Exception {
+    FlutterVisibility.currentDriver = () -> Optional.of(driver);
+    FlutterVisibility.install(diagnostics, List.of(sink));
+    By button = FlutterBy.key("login_button");
+
+    SelenideLog log = SelenideLogger.beginStep("$(login_button)", "should be enabled");
+    FlutterVisibility.tracer().beforeFindElement(driver, button);
+    FlutterVisibility.tracer().afterFindElement(driver, button, mock(WebElement.class));
+    SelenideLogger.commitStep(log, new IllegalStateException("Element should be enabled"));
+
+    assertThat(sink.names()).containsExactly(SEARCH);
+    assertThat(sink.content(SEARCH)).contains("FOUND");
+    verify((JavascriptExecutor) driver, never()).executeScript(anyString(), any());
   }
 
   @Test
