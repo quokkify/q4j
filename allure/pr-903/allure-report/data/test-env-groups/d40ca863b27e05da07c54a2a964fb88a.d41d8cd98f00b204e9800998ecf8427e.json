@@ -1,1 +1,0 @@
-{"id":"d40ca863b27e05da07c54a2a964fb88a.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.TableQueryContractTest.supportsStringKeysOnlyWithExplicitResolver","name":"String headers require an explicit identity resolver","status":"passed","testResultsByEnv":{"ubuntu-26-04":"4dc4e8c4e7bf689fee0ccf6669f0285f"}}

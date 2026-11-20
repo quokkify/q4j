@@ -1,1 +1,1 @@
-{"id":"256f4475f0476a79b646964d69f9fbb6.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.ApiTest.testPojoConverter","name":"Verify pojo 'Converter'","status":"passed","testResultsByEnv":{"ubuntu-26-04":"c7cf4b23e9c8a39373b915ec09f70d48"}}
+{"id":"256f4475f0476a79b646964d69f9fbb6.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.ApiTest.testPojoConverter","name":"Verify pojo 'Converter'","status":"passed","testResultsByEnv":{"ubuntu-26-04":"fef0d70f142650d9f60ad00cabbb422d"}}
