@@ -147,6 +147,19 @@ public class NearMissFinderTest {
   }
 
   @Test
+  public void hidingAncestorReasonUsesTheArticleOfItsType() {
+    WidgetNode root = node("Root", null, null, null, true, true, BOX,
+        node("Visibility", null, null, null, true, true, BOX,
+            node("AbsorbPointer", null, null, null, true, true, BOX,
+                node("Text", "faded", null, null, true, true, BOX))));
+    assertThat(NearMissFinder.find(Locators.parse(FlutterBy.key("faded")), root, 5).get(0).reasons()).containsExactly(
+        "exact key match exists in the widget tree but is not hit-testable",
+        "has a Visibility ancestor that may make it non-hit-testable (widget type only; its flag is not in the tree)",
+        "has an AbsorbPointer ancestor that may make it non-hit-testable (widget type only; its flag is not in the"
+            + " tree)");
+  }
+
+  @Test
   public void exactMatchChainOfWrappersYieldsOnlyTheDeepestNode() throws IOException {
     List<NearMiss> m = NearMissFinder.find(Locators.parse(FlutterBy.text("Covered")), recordedOffstage(), 5);
     assertThat(m).hasSize(1);

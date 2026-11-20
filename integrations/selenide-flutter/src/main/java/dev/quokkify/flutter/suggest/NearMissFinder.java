@@ -188,8 +188,12 @@ public final class NearMissFinder {
         .map(WidgetNode::type)
         .filter(HIDING_ANCESTORS::contains)
         .distinct()
-        .forEach(type -> problems.add("has an " + type + ANCESTOR_MAY_HIDE));
+        .forEach(type -> problems.add("has " + article(type) + " " + type + ANCESTOR_MAY_HIDE));
     return problems;
+  }
+
+  private static String article(String word) {
+    return "AEIOU".indexOf(Character.toUpperCase(word.charAt(0))) >= 0 ? "an" : "a";
   }
 
   private static boolean hittable(WidgetNode node) {
