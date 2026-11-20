@@ -1,13 +1,17 @@
 package dev.quokkify.flutter.device;
 
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Map;
 
 import dev.quokkify.config.ConfigRegistry;
 import dev.quokkify.flutter.FlutterVisibility;
 import dev.quokkify.flutter.config.FlutterConfiguration;
 import dev.quokkify.flutter.device.screens.HomeScreen;
+import dev.quokkify.flutter.diagnostics.FailureDiagnostics;
 import dev.quokkify.flutter.driver.FlutterDriverProvider;
+import dev.quokkify.flutter.report.AllureSink;
+import dev.quokkify.flutter.report.LogSink;
 
 import com.codeborne.selenide.Configuration;
 import com.codeborne.selenide.Selenide;
@@ -86,7 +90,9 @@ public abstract class BaseMobileTest implements IHookable {
   @BeforeMethod(alwaysRun = true)
   public void installListeners() {
     SelenideLogger.addListener(ALLURE_LISTENER, new AllureSelenide().screenshots(true).savePageSource(true));
-    FlutterVisibility.install();
+    FlutterVisibility.install(
+        new FailureDiagnostics(FailureDiagnostics.DEFAULT_TIMEOUT, FailureDiagnostics.DEFAULT_MAX_CHARS),
+        List.of(new AllureSink(), new LogSink(), ComparisonRecorder.sink()));
     Allure.parameter("mode", mode.label());
   }
 

@@ -61,4 +61,15 @@ deviceTestTask("flutterFailureDemo", "Runs the intentional Flutter failure demo 
 deviceTestTask("flutterComparison", "Runs every device scenario in flutter and native modes for the comparison",
         "flutter,native", false) {
     ignoreFailures = true
+    useTestNG {
+        listeners << "dev.quokkify.flutter.device.ComparisonRecorder"
+    }
+    def verdictFile = layout.buildDirectory.file("flutter-comparison/verdict.txt")
+    doLast {
+        def file = verdictFile.get().asFile
+        def verdict = file.exists() ? file.text.trim() : "no verdict was written to ${file}"
+        if (verdict != "OK") {
+            throw new GradleException("Flutter comparison verdict: ${verdict}")
+        }
+    }
 }
