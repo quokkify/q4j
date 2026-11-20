@@ -13,8 +13,8 @@ public final class WidgetTreeFormatter {
     return out.toString();
   }
 
-  private static void append(StringBuilder out, WidgetNode node) {
-    out.append(INDENT.repeat(node.depth())).append(node.type());
+  public static String line(WidgetNode node) {
+    StringBuilder out = new StringBuilder(node.type());
     appendAttribute(out, "key", node.key());
     appendAttribute(out, "text", node.text());
     appendAttribute(out, "label", node.semanticsLabel());
@@ -27,8 +27,13 @@ public final class WidgetTreeFormatter {
     if (node.rect().isEmpty()) {
       out.append(" [zero-size]");
     }
-    out.append(String.format(" @%d,%d %dx%d%n", Math.round(node.rect().x()), Math.round(node.rect().y()),
+    out.append(String.format(" @%d,%d %dx%d", Math.round(node.rect().x()), Math.round(node.rect().y()),
         Math.round(node.rect().width()), Math.round(node.rect().height())));
+    return out.toString();
+  }
+
+  private static void append(StringBuilder out, WidgetNode node) {
+    out.append(INDENT.repeat(node.depth())).append(line(node)).append(System.lineSeparator());
     node.children().forEach(child -> append(out, child));
   }
 
