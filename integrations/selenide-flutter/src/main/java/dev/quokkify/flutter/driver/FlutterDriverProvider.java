@@ -32,9 +32,18 @@ public class FlutterDriverProvider implements WebDriverProvider {
     options.setPlatformName(PLATFORM_NAME);
     options.setCapability("appium:deviceName", config.deviceName());
     options.setCapability("appium:app", Path.of(config.appPath()).toAbsolutePath().toString());
-    options.setFlutterElementWaitTimeout(Duration.ofMillis(config.findTimeoutMs()));
+    options.setFlutterElementWaitTimeout(Duration.ofMillis(findTimeoutMs(config)));
     options.setFlutterServerLaunchTimeout(Duration.ofMillis(config.serverLaunchTimeoutMs()));
     return options;
+  }
+
+  static long findTimeoutMs(FlutterConfiguration config) {
+    long value = config.findTimeoutMs();
+    if (value < 1) {
+      throw new IllegalArgumentException("FLUTTER_DRIVER_FIND_TIMEOUT_MS must be at least 1 but was " + value
+          + ": with 0 the Flutter server times out before it evaluates the finder, so no element is ever found");
+    }
+    return value;
   }
 
   static URL appiumUrl(FlutterConfiguration config) {

@@ -16,6 +16,7 @@ public class FlutterDriverProviderTest {
   public void clearProperties() {
     System.clearProperty("FLUTTER_APP_PATH");
     System.clearProperty("APPIUM_URL");
+    System.clearProperty("FLUTTER_DRIVER_FIND_TIMEOUT_MS");
   }
 
   @Test
@@ -35,6 +36,15 @@ public class FlutterDriverProviderTest {
     System.setProperty("FLUTTER_APP_PATH", "build/demo.apk");
     FlutterDriverOptions o = FlutterDriverProvider.options(ConfigFactory.create(FlutterConfiguration.class));
     assertThat(java.nio.file.Path.of((String) o.getCapability("appium:app"))).isAbsolute();
+  }
+
+  @Test
+  public void rejectsFindTimeoutBelowOne() {
+    System.setProperty("FLUTTER_DRIVER_FIND_TIMEOUT_MS", "0");
+    FlutterConfiguration config = ConfigFactory.create(FlutterConfiguration.class);
+    assertThatThrownBy(() -> FlutterDriverProvider.options(config))
+        .isInstanceOf(IllegalArgumentException.class)
+        .hasMessageContaining("FLUTTER_DRIVER_FIND_TIMEOUT_MS must be at least 1 but was 0");
   }
 
   @Test
