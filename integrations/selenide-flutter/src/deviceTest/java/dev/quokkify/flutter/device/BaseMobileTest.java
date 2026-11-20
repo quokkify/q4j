@@ -1,8 +1,11 @@
 package dev.quokkify.flutter.device;
 
+import java.nio.file.Path;
 import java.util.Map;
 
+import dev.quokkify.config.ConfigRegistry;
 import dev.quokkify.flutter.FlutterVisibility;
+import dev.quokkify.flutter.config.FlutterConfiguration;
 import dev.quokkify.flutter.device.screens.HomeScreen;
 import dev.quokkify.flutter.driver.FlutterDriverProvider;
 
@@ -32,6 +35,9 @@ public abstract class BaseMobileTest implements IHookable {
 
   private static final String ALLURE_LISTENER = "AllureSelenide";
   private static final long TIMEOUT_MS = 10_000;
+  private static final String ENFORCE_APP_INSTALL = "appium:enforceAppInstall";
+
+  private static String installedApk;
 
   protected final MobileMode mode;
   protected final ModeLocators locators;
@@ -52,8 +58,24 @@ public abstract class BaseMobileTest implements IHookable {
         : NativeAndroidDriverProvider.class.getName();
     Configuration.timeout = TIMEOUT_MS;
     Configuration.browserSize = null;
-    // The app keeps version 1.0.0, so without this Appium skips installing a freshly built apk.
-    Configuration.browserCapabilities = new MutableCapabilities(Map.of("appium:enforceAppInstall", true));
+    Configuration.browserCapabilities = Configuration.browserCapabilities.merge(new MutableCapabilities(
+        Map.of(ENFORCE_APP_INSTALL, mustInstall(appPath()))));
+  }
+
+  /**
+   * Both apks share one package and version, so Appium would keep whichever is installed. The apk is installed once
+   * per run and again whenever the other mode's apk was installed in between.
+   */
+  private static synchronized boolean mustInstall(String apk) {
+    boolean install = !apk.equals(installedApk);
+    installedApk = apk;
+    return install;
+  }
+
+  private String appPath() {
+    return mode == MobileMode.FLUTTER
+        ? Path.of(ConfigRegistry.get(FlutterConfiguration.class).appPath()).toAbsolutePath().toString()
+        : NativeAndroidDriverProvider.appPath();
   }
 
   @BeforeMethod(alwaysRun = true)
