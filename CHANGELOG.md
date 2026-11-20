@@ -2,45 +2,125 @@
 
 ## [0.16.0](https://github.com/quokkify/q4j/compare/v0.15.0...v0.16.0) (2026-11-20)
 
+<!-- project-toolkit:release-notes v2 -->
+**At a glance:** ⚠️ 1 breaking · 2 new · 1 fixed · 17 internal
 
-### ⚠ BREAKING CHANGES
+### ⚠️ Breaking changes
 
-* **tms:** single TMS entry point with TestPlanIt provider ([#881](https://github.com/quokkify/q4j/issues/881))
+> [!WARNING]
+> **tms:** single TMS entry point with TestPlanIt provider — **TestPlanIt joins TestRail behind one TMS entry point.** A test project adds `tms-testng` with exactly one provider and registers `TmsListener`; case ids come from Allure `@TmsLink`, and two providers on one classpath fail the build. ([#881](https://github.com/quokkify/q4j/pull/881))
+>
+> - **TestRail users:**
+>   - replace `TestStatusTestRailListener`, `AddDisabledTestsToTestRailListener` and `TestRailInterceptor` in `META-INF/services/org.testng.ITestNGListener` with `dev.quokkify.tms.listeners.TmsListener`;
+>   - `@TmsLink` values stay as they are;
+>   - under `TmsListener`, tests without `@TmsLink` run but are not reported.
+> - **Jira tickets:** replace `dev.quokkify:jira-testrail` with `dev.quokkify:jira-tms`. Upgrade both artifacts together. With an old `jira-testrail` next to the new `testrail-testng`, Jira comments on disabled tests silently disappear.
+> - **Custom `TicketSource` implementations:** move from `dev.quokkify.testrail.tickets` to `dev.quokkify.tms.tickets`. The disabled-test comment now reads `<id> is disabled via ...` instead of `TC-<id> ...`.
+> - **One provider only:** keep only one of `testplanit` and `testrail-testng` on the test classpath. `reportportal-testrail` carries `testrail-testng`, so do not combine it with `testplanit`.
+> - **Switching a project to another TMS:**
+>   - swap the provider dependency;
+>   - rewrite the `@TmsLink` values to the new system's ids;
+>   - change `allure.link.tms.pattern`.
+>
+> ---
+>
+> ```kotlin
+> dependencies {
+>     testImplementation("dev.quokkify:tms-testng:<version>")
+>     testImplementation("dev.quokkify:testplanit:<version>")
+>     // TestRail: testImplementation("dev.quokkify:testrail-testng:<version>") instead; never two providers
+> }
+> ```
+>
+> ```text
+> # src/test/resources/META-INF/services/org.testng.ITestNGListener
+> dev.quokkify.tms.listeners.TmsListener
+> ```
+>
+> ```java
+> @TmsLink("42") // TestPlanIt case id
+> @Test
+> public void userCanLogIn() { }
+> ```
+>
+> ```bash
+> TESTPLANIT_API_URL=https://testplanit.example.com TESTPLANIT_API_TOKEN=tpi_... TESTPLANIT_PROJECT_ID=1 ./gradlew test
+> ```
 
-### ✨ Features
+### ✨ New
 
-* **selenide:** read and verify a whole table in one browser call ([#896](https://github.com/quokkify/q4j/issues/896)) ([304ceae](https://github.com/quokkify/q4j/commit/304ceae200fd5fca736a833d3377f170ee784cce))
-* **testng-extensions:** add @Sequential and deprecate @SingleThread ([#885](https://github.com/quokkify/q4j/issues/885)) ([a2bd84c](https://github.com/quokkify/q4j/commit/a2bd84c04d8e5510afd8b889c1d6862b71fcd75f))
-* **tms:** single TMS entry point with TestPlanIt provider ([#881](https://github.com/quokkify/q4j/issues/881)) ([6b9511b](https://github.com/quokkify/q4j/commit/6b9511b4dabd2870509bb4cc1313d1fc58207bd6))
+- **selenide:** read and verify a whole table in one browser call — Verify a whole table or grid in one browser call per attempt, with Selenide's waiting: `table.shouldHave(TableCondition.exactItemsBy(...))` or `exactRows(...)` for whole-table equality with a short diff, `shouldSatisfy(snap -> assertThat(...))` for any AssertJ check, and `snapshot()` to read the data once. ([#896](https://github.com/quokkify/q4j/pull/896))
+  ```java
+  Table grid = Table.of($("#properties"), TableLayout.aria());
+  By chip = By.cssSelector(".chip");
 
+  grid.shouldHave(TableCondition.exactItemsBy("Name", "Properties", chip, Map.of(
+      "Alpha", List.of("Red", "Blue"),
+      "Beta", List.of("Green"))));
+  grid.shouldSatisfy(snap -> assertThat(snap.column("Status")).doesNotContain("Failed"));
+  ```
+- **testng-extensions:** add @Sequential and deprecate @SingleThread — **`@Sequential` is the new name for `@SingleThread`, matching the `Sequential` block in the generated suite.** Annotated tests still run one at a time in that block. `@SingleThread` keeps working and is deprecated for removal. ([#885](https://github.com/quokkify/q4j/pull/885))
+  ```java
+  import dev.quokkify.annotation.Sequential;
 
-### 🐛 Bug Fixes
+  public class UserTest {
 
-* **tms:** report one worst-status result per case for repeated tests ([#887](https://github.com/quokkify/q4j/issues/887)) ([639cfa1](https://github.com/quokkify/q4j/commit/639cfa18756a3061d490c6f67bf7141b9056125e))
+      @Sequential
+      @Test
+      public void checkSequentialOperation() {
+          // runs in the "Sequential" block, one test at a time
+      }
+  }
+  ```
 
+  > **Migration**
+  >
+  > Replace `import dev.quokkify.annotation.SingleThread;` with `import dev.quokkify.annotation.Sequential;` and `@SingleThread` with `@Sequential`. Behaviour is the same, and `@SingleThread` still works until it is removed. If you subclass `SuiteListener` and override `isMethodSingleThread` or `getXmlIncludeTests`, move that logic to `isMethodSequential`: the old method does not see `@Sequential`.
 
-### 📦 Dependencies
+### 🐛 Fixed
 
-* **docker-compose:** update docker:29.9-dind docker digest to 7bf70dc ([#889](https://github.com/quokkify/q4j/issues/889)) ([b1840a1](https://github.com/quokkify/q4j/commit/b1840a1c97cce8b9598e40f36233c3008696f2b3))
-* **docker-compose:** update ghcr.io/testplanit/testplanit-selfhost docker tag to v1.2.0 ([#890](https://github.com/quokkify/q4j/issues/890)) ([2147147](https://github.com/quokkify/q4j/commit/214714733e8ec2babfa4db539396c983b0877f9d))
-* **docker-compose:** update mongo docker tag to v9.0.8 ([#884](https://github.com/quokkify/q4j/issues/884)) ([c91514d](https://github.com/quokkify/q4j/commit/c91514d33faf94292499f3a1bd2457e4a618a263))
-* **docker-compose:** update rabbitmq:4.4.0-management docker digest to 753099a ([#886](https://github.com/quokkify/q4j/issues/886)) ([7232fe3](https://github.com/quokkify/q4j/commit/7232fe3bdec65e60df50adebb53db48fb030110b))
-* **docker-compose:** update reportportal/service-auto-analyzer docker tag to v6 ([#879](https://github.com/quokkify/q4j/issues/879)) ([8c3d66b](https://github.com/quokkify/q4j/commit/8c3d66be03b3446ee4cd028dcd79556d8c74012d))
-* **docker-compose:** update reportportal/service-jobs docker tag to v6 ([#880](https://github.com/quokkify/q4j/issues/880)) ([8c09945](https://github.com/quokkify/q4j/commit/8c099454abdf51767599377745186c100604ebb4))
-* **docker-compose:** update reportportal/service-ui docker tag to v6 ([#892](https://github.com/quokkify/q4j/issues/892)) ([d91b137](https://github.com/quokkify/q4j/commit/d91b13764ea88fab4669d076803cb58368d886bf))
-* **docker-compose:** update traefik docker tag to v3.7.18 ([#882](https://github.com/quokkify/q4j/issues/882)) ([e7d56ae](https://github.com/quokkify/q4j/commit/e7d56ae18c6c5e50f3b0fa195ff9ab937a1cc95d))
-* **docker-compose:** update traefik docker tag to v3.7.19 ([#891](https://github.com/quokkify/q4j/issues/891)) ([90dbf32](https://github.com/quokkify/q4j/commit/90dbf32c1a150f188a359810a47ac7a111c1790a))
-* **docker-compose:** update valkey/valkey docker tag to v9 ([#883](https://github.com/quokkify/q4j/issues/883)) ([478546e](https://github.com/quokkify/q4j/commit/478546ee17ce8640a7acf612d9579a63a8a8a666))
-* **gradle-wrapper:** update gradle to v9.9.1 ([#866](https://github.com/quokkify/q4j/issues/866)) ([5454f6a](https://github.com/quokkify/q4j/commit/5454f6a37d59e651caec71735de039d057552e7a))
-* **gradle:** update feign monorepo to v13.18 ([#876](https://github.com/quokkify/q4j/issues/876)) ([658e8b0](https://github.com/quokkify/q4j/commit/658e8b083a67ab928b776e4007d57add9ff773b5))
-* **gradle:** update hibernate-orm monorepo to v7.4.16.final ([#893](https://github.com/quokkify/q4j/issues/893)) ([9e5e24c](https://github.com/quokkify/q4j/commit/9e5e24cbc0c1d3d890f754d53ff69d1ab831cfc6))
-* **gradle:** update org.apache.commons:commons-lang3 to v3.22.0 ([#873](https://github.com/quokkify/q4j/issues/873)) ([5c96d0f](https://github.com/quokkify/q4j/commit/5c96d0f04316eb1079fd345ea181d5c5e9d32cd1))
-* **gradle:** update org.bouncycastle:bcprov-jdk18on to v1.87 ([#874](https://github.com/quokkify/q4j/issues/874)) ([a6a5d27](https://github.com/quokkify/q4j/commit/a6a5d27e0a90b27b0e6862a4dca324e2ac03f679))
+- **tms:** report one worst-status result per case for repeated tests — **A passing last data provider row no longer hides earlier failures in the TMS.** `TmsListener` reports one result per case for data provider rows and `invocationCount` runs, with the worst status and a comment that lists the failing invocations with their parameters. ([#887](https://github.com/quokkify/q4j/pull/887))
+  ```java
+  @TmsLink("9")
+  @Test(dataProvider = "rows") // rows: failed, failed, passed
+  public void parameterized(String row, boolean passes) { }
+  ```
 
+  ```text
+  Case 9: FAILED
+  3 invocations: 2 failed, 1 passed
+  [1] FAILED (row-1, false): row-1 failed
+  [2] FAILED (row-2, false): row-2 failed
+  ```
 
-### 📚 Documentation
+  > **Migration**
+  >
+  > No action is needed. A case linked to a data provider or `invocationCount` test now gets one result per execution instead of one per invocation, sent when its test class finishes.
 
-* **modules:** update q4j module documentation to v0.15.0 ([#872](https://github.com/quokkify/q4j/issues/872)) ([8717b83](https://github.com/quokkify/q4j/commit/8717b83579fa4aaca408b5265f44fd4f369177e6))
+<details><summary>Internal changes (17 PRs)</summary>
+
+**Dependencies**
+
+- docker 08a9801 → 7bf70dc ([#889](https://github.com/quokkify/q4j/pull/889))
+- ghcr.io/testplanit/testplanit-selfhost 1.1.22 → v1.2.0 ([#890](https://github.com/quokkify/q4j/pull/890))
+- gradle 9.9.0 → 9.9.1 ([#866](https://github.com/quokkify/q4j/pull/866))
+- io.github.openfeign:feign-core, io.github.openfeign:feign-jackson, io.github.openfeign:feign-okhttp 13.17 → 13.18 ([#876](https://github.com/quokkify/q4j/pull/876))
+- mongo 9.0.4 → 9.0.8 ([#884](https://github.com/quokkify/q4j/pull/884))
+- org.apache.commons:commons-lang3 3.21.0 → 3.22.0 ([#873](https://github.com/quokkify/q4j/pull/873))
+- org.bouncycastle:bcprov-jdk18on 1.86 → 1.87 ([#874](https://github.com/quokkify/q4j/pull/874))
+- org.hibernate.orm:hibernate-agroal, org.hibernate.orm:hibernate-core 7.4.15.Final → 7.4.16.Final ([#893](https://github.com/quokkify/q4j/pull/893))
+- rabbitmq af6f50d → 753099a ([#886](https://github.com/quokkify/q4j/pull/886))
+- reportportal/service-auto-analyzer, reportportal/service-ui 5.15.6 → 6.0.0 · major ([#879](https://github.com/quokkify/q4j/pull/879), [#892](https://github.com/quokkify/q4j/pull/892))
+- reportportal/service-jobs 5.15.3 → 6.0.0 · major ([#880](https://github.com/quokkify/q4j/pull/880))
+- traefik v3.7.17 → v3.7.19 ([#882](https://github.com/quokkify/q4j/pull/882), [#891](https://github.com/quokkify/q4j/pull/891))
+- valkey/valkey 8-alpine → 9-alpine · major ([#883](https://github.com/quokkify/q4j/pull/883))
+
+**Maintenance**
+
+- **modules:** update q4j module documentation to v0.15.0 ([#872](https://github.com/quokkify/q4j/pull/872))
+- **release:** publish to Maven Central after Release Please ([#871](https://github.com/quokkify/q4j/pull/871))
+
+</details>
 
 ## [0.15.0](https://github.com/quokkify/q4j/compare/v0.14.1...v0.15.0) (2026-11-11)
 
