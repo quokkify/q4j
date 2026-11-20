@@ -122,7 +122,7 @@ ANCESTOR("-flutter ancestor"), ID("id"), ACCESSIBILITY_ID("accessibility id"), O
     `Locators.describe(By): String`.
 
 - [ ] **Step 1: Wire the module.** `build.gradle`: description `"Selenide Appium support for Flutter apps with
-    visible element search"`; deps `api project(":integrations:selenide")`, `api libs.selenide.appium`,
+  visible element search"`; deps `api project(":integrations:selenide")`, `api libs.selenide.appium`,
       `implementation project(":common-utils:config")`, `implementation project(":common-utils:core")`,
       `implementation project(":common-utils:jackson:json")`, `implementation libs.allure.java.commons`; test deps
       `libs.allure.testng`, `libs.allure.selenide`, `libs.mockito.core`, `org.assertj:assertj-core`. Catalog:
@@ -486,10 +486,16 @@ Static Selenide state (`WebDriverRunner`) is reached through a small package-pri
 
 **Files:**
 
-- Create: `integrations/selenide-flutter/test-app/` — `pubspec.yaml`, `lib/main.dart`, `lib/tagged.dart`,
-  `lib/screens/{login,delayed,long_list,duplicates,label_only,offstage}.dart`, `integration_test/appium_test.dart`,
-  generated `android/` platform folder (`flutter create --platforms=android .`), `.gitignore` entries for
-  `build/`, `.dart_tool/`
+- Create: `integrations/selenide-flutter/test-app/` by **copying `demo-app/` from
+  `github.com/AppiumTestDistribution/appium-flutter-server` (MIT)** at a recorded commit — owner's request: do not
+  write the app from scratch, take a ready one and slim it down. Keep its `LICENSE` notice as
+  `test-app/LICENSE` and a `test-app/README.md` naming the source repo and commit. Slim it: remove every plugin
+  dependency and the screens that use them (webview, image picker, QR scan, video, permissions, contacts,
+  carousel, url_launcher) and the `ios/` and `macos/` folders; keep the login, loader (delayed), lazy loading /
+  long list, and UI elements screens; rename the entry point to `integration_test/appium_test.dart`. Retrofit the
+  ids below onto the kept screens with `lib/tagged.dart`, adapting kept screens to the stated behaviour where it
+  differs, and add the missing small screens (duplicates, label only, offstage) in the app's existing style.
+  `.gitignore` entries for `build/`, `.dart_tool/`.
 - Create: `tools/environment/scripts/flutter/versions.env`, `tools/environment/scripts/flutter/build_app.sh`
 - Modify: `.prettierignore` if Prettier picks up generated files
 
@@ -519,9 +525,10 @@ Static Selenide state (`WebDriverRunner`) is reached through a small package-pri
   in `test-app/`; skips the build when the apk exists and nothing under `lib/`, `integration_test/`, `android/`,
   `pubspec.yaml` is newer (`find -newer`); prints the apk path.
 
-- [ ] **Step 1:** Create the app; pin `environment.flutter` to the exact current stable from `flutter --version`
-      and `appium_flutter_server: 0.0.33` under `dev_dependencies` (plus `integration_test: sdk: flutter`).
-      `appium_test.dart` calls `initializeTest(app: const TestApp())`.
+- [ ] **Step 1:** Copy and slim the demo app as above; pin `environment.flutter` to the exact current stable from
+      `flutter --version` and `appium_flutter_server: 0.0.33` under `dev_dependencies` (plus
+      `integration_test: sdk: flutter`). `appium_test.dart` calls `initializeTest(app: ...)` with the app's root
+      widget; the app's home becomes a menu with the `home_*` entries.
 - [ ] **Step 2: Verify** `flutter analyze` in `test-app/` → `No issues found!`.
 - [ ] **Step 3: Verify** `tools/environment/scripts/flutter/build_app.sh` → prints
       `…/test-app/build/app/outputs/flutter-apk/app-debug.apk`; a second run prints `apk is up to date`.
