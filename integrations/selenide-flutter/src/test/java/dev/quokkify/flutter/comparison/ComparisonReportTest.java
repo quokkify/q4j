@@ -56,9 +56,9 @@ public class ComparisonReportTest {
 
   @Test
   public void verdictRequiresDemoToFailInBothModes() {
-    assertThat(ComparisonReport.verdict(List.of(demo("flutter", FAILED, null), demo("native", FAILED, null))))
+    assertThat(ComparisonReport.verdict(List.of(demo("flutter", FAILED, "x"), demo("native", FAILED, "x"))))
         .isEmpty();
-    assertThat(ComparisonReport.verdict(List.of(demo("flutter", FAILED, null), demo("native", PASSED, null))))
+    assertThat(ComparisonReport.verdict(List.of(demo("flutter", FAILED, "x"), demo("native", PASSED, "x"))))
         .hasValueSatisfying(reason -> assertThat(reason).contains("failure demo passed in native mode"));
     assertThat(ComparisonReport.verdict(List.of(scenario("flutter", FAILED)))).isPresent();
   }
@@ -69,8 +69,8 @@ public class ComparisonReportTest {
         scenario("flutter", PASSED),
         scenario("native", NOT_REACHABLE),
         new ScenarioResult("A.b", "native", KNOWN_GAP, 1, 1, false, null, "why"),
-        demo("flutter", FAILED, null),
-        demo("native", FAILED, null)))).isEmpty();
+        demo("flutter", FAILED, "x"),
+        demo("native", FAILED, "x")))).isEmpty();
   }
 
   @Test
@@ -84,6 +84,41 @@ public class ComparisonReportTest {
   public void verdictRejectsNoResults() {
     assertThat(ComparisonReport.verdict(List.of())).hasValueSatisfying(reason -> assertThat(reason)
         .contains("no results"));
+  }
+
+  @Test
+  public void verdictRequiresDiagnosticsForFailedDemo() {
+    assertThat(ComparisonReport.verdict(List.of(demo("native", FAILED, null)))).hasValueSatisfying(reason ->
+        assertThat(reason).isEqualTo(
+            "failure demo FailureDemoTest.tapsMistypedKey in native mode captured no diagnostics"));
+  }
+
+  @Test
+  public void showsOnlyTheClauseOfTheRowsMode() {
+    String description = "Login follows the form (known gap in flutter mode: flutter reason; in native mode: native"
+        + " reason)";
+    String md = ComparisonReport.render(List.of(
+        new ScenarioResult("A.b", "flutter", KNOWN_GAP, 1, 1, false, null, description),
+        new ScenarioResult("A.b", "native", KNOWN_GAP, 1, 1, false, null, description)));
+
+    assertThat(md).contains("| flutter | A.b | Login follows the form (flutter reason) |")
+        .contains("| native | A.b | Login follows the form (native reason) |");
+  }
+
+  @Test
+  public void showsWholeDescriptionWithoutModeClauses() {
+    String md = ComparisonReport.render(List.of(
+        new ScenarioResult("A.b", "native", KNOWN_GAP, 1, 1, false, null, "plain reason")));
+
+    assertThat(md).contains("| native | A.b | plain reason |");
+  }
+
+  @Test
+  public void escapesPipesAndNewlinesInCells() {
+    String md = ComparisonReport.render(List.of(
+        new ScenarioResult("A.b", "native", KNOWN_GAP, 1, 1, false, null, "one | two\nthree")));
+
+    assertThat(md).contains("| native | A.b | one \\| two three |");
   }
 
   private static ScenarioResult scenario(String mode, Status status) {

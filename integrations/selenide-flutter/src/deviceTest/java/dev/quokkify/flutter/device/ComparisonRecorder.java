@@ -14,6 +14,7 @@ import java.util.stream.Collectors;
 
 import dev.quokkify.flutter.FlutterVisibility;
 import dev.quokkify.flutter.comparison.ComparisonReport;
+import dev.quokkify.flutter.comparison.NativeExcerpt;
 import dev.quokkify.flutter.comparison.ScenarioResult;
 import dev.quokkify.flutter.comparison.Status;
 import dev.quokkify.flutter.report.DiagnosticsSink;
@@ -96,7 +97,8 @@ public class ComparisonRecorder implements ITestListener, ISuiteListener, IInvok
   public void onTestSkipped(ITestResult result) {
     Throwable error = result.getThrowable();
     boolean notReachable = error != null && error.getMessage() != null
-        && error.getMessage().startsWith(NOT_REACHABLE_PREFIX);
+        && result.getInstance() instanceof BaseMobileTest test
+        && error.getMessage().startsWith(NOT_REACHABLE_PREFIX + test.mode.label() + " mode:");
     record(result, notReachable ? Status.NOT_REACHABLE : Status.FAILED);
   }
 
@@ -134,11 +136,12 @@ public class ComparisonRecorder implements ITestListener, ISuiteListener, IInvok
   }
 
   private static String excerpt(MobileMode mode) {
-    String text = mode == MobileMode.FLUTTER ? SUGGESTIONS_TEXT.get() : nativePageSource();
-    if (text == null) {
-      return null;
+    if (mode == MobileMode.NATIVE) {
+      String source = nativePageSource();
+      return source == null ? null : NativeExcerpt.of(source, EXCERPT_LINES);
     }
-    return text.lines().limit(EXCERPT_LINES).collect(Collectors.joining("\n"));
+    String text = SUGGESTIONS_TEXT.get();
+    return text == null ? null : text.lines().limit(EXCERPT_LINES).collect(Collectors.joining("\n"));
   }
 
   private static String nativePageSource() {
