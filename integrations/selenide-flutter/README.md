@@ -58,11 +58,11 @@ tools/environment/scripts/flutter/run_device_tests.sh flutterDeviceTest
 The script installs the pinned Appium and drivers into `build/flutter-env`, builds the test app, boots the emulator,
 starts Appium and runs the Gradle task. The task is its only argument:
 
-| Task                 | Runs                                                               | Output                                           |
-| -------------------- | ------------------------------------------------------------------ | ------------------------------------------------ |
-| `flutterDeviceTest`  | every scenario except the failure demo, flutter mode (the default) | `build/allure-results-device/flutterDeviceTest`  |
-| `flutterFailureDemo` | the intentionally failing demo, flutter and native modes           | `build/allure-results-device/flutterFailureDemo` |
-| `flutterComparison`  | every scenario in flutter and native modes, then a comparison      | `build/flutter-comparison/summary.md`            |
+| Task                 | Runs                                                                        | Output                                           |
+| -------------------- | --------------------------------------------------------------------------- | ------------------------------------------------ |
+| `flutterDeviceTest`  | every scenario except the failure demo, flutter mode (the default)          | `build/allure-results-device/flutterDeviceTest`  |
+| `flutterFailureDemo` | the intentionally failing demo, flutter and native modes                    | `build/allure-results-device/flutterFailureDemo` |
+| `flutterComparison`  | every scenario in flutter, flutter-sync and native modes, then a comparison | `build/flutter-comparison/summary.md`            |
 
 Output paths are relative to `integrations/selenide-flutter`.
 
@@ -267,9 +267,54 @@ matching to you.
 
 ## Flutter vs native comparison
 
-`flutterComparison` runs every scenario in both modes and writes `build/flutter-comparison/summary.md` (plus
-`results.json` and `verdict.txt`) under this module. The summary has a per-scenario table with status, duration and
-find count per mode, the known gaps with their reasons, and the failure demo excerpts above. The task fails when the verdict is not `OK`: a scenario that is not a known gap failed, a failure demo did not fail, or a demo captured no diagnostics.
+`flutterComparison` runs every scenario in three modes and writes `build/flutter-comparison/summary.md` (plus
+`results.json` and `verdict.txt`) under this module:
+
+| Mode           | Driver and apk                                       | Who waits for an element                                                                |
+| -------------- | ---------------------------------------------------- | --------------------------------------------------------------------------------------- |
+| `flutter`      | Flutter integration driver, flutter apk              | Selenide polls; the server checks once per find (`FLUTTER_DRIVER_FIND_TIMEOUT_MS=1`)    |
+| `flutter-sync` | the same driver and apk, `flutterElementWaitTimeout` | the server: one find pumps frames for up to 5 s until the widget exists, Selenide waits |
+| `native`       | UiAutomator2, native apk                             | Selenide polls the accessibility tree                                                   |
+
+The summary has a per-scenario table with status, duration and find count per mode (columns in the order the modes
+ran), a timing table, the known gaps with their reasons (`known-gap-flutter` covers both flutter modes), and the
+failure demo excerpts above. The task fails when the verdict is not `OK`: a scenario that is not a known gap failed,
+a failure demo did not fail in every mode, or a demo captured no diagnostics.
+
+`flutter-sync` is a device-test mode only (`FlutterSyncDriverProvider` in `src/deviceTest`); the module's default
+stays `FLUTTER_DRIVER_FIND_TIMEOUT_MS=1`.
+
+### Timing (2026-11-20, Android 14 emulator)
+
+The 7 scenarios that passed in all three modes:
+
+| Mode           | ms    | finds | ms per find (scenario ms / finds) |
+| -------------- | ----- | ----- | --------------------------------- |
+| `flutter`      | 62806 | 64    | 981                               |
+| `native`       | 64771 | 77    | 841                               |
+| `flutter-sync` | 79813 | 48    | 1663                              |
+
+What the traces show:
+
+- A find that hits costs about the same in both flutter modes, 220–400 ms: the server's wait loop pumps frames
+  (`pumpAndSettle`, up to 200 ms) and sleeps 100 ms before it checks, whatever the timeout. Server-side waiting does
+  not make a present widget faster to find.
+- A widget that appears later is found at the same moment in both flutter modes (`DelayedWidgetTest`: 2.35 s vs
+  2.38 s for the step): one blocking attempt instead of four or five polled ones.
+- Every miss in `flutter-sync` costs the full server wait (5 s). Negative checks pay it: `shouldNotBe(visible)` on an
+  offstage widget takes 5.1 s instead of 0.35 s, and the `is(visible, 2s)` probe that `HomeScreen.reach` uses before
+  pressing back takes 5.2 s instead of 2.1 s. Most of the 17 s that `flutter-sync` loses goes there; the rest
+  (0.4–1.1 s per test class) is TestNG running `flutter-sync` first in each class, right after `native`, so its
+  session reinstalls the flutter apk.
+- Server bug, reproduced: the server evaluates the finder once before its wait and throws `Unable to locate element`
+  from that stale result even when the widget appeared during the wait. In `DelayedWidgetTest` the first
+  `flutter-sync` attempt blocked 1.9 s, until the result showed, and still reported it missing; Selenide's retry
+  found it in 0.2 s. With Selenide polling on top the scenario passes; a bare `driver.findElement` would fail.
+
+Trade-off: `flutter` mode (Selenide polling) gives a per-attempt trace and fast negative checks; `flutter-sync` (the
+server waits) gives fewer, longer attempts, no speed gain on this app, and slow misses. Frame synchronisation, which
+made the old `flutter_driver` feel fast, is already part of both flutter modes: the integration server settles
+frames after every tap and before every find check.
 
 The observed differences between the modes, and how the test app is built, are in
 [`test-app/README.md`](test-app/README.md).

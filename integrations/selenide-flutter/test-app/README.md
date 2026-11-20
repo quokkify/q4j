@@ -58,6 +58,9 @@ Flutter integration driver (flutter apk):
   the button shows `Direct login`;
 - java-client's `ScrollParameter` sends `dragDuration` in whole seconds while the server reads milliseconds, so a
   sub-second drag needs a raw `flutter: scrollTillVisible` argument map;
+- `flutter-sync` mode (`flutterElementWaitTimeout` 5 s) shares these gaps. Its server-side find evaluates the finder
+  once before waiting and reports `Unable to locate element` from that result even when the widget appeared during
+  the wait (`delayed_result`: blocked 1.9 s, then missing; the next attempt finds it). A miss costs the whole wait;
 - the widget tree has no visible/enabled state and only local rects, so failure suggestions detect `Offstage`,
   `Visibility`, `Opacity`, `IgnorePointer` and `AbsorbPointer` ancestors by type; occlusion of `covered_button` by the
   cover is not computed.
