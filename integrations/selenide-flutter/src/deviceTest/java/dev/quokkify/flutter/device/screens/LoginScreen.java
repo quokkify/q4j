@@ -30,6 +30,14 @@ public class LoginScreen implements Page {
     return SelenideAppium.$(locators.button("login_button"));
   }
 
+  /**
+   * A button keyed directly on its {@code ElevatedButton} (no {@code Tagged} wrapper); natively {@code MergeSemantics}
+   * folds its Semantics identifier into the button node.
+   */
+  public SelenideElement directButton() {
+    return SelenideAppium.$(locators.id("direct_button"));
+  }
+
   public SelenideElement welcome() {
     return SelenideAppium.$(locators.textOf("login_welcome"));
   }

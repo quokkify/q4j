@@ -17,14 +17,15 @@ Changes from the original:
 - the home screen is a menu; the login, loader and lazy loading screens were reworked into the login, delayed and
   long list cases; the duplicates, label only and offstage screens were added;
 - widgets the tests use are wrapped in `Tagged` (`lib/tagged.dart`): a `ValueKey` and a Semantics identifier with
-  the same string, exposed on Android as the resource-id.
+  the same string, exposed on Android as the resource-id; the login screen also has `direct_button`, keyed directly
+  on its `ElevatedButton` with a `MergeSemantics` identifier, to separate keyed-wrapper gaps from driver gaps.
 
 ## Widget ids
 
 | Screen     | Ids                                                                                         |
 | ---------- | ------------------------------------------------------------------------------------------- |
 | Home       | `home_login`, `home_delayed`, `home_list`, `home_duplicates`, `home_label`, `home_offstage` |
-| Login      | `login_email`, `login_password`, `login_button`, `login_welcome`                            |
+| Login      | `login_email`, `login_password`, `login_button`, `direct_button`, `login_welcome`           |
 | Delayed    | `delayed_load`, `delayed_result`                                                            |
 | Long list  | `list_view`, `list_item_0` … `list_item_99`, `list_selected`                                |
 | Duplicates | `card_a`, `card_b`, `details_result`                                                        |
@@ -38,8 +39,9 @@ Native UiAutomator2 (Android 14 emulator, native apk):
 - the resource-id has no package prefix: `AppiumBy.id` needs the `disableIdLocatorAutocompletion` capability;
 - a text field merges into one `EditText` that carries the resource-id; Flutter applies an accessibility `setText`
   only to a focused field, so tap the field before typing;
-- a button keeps a wrapper node with the resource-id that is always enabled; the `Button` with the real `enabled` state
-  is its child;
+- keyed-wrapper gap (from `Tagged`): a tagged button keeps a wrapper node with the resource-id that is always
+  enabled; the `Button` with the real `enabled` state is its child. `direct_button` (`MergeSemantics` identifier) is
+  one `Button` node with the resource-id, its state and its label;
 - a list tile merges into one `Button` with the resource-id;
 - texts are exposed as `content-desc`; `text` stays empty;
 - an offstage widget is absent from the tree, but a widget under an opaque cover is reported as displayed: the
@@ -47,9 +49,13 @@ Native UiAutomator2 (Android 14 emulator, native apk):
 
 Flutter integration driver (flutter apk):
 
-- the key sits on the `KeyedSubtree` that `Tagged` creates; for that element the Flutter server returns the text `""`
-  and `enabled=false`, so `$(FlutterBy.key("login_button")).shouldBe(disabled)` passes whatever the form state is;
-  target the `Text` or `ElevatedButton` under the key instead;
+- keyed-wrapper gap (from `Tagged`, not the driver): the key sits on the `KeyedSubtree` that `Tagged` creates; for
+  that element the Flutter server returns the text `""` and `enabled=false`, so
+  `$(FlutterBy.key("login_button")).shouldBe(disabled)` passes whatever the form state is; target the `Text` or
+  `ElevatedButton` under the key instead. `direct_button`, keyed on the `ElevatedButton` itself, follows the form
+  state in both modes;
+- the server reads text only from text widgets: `$(FlutterBy.key("direct_button"))` reports the text `""` although
+  the button shows `Direct login`;
 - java-client's `ScrollParameter` sends `dragDuration` in whole seconds while the server reads milliseconds, so a
   sub-second drag needs a raw `flutter: scrollTillVisible` argument map;
 - the widget tree has no visible/enabled state and only local rects, so failure suggestions detect `Offstage`,

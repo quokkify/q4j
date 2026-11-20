@@ -24,6 +24,12 @@ class _LoginScreenState extends State<LoginScreen> {
   bool get _canSubmit =>
       emailController.text.contains("@") && passwordController.text.length >= 6;
 
+  void _submit() {
+    setState(() {
+      _welcomeEmail = emailController.text;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -71,19 +77,33 @@ class _LoginScreenState extends State<LoginScreen> {
               child: Tagged(
                 "login_button",
                 ElevatedButton(
-                  onPressed: _canSubmit
-                      ? () {
-                          setState(() {
-                            _welcomeEmail = emailController.text;
-                          });
-                        }
-                      : null,
+                  onPressed: _canSubmit ? _submit : null,
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Theme.of(context).colorScheme.primary,
                   ),
                   child: const Text(
                     "Login",
                     style: TextStyle(color: Colors.white),
+                  ),
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 20,
+            ),
+            // Keyed directly on the widget, without the Tagged wrapper: the
+            // Flutter finder lands on the ElevatedButton itself. MergeSemantics
+            // folds the identifier into the button's own accessibility node,
+            // which carries its enabled state and label.
+            SizedBox(
+              width: double.infinity,
+              child: MergeSemantics(
+                child: Semantics(
+                  identifier: "direct_button",
+                  child: ElevatedButton(
+                    key: const ValueKey("direct_button"),
+                    onPressed: _canSubmit ? _submit : null,
+                    child: const Text("Direct login"),
                   ),
                 ),
               ),

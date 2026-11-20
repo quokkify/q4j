@@ -23,8 +23,11 @@ tree, and the closest matches with the reason each was rejected.
 - The real `renderTree` carries no visible/enabled flags or absolute rects. Suggestions name ancestors whose widget
   type can block a hit (`Offstage`, `Visibility`, `Opacity`, `IgnorePointer`, `AbsorbPointer`) as a possible cause
   only: the ancestor's flag is not in the tree. Occlusion by another widget is not detected.
-- Keyed-wrapper gotcha: `$(FlutterBy.key(..))` on a `KeyedSubtree` reads the text `""` and `enabled=false`. Assert
-  on the child widget (`FlutterBy.descendant(FlutterBy.key(..), FlutterBy.type(..))`).
+- Keyed-wrapper gotcha: when the key sits on a wrapper such as a `KeyedSubtree`, `$(FlutterBy.key(..))` reads the
+  text `""` and `enabled=false`. Put the key on the widget itself, or assert on the child widget
+  (`FlutterBy.descendant(FlutterBy.key(..), FlutterBy.type(..))`).
+- The server reads text only from text widgets: a key on an `ElevatedButton` gives its real `enabled` state but the
+  text `""`. Check a label through its `Text` (`FlutterBy.text(..)` or a descendant locator).
 - On a deep tree the widget-tree JSON exceeds the java-client nesting limit of 255, so diagnostics fall back to the
   topmost `Scaffold` subtree.
 
@@ -98,9 +101,14 @@ on manual dispatch.
 
 3. Build a debug apk from that entry point:
    `flutter build apk --debug -t integration_test/appium_test.dart`.
-4. Give every widget a test drives a stable id. The test app wraps it in `Tagged`
-   ([`test-app/lib/tagged.dart`](test-app/lib/tagged.dart)): a `ValueKey(id)` for `FlutterBy.key` and a
-   `Semantics(identifier: id)` that Android exposes as the resource-id for native drivers. Use one string for both.
+4. Give every widget a test drives a stable id. Put the `key:` directly on the widget the test checks
+   (`ElevatedButton(key: const ValueKey("pay"), ...)`): `FlutterBy.key` then lands on that widget and reads its
+   real `enabled` state. For native drivers add a `Semantics(identifier: id)`, which Android exposes as the
+   resource-id; wrap it in `MergeSemantics` so the id lands on the button's own node with its state and label
+   (the test app's `direct_button` on the login screen does this). The test app's `Tagged` wrapper
+   ([`test-app/lib/tagged.dart`](test-app/lib/tagged.dart)) trades that for convenience: one call sets the
+   `ValueKey` and the identifier with the same string, but both land on wrapper nodes, so `FlutterBy.key` reads
+   the text `""` and `enabled=false` and the native node is always enabled; assert on the child widget there.
 
 ---
 

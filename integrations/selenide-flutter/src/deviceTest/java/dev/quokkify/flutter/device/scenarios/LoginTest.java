@@ -36,9 +36,27 @@ public class LoginTest extends BaseMobileTest {
         .verify().welcomes(EMAIL);
   }
 
+  @Test(description = "A button keyed directly on the widget, without a wrapper, follows the form state")
+  public void directlyKeyedButtonFollowsFormState() {
+    LoginScreen screen = home().openLogin();
+    SelenideElement direct = screen.directButton();
+    direct.shouldBe(Condition.visible).shouldBe(Condition.disabled);
+    screen.type(screen.email(), EMAIL);
+    screen.type(screen.password(), "secret1");
+    direct.shouldBe(Condition.enabled);
+  }
+
+  @Test(groups = "known-gap-flutter", description = "A button keyed directly on the widget shows its text"
+      + " (known gap in flutter mode: the Flutter server reads text only from text widgets, so the keyed"
+      + " ElevatedButton reports the text \"\")")
+  public void directlyKeyedButtonShowsItsText() {
+    home().openLogin().directButton().shouldHave(locators.shows("Direct login"));
+  }
+
   @Test(groups = {"known-gap-flutter", "known-gap-native"}, description = "The element with the login_button id"
-      + " follows the form state (known gap in flutter mode: the keyed KeyedSubtree always reports enabled=false;"
-      + " in native mode: the node with the resource-id is a wrapper that is always enabled)")
+      + " follows the form state (known gap in flutter mode: keyed wrapper, the key sits on the KeyedSubtree of"
+      + " Tagged, which always reports enabled=false; in native mode: keyed wrapper, the resource-id sits on the"
+      + " Tagged wrapper node, which is always enabled)")
   public void keyedButtonFollowsFormState() {
     LoginScreen screen = home().openLogin();
     SelenideElement keyed = SelenideAppium.$(locators.id("login_button"));
