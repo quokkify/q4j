@@ -91,7 +91,12 @@ public final class Table {
   private TableSnapshot read(SnapshotLocator items) {
     SnapshotCondition read = condition("be readable as a table", items, snapshot -> CheckResult.accepted());
     root.should(read);
-    return read.last();
+    TableSnapshot snapshot = read.last();
+    if (Objects.isNull(snapshot)) {
+      // AssertionMode.SOFT collects a failed should() and returns without a read; do not hand back null.
+      throw new IllegalStateException("table " + root + " was not read; see the collected root failure");
+    }
+    return snapshot;
   }
 
   /**
