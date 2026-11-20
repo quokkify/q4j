@@ -1,1 +1,1 @@
-{"id":"58ae5c996385e3e0811ad53e444a2873.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.TmsLinksTest.classLinkWhenMethodHasNone","name":"Class link is used when the method has none","status":"passed","testResultsByEnv":{"ubuntu-26-04":"4a11cd0be4d6e8ac47c9c35fb006d0a3"}}
+{"id":"58ae5c996385e3e0811ad53e444a2873.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.TmsLinksTest.classLinkWhenMethodHasNone","name":"Class link is used when the method has none","status":"passed","testResultsByEnv":{"ubuntu-26-04":"2fb3765e743695fcdb44263c8ae6a584"}}

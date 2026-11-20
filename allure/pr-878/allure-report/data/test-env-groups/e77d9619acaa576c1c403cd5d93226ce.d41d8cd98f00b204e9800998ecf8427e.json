@@ -1,0 +1,1 @@
+{"id":"e77d9619acaa576c1c403cd5d93226ce.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.TableSnapshotTest.snapshotTextMatchesGetTextOnTrickyMarkup","name":"Regression guard: cell and header texts equal Selenium getText() on icons, styles and controls","status":"passed","testResultsByEnv":{"ubuntu-26-04":"d2ed8f2dee578f86aa534fd87b726038"}}
