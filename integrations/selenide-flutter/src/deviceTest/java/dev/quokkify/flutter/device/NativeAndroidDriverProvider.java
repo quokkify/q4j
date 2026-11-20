@@ -15,7 +15,8 @@ import org.openqa.selenium.Capabilities;
 import org.openqa.selenium.WebDriver;
 
 /**
- * Starts the same test app under plain UiAutomator2, so scenarios can run against the native accessibility tree.
+ * Starts the native build of the test app under plain UiAutomator2, so scenarios run against the native
+ * accessibility tree.
  */
 public class NativeAndroidDriverProvider implements WebDriverProvider {
 
@@ -24,10 +25,17 @@ public class NativeAndroidDriverProvider implements WebDriverProvider {
     FlutterConfiguration config = ConfigRegistry.get(FlutterConfiguration.class);
     UiAutomator2Options options = new UiAutomator2Options()
         .setDeviceName(config.deviceName())
-        .setApp(Path.of(config.appPath()).toAbsolutePath().toString());
+        .setApp(appPath());
     // Flutter resource-ids have no package prefix; without this AppiumBy.id looks for "<package>:id/<id>".
     options.setCapability("appium:disableIdLocatorAutocompletion", true);
     return new AndroidDriver(appiumUrl(config.appiumUrl()), options.merge(capabilities));
+  }
+
+  /**
+   * The absolute path of the native apk ({@code FLUTTER_NATIVE_APP_PATH}).
+   */
+  public static String appPath() {
+    return Path.of(ConfigRegistry.get(NativeAppConfiguration.class).nativeAppPath()).toAbsolutePath().toString();
   }
 
   private static URL appiumUrl(String value) {

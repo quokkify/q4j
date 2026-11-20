@@ -1,8 +1,6 @@
 package dev.quokkify.flutter.device.screens;
 
-import dev.quokkify.flutter.device.MobileMode;
 import dev.quokkify.flutter.device.ModeLocators;
-import dev.quokkify.flutter.device.NotReachableInModeException;
 import dev.quokkify.impl.Page;
 
 import com.codeborne.selenide.SelenideElement;
@@ -36,13 +34,11 @@ public class LoginScreen implements Page {
     return SelenideAppium.$(locators.textOf("login_welcome"));
   }
 
+  /**
+   * Focuses the field before typing: natively Flutter applies an accessibility setText only to a focused field.
+   */
   public void type(SelenideElement field, String value) {
-    if (locators.mode() == MobileMode.NATIVE) {
-      // The app runs under the Appium Flutter server's test binding, which mocks the platform text input:
-      // native keystrokes and accessibility setText never reach the TextField controller.
-      throw new NotReachableInModeException(locators.mode(),
-          "typing into a Flutter TextField (the app's test binding mocks the platform text input)");
-    }
+    field.click();
     field.setValue(value);
   }
 }
