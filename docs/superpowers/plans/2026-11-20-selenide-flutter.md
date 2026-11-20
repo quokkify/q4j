@@ -122,7 +122,7 @@ ANCESTOR("-flutter ancestor"), ID("id"), ACCESSIBILITY_ID("accessibility id"), O
     `Locators.describe(By): String`.
 
 - [ ] **Step 1: Wire the module.** `build.gradle`: description `"Selenide Appium support for Flutter apps with
-  visible element search"`; deps `api project(":integrations:selenide")`, `api libs.selenide.appium`,
+visible element search"`; deps `api project(":integrations:selenide")`, `api libs.selenide.appium`,
       `implementation project(":common-utils:config")`, `implementation project(":common-utils:core")`,
       `implementation project(":common-utils:jackson:json")`, `implementation libs.allure.java.commons`; test deps
       `libs.allure.testng`, `libs.allure.selenide`, `libs.mockito.core`, `org.assertj:assertj-core`. Catalog:
@@ -696,7 +696,7 @@ Workflow (decided): name `Flutter device tests`; triggers `pull_request` (branch
 `.github/workflows/flutter-device-tests.yml`, `gradle/libs.versions.toml`), `schedule` (`cron: "30 2 * * *"`),
 `workflow_dispatch`; `permissions: contents: read`; `concurrency` per ref with cancel-in-progress; one job on
 `ubuntu-latest`, `timeout-minutes: 45`. Steps: checkout; enable KVM (udev rule
-`KERNEL=="kvm", GROUP="kvm", MODE="0666"` + `udevadm trigger`); `quokkify/project-toolkit/actions/setup-java-gradle`
+`KERNEL=="kvm", GROUP="kvm", MODE="0666"` + `udevadm trigger`); `quokkify/ci-kit/actions/setup-java-gradle`
 (same SHA as `build.yml`); `subosito/flutter-action` with `flutter-version-file:
 integrations/selenide-flutter/test-app/pubspec.yaml`, `channel: stable`, cache on; `actions/setup-node`; source
 `versions.env` into `$GITHUB_ENV`; `build_app.sh`; `reactivecircus/android-emulator-runner` with
