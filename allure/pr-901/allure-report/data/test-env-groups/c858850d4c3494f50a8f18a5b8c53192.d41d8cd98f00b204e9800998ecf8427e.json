@@ -1,0 +1,1 @@
+{"id":"c858850d4c3494f50a8f18a5b8c53192.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.SequentialAnnotationTest.testLegacyOverrideIsHonoured","name":"Regression guard: an overridden isMethodSingleThread still moves methods to Sequential","status":"passed","testResultsByEnv":{"ubuntu-26-04":"33e519f31c3982c07ebdb0ebf6e8c3be"}}
