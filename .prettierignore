@@ -3,3 +3,9 @@ CHANGELOG.md
 
 # Rendered by the ci-kit template; keep its output byte-identical to the render.
 .github/allure/allurerc.mjs
+
+# Flutter tool output of the selenide-flutter test app (ignored by its own .gitignore).
+integrations/selenide-flutter/test-app/.dart_tool/
+
+# Widget trees recorded from the device; pretty-printing their ~100 levels of nesting inflates them 15x.
+integrations/selenide-flutter/src/test/resources/trees/recorded-*.json

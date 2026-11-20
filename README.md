@@ -128,6 +128,7 @@ dev.quokkify:<artifact>:<version>
 | `selenide`              | Browser automation with Selenide            |
 | `selenide-proxy`        | Proxy and HAR support for Selenide          |
 | `selenide-grid`         | Selenium Grid support for Selenide          |
+| `selenide-flutter`      | Flutter apps (experimental, not on Central) |
 | `kafka`                 | Kafka producers, consumers, and assertions  |
 | `rabbitmq`              | RabbitMQ integration testing                |
 | `tyrus`                 | WebSocket testing with Tyrus                |
@@ -249,6 +250,7 @@ See [Maven Central publishing](docs/publishing.md) for namespace verification, r
 - [Maven Central publishing](docs/publishing.md)
 - [ReportPortal integration](integrations/reportportal/README.md)
 - [RabbitMQ integration](integrations/rabbitmq/README.md)
+- [Selenide Flutter (experimental)](docs/selenide-flutter/README.md)
 - [Release history](CHANGELOG.md)
 
 ---
