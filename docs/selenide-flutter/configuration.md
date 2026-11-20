@@ -7,7 +7,8 @@ Point the driver at your Appium server and apk, tune the server's timeouts, and 
 What you write:
 
 ```bash
-FLUTTER_APP_PATH=/abs/path/to/app-debug.apk ./gradlew test
+FLUTTER_APP_PATH=/path/to/your_app/build/app/outputs/flutter-apk/app-debug.apk \
+  ./gradlew :your-module:test --tests CheckoutTest
 ```
 
 What you get: `FlutterDriverProvider` installs that apk in the next session.
@@ -20,16 +21,22 @@ What you get: `FlutterDriverProvider` installs that apk in the next session.
 | `FLUTTER_DRIVER_FIND_TIMEOUT_MS`   | `1`                                                    | the server's own wait per find; values below `1` are rejected             |
 | `FLUTTER_SERVER_LAUNCH_TIMEOUT_MS` | `120000`                                               | how long to wait for the server inside the app to start                   |
 
-Sources, first match wins: Java system properties, environment variables, then `flutter.properties` on the test
-classpath:
+The keys live in `dev.quokkify.flutter.config.FlutterConfiguration`, which reads, first match wins: Java system
+properties of the test JVM, environment variables, then `flutter.properties` on the test classpath. q4j
+`ConfigRegistry` caches the result, so the values are read once per JVM.
+
+Use environment variables. A `-D` on `./gradlew` sets a property of the Gradle JVM, not of the test JVM: q4j's
+shared test setup (`gradle/tests.gradle`) passes only `file.encoding` and Allure properties to test JVMs, and this
+module's device tasks add only `mobile.modes`, `mobile.excludeKnownGaps` and `allure.results.directory`. The test
+JVM inherits the environment, so a variable works without build changes.
+
+`flutter.properties` follows the same rules, but no test in the module covers it:
 
 ```properties
 # src/test/resources/flutter.properties
 APPIUM_URL=http://127.0.0.1:4723
-FLUTTER_APP_PATH=app/build/app/outputs/flutter-apk/app-debug.apk
 ```
 
-The keys live in `dev.quokkify.flutter.config.FlutterConfiguration` and are read through q4j `ConfigRegistry`.
 [Waiting and conditions](waiting-and-conditions.md) explains why the find timeout defaults to `1`.
 
 ## `FlutterDriverProvider`
@@ -66,19 +73,8 @@ Configuration.browserCapabilities = Configuration.browserCapabilities.merge(
     new MutableCapabilities(Map.of("appium:enforceAppInstall", true)));
 ```
 
-Or subclass the provider when a capability belongs to a kind of session, as the device tests do for server-side
-waiting:
-
-```java
-public class FlutterSyncDriverProvider extends FlutterDriverProvider {
-
-  @Override
-  public WebDriver createDriver(Capabilities capabilities) {
-    return super.createDriver(new MutableCapabilities(capabilities).merge(new FlutterDriverOptions()
-        .setFlutterElementWaitTimeout(Duration.ofSeconds(5))));
-  }
-}
-```
+Or subclass the provider when a capability belongs to a kind of session. The device tests do this for server-side
+waiting: [`FlutterSyncDriverProvider`](waiting-and-conditions.md#server-side-waiting-flutter-sync).
 
 The provider does not modify the capabilities object you pass.
 

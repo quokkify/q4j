@@ -1,20 +1,64 @@
 # Quick start
 
-Go from a plain Flutter app to a passing Selenide test on an Android emulator.
+See the module work on the bundled test app in one command, then wire it to your own Flutter app.
+
+Two tracks:
+
+- [A. Try it in q4j](#a-try-it-in-q4j): run the module's own device tests and open the report. No code to write.
+- [B. Use it with your app](#b-use-it-with-your-app): instrument your app, write a test, run it.
+
+All commands run from the repository root.
 
 ## Prerequisites
 
-| Tool                  | Version                                                                                  |
-| --------------------- | ---------------------------------------------------------------------------------------- |
-| JDK                   | 21+                                                                                      |
-| Node.js               | 20+ (Appium is installed project-locally by the run script)                              |
-| Flutter               | the test app pins 3.50.1 (`environment.flutter` in `test-app/pubspec.yaml`)              |
-| Android SDK + adb     | `ANDROID_HOME` set                                                                       |
-| Emulator system image | `system-images;android-34;google_apis;<abi>` (API 34), AVD `q4j-flutter` created by hand |
+| Tool                  | Version                                                                     |
+| --------------------- | --------------------------------------------------------------------------- |
+| JDK                   | 21+                                                                         |
+| Node.js               | 20+ (Appium is installed project-locally by the run script)                 |
+| Flutter               | the test app pins 3.50.1 (`environment.flutter` in `test-app/pubspec.yaml`) |
+| Android SDK + adb     | `ANDROID_HOME` set                                                          |
+| Emulator system image | `system-images;android-34;google_apis;<abi>` (API 34)                       |
 
-You do not install Appium yourself. [Running](running.md) explains what the one-command script installs and where.
+Create the AVD once. These are the commands `run_device_tests.sh` prints when the AVD is missing; `<abi>` is
+`arm64-v8a` on arm64 hosts and `x86_64` otherwise:
 
-## 1. Embed the Appium Flutter server in your app
+```bash
+sdkmanager "system-images;android-34;google_apis;<abi>"
+avdmanager create avd --name q4j-flutter --package "system-images;android-34;google_apis;<abi>" --device pixel_6
+```
+
+## A. Try it in q4j
+
+```bash
+tools/environment/scripts/flutter/run_device_tests.sh flutterDeviceTest
+```
+
+The script installs the pinned Appium and drivers into `build/flutter-env`, builds the test app, boots the
+emulator, starts Appium and runs the module's device scenarios ([details](running.md)).
+
+Open the results with the Allure command-line tool:
+
+```bash
+allure serve integrations/selenide-flutter/build/allure-results-device/flutterDeviceTest
+```
+
+To see a failure with its diagnostics, run the intentionally failing demo instead and open its directory,
+`integrations/selenide-flutter/build/allure-results-device/flutterFailureDemo`:
+
+```bash
+tools/environment/scripts/flutter/run_device_tests.sh flutterFailureDemo
+```
+
+The failed steps carry `Flutter: element search`, `Flutter: widget tree` and `Flutter: suggestions`
+([what each one shows](reports-and-diagnostics.md#attachments)).
+
+## B. Use it with your app
+
+The module is not published to Maven Central. Your tests live inside the q4j build, in a test source set of a
+module that depends on `project(":integrations:selenide-flutter")`. Using it from a project outside q4j is not
+supported yet.
+
+### 1. Embed the Appium Flutter server in your app
 
 Add the server to `pubspec.yaml`, as the test app does:
 
@@ -42,10 +86,10 @@ Build a debug apk from that entry point:
 flutter build apk --debug -t integration_test/appium_test.dart
 ```
 
-The apk lands in `build/app/outputs/flutter-apk/app-debug.apk`. A release build has no server, so the driver cannot
-talk to it.
+The apk lands in `build/app/outputs/flutter-apk/app-debug.apk` of your app. A release build has no server, so the
+driver cannot talk to it.
 
-## 2. Give widgets a key
+### 2. Give widgets a key
 
 What you write:
 
@@ -59,9 +103,9 @@ ElevatedButton(
 
 What you get: `FlutterBy.key("pay")` lands on the `ElevatedButton` and reads its real `enabled` state.
 
-Put the key on the widget the test checks, not on a wrapper around it. A key on a wrapper such as `KeyedSubtree`
-makes the element report the text `""` and `enabled=false` whatever the button does;
-[Locators](locators.md#the-keyed-wrapper-trap) shows the fix.
+Put the key on the widget the test checks. A key on a `KeyedSubtree` (which the test app's `Tagged` helper
+creates) makes the element report the text `""` and `enabled=false` whatever the button does; other wrappers likely
+behave the same, but only `KeyedSubtree` is verified. [Locators](locators.md#the-keyed-wrapper-trap) shows the fix.
 
 If the same app must also run under a native driver, add a Semantics identifier (Android exposes it as the
 resource-id) and wrap it in `MergeSemantics`, so the id lands on the button's own node with its state and label:
@@ -79,14 +123,14 @@ MergeSemantics(
 )
 ```
 
-The test app also has a `Tagged(id, child)` helper
-([`test-app/lib/tagged.dart`](../../integrations/selenide-flutter/test-app/lib/tagged.dart)) that sets the
-`ValueKey` and the identifier in one call. It is convenient, but both ids land on wrapper nodes: `FlutterBy.key`
-then hits the wrapper, and the native node is always enabled. Assert on the child widget there.
+The test app's `Tagged(id, child)` helper
+([`test-app/lib/tagged.dart`](../../integrations/selenide-flutter/test-app/lib/tagged.dart)) sets the `ValueKey`
+and the identifier in one call, but both land on wrapper nodes: `FlutterBy.key` hits the `KeyedSubtree`, and the
+native node is always enabled. Assert on the child widget there.
 
-## 3. Add the module
+### 3. Add the module
 
-Inside the q4j build, depend on the project:
+In your q4j module's `build.gradle`:
 
 ```groovy
 dependencies {
@@ -99,15 +143,27 @@ dependencies {
 The module brings `integrations/selenide` and Selenide Appium as `api` dependencies. `AllureSelenide` comes from
 `allure-selenide`, which the module does not ship.
 
-## 4. Write the base test
+### 4. Write the base test
 
 ```java
+import com.codeborne.selenide.Configuration;
+import com.codeborne.selenide.Selenide;
+import com.codeborne.selenide.logevents.SelenideLogger;
+import dev.quokkify.flutter.FlutterVisibility;
+import dev.quokkify.flutter.driver.FlutterDriverProvider;
+import io.qameta.allure.selenide.AllureSelenide;
+import org.testng.annotations.AfterClass;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+
 public abstract class BaseFlutterTest {
 
   @BeforeClass
   public void configure() {
     Configuration.browser = FlutterDriverProvider.class.getName();
     Configuration.timeout = 10_000;
+    Configuration.browserSize = null; // no browser window on a device: keep Selenide from resizing one
   }
 
   @BeforeMethod
@@ -130,43 +186,61 @@ public abstract class BaseFlutterTest {
 ```
 
 Call `FlutterVisibility.install()` before the thread creates its first driver; a driver created earlier is not
-traced. [Reports and diagnostics](reports-and-diagnostics.md#install-and-uninstall) has the full lifecycle.
+traced ([lifecycle](reports-and-diagnostics.md#install-and-uninstall)).
 
-## 5. Write the first test
+### 5. Write the first test
 
 ```java
-public class LoginTest extends BaseFlutterTest {
+import static com.codeborne.selenide.Condition.enabled;
+
+import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.appium.SelenideAppium;
+import dev.quokkify.flutter.FlutterBy;
+import org.testng.annotations.Test;
+
+public class CheckoutTest extends BaseFlutterTest {
 
   @Test
-  public void enablesLoginForValidInput() {
+  public void enablesPayForValidCard() {
     SelenideAppium.launchApp();
-    SelenideAppium.$(FlutterBy.key("home_login")).click();
 
-    SelenideElement email = SelenideAppium.$(FlutterBy.key("login_email"));
-    email.click();
-    email.setValue("user@example.com");
+    SelenideElement card = SelenideAppium.$(FlutterBy.key("card_number"));
+    card.click();
+    card.setValue("4242424242424242");
 
-    SelenideElement password = SelenideAppium.$(FlutterBy.key("login_password"));
-    password.click();
-    password.setValue("secret1");
-
-    SelenideAppium.$(FlutterBy.key("direct_button")).shouldBe(enabled);
+    SelenideAppium.$(FlutterBy.key("pay")).shouldBe(enabled);
   }
 }
 ```
 
-`FlutterDriverProvider` reads the apk from `FLUTTER_APP_PATH` (default
-`test-app/build/app/outputs/flutter-apk/app-debug.apk`, relative to the working directory). Point it at your apk:
-see [Configuration](configuration.md).
+The keys are your app's. The device tests use the same calls against the test app; see `LoginTest` in
+`integrations/selenide-flutter/src/deviceTest`.
 
-## 6. Run it
+### 6. Start the emulator and Appium
 
-From the repository root, one command installs the pinned Appium and drivers, builds the test app, boots the
-emulator, starts Appium and runs the module's device tests:
+The script from track A installs Appium into `build/flutter-env` on its first run, so run it once (any task) before
+starting things by hand. Then, from the repository root:
 
 ```bash
-tools/environment/scripts/flutter/run_device_tests.sh flutterDeviceTest
+emulator -avd q4j-flutter -no-snapshot-save -no-audio -no-boot-anim &
+adb wait-for-device
+APPIUM_HOME=build/flutter-env/appium-home build/flutter-env/npm/node_modules/.bin/appium \
+  --port 4723 --log build/flutter-env/appium.log &
 ```
 
-The Allure results land in `integrations/selenide-flutter/build/allure-results-device/flutterDeviceTest`. With the
-emulator and Appium already up, run your own test task with Gradle as usual. [Running](running.md) has the details.
+These are the flags `run_device_tests.sh` uses. Wait until `adb shell getprop sys.boot_completed` prints `1` and
+`curl http://127.0.0.1:4723/status` answers. `stop_device_env.sh` stops only what the script itself started, so
+stop these processes yourself.
+
+### 7. Run your test
+
+Pass the apk through an environment variable. A `-D` on `./gradlew` does not reach the test JVM
+([why](configuration.md#keys)):
+
+```bash
+FLUTTER_APP_PATH=/path/to/your_app/build/app/outputs/flutter-apk/app-debug.apk \
+  ./gradlew :your-module:test --tests CheckoutTest
+```
+
+Replace `:your-module:test` with the task that runs your test source set. A relative `FLUTTER_APP_PATH` resolves
+against the test JVM's working directory, which is your module's directory.

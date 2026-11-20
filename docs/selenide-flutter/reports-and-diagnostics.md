@@ -81,7 +81,9 @@ Outcomes are `FOUND`, `NOT_FOUND` and `ERROR`; an `ERROR` line ends with `— <f
 ### `Flutter: widget tree`
 
 One line per widget, two spaces of indent per depth: the type, then `key`, `text` and `label` when set, then the
-rect `@x,y widthxheight`. A widget without a size gets `[zero-size]`.
+rect `@x,y widthxheight`. A widget without a size gets `[zero-size]`. The formatter also has `[hidden]` and
+`[disabled]` markers, but the real `renderTree` carries no visible or enabled flags, so they do not appear in trees
+from the Flutter server.
 
 ```text
 KeyedSubtree key="login_button" @0,0 363x48

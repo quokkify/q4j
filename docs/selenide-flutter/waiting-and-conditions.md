@@ -1,13 +1,19 @@
 # Waiting and conditions
 
 Let Selenide do the waiting, know which conditions read real widget state, and know what server-side waiting
-costs.
+changes.
 
 ## Selenide waits, the server checks once
 
 What you write:
 
 ```java
+import static com.codeborne.selenide.Condition.exactText;
+
+import com.codeborne.selenide.Configuration;
+import com.codeborne.selenide.appium.SelenideAppium;
+import dev.quokkify.flutter.FlutterBy;
+
 Configuration.timeout = 10_000;
 
 SelenideAppium.$(FlutterBy.key("delayed_load")).click();
@@ -16,8 +22,8 @@ SelenideAppium.$(FlutterBy.descendant(FlutterBy.key("delayed_result"), FlutterBy
 ```
 
 What you get: Selenide polls the find until the widget shows up or `Configuration.timeout` runs out, as it does in
-a browser. Each poll is one find on the Flutter server, and each find is traced (see
-[Reports and diagnostics](reports-and-diagnostics.md)).
+a browser. Each poll is one find on the Flutter server, and each find is traced
+([Reports and diagnostics](reports-and-diagnostics.md)).
 
 The step's `Flutter: element search` attachment from a real run:
 
@@ -43,17 +49,15 @@ Values below `1` are rejected when the driver starts:
 java.lang.IllegalArgumentException: FLUTTER_DRIVER_FIND_TIMEOUT_MS must be at least 1 but was 0: with 0 the Flutter server times out before it evaluates the finder, so no element is ever found
 ```
 
-A find that hits costs 220–400 ms whatever the timeout: the server's loop pumps frames (`pumpAndSettle`, up to
-200 ms) and sleeps 100 ms before it checks.
-
 ## Conditions
 
-| Condition                        | Works on a Flutter element                                                          |
-| -------------------------------- | ----------------------------------------------------------------------------------- |
-| `visible`, `appear`, `disappear` | yes; an offstage widget, or one under an opaque cover, is not found and not visible |
-| `enabled`, `disabled`            | yes, on the widget that carries the state (not on a keyed wrapper)                  |
-| `text`, `exactText`              | yes, on a text widget; any other widget reports `""`                                |
-| `click()`, `setValue()`          | yes                                                                                 |
+| Condition               | Works on a Flutter element                                                                         |
+| ----------------------- | -------------------------------------------------------------------------------------------------- |
+| `visible`               | yes; an offstage widget, or one under an opaque cover, is not visible (verified by `OffstageTest`) |
+| `appear`, `disappear`   | likely, as Selenide aliases of `visible` and `hidden`; not covered by a device test                |
+| `enabled`, `disabled`   | yes, on the widget that carries the state, not on a keyed wrapper (verified by `LoginTest`)        |
+| `text`, `exactText`     | yes, on a text widget; any other widget reports `""` (`exactText` verified by `LoginTest`)         |
+| `click()`, `setValue()` | yes (verified by `LoginTest`)                                                                      |
 
 Two known gaps, both from the Flutter server, not from Selenide:
 
@@ -66,7 +70,8 @@ Two known gaps, both from the Flutter server, not from Selenide:
 ## Server-side waiting (`flutter-sync`)
 
 You can move the waiting to the server instead: give `flutterElementWaitTimeout` a real value and each find blocks
-until the widget exists. The device tests call this mode `flutter-sync`:
+until the widget exists. The device tests call this mode `flutter-sync` and start it with their own provider
+(`src/deviceTest`, not part of the module's main code):
 
 ```java
 public class FlutterSyncDriverProvider extends FlutterDriverProvider {
@@ -81,34 +86,21 @@ public class FlutterSyncDriverProvider extends FlutterDriverProvider {
 }
 ```
 
-Measured on an Android 14 emulator over the 7 scenarios that passed in every mode:
+What changes, in short:
 
-| Mode           | Total  | Finds | ms per find |
-| -------------- | ------ | ----- | ----------- |
-| `flutter`      | 62.8 s | 64    | 981         |
-| `flutter-sync` | 79.8 s | 48    | 1663        |
+- A widget that is already there is not found any faster.
+- A widget that appears later is found at the same moment, in fewer, longer attempts.
+- Every miss costs the full server wait, so negative checks such as `shouldNotBe(visible)` get slow.
+- The server can report a widget missing from a stale result even when it appeared during the wait; Selenide's
+  next attempt then finds it.
 
-What the numbers mean:
-
-- **No faster hits.** A widget that is already there costs the same 220–400 ms in both modes.
-- **Same arrival time.** A widget that appears 2 s after a tap is found at the same moment (`DelayedWidgetTest`:
-  2.35 s vs 2.38 s for the step), in two attempts instead of four or five.
-- **Slow misses.** Every miss costs the full server wait. `shouldNotBe(visible)` on an offstage widget takes 5.1 s
-  instead of 0.35 s; an `is(visible, Duration.ofSeconds(2))` probe takes 5.2 s instead of 2.1 s.
-
-**Stale result, reproduced.** The server evaluates the finder once before its wait and reports
-`Unable to locate element` from that stale result, even when the widget appeared during the wait. In
-`DelayedWidgetTest` the first `flutter-sync` attempt blocked 1.9 s, until the result showed, and still reported it
-missing; Selenide's retry found it in 0.2 s. With Selenide on top the scenario passes; a bare
-`driver.findElement(...)` would fail.
-
-Keep the default unless you have a reason not to. [Flutter vs native](flutter-vs-native.md) compares all three
-modes.
+The measurements behind each point are in [Flutter vs native](flutter-vs-native.md#results). Keep the default
+unless you have a reason not to.
 
 ## Scrolling a lazy list
 
 A `ListView.builder` builds only the items near the viewport, so an item far down does not exist until you scroll.
-Ask the server to scroll until it is visible, then find it:
+Ask the server to scroll until it is visible, then find it (from the device tests' `LongListScreen`):
 
 ```java
 ((CanExecuteFlutterScripts) WebDriverRunner.getWebDriver()).executeFlutterCommand("scrollTillVisible", Map.of(

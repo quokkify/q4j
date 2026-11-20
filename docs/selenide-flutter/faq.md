@@ -4,8 +4,9 @@ Short answers to the questions people ask first, each with a link to the full st
 
 ## Why is my button always disabled?
 
-The key is probably on a wrapper, not on the button. For a `KeyedSubtree` (or any widget that wraps the button
-with the key) the Flutter server reports `enabled=false` and the text `""`. Put the key on the `ElevatedButton`, or
+The key is probably on a wrapper, not on the button. For a `KeyedSubtree` (what the test app's `Tagged` creates)
+the Flutter server reports `enabled=false` and the text `""`; other wrappers likely do the same, but that is not
+verified. Put the key on the `ElevatedButton`, or
 use `FlutterBy.descendant(FlutterBy.key("pay"), FlutterBy.type("ElevatedButton"))`. See
 [the keyed-wrapper trap](locators.md#the-keyed-wrapper-trap).
 
@@ -40,8 +41,8 @@ No. The driver talks to `appium_flutter_server` inside the app, and only a debug
 ## Why is `flutter-sync` slower?
 
 Every miss waits the full server timeout (5 s in the device tests), and negative checks such as
-`shouldNotBe(visible)` are made of misses: 5.1 s instead of 0.35 s. Hits cost the same in both modes. Over 7
-scenarios: 79.8 s vs 62.8 s ([numbers](waiting-and-conditions.md#server-side-waiting-flutter-sync)).
+`shouldNotBe(visible)` are made of misses. Hits cost the same in both modes
+([numbers](flutter-vs-native.md#results)).
 
 ## Why does `FLUTTER_DRIVER_FIND_TIMEOUT_MS=0` fail?
 
@@ -57,15 +58,23 @@ topmost `Scaffold`, and the text tree starts with
 
 ## Why no attachments on my failed step?
 
-Check three things: `FlutterVisibility.install()` ran on the test thread before the driver started (otherwise the
-log has a warning), `AllureSelenide` is registered, and the step failed because no element was found. A step whose
-element was found but whose condition failed gets only `Flutter: element search`.
+Check two things: `FlutterVisibility.install()` ran on the test thread before the driver started (otherwise the log
+has a warning), and `AllureSelenide` is registered.
+
+## Why no tree or suggestions on my failed step?
+
+Diagnostics run only when the step failed and its last find attempt was `NOT_FOUND`. If the element was found and a
+condition failed (say `shouldBe(enabled)`), or the last find ended in `ERROR`, the step gets only
+`Flutter: element search`. A non-Flutter locator gets no tree either
+([Attachments](reports-and-diagnostics.md#attachments)).
 
 ## Does it work in parallel?
 
-The module is built for it: `install()` and the trace are per thread, and the driver tracer is registered once for
-all threads. Each thread needs its own device and Appium session. The device tests themselves run serially on one
-emulator (`maxParallelForks = 1`), so parallel runs are not exercised here.
+Not yet tried. The module is designed to be thread-safe: `install()` and the trace are per thread, and the driver
+tracer is registered once for all threads. But the device tests run serially on one emulator
+(`maxParallelForks = 1`), and the configuration (`APPIUM_URL`, `FLUTTER_DEVICE_NAME`, `FLUTTER_APP_PATH`) is
+process-wide: a device per thread needs your own provider or capabilities, for example a per-thread
+`appium:udid`.
 
 ## Can I send the diagnostics somewhere other than Allure?
 

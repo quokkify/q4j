@@ -12,9 +12,12 @@ PageSteps<S, V, P>  ──.verify()──►  Verification<S, V, P>  ──.back
 
 ## What you write
 
-The test reads as a sentence:
+The test reads as a sentence (from [`LoginTest`](../../integrations/selenide-flutter/src/deviceTest/java/dev/quokkify/flutter/device/scenarios/LoginTest.java); `home()` comes from its base class
+and returns the app's home screen, whose `openLogin()` taps `home_login` and returns a `LoginScreen`):
 
 ```java
+private static final String EMAIL = "user@example.com";
+
 @Test(description = "Login form enables its button only for valid input and greets the user")
 public void logsIn() {
   new LoginScreenSteps(home().openLogin())
@@ -30,7 +33,15 @@ public void logsIn() {
 
 ## Page: where the widgets are
 
+Condensed from [`LoginScreen`](../../integrations/selenide-flutter/src/deviceTest/java/dev/quokkify/flutter/device/screens/LoginScreen.java), with the mode routing replaced by plain `FlutterBy`
+calls:
+
 ```java
+import com.codeborne.selenide.SelenideElement;
+import com.codeborne.selenide.appium.SelenideAppium;
+import dev.quokkify.flutter.FlutterBy;
+import dev.quokkify.impl.Page;
+
 public class LoginScreen implements Page {
 
   public SelenideElement email() {
@@ -63,7 +74,12 @@ labels inside buttons) live here and nowhere else.
 
 ## Steps: what the user does
 
+From [`LoginScreenSteps`](../../integrations/selenide-flutter/src/deviceTest/java/dev/quokkify/flutter/device/steps/LoginScreenSteps.java):
+
 ```java
+import dev.quokkify.model.PageSteps;
+import io.qameta.allure.Step;
+
 public class LoginScreenSteps extends PageSteps<LoginScreenSteps, LoginScreenVerification, LoginScreen> {
 
   public LoginScreenSteps(LoginScreen page) {
@@ -93,7 +109,13 @@ public class LoginScreenSteps extends PageSteps<LoginScreenSteps, LoginScreenVer
 
 ## Verification: what the user sees
 
+From [`LoginScreenVerification`](../../integrations/selenide-flutter/src/deviceTest/java/dev/quokkify/flutter/device/steps/LoginScreenVerification.java), with `shows(...)` replaced by `exactText`:
+
 ```java
+import com.codeborne.selenide.Condition;
+import dev.quokkify.model.Verification;
+import io.qameta.allure.Step;
+
 public class LoginScreenVerification extends Verification<LoginScreenSteps, LoginScreenVerification, LoginScreen> {
 
   public LoginScreenVerification(LoginScreenSteps steps, LoginScreen page) {
@@ -128,12 +150,16 @@ Each `@Step` becomes an Allure step, so a failed find inside `submit()` attaches
 ## One page, two drivers
 
 To run the same scenario through the Flutter driver and natively, route every locator through one object that
-knows the mode. The device tests' `ModeLocators` does this:
+knows the mode. Condensed from the device tests' [`ModeLocators`](../../integrations/selenide-flutter/src/deviceTest/java/dev/quokkify/flutter/device/ModeLocators.java):
 
 ```java
 public final class ModeLocators {
 
   private final MobileMode mode;
+
+  public ModeLocators(MobileMode mode) {
+    this.mode = mode;
+  }
 
   public By id(String id) {
     return mode.isFlutter() ? FlutterBy.key(id) : AppiumBy.id(id);

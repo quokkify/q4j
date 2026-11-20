@@ -14,14 +14,27 @@ Flutter locators (`FlutterBy`), a driver provider (`FlutterDriverProvider`) and 
 
 ## 30 seconds
 
-What you write:
+What you write (a base class and a test against the module's test app):
 
 ```java
+import com.codeborne.selenide.Configuration;
+import com.codeborne.selenide.appium.SelenideAppium;
+import com.codeborne.selenide.logevents.SelenideLogger;
+import dev.quokkify.flutter.FlutterBy;
+import dev.quokkify.flutter.FlutterVisibility;
+import dev.quokkify.flutter.driver.FlutterDriverProvider;
+import io.qameta.allure.selenide.AllureSelenide;
+import org.testng.annotations.AfterMethod;
+import org.testng.annotations.BeforeClass;
+import org.testng.annotations.BeforeMethod;
+import org.testng.annotations.Test;
+
 public abstract class BaseFlutterTest {
 
   @BeforeClass
   public void configure() {
     Configuration.browser = FlutterDriverProvider.class.getName();
+    Configuration.browserSize = null; // no browser window on a device: keep Selenide from resizing one
   }
 
   @BeforeMethod
@@ -56,7 +69,7 @@ What you get in the Allure step `Flutter: suggestions` (real run, Android 14 emu
 ```
 
 Next to it: every find attempt of the step, the widget tree as JSON and as indented text. A native UiAutomator2 run
-of the same test gives you only "element not found" and the page source.
+of the same failure gets no suggestions ([side by side](flutter-vs-native.md#failures-side-by-side)).
 
 ## Pages
 

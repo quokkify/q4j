@@ -5,20 +5,26 @@ Find a Flutter widget by key, text, type or semantics label, or relative to anot
 Every factory returns a Selenium `By`, so it goes anywhere Selenide takes one:
 
 ```java
+import com.codeborne.selenide.appium.SelenideAppium;
+import dev.quokkify.flutter.FlutterBy;
+
 SelenideAppium.$(FlutterBy.key("login_email")).setValue("user@example.com");
 ```
 
+The examples below use these imports plus static imports of the Selenide conditions they check
+(`import static com.codeborne.selenide.Condition.*;`).
+
 ## Factories
 
-| Factory                              | Matches                                                       |
-| ------------------------------------ | ------------------------------------------------------------- |
-| `FlutterBy.key(key)`                 | the widget whose `ValueKey` is `key`                          |
-| `FlutterBy.text(text)`               | a text widget whose text equals `text`                        |
-| `FlutterBy.textContaining(text)`     | a text widget whose text contains `text`                      |
-| `FlutterBy.type(type)`               | a widget by runtime type name, for example `"ElevatedButton"` |
-| `FlutterBy.semanticsLabel(label)`    | a widget whose Semantics label is `label`                     |
-| `FlutterBy.descendant(of, matching)` | a widget matching `matching` somewhere under a widget `of`    |
-| `FlutterBy.ancestor(of, matching)`   | a widget matching `matching` somewhere above a widget `of`    |
+| Factory                              | Matches                                                                                |
+| ------------------------------------ | -------------------------------------------------------------------------------------- |
+| `FlutterBy.key(key)`                 | the widget whose `ValueKey` is `key`                                                   |
+| `FlutterBy.text(text)`               | a text widget whose text equals `text`                                                 |
+| `FlutterBy.textContaining(text)`     | a text widget whose text contains `text`                                               |
+| `FlutterBy.type(type)`               | a widget by runtime type name, for example `"ElevatedButton"`                          |
+| `FlutterBy.semanticsLabel(label)`    | a widget whose Semantics label is `label`                                              |
+| `FlutterBy.descendant(of, matching)` | a widget matching `matching` somewhere under a widget `of`                             |
+| `FlutterBy.ancestor(of, matching)`   | a widget matching `matching` somewhere above a widget `of` (not exercised on a device) |
 
 Each factory wraps the matching `AppiumBy.flutter*` locator of the Appium java-client. The server finds only
 widgets that can receive a hit (`hitTestable()`): a widget that is in the tree but offstage is not found.
@@ -36,13 +42,15 @@ The most stable choice: a key does not change with copy or language. Put it on t
 
 ```java
 SelenideAppium.$(FlutterBy.text("Details")).click();          // exact text of a Text widget
-SelenideAppium.$(FlutterBy.textContaining("Welcome")).should(appear);
+SelenideAppium.$(FlutterBy.textContaining("Welcome")).shouldBe(visible);
 SelenideAppium.$(FlutterBy.semanticsLabel("Settings icon")).click(); // an IconButton with no text
 ```
 
 - `text` and `textContaining` match text widgets only. A button's label lives in its child `Text`, not on the
   button.
-- `semanticsLabel` is for widgets that show no text, such as an icon button with only an accessibility label.
+- `semanticsLabel` is for widgets that show no text, such as an icon button with only an accessibility label
+  (`LabelOnlyTest` taps the test app's settings icon this way).
+- `text` (by `DuplicatesTest`) and `semanticsLabel` run on a device; `textContaining` is not exercised there.
 
 When you search by text or key and the value exists as a semantics label instead, the failure report says so:
 `value found as semantics label; try FlutterBy.semanticsLabel` (see
@@ -71,7 +79,8 @@ java.lang.IllegalArgumentException: Flutter locator expected but got: By.id: car
 ```
 
 `FlutterBy.ancestor(of, matching)` works the other way round: it finds a widget matching `matching` that contains
-the widget `of`.
+the widget `of`. No device test uses it yet; failure suggestions cover it (the reasons get an `of: ` or
+`matching: ` prefix).
 
 ## The keyed-wrapper trap
 
@@ -86,7 +95,9 @@ SelenideAppium.$(FlutterBy.key("login_button")).shouldBe(disabled); // passes wh
 ```
 
 What you get: the key sits on the `KeyedSubtree`, and for that element the Flutter server returns the text `""` and
-`enabled=false`. `shouldBe(disabled)` always passes and `shouldBe(enabled)` never does.
+`enabled=false`. `shouldBe(disabled)` always passes and `shouldBe(enabled)` never does. This is verified for
+`KeyedSubtree`, the wrapper the test app's `Tagged` creates; other wrappers that carry the key likely behave the
+same, but that is not verified.
 
 Fix it in the app, by putting the key on the button itself:
 
@@ -110,7 +121,7 @@ The test app's `Tagged` wrapper produces this shape on purpose, so the device te
 
 `FlutterBy` drives the Flutter driver; `AppiumBy.id`, `AppiumBy.accessibilityId` and `AppiumBy.androidUIAutomator`
 drive UiAutomator2. To run one scenario under both drivers, choose the locator by mode in one place, as the device
-tests' `ModeLocators` does:
+tests' [`ModeLocators`](../../integrations/selenide-flutter/src/deviceTest/java/dev/quokkify/flutter/device/ModeLocators.java) does (condensed):
 
 ```java
 public By id(String id) {
