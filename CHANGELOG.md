@@ -1,5 +1,127 @@
 # Changelog
 
+## [0.16.0](https://github.com/quokkify/q4j/compare/v0.15.0...v0.16.0) (2026-11-20)
+
+<!-- project-toolkit:release-notes v2 -->
+**At a glance:** ⚠️ 1 breaking · 2 new · 1 fixed · 17 internal
+
+### ⚠️ Breaking changes
+
+> [!WARNING]
+> **tms:** single TMS entry point with TestPlanIt provider — **TestPlanIt joins TestRail behind one TMS entry point.** A test project adds `tms-testng` with exactly one provider and registers `TmsListener`; case ids come from Allure `@TmsLink`, and two providers on one classpath fail the build. ([#881](https://github.com/quokkify/q4j/pull/881))
+>
+> - **TestRail users:**
+>   - replace `TestStatusTestRailListener`, `AddDisabledTestsToTestRailListener` and `TestRailInterceptor` in `META-INF/services/org.testng.ITestNGListener` with `dev.quokkify.tms.listeners.TmsListener`;
+>   - `@TmsLink` values stay as they are;
+>   - under `TmsListener`, tests without `@TmsLink` run but are not reported.
+> - **Jira tickets:** replace `dev.quokkify:jira-testrail` with `dev.quokkify:jira-tms`. Upgrade both artifacts together. With an old `jira-testrail` next to the new `testrail-testng`, Jira comments on disabled tests silently disappear.
+> - **Custom `TicketSource` implementations:** move from `dev.quokkify.testrail.tickets` to `dev.quokkify.tms.tickets`. The disabled-test comment now reads `<id> is disabled via ...` instead of `TC-<id> ...`.
+> - **One provider only:** keep only one of `testplanit` and `testrail-testng` on the test classpath. `reportportal-testrail` carries `testrail-testng`, so do not combine it with `testplanit`.
+> - **Switching a project to another TMS:**
+>   - swap the provider dependency;
+>   - rewrite the `@TmsLink` values to the new system's ids;
+>   - change `allure.link.tms.pattern`.
+>
+> ---
+>
+> ```kotlin
+> dependencies {
+>     testImplementation("dev.quokkify:tms-testng:<version>")
+>     testImplementation("dev.quokkify:testplanit:<version>")
+>     // TestRail: testImplementation("dev.quokkify:testrail-testng:<version>") instead; never two providers
+> }
+> ```
+>
+> ```text
+> # src/test/resources/META-INF/services/org.testng.ITestNGListener
+> dev.quokkify.tms.listeners.TmsListener
+> ```
+>
+> ```java
+> @TmsLink("42") // TestPlanIt case id
+> @Test
+> public void userCanLogIn() { }
+> ```
+>
+> ```bash
+> TESTPLANIT_API_URL=https://testplanit.example.com TESTPLANIT_API_TOKEN=tpi_... TESTPLANIT_PROJECT_ID=1 ./gradlew test
+> ```
+
+### ✨ New
+
+- **selenide:** read and verify a whole table in one browser call — Verify a whole table or grid in one browser call per attempt, with Selenide's waiting: `table.shouldHave(TableCondition.exactItemsBy(...))` or `exactRows(...)` for whole-table equality with a short diff, `shouldSatisfy(snap -> assertThat(...))` for any AssertJ check, and `snapshot()` to read the data once. ([#896](https://github.com/quokkify/q4j/pull/896))
+  ```java
+  Table grid = Table.of($("#properties"), TableLayout.aria());
+  By chip = By.cssSelector(".chip");
+
+  grid.shouldHave(TableCondition.exactItemsBy("Name", "Properties", chip, Map.of(
+      "Alpha", List.of("Red", "Blue"),
+      "Beta", List.of("Green"))));
+  grid.shouldSatisfy(snap -> assertThat(snap.column("Status")).doesNotContain("Failed"));
+  ```
+- **testng-extensions:** add @Sequential and deprecate @SingleThread — **`@Sequential` is the new name for `@SingleThread`, matching the `Sequential` block in the generated suite.** Annotated tests still run one at a time in that block. `@SingleThread` keeps working and is deprecated for removal. ([#885](https://github.com/quokkify/q4j/pull/885))
+  ```java
+  import dev.quokkify.annotation.Sequential;
+
+  public class UserTest {
+
+      @Sequential
+      @Test
+      public void checkSequentialOperation() {
+          // runs in the "Sequential" block, one test at a time
+      }
+  }
+  ```
+
+  > **Migration**
+  >
+  > Replace `import dev.quokkify.annotation.SingleThread;` with `import dev.quokkify.annotation.Sequential;` and `@SingleThread` with `@Sequential`. Behaviour is the same, and `@SingleThread` still works until it is removed. If you subclass `SuiteListener` and override `isMethodSingleThread` or `getXmlIncludeTests`, move that logic to `isMethodSequential`: the old method does not see `@Sequential`.
+
+### 🐛 Fixed
+
+- **tms:** report one worst-status result per case for repeated tests — **A passing last data provider row no longer hides earlier failures in the TMS.** `TmsListener` reports one result per case for data provider rows and `invocationCount` runs, with the worst status and a comment that lists the failing invocations with their parameters. ([#887](https://github.com/quokkify/q4j/pull/887))
+  ```java
+  @TmsLink("9")
+  @Test(dataProvider = "rows") // rows: failed, failed, passed
+  public void parameterized(String row, boolean passes) { }
+  ```
+
+  ```text
+  Case 9: FAILED
+  3 invocations: 2 failed, 1 passed
+  [1] FAILED (row-1, false): row-1 failed
+  [2] FAILED (row-2, false): row-2 failed
+  ```
+
+  > **Migration**
+  >
+  > No action is needed. A case linked to a data provider or `invocationCount` test now gets one result per execution instead of one per invocation, sent when its test class finishes.
+
+<details><summary>Internal changes (17 PRs)</summary>
+
+**Dependencies**
+
+- docker 08a9801 → 7bf70dc ([#889](https://github.com/quokkify/q4j/pull/889))
+- ghcr.io/testplanit/testplanit-selfhost 1.1.22 → v1.2.0 ([#890](https://github.com/quokkify/q4j/pull/890))
+- gradle 9.9.0 → 9.9.1 ([#866](https://github.com/quokkify/q4j/pull/866))
+- io.github.openfeign:feign-core, io.github.openfeign:feign-jackson, io.github.openfeign:feign-okhttp 13.17 → 13.18 ([#876](https://github.com/quokkify/q4j/pull/876))
+- mongo 9.0.4 → 9.0.8 ([#884](https://github.com/quokkify/q4j/pull/884))
+- org.apache.commons:commons-lang3 3.21.0 → 3.22.0 ([#873](https://github.com/quokkify/q4j/pull/873))
+- org.bouncycastle:bcprov-jdk18on 1.86 → 1.87 ([#874](https://github.com/quokkify/q4j/pull/874))
+- org.hibernate.orm:hibernate-agroal, org.hibernate.orm:hibernate-core 7.4.15.Final → 7.4.16.Final ([#893](https://github.com/quokkify/q4j/pull/893))
+- rabbitmq af6f50d → 753099a ([#886](https://github.com/quokkify/q4j/pull/886))
+- reportportal/service-auto-analyzer, reportportal/service-ui 5.15.6 → 6.0.0 · major ([#879](https://github.com/quokkify/q4j/pull/879), [#892](https://github.com/quokkify/q4j/pull/892))
+- reportportal/service-jobs 5.15.3 → 6.0.0 · major ([#880](https://github.com/quokkify/q4j/pull/880))
+- traefik v3.7.17 → v3.7.19 ([#882](https://github.com/quokkify/q4j/pull/882), [#891](https://github.com/quokkify/q4j/pull/891))
+- valkey/valkey 8-alpine → 9-alpine · major ([#883](https://github.com/quokkify/q4j/pull/883))
+
+**Maintenance**
+
+- **modules:** update q4j module documentation to v0.15.0 ([#872](https://github.com/quokkify/q4j/pull/872))
+- **release:** publish to Maven Central after Release Please ([#871](https://github.com/quokkify/q4j/pull/871))
+
+</details>
+
 ## [0.15.0](https://github.com/quokkify/q4j/compare/v0.14.1...v0.15.0) (2026-11-11)
 
 <!-- project-toolkit:release-notes v2 -->
