@@ -19,6 +19,22 @@ What you get: Selenide polls the find until the widget shows up or `Configuratio
 a browser. Each poll is one find on the Flutter server, and each find is traced (see
 [Reports and diagnostics](reports-and-diagnostics.md)).
 
+The step's `Flutter: element search` attachment from a real run:
+
+```text
+4 find attempt(s), total 1748 ms, result FOUND
+  3× flutter descendant(of: flutter key "delayed_result", matching: flutter type "Text") → NOT_FOUND (avg 471 ms)
+  1× flutter descendant(of: flutter key "delayed_result", matching: flutter type "Text") → FOUND (avg 334 ms)
+```
+
+The same step in native mode, polling the accessibility tree:
+
+```text
+7 find attempt(s), total 1303 ms, result FOUND
+  6× id "delayed_result" → NOT_FOUND (avg 160 ms)
+  1× id "delayed_result" → FOUND (avg 340 ms)
+```
+
 The server has a wait of its own, `flutterElementWaitTimeout`. `FlutterDriverProvider` sets it from
 `FLUTTER_DRIVER_FIND_TIMEOUT_MS`, default `1` ms, so the server checks once per find and Selenide owns the timeout.
 Values below `1` are rejected when the driver starts:

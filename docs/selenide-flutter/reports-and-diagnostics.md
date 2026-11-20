@@ -59,12 +59,21 @@ the step gets `Flutter: element search` and nothing else: a tree would explain a
 
 ### `Flutter: element search`
 
-The shape, from `AttemptSummary.render()`. Repeated attempts with the same locator and outcome collapse into one
-line with their average:
+Repeated attempts with the same locator and outcome collapse into one line with their average.
+
+`FailureDemoTest.tapsMistypedKey`, step `$("AppiumBy.flutterKey: login_btn") click()`, real run:
 
 ```text
-<n> find attempt(s), total <ms> ms, result NOT_FOUND
-  <n>× flutter key "login_btn" → NOT_FOUND (avg <ms> ms)
+23 find attempt(s), total 5409 ms, result NOT_FOUND
+  23× flutter key "login_btn" → NOT_FOUND (avg 235 ms)
+```
+
+`DelayedWidgetTest`: Selenide polls until the widget appears, real run:
+
+```text
+4 find attempt(s), total 1748 ms, result FOUND
+  3× flutter descendant(of: flutter key "delayed_result", matching: flutter type "Text") → NOT_FOUND (avg 471 ms)
+  1× flutter descendant(of: flutter key "delayed_result", matching: flutter type "Text") → FOUND (avg 334 ms)
 ```
 
 Outcomes are `FOUND`, `NOT_FOUND` and `ERROR`; an `ERROR` line ends with `— <first line of the error>`.
