@@ -117,7 +117,7 @@ public final class NearMissFinder {
     String wanted = spec.value();
     String actual = field(strategy, node);
     if (actual != null) {
-      Optional<NearMiss> byField = scoreField(node, fieldName(strategy), wanted, actual);
+      Optional<NearMiss> byField = scoreField(strategy, node, fieldName(strategy), wanted, actual);
       if (byField.isPresent()) {
         return byField;
       }
@@ -128,8 +128,10 @@ public final class NearMissFinder {
     return Optional.empty();
   }
 
-  private static Optional<NearMiss> scoreField(WidgetNode node, String name, String wanted, String actual) {
-    if (actual.equals(wanted)) {
+  private static Optional<NearMiss> scoreField(Strategy strategy, WidgetNode node, String name, String wanted,
+                                             String actual) {
+    boolean exact = actual.equals(wanted) || strategy == Strategy.TEXT_CONTAINING && actual.contains(wanted);
+    if (exact) {
       return hittable(node) ? Optional.empty()
           : Optional.of(new NearMiss(node, EXACT_UNHITTABLE_SCORE, List.of(unhittableReason(node, name))));
     }
@@ -139,7 +141,7 @@ public final class NearMissFinder {
     if (actual.strip().equals(wanted.strip())) {
       return Optional.of(new NearMiss(node, WHITESPACE_SCORE, List.of("differs only in whitespace")));
     }
-    if (actual.contains(wanted) || wanted.contains(actual)) {
+    if (!actual.isBlank() && !wanted.isBlank() && (actual.contains(wanted) || wanted.contains(actual))) {
       return Optional.of(new NearMiss(node, PARTIAL_SCORE, List.of("partial match")));
     }
     int distance = LevenshteinDistance.getDefaultInstance().apply(actual, wanted);

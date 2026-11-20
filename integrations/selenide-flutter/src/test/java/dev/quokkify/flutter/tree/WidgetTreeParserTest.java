@@ -54,4 +54,15 @@ public class WidgetTreeParserTest {
     assertThat(node.enabled()).isTrue();
     assertThat(node.focused()).isFalse();
   }
+
+  @Test
+  public void partialOrNullStateFieldsDefaultToVisibleAndEnabled() {
+    WidgetNode partial = WidgetTreeParser.parse("{\"type\":\"Text\",\"state\":{\"focused\":true}}");
+    assertThat(partial.visible()).isTrue();
+    assertThat(partial.enabled()).isTrue();
+    assertThat(partial.focused()).isTrue();
+    WidgetNode nulls = WidgetTreeParser.parse("{\"type\":\"Text\",\"state\":{\"visible\":null,\"enabled\":null}}");
+    assertThat(nulls.visible()).isTrue();
+    assertThat(nulls.enabled()).isTrue();
+  }
 }
