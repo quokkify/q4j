@@ -224,7 +224,7 @@ starting things by hand. Then, from the repository root:
 ```bash
 emulator -avd q4j-flutter -no-snapshot-save -no-audio -no-boot-anim &
 adb wait-for-device
-APPIUM_HOME=build/flutter-env/appium-home build/flutter-env/npm/node_modules/.bin/appium \
+APPIUM_HOME="$PWD/build/flutter-env/appium-home" build/flutter-env/npm/node_modules/.bin/appium \
   --port 4723 --log build/flutter-env/appium.log &
 ```
 
