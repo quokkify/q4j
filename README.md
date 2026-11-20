@@ -128,6 +128,7 @@ dev.quokkify:<artifact>:<version>
 | `selenide`              | Browser automation with Selenide            |
 | `selenide-proxy`        | Proxy and HAR support for Selenide          |
 | `selenide-grid`         | Selenium Grid support for Selenide          |
+| `selenide-flutter`      | Flutter apps (experimental, not on Central) |
 | `kafka`                 | Kafka producers, consumers, and assertions  |
 | `rabbitmq`              | RabbitMQ integration testing                |
 | `tyrus`                 | WebSocket testing with Tyrus                |
