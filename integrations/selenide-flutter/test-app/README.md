@@ -31,12 +31,30 @@ Changes from the original:
 | Label only | `label_result` (the settings `IconButton` has only the label `Settings icon`)               |
 | Offstage   | `hidden_banner` (offstage), `covered_button` (under an opaque cover)                        |
 
-Observed with native UiAutomator2 (Android 14 emulator): the resource-id has no package prefix (use the
-`disableIdLocatorAutocompletion` capability for `AppiumBy.id`); a text field merges into one `EditText` that carries the
-resource-id; a button keeps a wrapper node with the resource-id and the `Button` with the real `enabled` state as its
-child; a list tile merges into one `Button` with the resource-id; texts are exposed as `content-desc`, `text` stays empty.
-The app runs under the Appium Flutter server's test binding, which mocks the platform text input, so native typing never
-reaches a `TextField`. The accessibility tree also reports the covered button as displayed.
+## Mode differences observed on the device
+
+Native UiAutomator2 (Android 14 emulator, native apk):
+
+- the resource-id has no package prefix: `AppiumBy.id` needs the `disableIdLocatorAutocompletion` capability;
+- a text field merges into one `EditText` that carries the resource-id; Flutter applies an accessibility `setText`
+  only to a focused field, so tap the field before typing;
+- a button keeps a wrapper node with the resource-id that is always enabled; the `Button` with the real `enabled` state
+  is its child;
+- a list tile merges into one `Button` with the resource-id;
+- texts are exposed as `content-desc`; `text` stays empty;
+- an offstage widget is absent from the tree, but a widget under an opaque cover is reported as displayed: the
+  accessibility tree has no notion of occlusion.
+
+Flutter integration driver (flutter apk):
+
+- the key sits on the `KeyedSubtree` that `Tagged` creates; for that element the Flutter server returns the text `""`
+  and `enabled=false`, so `$(FlutterBy.key("login_button")).shouldBe(disabled)` passes whatever the form state is;
+  target the `Text` or `ElevatedButton` under the key instead;
+- java-client's `ScrollParameter` sends `dragDuration` in whole seconds while the server reads milliseconds, so a
+  sub-second drag needs a raw `flutter: scrollTillVisible` argument map;
+- the widget tree has no visible/enabled state and only local rects, so failure suggestions detect `Offstage`,
+  `Visibility`, `Opacity`, `IgnorePointer` and `AbsorbPointer` ancestors by type; occlusion of `covered_button` by the
+  cover is not computed.
 
 ## Build
 
@@ -46,6 +64,12 @@ From the repository root:
 tools/environment/scripts/flutter/build_app.sh
 ```
 
-It builds `build/app/outputs/flutter-apk/app-debug.apk` with the entry point `integration_test/appium_test.dart`,
-which starts the Appium Flutter server inside the app. The Flutter version is pinned in `pubspec.yaml`
+It builds two debug apks:
+
+- `build/app/outputs/flutter-apk/app-debug.apk` (flutter mode, `FLUTTER_APP_PATH`) with the entry point
+  `integration_test/appium_test.dart`, which starts the Appium Flutter server inside the app;
+- `build/native/app-native-debug.apk` (native mode, `FLUTTER_NATIVE_APP_PATH`) from `lib/main.dart`. The server's
+  test binding mocks the platform text input, so native typing only works without it.
+
+Both apks have the same package and version; the device tests reinstall the apk whenever the mode switches. The Flutter version is pinned in `pubspec.yaml`
 (`environment.flutter`).
