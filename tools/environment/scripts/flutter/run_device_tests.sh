@@ -96,7 +96,7 @@ if [[ "${CI:-}" == "true" ]]; then
 elif has_emulator; then
   log "an emulator is already running"
 else
-  avds="$(emulator -list-avds)"
+  avds="$(emulator -list-avds)" || avds=""
   if ! grep -qxF "$AVD_NAME" <<<"$avds"; then
     echo "[flutter-env] AVD '$AVD_NAME' does not exist; create it with:" >&2
     echo "  sdkmanager \"$ANDROID_SYSTEM_IMAGE\"" >&2

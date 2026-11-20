@@ -27,7 +27,8 @@ public class DelayedWidgetTest extends BaseMobileTest {
   }
 
   @Test(groups = "known-gap-flutter", description = "The element with the delayed_result id shows its text"
-      + " (known gap in flutter mode: the Flutter server reads no text from the keyed KeyedSubtree)")
+      + " (known gap in flutter mode: keyed wrapper, the key sits on the KeyedSubtree of Tagged and the Flutter server"
+      + " reads text only from text widgets)")
   public void keyedResultShowsItsText() {
     home().openDelayed().load();
     SelenideAppium.$(locators.id("delayed_result")).shouldHave(locators.shows("Loaded"));

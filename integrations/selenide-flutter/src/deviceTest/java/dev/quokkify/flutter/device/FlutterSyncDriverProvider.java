@@ -6,6 +6,7 @@ import dev.quokkify.flutter.driver.FlutterDriverProvider;
 
 import io.appium.java_client.flutter.FlutterDriverOptions;
 import org.openqa.selenium.Capabilities;
+import org.openqa.selenium.MutableCapabilities;
 import org.openqa.selenium.WebDriver;
 
 /**
@@ -26,7 +27,7 @@ public class FlutterSyncDriverProvider extends FlutterDriverProvider {
 
   @Override
   public WebDriver createDriver(Capabilities capabilities) {
-    return super.createDriver(capabilities.merge(new FlutterDriverOptions()
+    return super.createDriver(new MutableCapabilities(capabilities).merge(new FlutterDriverOptions()
         .setFlutterElementWaitTimeout(SERVER_FIND_WAIT)));
   }
 }
