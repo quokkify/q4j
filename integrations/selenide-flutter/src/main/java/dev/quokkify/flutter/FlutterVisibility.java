@@ -33,7 +33,7 @@ public final class FlutterVisibility {
 
   static final String LISTENER_NAME = "FlutterVisibility";
   static final String SEARCH = LogSink.SUMMARY_NAME;
-  static final String TREE_JSON = "Flutter: widget tree (json)";
+  public static final String TREE_JSON = "Flutter: widget tree (json)";
   static final String TREE = "Flutter: widget tree";
   static final String SUGGESTIONS = "Flutter: suggestions";
   static final String ERROR = "Flutter: diagnostics error";
