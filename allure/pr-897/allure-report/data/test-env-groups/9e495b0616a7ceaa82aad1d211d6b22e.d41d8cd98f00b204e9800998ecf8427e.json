@@ -1,0 +1,1 @@
+{"id":"9e495b0616a7ceaa82aad1d211d6b22e.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.util.CommandLockManagerTest.keyNormalizesTargetWhitespaceAndLineEndings","name":"keyNormalizesTargetWhitespaceAndLineEndings","status":"passed","testResultsByEnv":{"ubuntu-26-04":"73c0ea4991d3faeae252ddc5f84c8af7"}}
