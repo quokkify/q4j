@@ -1,0 +1,127 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <title>Table snapshot</title>
+    <style>
+      body {
+        font-family: arial, sans-serif;
+        margin: 2rem auto;
+        max-width: 70rem;
+        padding: 0 1rem;
+      }
+      h1 {
+        font-size: 1.6rem;
+        margin-bottom: 0.25rem;
+      }
+      p.overview {
+        color: #555;
+        margin-top: 0;
+        max-width: 60rem;
+      }
+      [role="grid"] {
+        margin: 1rem 0 2rem;
+        border: 1px solid #ddd;
+      }
+      [role="row"] {
+        display: flex;
+      }
+      [role="row"] > * {
+        flex: 1 1 0;
+        border: 1px solid #eee;
+        padding: 8px;
+      }
+      [role="columnheader"] {
+        background: #f4f4f4;
+        font-weight: bold;
+      }
+      .chips-flex {
+        display: flex;
+        gap: 4px;
+      }
+      .chips-inline {
+        display: block;
+      }
+      .chip {
+        background: #e8eefc;
+        border-radius: 10px;
+        padding: 0 6px;
+      }
+      .chips-inline .chip {
+        display: inline;
+      }
+      [hidden] {
+        display: none !important;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Table snapshot</h1>
+    <p class="overview">
+      Verifies <code>Table.snapshot()</code>: a <code>chip-grid</code> whose
+      <code>Properties</code> cells hold chips laid out with flex and inline
+      (chips hidden by <code>hidden</code>, <code>visibility</code> and
+      <code>opacity</code>; a <code>display: contents</code> cell), with hidden
+      <code>Secret</code> cells; and a <code>large-grid</code> of 1200 rows
+      generated on load.
+    </p>
+
+    <div id="chip-grid" role="grid">
+      <div role="row">
+        <span role="columnheader">Name</span>
+        <span role="columnheader">Properties</span>
+        <span role="columnheader">Secret</span>
+      </div>
+      <div role="row">
+        <span role="gridcell">Alpha</span>
+        <span role="gridcell" class="chips-flex"
+          ><span class="chip">Red</span><span class="chip">Blue</span></span
+        >
+        <span role="gridcell" style="display: none">s1</span>
+      </div>
+      <div role="row">
+        <span role="gridcell">Beta</span>
+        <span role="gridcell" class="chips-inline"
+          ><span class="chip">Green</span>
+          <span class="chip" hidden>Ghost</span>
+          <span class="chip" style="visibility: hidden">Faded</span>
+          <span class="chip" style="opacity: 0">Clear</span></span
+        >
+        <span role="gridcell">s2</span>
+      </div>
+      <div role="row">
+        <span role="gridcell">Gamma</span>
+        <span role="gridcell" style="display: contents"
+          ><span class="chip">Violet</span></span
+        >
+        <span role="gridcell" style="opacity: 0">s3</span>
+      </div>
+    </div>
+
+    <div id="large-grid" role="grid">
+      <div role="row">
+        <span role="columnheader">Name</span>
+        <span role="columnheader">Value</span>
+      </div>
+    </div>
+
+    <script>
+      (function () {
+        const grid = document.getElementById("large-grid");
+        const fragment = document.createDocumentFragment();
+        for (let i = 0; i < 1200; i++) {
+          const row = document.createElement("div");
+          row.setAttribute("role", "row");
+          for (const text of ["Name " + i, "Value " + i]) {
+            const cell = document.createElement("span");
+            cell.setAttribute("role", "gridcell");
+            cell.textContent = text;
+            row.appendChild(cell);
+          }
+          fragment.appendChild(row);
+        }
+        grid.appendChild(fragment);
+      })();
+    </script>
+  </body>
+</html>

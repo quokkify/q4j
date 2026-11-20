@@ -41,6 +41,18 @@ tasks.register("allureFailureDemo", Test) {
     }
 }
 
+tasks.register("tableDocScreenshots", Test) {
+    description = "Runs the docs/table-bulk-checks.md examples and saves their screenshots to build/reports/table-docs"
+    group = "documentation"
+    testClassesDirs = sourceSets.test.output.classesDirs
+    classpath = sourceSets.test.runtimeClasspath
+    usesService(selenideBrowserTestLock)
+    systemProperty("table.docs.screenshots", "true")
+    filter {
+        includeTestsMatching("dev.quokkify.test.TableBulkDocExamplesTest")
+    }
+}
+
 tasks.register("tableModelContractStability", Test) {
     description = "Runs the four timing-sensitive table model scenarios 20 times each"
     group = "verification"

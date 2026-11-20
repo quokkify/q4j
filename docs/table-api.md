@@ -1,11 +1,13 @@
 # Table API
 
 A thin, header-aware helper over Selenide in `integrations/selenide`, package `dev.quokkify.elements.table`.
-It covers three things plain Selenide does not give: a column addressed by its displayed header, a row lookup
-scoped to one column, and a failure on ambiguous headers. Everything else (waiting, assertions, cell actions)
+It covers four things plain Selenide does not give: a column addressed by its displayed header, a row lookup
+scoped to one column, a failure on ambiguous headers, and reading or checking a whole table in one browser call
+(see [Bulk read and whole-table checks](table-bulk-checks.md)). Everything else (waiting, assertions, cell actions)
 is ordinary Selenide on the returned `SelenideElement` / `ElementsCollection`.
 
-Public types: `Table`, `TableRow`, `TableLayout`, `HorizontalTable`, `TableColumnException`.
+Public types: `Table`, `TableRow`, `TableLayout`, `HorizontalTable`, `TableColumnException`, for bulk checks
+`TableCondition`, and for bulk reads `TableSnapshot`, `SnapshotRow`, `SnapshotCell`.
 
 ## Usage
 
@@ -34,6 +36,10 @@ contact.value("Phone").shouldHave(text("+43"));
 | `rows(column, value)`    | all such rows                                                         |
 | `column(header)`         | cells of that column across rows                                      |
 | `root()`                 | the root `SelenideElement`                                            |
+| `shouldHave(condition)`  | waits until the whole table matches, one browser call per attempt     |
+| `shouldSatisfy(assert)`  | waits until AssertJ assertions pass on a fresh snapshot               |
+| `snapshot()`             | headers and every row's cell texts, read in one browser call          |
+| `snapshot(By items)`     | same, plus the texts of `items` inside each cell                      |
 
 ### `TableRow`
 
@@ -143,6 +149,9 @@ so it survives header reordering and waits for delayed rows through the normal `
 `cell(header)` resolves the column index when it is called (waiting for the requested header with Selenide's default
 timeout) and returns an element that is lazy by index. Call `cell(header)` again after columns are reordered.
 
+`snapshot()` is the exception: it returns plain data read once (see
+[Bulk read and whole-table checks](table-bulk-checks.md)).
+
 ### Header errors
 
 `TableColumnException` is unchecked. Its message names the header, the reason (`not found` or `ambiguous`),
@@ -170,7 +179,24 @@ resolved once, when `column` is called.
 
 Each row evaluation in `row(column, value)` / `rows(column, value)` makes several WebDriver calls (headers, the
 row's cells, the cell text); on very large tables prefer a narrow layout (for example rows limited by an XPath
-predicate) so fewer rows are evaluated.
+predicate) so fewer rows are evaluated. To read or check a whole table, see
+[Bulk read and checks](#bulk-read-and-checks).
+
+## Bulk read and checks
+
+`snapshot()`, `shouldHave(TableCondition)` and `shouldSatisfy(assertions)` read the whole table in one browser call
+per attempt, so their cost does not grow with the number of rows:
+
+```java
+Table grid = Table.of($("#properties"), TableLayout.aria());
+
+grid.shouldHave(TableCondition.exactItemsBy("Name", "Properties", By.cssSelector(".chip"), expectedChipsByName));
+grid.shouldSatisfy(snap -> assertThat(snap.column("Status")).doesNotContain("Failed"));
+```
+
+Behaviour, rules and limits, with a screenshot of every example, are in
+[Bulk read and whole-table checks](table-bulk-checks.md). Prefer the lazy API above for small tables and for acting
+on a cell (click, type).
 
 ## Known limitations
 
@@ -185,8 +211,9 @@ predicate) so fewer rows are evaluated.
 
 ## Not covered
 
-Table-specific assertions or conditions, typed cell values, wrappers for controls inside cells, sorting,
-filtering, pagination, virtual scrolling, page-factory (`@FindBy`) injection (see the page-object recipe above).
+Table-specific assertions beyond `TableCondition` and `shouldSatisfy`, typed cell values, wrappers for controls
+inside cells, sorting, filtering, pagination, virtual scrolling, page-factory (`@FindBy`) injection (see the
+page-object recipe above).
 
 ## Migration from the removed table stack
 

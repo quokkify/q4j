@@ -1,7 +1,12 @@
 package dev.quokkify.elements.table;
 
+import java.time.Duration;
+import java.util.List;
 import java.util.Objects;
+import java.util.function.Consumer;
+import java.util.function.Function;
 
+import com.codeborne.selenide.CheckResult;
 import com.codeborne.selenide.ElementsCollection;
 import com.codeborne.selenide.SelenideElement;
 import com.codeborne.selenide.ex.UIAssertionError;
@@ -63,6 +68,99 @@ public final class Table {
 
   public ElementsCollection rows(String column, String value) {
     return rows().filterBy(new ColumnValueCondition(this, column, value));
+  }
+
+  /**
+   * Reads headers and every row's cell texts in one browser call. The result is plain data read at this moment: it
+   * waits only for the root to exist (Selenide's default timeout), not for rows. To verify data, prefer
+   * {@link #shouldHave(TableCondition)} or {@link #shouldSatisfy(Consumer)}, which re-read until the check passes.
+   * Supports {@code By.xpath} and {@code By.cssSelector} layouts.
+   */
+  public TableSnapshot snapshot() {
+    return read(null);
+  }
+
+  /**
+   * Like {@link #snapshot()}, and also reads the texts of the elements matching {@code items} inside each cell (for
+   * example chips or tags) into {@link SnapshotCell#items()}. Hidden items are skipped.
+   */
+  public TableSnapshot snapshot(By items) {
+    return read(SnapshotLocator.of(Objects.requireNonNull(items, "items")));
+  }
+
+  private TableSnapshot read(SnapshotLocator items) {
+    SnapshotCondition read = condition("be readable as a table", items, snapshot -> CheckResult.accepted());
+    root.should(read);
+    TableSnapshot snapshot = read.last();
+    if (Objects.isNull(snapshot)) {
+      // AssertionMode.SOFT collects a failed should() and returns without a read; do not hand back null.
+      throw new IllegalStateException("table " + root + " was not read; see the collected root failure");
+    }
+    return snapshot;
+  }
+
+  /**
+   * Waits until the table satisfies {@code condition}, with Selenide's default timeout. Each attempt reads the table
+   * in one browser call, like {@link #snapshot()}, so the cost does not grow with the number of rows; a failure is a
+   * Selenide {@code ElementShould} on the root whose actual value describes the difference.
+   */
+  public Table shouldHave(TableCondition condition) {
+    root.shouldHave(condition(condition.toString(), condition.items(), condition::evaluate));
+    return this;
+  }
+
+  /** Like {@link #shouldHave(TableCondition)}, with an explicit timeout. */
+  public Table shouldHave(TableCondition condition, Duration timeout) {
+    root.shouldHave(condition(condition.toString(), condition.items(), condition::evaluate), timeout);
+    return this;
+  }
+
+  /**
+   * Waits until {@code assertions} pass on a fresh {@link #snapshot()}, with Selenide's default timeout. Each attempt
+   * reads the whole table in one browser call, so a table that is still rendering or being remounted is simply read
+   * again. A failed assertion, a header not displayed yet or ambiguous, a row or cell not rendered yet and a key column
+   * with a missing cell or repeated key are retried; on timeout it fails like any Selenide {@code should*}, with the
+   * last failure as the actual value. Any other exception thrown by {@code assertions} fails at once, without retry.
+   */
+  public Table shouldSatisfy(Consumer<TableSnapshot> assertions) {
+    root.should(satisfying(null, assertions));
+    return this;
+  }
+
+  /** Like {@link #shouldSatisfy(Consumer)}, with an explicit timeout. */
+  public Table shouldSatisfy(Consumer<TableSnapshot> assertions, Duration timeout) {
+    root.should(satisfying(null, assertions), timeout);
+    return this;
+  }
+
+  /** Like {@link #shouldSatisfy(Consumer)}, over a snapshot that also reads {@code items} inside each cell. */
+  public Table shouldSatisfy(By items, Consumer<TableSnapshot> assertions) {
+    root.should(satisfying(SnapshotLocator.of(Objects.requireNonNull(items, "items")), assertions));
+    return this;
+  }
+
+  /** Like {@link #shouldSatisfy(By, Consumer)}, with an explicit timeout. */
+  public Table shouldSatisfy(By items, Consumer<TableSnapshot> assertions, Duration timeout) {
+    root.should(satisfying(SnapshotLocator.of(Objects.requireNonNull(items, "items")), assertions), timeout);
+    return this;
+  }
+
+  private SnapshotCondition satisfying(SnapshotLocator items, Consumer<TableSnapshot> assertions) {
+    Objects.requireNonNull(assertions, "assertions");
+    return condition("table data satisfying the assertions", items,
+        snapshot -> SnapshotCondition.evaluate(snapshot, assertions));
+  }
+
+  /**
+   * A condition reading this table with the script locators of rows, cells, headers and {@code items}; rejects a
+   * locator other than XPath or CSS with {@link UnsupportedOperationException} before any browser call.
+   */
+  private SnapshotCondition condition(String description, SnapshotLocator items,
+      Function<TableSnapshot, CheckResult> judge) {
+    List<List<String>> locators = List.of(SnapshotLocator.of(layout.rows()).toScriptArg(),
+        SnapshotLocator.of(layout.cells()).toScriptArg(), SnapshotLocator.of(layout.headers()).toScriptArg(),
+        Objects.isNull(items) ? List.of() : items.toScriptArg());
+    return new SnapshotCondition(description, root.toString(), locators, judge);
   }
 
   /**

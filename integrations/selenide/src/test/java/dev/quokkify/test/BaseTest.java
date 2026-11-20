@@ -55,6 +55,10 @@ public class BaseTest {
     openTableModelContract("assertions.html");
   }
 
+  protected static void openSnapshotFixture() {
+    openTableModelContract("snapshot.html");
+  }
+
   @BeforeSuite(alwaysRun = true)
   protected void beforeSuite() {
     Browser.setDefaultConfigurations();
