@@ -3,6 +3,7 @@ package dev.quokkify.flutter.diagnostics;
 import java.io.IOException;
 import java.io.InputStream;
 import java.time.Duration;
+import java.util.List;
 import java.util.Map;
 
 import dev.quokkify.flutter.FlutterBy;
@@ -10,6 +11,7 @@ import dev.quokkify.flutter.FlutterBy;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.appium.java_client.AppiumBy;
 import org.openqa.selenium.JavascriptExecutor;
+import org.openqa.selenium.WebDriverException;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
@@ -53,6 +55,21 @@ public class FailureDiagnosticsTest {
     assertThat(d.suggestions().get(0).node().key()).isEqualTo("login_button");
     assertThat(d.error()).isNull();
     assertThat(d.truncated()).isFalse();
+  }
+
+  @Test
+  public void tooDeepTreeFallsBackToTopmostScaffold() {
+    when(js.executeScript("flutter: renderTree", Map.of())).thenThrow(new WebDriverException(
+        "WireJsonException: Unable to parse the JSON document: Nesting limit 255 reached at line 1 column 30139"));
+    Map<String, Object> hiddenRoute = Map.of("type", "Scaffold", "key", "[<'home_login'>]", "children", List.of());
+    when(js.executeScript("flutter: renderTree", Map.of("widgetType", "Scaffold")))
+        .thenReturn(List.of(hiddenRoute, fixtureMap));
+
+    Diagnostics d = new FailureDiagnostics(Duration.ofSeconds(1), 1_000_000).collect(js, FlutterBy.key("login_btn"));
+
+    assertThat(d.error()).isNull();
+    assertThat(d.treeText()).contains("login_button").doesNotContain("home_login");
+    assertThat(d.suggestions().get(0).node().key()).isEqualTo("login_button");
   }
 
   @Test

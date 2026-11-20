@@ -30,6 +30,10 @@ public final class FailureDiagnostics {
   private static final String RENDER_TREE = "flutter: renderTree";
   private static final String TRUNCATED_MARKER = "\n…[truncated]";
   private static final String THREAD_NAME = "flutter-render-tree";
+  // java-client parses responses with a JSON nesting limit (255) that a whole app tree exceeds; the Scaffold
+  // subtrees are shallow enough, and the last one belongs to the topmost route.
+  private static final String NESTING_LIMIT = "Nesting limit";
+  private static final Map<String, Object> SCAFFOLDS = Map.of("widgetType", "Scaffold");
 
   private final Duration timeout;
   private final int maxChars;
@@ -84,7 +88,7 @@ public final class FailureDiagnostics {
       return thread;
     });
     try {
-      Future<Object> future = executor.submit(() -> driver.executeScript(RENDER_TREE, Map.of()));
+      Future<Object> future = executor.submit(() -> fetchTree(driver));
       try {
         return future.get(timeout.toMillis(), TimeUnit.MILLISECONDS);
       } catch (TimeoutException e) {
@@ -94,6 +98,27 @@ public final class FailureDiagnostics {
     } finally {
       executor.shutdownNow();
     }
+  }
+
+  private static Object fetchTree(JavascriptExecutor driver) {
+    try {
+      return driver.executeScript(RENDER_TREE, Map.of());
+    } catch (RuntimeException e) {
+      if (!isTooDeep(e)) {
+        throw e;
+      }
+      Object scaffolds = driver.executeScript(RENDER_TREE, SCAFFOLDS);
+      return scaffolds instanceof List<?> list && !list.isEmpty() ? list.get(list.size() - 1) : scaffolds;
+    }
+  }
+
+  private static boolean isTooDeep(Throwable error) {
+    for (Throwable cause = error; cause != null; cause = cause.getCause()) {
+      if (cause.getMessage() != null && cause.getMessage().contains(NESTING_LIMIT)) {
+        return true;
+      }
+    }
+    return false;
   }
 
   private String truncate(String value) {
