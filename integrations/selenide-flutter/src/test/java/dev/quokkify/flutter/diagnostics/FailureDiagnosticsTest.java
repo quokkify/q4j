@@ -68,8 +68,30 @@ public class FailureDiagnosticsTest {
     Diagnostics d = new FailureDiagnostics(Duration.ofSeconds(1), 1_000_000).collect(js, FlutterBy.key("login_btn"));
 
     assertThat(d.error()).isNull();
-    assertThat(d.treeText()).contains("login_button").doesNotContain("home_login");
+    assertThat(d.treeText()).startsWith(FailureDiagnostics.SUBTREE_NOTE)
+        .contains("login_button").doesNotContain("home_login");
     assertThat(d.suggestions().get(0).node().key()).isEqualTo("login_button");
+  }
+
+  @Test
+  public void tooDeepTreeWithoutScaffoldIsDiagnosticsError() {
+    when(js.executeScript("flutter: renderTree", Map.of())).thenThrow(new WebDriverException(
+        "WireJsonException: Unable to parse the JSON document: Nesting limit 255 reached"));
+    when(js.executeScript("flutter: renderTree", Map.of("widgetType", "Scaffold"))).thenReturn(List.of());
+
+    Diagnostics d = new FailureDiagnostics(Duration.ofSeconds(1), 1_000_000).collect(js, FlutterBy.key("login_btn"));
+
+    assertThat(d.error()).startsWith("IllegalStateException").contains("no Scaffold subtree");
+    assertThat(d.treeJson()).isNull();
+  }
+
+  @Test
+  public void fullTreeHasNoSubtreeNote() {
+    when(js.executeScript("flutter: renderTree", Map.of())).thenReturn(fixtureMap);
+
+    Diagnostics d = new FailureDiagnostics(Duration.ofSeconds(1), 1_000_000).collect(js, FlutterBy.key("login_btn"));
+
+    assertThat(d.treeText()).doesNotContain(FailureDiagnostics.SUBTREE_NOTE);
   }
 
   @Test

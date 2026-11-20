@@ -34,6 +34,7 @@ public final class FailureDiagnostics {
   // subtrees are shallow enough, and the last one belongs to the topmost route.
   private static final String NESTING_LIMIT = "Nesting limit";
   private static final Map<String, Object> SCAFFOLDS = Map.of("widgetType", "Scaffold");
+  static final String SUBTREE_NOTE = "subtree of the topmost Scaffold: full tree exceeded the JSON nesting limit";
 
   private final Duration timeout;
   private final int maxChars;
@@ -55,7 +56,8 @@ public final class FailureDiagnostics {
       return new Diagnostics(null, null, List.of(), null, false);
     }
     try {
-      return diagnose(spec, renderTree(driver));
+      Tree tree = renderTree(driver);
+      return diagnose(spec, tree.result(), tree.scaffoldSubtree());
     } catch (InterruptedException e) {
       Thread.currentThread().interrupt();
       return failure(e);
@@ -66,21 +68,22 @@ public final class FailureDiagnostics {
     }
   }
 
-  private Diagnostics diagnose(LocatorSpec spec, Object result) {
+  private Diagnostics diagnose(LocatorSpec spec, Object result, boolean scaffoldSubtree) {
     String json = result instanceof String text ? text : JsonConverter.toJson(result);
     boolean truncated = json.length() > maxChars;
     String treeJson = truncated ? truncate(json) : json;
     try {
       WidgetNode root = WidgetTreeParser.fromScriptResult(result);
       List<NearMiss> suggestions = NearMissFinder.find(spec, root, NearMissFinder.DEFAULT_LIMIT);
-      String text = WidgetTreeFormatter.format(root);
+      String formatted = WidgetTreeFormatter.format(root);
+      String text = scaffoldSubtree ? SUBTREE_NOTE + System.lineSeparator() + formatted : formatted;
       return new Diagnostics(treeJson, text.length() > maxChars ? truncate(text) : text, suggestions, null, truncated);
     } catch (RuntimeException | StackOverflowError e) {
       return new Diagnostics(treeJson, null, List.of(), describe(e), truncated);
     }
   }
 
-  private Object renderTree(JavascriptExecutor driver)
+  private Tree renderTree(JavascriptExecutor driver)
       throws InterruptedException, ExecutionException, TimeoutException {
     ExecutorService executor = Executors.newSingleThreadExecutor(task -> {
       Thread thread = new Thread(task, THREAD_NAME);
@@ -88,7 +91,7 @@ public final class FailureDiagnostics {
       return thread;
     });
     try {
-      Future<Object> future = executor.submit(() -> fetchTree(driver));
+      Future<Tree> future = executor.submit(() -> fetchTree(driver));
       try {
         return future.get(timeout.toMillis(), TimeUnit.MILLISECONDS);
       } catch (TimeoutException e) {
@@ -100,16 +103,23 @@ public final class FailureDiagnostics {
     }
   }
 
-  private static Object fetchTree(JavascriptExecutor driver) {
+  private static Tree fetchTree(JavascriptExecutor driver) {
     try {
-      return driver.executeScript(RENDER_TREE, Map.of());
+      return new Tree(driver.executeScript(RENDER_TREE, Map.of()), false);
     } catch (RuntimeException e) {
       if (!isTooDeep(e)) {
         throw e;
       }
       Object scaffolds = driver.executeScript(RENDER_TREE, SCAFFOLDS);
-      return scaffolds instanceof List<?> list && !list.isEmpty() ? list.get(list.size() - 1) : scaffolds;
+      if (scaffolds == null || scaffolds instanceof List<?> list && list.isEmpty()) {
+        throw new IllegalStateException("the full tree exceeded the JSON nesting limit and the app has no Scaffold"
+            + " subtree to fall back to", e);
+      }
+      return new Tree(scaffolds instanceof List<?> list ? list.get(list.size() - 1) : scaffolds, true);
     }
+  }
+
+  private record Tree(Object result, boolean scaffoldSubtree) {
   }
 
   private static boolean isTooDeep(Throwable error) {
