@@ -56,7 +56,33 @@ jobs:
       - name: 📌 Load pinned tool versions
         run: |
           source tools/environment/scripts/flutter/versions.env
-          echo "ANDROID_API_LEVEL=$ANDROID_API_LEVEL" >> "$GITHUB_ENV"
+          {
+            echo "ANDROID_API_LEVEL=$ANDROID_API_LEVEL"
+            echo "ANDROID_NDK_VERSION=$ANDROID_NDK_VERSION"
+            echo "ANDROID_NDK_DIR=$ANDROID_HOME/ndk/$ANDROID_NDK_VERSION"
+          } >> "$GITHUB_ENV"
+
+      - name: 💾 Cache Android NDK
+        uses: actions/cache@55cc8345863c7cc4c66a329aec7e433d2d1c52a9 # v6.1.0
+        with:
+          path: ${{ env.ANDROID_NDK_DIR }}
+          key: android-ndk-${{ runner.os }}-${{ env.ANDROID_NDK_VERSION }}
+
+      - name: 📥 Install Android NDK
+        run: |
+          if [ -d "$ANDROID_NDK_DIR" ]; then
+            echo "NDK $ANDROID_NDK_VERSION already present"
+            exit 0
+          fi
+          for attempt in 1 2 3; do
+            if yes | "$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager" --install "ndk;$ANDROID_NDK_VERSION"; then
+              exit 0
+            fi
+            echo "NDK install attempt $attempt failed"
+            rm -rf "$ANDROID_NDK_DIR"
+          done
+          echo "::error::Failed to install NDK $ANDROID_NDK_VERSION after 3 attempts"
+          exit 1
 
       - name: 📦 Build test app
         run: bash tools/environment/scripts/flutter/build_app.sh
