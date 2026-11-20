@@ -1,0 +1,1 @@
+{"id":"66a4e623c8e73728ebe1f20ec77deb4e.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.testrail.listeners.LegacyListenersTest.statusListenerIsNoOpWhileTmsListenerActive","name":"Legacy status listener does nothing while TmsListener is active","status":"passed","testResultsByEnv":{"ubuntu-26-04":"0803f103b79f196d0d38a887e7784488"}}
