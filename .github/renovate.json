@@ -90,6 +90,13 @@
       "groupName": "selenium grid images",
       "groupSlug": "selenium-grid-images",
       "dependencyDashboardApproval": true
+    },
+    {
+      "description": "Update ReportPortal images together: its services share one database schema and API, so a single-image major bump leaves the stack unhealthy",
+      "matchDatasources": ["docker"],
+      "matchPackageNames": ["/^reportportal\\//"],
+      "groupName": "reportportal images",
+      "groupSlug": "reportportal-images"
     }
   ]
 }
