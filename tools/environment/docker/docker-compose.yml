@@ -600,7 +600,7 @@ services:
 
   testplanit-db-init:
     profiles: [testplanit]
-    image: ghcr.io/testplanit/testplanit-selfhost:v1.2.0@sha256:72b69f7b11ca3cd2823c74267e01084dfffb8b7f43245ebf44452d2bfa876763
+    image: ghcr.io/testplanit/testplanit-selfhost:v1.2.4@sha256:ecc9e5498cf943decef8dc4b19af133322117e8fd68ff5e96d5f4437433b160a
     command: ["tsx", "db/seed.ts"]
     depends_on:
       testplanit-postgres:
@@ -618,7 +618,7 @@ services:
 
   testplanit:
     profiles: [testplanit]
-    image: ghcr.io/testplanit/testplanit-selfhost:v1.2.0@sha256:72b69f7b11ca3cd2823c74267e01084dfffb8b7f43245ebf44452d2bfa876763
+    image: ghcr.io/testplanit/testplanit-selfhost:v1.2.4@sha256:ecc9e5498cf943decef8dc4b19af133322117e8fd68ff5e96d5f4437433b160a
     depends_on:
       testplanit-db-init:
         condition: service_completed_successfully
