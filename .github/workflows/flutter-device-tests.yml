@@ -1,0 +1,105 @@
+name: Flutter device tests
+
+on:
+  pull_request:
+    branches: [main]
+    paths:
+      - "integrations/selenide-flutter/**"
+      - "tools/environment/scripts/flutter/**"
+      - ".github/workflows/flutter-device-tests.yml"
+      - "gradle/libs.versions.toml"
+  schedule:
+    - cron: "30 2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: flutter-device-tests-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  device-tests:
+    name: Android emulator
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    env:
+      GRADLE_TASK: ${{ github.event_name == 'pull_request' && 'flutterDeviceTest' || 'flutterComparison' }}
+    steps:
+      - name: 🔨Checkout
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
+
+      - name: ⚡ Enable KVM
+        run: |
+          echo 'KERNEL=="kvm", GROUP="kvm", MODE="0666", OPTIONS+="static_node=kvm"' | sudo tee /etc/udev/rules.d/99-kvm4all.rules
+          sudo udevadm control --reload-rules
+          sudo udevadm trigger --name-match=kvm
+
+      - name: 🔨Prepare Java/Gradle
+        uses: quokkify/ci-kit/actions/setup-java-gradle@5de64cfba3013f35df1ec60ed4bc174cc3d9cd6b # v4.3.5
+        with:
+          java-version: "21"
+
+      - name: 🐦 Set up Flutter
+        uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2.23.0
+        with:
+          flutter-version-file: integrations/selenide-flutter/test-app/pubspec.yaml
+          channel: stable
+          cache: true
+
+      - name: 🟢 Set up Node.js
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "22"
+
+      - name: 📌 Load pinned tool versions
+        run: |
+          source tools/environment/scripts/flutter/versions.env
+          echo "ANDROID_API_LEVEL=$ANDROID_API_LEVEL" >> "$GITHUB_ENV"
+
+      - name: 📦 Build test app
+        run: bash tools/environment/scripts/flutter/build_app.sh
+
+      - name: 🧪 Run device tests
+        uses: reactivecircus/android-emulator-runner@a421e43855164a8197daf9d8d40fe71c6996bb0d # v2.38.0
+        with:
+          api-level: ${{ env.ANDROID_API_LEVEL }}
+          arch: x86_64
+          target: google_apis
+          disable-animations: true
+          emulator-options: -no-window -no-snapshot-save -no-audio -no-boot-anim
+          script: bash tools/environment/scripts/flutter/run_device_tests.sh "$GRADLE_TASK"
+
+      - name: 📝 Comparison summary
+        if: always() && github.event_name != 'pull_request'
+        run: |
+          summary=integrations/selenide-flutter/build/flutter-comparison/summary.md
+          if [ -f "$summary" ]; then cat "$summary" >> "$GITHUB_STEP_SUMMARY"; fi
+
+      - name: 📊 Upload Allure results
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: flutter-allure-results
+          path: integrations/selenide-flutter/build/allure-results-device/**
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: 📜 Upload Appium log
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always()
+        with:
+          name: flutter-appium-log
+          path: build/flutter-env/appium.log
+          retention-days: 14
+          if-no-files-found: ignore
+
+      - name: 📈 Upload comparison report
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7
+        if: always() && github.event_name != 'pull_request'
+        with:
+          name: flutter-comparison
+          path: integrations/selenide-flutter/build/flutter-comparison/**
+          retention-days: 14
+          if-no-files-found: ignore
