@@ -1,0 +1,156 @@
+import 'package:appium_testing_app/components/custom_app_bar.dart';
+import 'package:material_ui/material_ui.dart';
+
+class UiElementsScreen extends StatefulWidget {
+  final String title;
+
+  const UiElementsScreen({required this.title, super.key});
+
+  @override
+  State<UiElementsScreen> createState() => _UiElementsScreenState();
+}
+
+class _UiElementsScreenState extends State<UiElementsScreen> {
+  int? _currentSelectedRadioButton;
+  bool _switchButton = false;
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: CustomAppBarWidget(title: widget.title),
+      body: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: ListView(
+          shrinkWrap: true,
+          children: [
+            const SizedBox(
+              height: 30,
+            ),
+            Semantics(
+              label: "enabled_text_field",
+              // textField: true,
+              explicitChildNodes: true,
+              container: true,
+              child: const TextField(
+                decoration: InputDecoration(
+                  hintText: "Input",
+                  enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey)),
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 30,
+            ),
+            Semantics(
+              label: "disabled_text_field",
+              // textField: true,
+              explicitChildNodes: true,
+              container: true,
+              child: const TextField(
+                enabled: false,
+                decoration: InputDecoration(
+                  hintText: "Last Name",
+                  enabledBorder: UnderlineInputBorder(
+                      borderSide: BorderSide(color: Colors.grey)),
+                ),
+              ),
+            ),
+            const SizedBox(
+              height: 30,
+            ),
+            Semantics(
+              label: "enabled_checkbox",
+              // textField: true,
+              explicitChildNodes: true,
+              container: true,
+              child: const CheckboxListTile(
+                title: Text(
+                  'Remember Password',
+                  style: TextStyle(color: Colors.grey),
+                ),
+                value: true,
+                onChanged: null,
+              ),
+            ),
+            const SizedBox(
+              height: 30,
+            ),
+            Semantics(
+              label: "disabled_checkbox",
+              // textField: true,
+              explicitChildNodes: true,
+              container: true,
+              child: CheckboxListTile(
+                title: const Text(
+                  'Remember Password',
+                  style: TextStyle(color: Colors.grey),
+                ),
+                value: true,
+                onChanged: (bool? value) {},
+              ),
+            ),
+            const Text(
+              "Radio Buttons",
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+            ),
+            RadioGroup<int>(
+              groupValue: _currentSelectedRadioButton,
+              onChanged: (int? value) {
+                if (value != null) {
+                  setState(() {
+                    _currentSelectedRadioButton = value;
+                  });
+                }
+              },
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                mainAxisAlignment: MainAxisAlignment.start,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  ListTile(
+                    title: const Text("Yes"),
+                    leading: Semantics(
+                      container: true,
+                      explicitChildNodes: true,
+                      label: "radio_button_yes_radio",
+                      child: const Radio<int>(value: 1),
+                    ),
+                  ),
+                  ListTile(
+                    title: const Text("No"),
+                    leading: Semantics(
+                      explicitChildNodes: true,
+                      container: true,
+                      label: "radio_button_no_radio",
+                      child: const Radio<int>(value: 0),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Text(
+              "Switch Button",
+              style: TextStyle(fontWeight: FontWeight.w700, fontSize: 18),
+            ),
+            Row(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                Semantics(
+                  container: true,
+                  explicitChildNodes: true,
+                  label: "switch_button",
+                  child: Switch(value: _switchButton, onChanged: (bool value){
+                    setState(() {
+                      _switchButton = value;
+                    });
+                  }),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}

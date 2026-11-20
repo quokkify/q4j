@@ -1,0 +1,26 @@
+name: appium_testing_app
+description: Flutter test app for the q4j selenide-flutter device tests.
+
+publish_to: "none"
+
+version: 1.0.0+1
+
+environment:
+  sdk: ">=3.1.1 <4.0.0"
+  flutter: 3.50.1
+
+dependencies:
+  flutter:
+    sdk: flutter
+  material_ui: ^1.1.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  integration_test:
+    sdk: flutter
+  appium_flutter_server: 0.0.33
+  flutter_lints: ^2.0.0
+
+flutter:
+  uses-material-design: true

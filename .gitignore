@@ -21,6 +21,7 @@ statics/bin
 # Local resources
 **/local_resources/
 *.env
+!tools/environment/scripts/flutter/versions.env
 
 **/allure-results/
 **/generated/
