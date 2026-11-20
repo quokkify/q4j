@@ -30,6 +30,14 @@ public class WidgetTreeParserTest {
   }
 
   @Test
+  public void parsesRecordedTree() throws IOException {
+    WidgetNode root = WidgetTreeParser.parse(resource("trees/recorded-login.json"));
+
+    assertThat(root.type()).isEqualTo("Scaffold");
+    assertThat(root.flatten().map(WidgetNode::key)).contains("login_email", "login_password", "login_button");
+  }
+
+  @Test
   public void normalizesFlutterKeyToString() {
     assertThat(WidgetTreeParser.normalizeKey("[<'login'>]")).isEqualTo("login");
     assertThat(WidgetTreeParser.normalizeKey("[<login>]")).isEqualTo("login");

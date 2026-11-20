@@ -6,3 +6,6 @@ CHANGELOG.md
 
 # Flutter tool output of the selenide-flutter test app (ignored by its own .gitignore).
 integrations/selenide-flutter/test-app/.dart_tool/
+
+# Widget tree recorded from the device; pretty-printing its ~100 levels of nesting inflates it 15x.
+integrations/selenide-flutter/src/test/resources/trees/recorded-login.json
