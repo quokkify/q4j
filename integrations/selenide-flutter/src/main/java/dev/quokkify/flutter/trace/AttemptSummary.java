@@ -7,6 +7,10 @@ import java.util.List;
 public record AttemptSummary(int count, Duration first, Duration last, Duration total, Outcome finalOutcome,
                              List<String> lines) {
 
+  public AttemptSummary {
+    lines = lines == null ? List.of() : List.copyOf(lines);
+  }
+
   public static AttemptSummary of(List<FindAttempt> attempts) {
     if (attempts.isEmpty()) {
       return new AttemptSummary(0, Duration.ZERO, Duration.ZERO, Duration.ZERO, null, List.of());
@@ -45,7 +49,9 @@ public record AttemptSummary(int count, Duration first, Duration last, Duration 
         n++;
         i++;
       }
-      lines.add(n + "× " + head.locator() + " → " + head.outcome() + " (avg " + sum.dividedBy(n).toMillis() + " ms)");
+      String line = n + "× " + head.locator() + " → " + head.outcome() + " (avg " + sum.dividedBy(n).toMillis() + " ms)";
+      String detail = attempts.get(i - 1).detail();
+      lines.add(head.outcome() == Outcome.ERROR && detail != null ? line + " — " + detail : line);
     }
     return lines;
   }

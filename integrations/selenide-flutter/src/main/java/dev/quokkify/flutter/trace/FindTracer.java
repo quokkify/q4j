@@ -44,12 +44,17 @@ public final class FindTracer implements WebDriverListener {
     return copy;
   }
 
+  public void clear() {
+    pending.remove();
+    finished.remove();
+  }
+
   public long totalAttempts() {
     return total.get()[0];
   }
 
   public void resetTotal() {
-    total.get()[0] = 0;
+    total.remove();
   }
 
   @Override

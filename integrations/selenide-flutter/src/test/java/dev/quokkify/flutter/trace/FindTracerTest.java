@@ -124,4 +124,17 @@ public class FindTracerTest {
     assertThat(other).isEmpty();
     assertThat(tracer.drain()).hasSize(1);
   }
+
+  @Test
+  public void clearDiscardsFinishedAndStalePendingButKeepsTotal() {
+    tracer.beforeFindElement(driver, by);
+    tracer.afterFindElement(driver, by, element);
+    tracer.beforeFindElement(driver, by);
+
+    tracer.clear();
+    tracer.afterFindElement(driver, by, element);
+
+    assertThat(tracer.drain()).isEmpty();
+    assertThat(tracer.totalAttempts()).isEqualTo(1);
+  }
 }
