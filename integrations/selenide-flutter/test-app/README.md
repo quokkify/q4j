@@ -31,8 +31,12 @@ Changes from the original:
 | Label only | `label_result` (the settings `IconButton` has only the label `Settings icon`)               |
 | Offstage   | `hidden_banner` (offstage), `covered_button` (under an opaque cover)                        |
 
-Native UiAutomator2 sees the `Tagged` wrapper node carrying the resource-id; for buttons and text fields the real
-`Button`/`EditText` (with `enabled`, its class and editability) is that node's child, so state checks must target the child.
+Observed with native UiAutomator2 (Android 14 emulator): the resource-id has no package prefix (use the
+`disableIdLocatorAutocompletion` capability for `AppiumBy.id`); a text field merges into one `EditText` that carries the
+resource-id; a button keeps a wrapper node with the resource-id and the `Button` with the real `enabled` state as its
+child; a list tile merges into one `Button` with the resource-id; texts are exposed as `content-desc`, `text` stays empty.
+The app runs under the Appium Flutter server's test binding, which mocks the platform text input, so native typing never
+reaches a `TextField`. The accessibility tree also reports the covered button as displayed.
 
 ## Build
 

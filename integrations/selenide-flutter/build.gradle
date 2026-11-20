@@ -15,3 +15,45 @@ dependencies {
 
     api "org.assertj:assertj-core"
 }
+
+sourceSets {
+    deviceTest {
+        def shared = sourceSets.main.output + sourceSets.test.output + configurations.testRuntimeClasspath
+        compileClasspath += shared
+        runtimeClasspath += shared
+    }
+}
+
+def deviceTestTask = { String name, String taskDescription, String modes, Closure configure ->
+    tasks.register(name, Test) {
+        description = taskDescription
+        group = "verification"
+        testClassesDirs = sourceSets.deviceTest.output.classesDirs
+        classpath = sourceSets.deviceTest.runtimeClasspath
+        maxParallelForks = 1
+        outputs.upToDateWhen { false }
+        useTestNG {
+            groupByInstances = true
+        }
+        systemProperty("mobile.modes", providers.systemProperty("mobile.modes").getOrElse(modes))
+        configure.delegate = delegate
+        configure()
+    }
+}
+
+deviceTestTask("flutterDeviceTest", "Runs the Flutter device scenarios on a running emulator and Appium server",
+        "flutter") {
+    exclude("**/FailureDemoTest.class")
+}
+
+deviceTestTask("flutterFailureDemo", "Runs the intentional Flutter failure demo in flutter and native modes",
+        "flutter,native") {
+    filter {
+        includeTestsMatching("dev.quokkify.flutter.device.FailureDemoTest")
+    }
+}
+
+deviceTestTask("flutterComparison", "Runs every device scenario in flutter and native modes for the comparison",
+        "flutter,native") {
+    ignoreFailures = true
+}
