@@ -59,8 +59,8 @@ public final class WidgetTreeParser {
         string(attributes, "semanticsLabel"),
         string(attributes, "tooltip"),
         string(attributes, "hintText"),
-        state.path("visible").asBoolean(false),
-        state.path("enabled").asBoolean(false),
+        state.path("visible").asBoolean(true),
+        state.path("enabled").asBoolean(true),
         state.path("focused").asBoolean(false),
         rect(node.path("rect")),
         List.copyOf(children));

@@ -46,4 +46,12 @@ public class WidgetTreeParserTest {
     assertThat(WidgetTreeParser.fromScriptResult(resource("trees/login-screen.json")).type())
         .isEqualTo("MaterialApp");
   }
+
+  @Test
+  public void missingStateDefaultsToVisibleAndEnabled() {
+    WidgetNode node = WidgetTreeParser.parse("{\"type\":\"Text\",\"children\":[]}");
+    assertThat(node.visible()).isTrue();
+    assertThat(node.enabled()).isTrue();
+    assertThat(node.focused()).isFalse();
+  }
 }
