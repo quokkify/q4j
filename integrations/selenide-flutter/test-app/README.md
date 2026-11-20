@@ -31,6 +31,9 @@ Changes from the original:
 | Label only | `label_result` (the settings `IconButton` has only the label `Settings icon`)               |
 | Offstage   | `hidden_banner` (offstage), `covered_button` (under an opaque cover)                        |
 
+Native UiAutomator2 sees the `Tagged` wrapper node carrying the resource-id; for buttons and text fields the real
+`Button`/`EditText` (with `enabled`, its class and editability) is that node's child, so state checks must target the child.
+
 ## Build
 
 From the repository root:

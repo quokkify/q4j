@@ -22,8 +22,7 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   bool get _canSubmit =>
-      emailController.text.contains("@") &&
-      passwordController.text.length >= 6;
+      emailController.text.contains("@") && passwordController.text.length >= 6;
 
   @override
   Widget build(BuildContext context) {

@@ -37,8 +37,7 @@ class _LabelOnlyScreenState extends State<LabelOnlyScreen> {
             const SizedBox(
               height: 30,
             ),
-            if (_opened)
-              const Tagged("label_result", Text("Settings opened")),
+            if (_opened) const Tagged("label_result", Text("Settings opened")),
           ],
         ),
       ),

@@ -28,7 +28,6 @@ class _UiElementsScreenState extends State<UiElementsScreen> {
             ),
             Semantics(
               label: "enabled_text_field",
-              // textField: true,
               explicitChildNodes: true,
               container: true,
               child: const TextField(
@@ -44,7 +43,6 @@ class _UiElementsScreenState extends State<UiElementsScreen> {
             ),
             Semantics(
               label: "disabled_text_field",
-              // textField: true,
               explicitChildNodes: true,
               container: true,
               child: const TextField(
@@ -60,8 +58,7 @@ class _UiElementsScreenState extends State<UiElementsScreen> {
               height: 30,
             ),
             Semantics(
-              label: "enabled_checkbox",
-              // textField: true,
+              label: "disabled_checkbox",
               explicitChildNodes: true,
               container: true,
               child: const CheckboxListTile(
@@ -77,8 +74,7 @@ class _UiElementsScreenState extends State<UiElementsScreen> {
               height: 30,
             ),
             Semantics(
-              label: "disabled_checkbox",
-              // textField: true,
+              label: "enabled_checkbox",
               explicitChildNodes: true,
               container: true,
               child: CheckboxListTile(
@@ -140,11 +136,13 @@ class _UiElementsScreenState extends State<UiElementsScreen> {
                   container: true,
                   explicitChildNodes: true,
                   label: "switch_button",
-                  child: Switch(value: _switchButton, onChanged: (bool value){
-                    setState(() {
-                      _switchButton = value;
-                    });
-                  }),
+                  child: Switch(
+                      value: _switchButton,
+                      onChanged: (bool value) {
+                        setState(() {
+                          _switchButton = value;
+                        });
+                      }),
                 ),
               ],
             ),
