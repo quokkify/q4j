@@ -20,7 +20,7 @@ fi
 cd "$APP_DIR"
 
 pinned="$(awk '/^environment:/ { in_env = 1; next } in_env && /^[^[:space:]]/ { in_env = 0 } in_env && $1 == "flutter:" { gsub(/["'\'']/, "", $2); print $2; exit }' pubspec.yaml)"
-installed="$(flutter --version 2>/dev/null | awk '/^Flutter / { print $2; exit }')"
+installed="$(flutter --version 2>/dev/null | awk '/^Flutter / && version == "" { version = $2 } END { print version }')"
 if [[ -z "$pinned" ]]; then
   echo "[flutter] warning: environment.flutter is not pinned in pubspec.yaml" >&2
 elif [[ "$installed" != "$pinned" ]]; then
