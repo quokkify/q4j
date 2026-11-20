@@ -9,6 +9,10 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.function.Consumer;
 import java.util.function.Supplier;
 
 import dev.quokkify.flutter.diagnostics.FailureDiagnostics;
@@ -19,17 +23,23 @@ import com.codeborne.selenide.logevents.LogEvent;
 import com.codeborne.selenide.logevents.SelenideLog;
 import com.codeborne.selenide.logevents.SelenideLogger;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import io.appium.java_client.AppiumBy;
 import org.openqa.selenium.By;
 import org.openqa.selenium.JavascriptExecutor;
 import org.openqa.selenium.NoSuchElementException;
 import org.openqa.selenium.WebDriver;
+import org.openqa.selenium.support.events.WebDriverListener;
 import org.testng.annotations.AfterMethod;
 import org.testng.annotations.BeforeMethod;
 import org.testng.annotations.Test;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatCode;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.withSettings;
 
@@ -44,12 +54,22 @@ public class FlutterVisibilityTest {
   private final By failed = FlutterBy.key("login_btn");
   private final FailureDiagnostics diagnostics = new FailureDiagnostics(Duration.ofSeconds(1), 1_000_000);
   private Supplier<Optional<WebDriver>> originalDriver;
+  private Consumer<WebDriverListener> originalAdd;
+  private Consumer<WebDriverListener> originalRemove;
+  private List<WebDriverListener> added;
+  private List<WebDriverListener> removed;
   private WebDriver driver;
   private RecordingSink sink;
 
   @BeforeMethod
   public void setUp() throws Exception {
     originalDriver = FlutterVisibility.currentDriver;
+    originalAdd = FlutterVisibility.addDriverListener;
+    originalRemove = FlutterVisibility.removeDriverListener;
+    added = new ArrayList<>();
+    removed = new ArrayList<>();
+    FlutterVisibility.addDriverListener = added::add;
+    FlutterVisibility.removeDriverListener = removed::add;
     sink = new RecordingSink();
     driver = mock(WebDriver.class, withSettings().extraInterfaces(JavascriptExecutor.class));
     when(((JavascriptExecutor) driver).executeScript("flutter: renderTree", Map.of()))
@@ -58,8 +78,10 @@ public class FlutterVisibilityTest {
 
   @AfterMethod(alwaysRun = true)
   public void tearDown() {
-    FlutterVisibility.uninstall();
+    FlutterVisibility.reset();
     FlutterVisibility.currentDriver = originalDriver;
+    FlutterVisibility.addDriverListener = originalAdd;
+    FlutterVisibility.removeDriverListener = originalRemove;
   }
 
   @Test
@@ -169,6 +191,132 @@ public class FlutterVisibilityTest {
     assertThat(FlutterVisibility.tracer()).isSameAs(tracer);
   }
 
+  @Test
+  public void driverListenerIsRegisteredOnceGloballyAndStaysAfterUninstall() throws Exception {
+    FlutterVisibility.install(diagnostics, List.of(sink));
+    FlutterVisibility.install(diagnostics, List.of(sink));
+    onOtherThread(() -> {
+      FlutterVisibility.install(diagnostics, List.of(new RecordingSink()));
+      FlutterVisibility.uninstall();
+    });
+    FlutterVisibility.uninstall();
+
+    assertThat(added).containsExactly(FlutterVisibility.tracer());
+    assertThat(removed).isEmpty();
+  }
+
+  @Test
+  public void uninstallDeactivatesCurrentThread() throws Exception {
+    FlutterVisibility.install(diagnostics, List.of(sink));
+    FlutterVisibility.uninstall();
+
+    notFound(FlutterVisibility.tracer());
+
+    assertThat(FlutterVisibility.tracer().drain()).isEmpty();
+    assertThat(SelenideLogger.hasListener("FlutterVisibility")).isFalse();
+  }
+
+  @Test
+  public void threadWithoutInstallRecordsNothing() throws Exception {
+    FlutterVisibility.install(diagnostics, List.of(sink));
+    List<Integer> drained = new ArrayList<>();
+
+    onOtherThread(() -> {
+      notFound(FlutterVisibility.tracer());
+      drained.add(FlutterVisibility.tracer().drain().size());
+    });
+
+    assertThat(drained).containsExactly(0);
+  }
+
+  @Test
+  public void installOnTwoThreadsAttachesOnBoth() throws Exception {
+    FlutterVisibility.currentDriver = () -> Optional.of(driver);
+    RecordingSink first = new RecordingSink();
+    RecordingSink second = new RecordingSink();
+    FlutterVisibility.install(diagnostics, List.of(sink));
+
+    onOtherThread(() -> commandOnInstalledThread(first));
+    onOtherThread(() -> commandOnInstalledThread(second));
+
+    assertThat(first.names()).containsExactlyInAnyOrder(SEARCH, TREE_JSON, TREE, SUGGESTIONS);
+    assertThat(second.names()).containsExactlyInAnyOrder(SEARCH, TREE_JSON, TREE, SUGGESTIONS);
+  }
+
+  @Test
+  public void nativeLocatorFailureAttachesOnlySearch() throws Exception {
+    FlutterVisibility.currentDriver = () -> Optional.of(driver);
+    FlutterVisibility.install(diagnostics, List.of(sink));
+
+    failingCommand(AppiumBy.id("login_btn"));
+
+    verify((JavascriptExecutor) driver, never()).executeScript(anyString(), any());
+    assertThat(sink.names()).containsExactly(SEARCH);
+  }
+
+  @Test
+  public void driverLookupFailureIsAttachedAsDiagnosticsError() throws Exception {
+    FlutterVisibility.currentDriver = () -> {
+      throw new IllegalStateException("driver gone");
+    };
+    FlutterVisibility.install(diagnostics, List.of(sink));
+
+    failingCommand();
+
+    assertThat(sink.names()).containsExactly(SEARCH, ERROR);
+    assertThat(sink.content(ERROR)).isEqualTo("IllegalStateException: driver gone");
+  }
+
+  @Test
+  public void stackOverflowInDiagnosticsNeverEscapes() throws Exception {
+    FlutterVisibility.currentDriver = () -> {
+      throw new StackOverflowError("deep");
+    };
+    FlutterVisibility.install(diagnostics, List.of(sink));
+
+    assertThatCode(this::failingCommand).doesNotThrowAnyException();
+    assertThat(sink.content(ERROR)).isEqualTo("StackOverflowError: deep");
+  }
+
+  @Test
+  public void truncatedJsonIsAttachedAsPlainText() throws Exception {
+    FlutterVisibility.currentDriver = () -> Optional.of(driver);
+    FlutterVisibility.install(new FailureDiagnostics(Duration.ofSeconds(1), 200), List.of(sink));
+
+    failingCommand();
+
+    assertThat(sink.mimeType(TREE_JSON)).isEqualTo("text/plain");
+  }
+
+  private void commandOnInstalledThread(RecordingSink target) throws Exception {
+    FlutterVisibility.install(diagnostics, List.of(target));
+    try {
+      failingCommand();
+    } finally {
+      FlutterVisibility.uninstall();
+    }
+  }
+
+  private static void onOtherThread(ThrowingRunnable action) throws Exception {
+    ExecutorService executor = Executors.newSingleThreadExecutor();
+    try {
+      CompletableFuture.runAsync(() -> {
+        try {
+          action.run();
+        } catch (Exception e) {
+          throw new IllegalStateException(e);
+        }
+      }, executor).get();
+    } finally {
+      executor.shutdownNow();
+    }
+  }
+
+  @FunctionalInterface
+  private interface ThrowingRunnable {
+    void run() throws Exception;
+  }
+
   @SuppressWarnings("unchecked")
   private static Map<String, Object> fixture() throws IOException {
     try (InputStream in = FlutterVisibilityTest.class.getClassLoader().getResourceAsStream("trees/login-screen.json")) {
@@ -177,15 +325,23 @@ public class FlutterVisibilityTest {
   }
 
   private void failingCommand() throws Exception {
+    failingCommand(failed);
+  }
+
+  private void failingCommand(By by) throws Exception {
     SelenideLog log = SelenideLogger.beginStep("$(login_btn)", "click");
-    notFound(FlutterVisibility.tracer());
+    notFound(FlutterVisibility.tracer(), by);
     SelenideLogger.commitStep(log, new IllegalStateException("element not found"));
   }
 
   private void notFound(FindTracer tracer) throws Exception {
+    notFound(tracer, failed);
+  }
+
+  private void notFound(FindTracer tracer, By by) throws Exception {
     Method findElement = WebDriver.class.getMethod("findElement", By.class);
-    tracer.beforeFindElement(driver, failed);
-    tracer.onError(driver, findElement, new Object[] {failed},
+    tracer.beforeFindElement(driver, by);
+    tracer.onError(driver, findElement, new Object[] {by},
         new InvocationTargetException(new NoSuchElementException("Unable to locate element")));
   }
 

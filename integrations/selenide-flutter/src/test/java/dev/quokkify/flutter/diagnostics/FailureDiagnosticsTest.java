@@ -77,8 +77,32 @@ public class FailureDiagnosticsTest {
 
     assertThat(d.truncated()).isTrue();
     assertThat(d.treeJson()).hasSizeLessThanOrEqualTo(200 + MARKER.length()).endsWith(MARKER);
-    assertThat(d.treeText()).contains("login_button");
-    assertThat(d.suggestions()).isNotEmpty();
+    assertThat(d.treeText()).hasSizeLessThanOrEqualTo(200 + MARKER.length()).endsWith(MARKER);
+    assertThat(d.suggestions().get(0).node().key()).isEqualTo("login_button");
+  }
+
+  @Test
+  public void truncationNeverSplitsSurrogatePair() {
+    when(js.executeScript("flutter: renderTree", Map.of())).thenReturn("x".repeat(199) + "\uD83D\uDE00tail");
+
+    Diagnostics d = new FailureDiagnostics(Duration.ofSeconds(1), 200).collect(js, FlutterBy.key("x"));
+
+    assertThat(d.treeJson()).isEqualTo("x".repeat(199) + MARKER);
+  }
+
+  @Test
+  public void stackOverflowWhileSerializingBecomesError() {
+    when(js.executeScript("flutter: renderTree", Map.of())).thenReturn(new Exploding());
+
+    Diagnostics d = new FailureDiagnostics(Duration.ofSeconds(1), 1000).collect(js, FlutterBy.key("x"));
+
+    assertThat(d.error()).contains("StackOverflowError");
+  }
+
+  public static final class Exploding {
+    public String getValue() {
+      throw new StackOverflowError("deep");
+    }
   }
 
   @Test

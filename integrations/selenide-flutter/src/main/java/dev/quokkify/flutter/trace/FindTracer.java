@@ -10,6 +10,7 @@ import java.util.ArrayList;
 import java.util.Deque;
 import java.util.Iterator;
 import java.util.List;
+import java.util.function.BooleanSupplier;
 
 import dev.quokkify.flutter.locator.Locators;
 
@@ -25,12 +26,18 @@ public final class FindTracer implements WebDriverListener {
   private static final String FIND_ELEMENTS = "findElements";
 
   private final Clock clock;
+  private final BooleanSupplier recording;
   private final ThreadLocal<Deque<Pending>> pending = ThreadLocal.withInitial(ArrayDeque::new);
   private final ThreadLocal<List<FindAttempt>> finished = ThreadLocal.withInitial(ArrayList::new);
   private final ThreadLocal<long[]> total = ThreadLocal.withInitial(() -> new long[1]);
 
-  public FindTracer(Clock clock) {
+  public FindTracer(Clock clock, BooleanSupplier recording) {
     this.clock = clock;
+    this.recording = recording;
+  }
+
+  public FindTracer(Clock clock) {
+    this(clock, () -> true);
   }
 
   public FindTracer() {
@@ -115,6 +122,9 @@ public final class FindTracer implements WebDriverListener {
   }
 
   private void start(By locator) {
+    if (!recording.getAsBoolean()) {
+      return;
+    }
     pending.get().push(new Pending(locator, clock.instant()));
   }
 

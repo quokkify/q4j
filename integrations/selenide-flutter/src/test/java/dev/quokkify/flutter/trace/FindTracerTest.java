@@ -137,4 +137,18 @@ public class FindTracerTest {
     assertThat(tracer.drain()).isEmpty();
     assertThat(tracer.totalAttempts()).isEqualTo(1);
   }
+
+  @Test
+  public void recordsOnlyWhileGateIsOpen() {
+    boolean[] open = {false};
+    FindTracer gated = new FindTracer(clock, () -> open[0]);
+    gated.beforeFindElement(driver, by);
+    gated.afterFindElement(driver, by, element);
+    open[0] = true;
+    gated.beforeFindElement(driver, by);
+    gated.afterFindElement(driver, by, element);
+
+    assertThat(gated.drain()).hasSize(1);
+    assertThat(gated.totalAttempts()).isEqualTo(1);
+  }
 }

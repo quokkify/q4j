@@ -57,7 +57,7 @@ public final class FailureDiagnostics {
       return failure(e);
     } catch (ExecutionException e) {
       return failure(e.getCause() == null ? e : e.getCause());
-    } catch (TimeoutException | RuntimeException e) {
+    } catch (TimeoutException | RuntimeException | StackOverflowError e) {
       return failure(e);
     }
   }
@@ -65,12 +65,13 @@ public final class FailureDiagnostics {
   private Diagnostics diagnose(LocatorSpec spec, Object result) {
     String json = result instanceof String text ? text : JsonConverter.toJson(result);
     boolean truncated = json.length() > maxChars;
-    String treeJson = truncated ? json.substring(0, maxChars) + TRUNCATED_MARKER : json;
+    String treeJson = truncated ? truncate(json) : json;
     try {
       WidgetNode root = WidgetTreeParser.fromScriptResult(result);
       List<NearMiss> suggestions = NearMissFinder.find(spec, root, NearMissFinder.DEFAULT_LIMIT);
-      return new Diagnostics(treeJson, WidgetTreeFormatter.format(root), suggestions, null, truncated);
-    } catch (RuntimeException e) {
+      String text = WidgetTreeFormatter.format(root);
+      return new Diagnostics(treeJson, text.length() > maxChars ? truncate(text) : text, suggestions, null, truncated);
+    } catch (RuntimeException | StackOverflowError e) {
       return new Diagnostics(treeJson, null, List.of(), describe(e), truncated);
     }
   }
@@ -93,6 +94,11 @@ public final class FailureDiagnostics {
     } finally {
       executor.shutdownNow();
     }
+  }
+
+  private String truncate(String value) {
+    int end = Character.isHighSurrogate(value.charAt(maxChars - 1)) ? maxChars - 1 : maxChars;
+    return value.substring(0, end) + TRUNCATED_MARKER;
   }
 
   private static Diagnostics failure(Throwable error) {
