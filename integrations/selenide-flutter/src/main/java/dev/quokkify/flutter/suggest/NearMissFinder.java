@@ -25,6 +25,11 @@ public final class NearMissFinder {
   private static final double PARTIAL_SCORE = 0.7;
   private static final double MIN_SIMILARITY = 0.5;
   private static final String SEMANTICS_HINT = "value found as semantics label; try FlutterBy.semanticsLabel";
+  private static final String NOT_HIT_TESTABLE = " match exists in the widget tree but is not hit-testable";
+  // Real Flutter server trees expose no offstage/visible/opacity/ignoring flags, so these ancestors are detected by
+  // widget type alone; whether they actually hide the widget is not known.
+  private static final Set<String> HIDING_ANCESTORS =
+      Set.of("Offstage", "Visibility", "Opacity", "IgnorePointer", "AbsorbPointer");
 
   private static final Comparator<NearMiss> BY_SCORE_DESC = Comparator.comparingDouble(NearMiss::score).reversed();
 
@@ -41,7 +46,7 @@ public final class NearMissFinder {
   private static List<NearMiss> search(LocatorSpec spec, WidgetNode root) {
     return switch (spec.strategy()) {
       case DESCENDANT, ANCESTOR -> searchComposite(spec, root);
-      default -> root.flatten().map(node -> score(spec, node)).flatMap(Optional::stream).toList();
+      default -> root.flatten().map(node -> score(spec, node, root)).flatMap(Optional::stream).toList();
     };
   }
 
@@ -58,8 +63,8 @@ public final class NearMissFinder {
         candidates.addAll(ancestorsOf(root, anchor));
       }
     }
-    return prefixed(candidates.stream().map(node -> score(spec.matching(), node)).flatMap(Optional::stream).toList(),
-        "matching: ");
+    return prefixed(candidates.stream().map(node -> score(spec.matching(), node, root)).flatMap(Optional::stream)
+        .toList(), "matching: ");
   }
 
   private static List<WidgetNode> resolve(LocatorSpec spec, WidgetNode root) {
@@ -112,12 +117,12 @@ public final class NearMissFinder {
         .toList();
   }
 
-  private static Optional<NearMiss> score(LocatorSpec spec, WidgetNode node) {
+  private static Optional<NearMiss> score(LocatorSpec spec, WidgetNode node, WidgetNode root) {
     Strategy strategy = spec.strategy();
     String wanted = spec.value();
     String actual = field(strategy, node);
     if (actual != null) {
-      Optional<NearMiss> byField = scoreField(strategy, node, fieldName(strategy), wanted, actual);
+      Optional<NearMiss> byField = scoreField(strategy, node, root, fieldName(strategy), wanted, actual);
       if (byField.isPresent()) {
         return byField;
       }
@@ -128,12 +133,12 @@ public final class NearMissFinder {
     return Optional.empty();
   }
 
-  private static Optional<NearMiss> scoreField(Strategy strategy, WidgetNode node, String name, String wanted,
-                                             String actual) {
+  private static Optional<NearMiss> scoreField(Strategy strategy, WidgetNode node, WidgetNode root, String name,
+                                             String wanted, String actual) {
     boolean exact = actual.equals(wanted) || strategy == Strategy.TEXT_CONTAINING && actual.contains(wanted);
     if (exact) {
-      return hittable(node) ? Optional.empty()
-          : Optional.of(new NearMiss(node, EXACT_UNHITTABLE_SCORE, List.of(unhittableReason(node, name))));
+      // The find failed, so an exact match in the tree is a widget the driver's hit test did not accept.
+      return Optional.of(new NearMiss(node, EXACT_UNHITTABLE_SCORE, unhittableReasons(node, root, name)));
     }
     if (actual.equalsIgnoreCase(wanted)) {
       return Optional.of(new NearMiss(node, CASE_SCORE, List.of("differs only in case")));
@@ -152,8 +157,9 @@ public final class NearMissFinder {
     return Optional.empty();
   }
 
-  private static String unhittableReason(WidgetNode node, String name) {
+  private static List<String> unhittableReasons(WidgetNode node, WidgetNode root, String name) {
     List<String> problems = new ArrayList<>();
+    problems.add("exact " + name + NOT_HIT_TESTABLE);
     if (!node.visible()) {
       problems.add("hidden");
     }
@@ -163,7 +169,12 @@ public final class NearMissFinder {
     if (node.rect().isEmpty()) {
       problems.add("zero-size");
     }
-    return "exact " + name + " match but " + String.join(" and ", problems);
+    ancestorsOf(root, node).stream()
+        .map(WidgetNode::type)
+        .filter(HIDING_ANCESTORS::contains)
+        .distinct()
+        .forEach(type -> problems.add("hidden by " + type + " ancestor (detected by widget type)"));
+    return problems;
   }
 
   private static boolean hittable(WidgetNode node) {

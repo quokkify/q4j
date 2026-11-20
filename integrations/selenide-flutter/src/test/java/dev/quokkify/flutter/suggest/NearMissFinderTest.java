@@ -37,7 +37,8 @@ public class NearMissFinderTest {
   public void exactButHiddenExplainsWhy() {
     NearMiss top = NearMissFinder.find(Locators.parse(FlutterBy.key("hidden_banner")), tree, 5).get(0);
     assertThat(top.score()).isEqualTo(1.0);
-    assertThat(top.reasons()).containsExactly("exact key match but hidden and zero-size");
+    assertThat(top.reasons()).containsExactly("exact key match exists in the widget tree but is not hit-testable",
+        "hidden", "zero-size", "hidden by Offstage ancestor (detected by widget type)");
   }
 
   @Test
@@ -91,7 +92,7 @@ public class NearMissFinderTest {
     WidgetNode root = node("Root", null, null, null, true, true, BOX,
         node("Button", "save", null, null, true, false, BOX));
     assertThat(NearMissFinder.find(Locators.parse(FlutterBy.key("save")), root, 5).get(0).reasons())
-        .containsExactly("exact key match but disabled");
+        .containsExactly("exact key match exists in the widget tree but is not hit-testable", "disabled");
   }
 
   @Test
@@ -122,12 +123,38 @@ public class NearMissFinderTest {
     WidgetNode root = node("Root", null, null, null, true, true, BOX,
         node("Text", null, "Sign in now", null, false, true, BOX));
     assertThat(NearMissFinder.find(Locators.parse(FlutterBy.textContaining("Sign")), root, 5).get(0).reasons())
-        .containsExactly("exact text match but hidden");
+        .containsExactly("exact text match exists in the widget tree but is not hit-testable", "hidden");
   }
 
   @Test
-  public void textContainingHittableMatchIsNotSuggested() {
-    assertThat(NearMissFinder.find(Locators.parse(FlutterBy.textContaining("Sign")), tree, 5)).isEmpty();
+  public void exactMatchWithoutKnownFlagsIsReportedAsNotHitTestable() {
+    NearMiss top = NearMissFinder.find(Locators.parse(FlutterBy.textContaining("Sign")), tree, 5).get(0);
+    assertThat(top.score()).isEqualTo(1.0);
+    assertThat(top.reasons()).containsExactly("exact text match exists in the widget tree but is not hit-testable");
+  }
+
+  @Test
+  public void namesHidingAncestorsByType() {
+    WidgetNode root = node("Root", null, null, null, true, true, BOX,
+        node("Opacity", null, null, null, true, true, BOX,
+            node("IgnorePointer", null, null, null, true, true, BOX,
+                node("Text", "faded", null, null, true, true, BOX))));
+    assertThat(NearMissFinder.find(Locators.parse(FlutterBy.key("faded")), root, 5).get(0).reasons()).containsExactly(
+        "exact key match exists in the widget tree but is not hit-testable",
+        "hidden by Opacity ancestor (detected by widget type)",
+        "hidden by IgnorePointer ancestor (detected by widget type)");
+  }
+
+  @Test
+  public void recordedOffstageBannerIsExplained() throws IOException {
+    WidgetNode recorded;
+    try (var in = getClass().getClassLoader().getResourceAsStream("trees/recorded-offstage.json")) {
+      recorded = WidgetTreeParser.parse(new String(in.readAllBytes(), java.nio.charset.StandardCharsets.UTF_8));
+    }
+    NearMiss top = NearMissFinder.find(Locators.parse(FlutterBy.key("hidden_banner")), recorded, 5).get(0);
+    assertThat(top.node().key()).isEqualTo("hidden_banner");
+    assertThat(top.reasons()).containsExactly("exact key match exists in the widget tree but is not hit-testable",
+        "hidden by Offstage ancestor (detected by widget type)");
   }
 
   @Test
@@ -140,7 +167,8 @@ public class NearMissFinderTest {
   @Test
   public void semanticsLabelStrategyExplainsZeroSize() {
     assertThat(NearMissFinder.find(Locators.parse(FlutterBy.semanticsLabel("Settings icon")), tree, 5).get(0)
-        .reasons()).containsExactly("exact semantics label match but zero-size");
+        .reasons()).containsExactly("exact semantics label match exists in the widget tree but is not hit-testable",
+        "zero-size");
   }
 
   @Test
