@@ -18,8 +18,13 @@ public interface FlutterConfiguration extends Config {
   @DefaultValue("Android Emulator")
   String deviceName();
 
+  /**
+   * The Flutter server's own wait per find. Selenide does the waiting, so the server should check once: with
+   * {@code 0} the server's wait loop times out before it evaluates the finder and no element is ever found;
+   * {@code 1} gives exactly one check.
+   */
   @Key("FLUTTER_DRIVER_FIND_TIMEOUT_MS")
-  @DefaultValue("0")
+  @DefaultValue("1")
   long findTimeoutMs();
 
   @Key("FLUTTER_SERVER_LAUNCH_TIMEOUT_MS")

@@ -25,7 +25,7 @@ public class FlutterDriverProviderTest {
     assertThat(o.getCapability("appium:automationName")).isEqualTo("FlutterIntegration");
     assertThat(o.getCapability("platformName").toString()).isEqualToIgnoringCase("android");
     assertThat(o.getCapability("appium:app")).isEqualTo("/apps/demo.apk");
-    assertThat(o.getCapability("appium:flutterElementWaitTimeout")).isEqualTo(0L);
+    assertThat(o.getCapability("appium:flutterElementWaitTimeout")).isEqualTo(1L);
     assertThat(o.getCapability("appium:flutterServerLaunchTimeout")).isEqualTo(120000L);
     assertThat(o.getCapability("appium:deviceName")).isEqualTo("Android Emulator");
   }
