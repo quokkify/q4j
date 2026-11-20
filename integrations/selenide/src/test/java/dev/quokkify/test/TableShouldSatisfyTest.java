@@ -121,7 +121,8 @@ public class TableShouldSatisfyTest extends BaseTest {
     long start = System.nanoTime();
     assertThatThrownBy(() -> table.shouldSatisfy(snap -> assertThat(snap.rows()).isNotEmpty(),
         Duration.ofSeconds(10)))
-        .isInstanceOf(InvalidSelectorException.class);
+        .isInstanceOf(InvalidSelectorException.class)
+        .rootCause().hasMessageContaining("invalid selector: ./*[@role='row'");
     Duration elapsed = Duration.ofNanos(System.nanoTime() - start);
 
     assertThat(elapsed).isLessThan(Duration.ofSeconds(5));
@@ -195,7 +196,7 @@ public class TableShouldSatisfyTest extends BaseTest {
     return Table.of($("#chip-grid"), TableLayout.aria());
   }
 
-  /** Finds an element by id and, on the first lookup only, remounts it as {@link #REMOUNT_LATER} does, at once. */
+  /** Finds an element by id and, on the first lookup only, remounts it as {@link TableShouldSatisfyTest#REMOUNT_LATER} does, at once. */
   private static final class RemountedAfterFirstLookup extends By {
 
     private static final String REMOUNT_NOW = """
