@@ -40,12 +40,12 @@ jobs:
       - name: 🔨Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/ci-kit/actions/setup-java-gradle@5de64cfba3013f35df1ec60ed4bc174cc3d9cd6b # v4.3.5
+        uses: quokkify/ci-kit/actions/setup-java-gradle@d86cef931989f108ae3d4c17ae9356f5088e2ba3 # v4.3.7
         with:
           java-version: "21"
 
       - name: 🧱 Build (check, no tests)
-        uses: quokkify/ci-kit/actions/gradle-retry@5de64cfba3013f35df1ec60ed4bc174cc3d9cd6b # v4.3.5
+        uses: quokkify/ci-kit/actions/gradle-retry@d86cef931989f108ae3d4c17ae9356f5088e2ba3 # v4.3.7
         with:
           command: "./gradlew ${{ matrix.module }}:check -x ${{ matrix.module }}:test --warning-mode all --console=plain"
 
@@ -85,12 +85,12 @@ jobs:
       - name: 🔨Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/ci-kit/actions/setup-java-gradle@5de64cfba3013f35df1ec60ed4bc174cc3d9cd6b # v4.3.5
+        uses: quokkify/ci-kit/actions/setup-java-gradle@d86cef931989f108ae3d4c17ae9356f5088e2ba3 # v4.3.7
         with:
           java-version: "21"
 
       - name: 🧱 Build (check, no tests)
-        uses: quokkify/ci-kit/actions/gradle-retry@5de64cfba3013f35df1ec60ed4bc174cc3d9cd6b # v4.3.5
+        uses: quokkify/ci-kit/actions/gradle-retry@d86cef931989f108ae3d4c17ae9356f5088e2ba3 # v4.3.7
         with:
           command: "./gradlew ${{ matrix.module }}:check -x ${{ matrix.module }}:test --warning-mode all --console=plain"
 
@@ -130,12 +130,12 @@ jobs:
       - name: 🔨Checkout
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7
       - name: 🔨Prepare Java/Gradle
-        uses: quokkify/ci-kit/actions/setup-java-gradle@5de64cfba3013f35df1ec60ed4bc174cc3d9cd6b # v4.3.5
+        uses: quokkify/ci-kit/actions/setup-java-gradle@d86cef931989f108ae3d4c17ae9356f5088e2ba3 # v4.3.7
         with:
           java-version: "21"
 
       - name: 🧱 Build (check, no tests)
-        uses: quokkify/ci-kit/actions/gradle-retry@5de64cfba3013f35df1ec60ed4bc174cc3d9cd6b # v4.3.5
+        uses: quokkify/ci-kit/actions/gradle-retry@d86cef931989f108ae3d4c17ae9356f5088e2ba3 # v4.3.7
         with:
           command: "./gradlew ${{ matrix.module }}:check -x ${{ matrix.module }}:test --warning-mode all --console=plain"
 

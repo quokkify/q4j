@@ -86,7 +86,7 @@ jobs:
           ref: ${{ needs.resolve.outputs.tag }}
 
       - name: Set up Java and Gradle
-        uses: quokkify/ci-kit/actions/setup-java-gradle@5de64cfba3013f35df1ec60ed4bc174cc3d9cd6b # v4.3.5
+        uses: quokkify/ci-kit/actions/setup-java-gradle@d86cef931989f108ae3d4c17ae9356f5088e2ba3 # v4.3.7
         with:
           java-version: "21"
           distribution: temurin
