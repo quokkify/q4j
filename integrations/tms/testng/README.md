@@ -8,8 +8,8 @@ Add this module together with exactly one provider. For TestPlanIt:
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:tms-testng:0.15.0")
-    testImplementation("dev.quokkify:testplanit:0.15.0")
+    testImplementation("dev.quokkify:tms-testng:0.16.0")
+    testImplementation("dev.quokkify:testplanit:0.16.0")
 }
 ```
 
