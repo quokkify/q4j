@@ -1,5 +1,34 @@
 # Changelog
 
+## [0.16.1](https://github.com/quokkify/q4j/compare/v0.16.0...v0.16.1) (2026-11-21)
+
+<!-- project-toolkit:release-notes v2 -->
+**At a glance:** 1 fixed · 9 internal
+
+### 🐛 Fixed
+
+- **selenide:** retry table checks when the table is re-rendered — `Table.shouldSatisfy()`, `shouldHave(TableCondition)` and `snapshot()` no longer fail with `InvalidSelectorException: Invalid selector` when the table is re-rendered (its root element replaced) while they read it; they read the new table and keep waiting as documented. 🤖 Generated with [Claude Code](https://claude.com/claude-code) ([#906](https://github.com/quokkify/q4j/pull/906))
+
+<details><summary>Internal changes (9 PRs)</summary>
+
+**Dependencies**
+
+- com.rabbitmq:amqp-client 5.37.1 → 5.38.0 ([#914](https://github.com/quokkify/q4j/pull/914))
+- docker 29.9-dind → 29.10-dind ([#902](https://github.com/quokkify/q4j/pull/902))
+- ghcr.io/testplanit/testplanit-selfhost v1.2.0 → v1.2.4 ([#900](https://github.com/quokkify/q4j/pull/900))
+- gradle 9.9.1 → 9.9.2 ([#901](https://github.com/quokkify/q4j/pull/901))
+- selenide 7.19.1 → 7.19.2 ([#907](https://github.com/quokkify/q4j/pull/907))
+- selenium/hub, selenium/node-docker 4.52.0-20261101 → 4.53.0-20261120 ([#908](https://github.com/quokkify/q4j/pull/908))
+- selenium/standalone-chromium 156.0-20261101 → 156.0-20261120 ([#908](https://github.com/quokkify/q4j/pull/908))
+
+**Maintenance**
+
+- **modules:** update q4j module documentation to v0.16.0 ([#915](https://github.com/quokkify/q4j/pull/915))
+- **renovate:** adopt the supply-chain hardening and stack grouping presets ([#910](https://github.com/quokkify/q4j/pull/910))
+- **template:** update shared project template ([#899](https://github.com/quokkify/q4j/pull/899))
+
+</details>
+
 ## [0.16.0](https://github.com/quokkify/q4j/compare/v0.15.0...v0.16.0) (2026-11-20)
 
 <!-- project-toolkit:release-notes v2 -->
