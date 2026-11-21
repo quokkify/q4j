@@ -1,0 +1,1 @@
+{"id":"d80671c128fe26503949aa2d7753abeb.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.TableBulkDocExamplesTest.checkExamples","name":"Docs 5-7: whole-table checks wait, report a short diff and compare aligned rows","status":"passed","testResultsByEnv":{"ubuntu-26-04":"b6e0179c7acf0f9cf37790e305012a38"}}
