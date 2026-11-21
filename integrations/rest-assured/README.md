@@ -11,7 +11,7 @@ Add the module from [Maven Central](https://central.sonatype.com/artifact/dev.qu
 
 ```kotlin
 dependencies {
-    testImplementation("dev.quokkify:rest-assured:0.15.0")
+    testImplementation("dev.quokkify:rest-assured:0.16.0")
 }
 ```
 

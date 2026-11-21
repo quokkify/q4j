@@ -8,7 +8,7 @@ The `testplanit` provider and the `jira-tms` ticket source depend on this module
 
 ```kotlin
 dependencies {
-    implementation("dev.quokkify:tms-core:0.15.0")
+    implementation("dev.quokkify:tms-core:0.16.0")
 }
 ```
 
