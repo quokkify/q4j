@@ -55,7 +55,7 @@
 
     
     <script>
-      window.allureReportOptions = {"id":"awesome","reportName":"Q4J – Pull request #897","logo":"","theme":"auto","reportLanguage":"en","createdAt":1795246620284,"reportUuid":"8544694d-2af4-4858-8052-5053a1dc7a46","groupBy":["environment","suite","subSuite","epic","feature","story"],"cacheKey":"1795246620284","ci":{"type":"github","detected":true,"repoName":"q4j","jobUid":"quokkify/q4j_Allure report","jobUrl":"https://github.com/quokkify/q4j/actions?query=workflow%3A%22Allure%20report%22","jobName":"quokkify/q4j - Allure report","pipelineRunName":"Allure report","pipelineRunUrl":"https://github.com/quokkify/q4j/actions/runs/44880982425","jobRunUid":"44880982425","jobRunUrl":"https://github.com/quokkify/q4j/actions/runs/44880982425","jobRunName":"generate #2305","jobRunBranch":"renovate/opensearchproject-opensearch-3.9.0","pullRequestUrl":"https://github.com/quokkify/q4j/pull/897","pullRequestName":"Pull request #897","commitSha":"56589e4d80bc5f470cb09c6c4dc733f2cbd5f461","provider":"github","repository":{"slug":"quokkify/q4j","url":"https://github.com/quokkify/q4j"},"sourceBranch":"renovate/opensearchproject-opensearch-3.9.0","targetBranch":"main","pullRequest":{"id":"897","url":"https://github.com/quokkify/q4j/pull/897","title":"Pull request #897"}},"git":{"commit":"1d9cc470c97e0614c9a4dd3cbcbb2f05789d37cb"},"runSummary":{"start":1795245040283,"stop":1795246522097,"duration":1481814},"runSummaryByEnv":{"ubuntu-26-04":{"start":1795245040283,"stop":1795246522097,"duration":1481814}},"layout":"base","allureVersion":"3.22.1","sections":["charts","timeline"],"defaultSection":""}
+      window.allureReportOptions = {"id":"awesome","reportName":"Q4J – Pull request #897","logo":"","theme":"auto","reportLanguage":"en","createdAt":1795257921879,"reportUuid":"f5c0b223-2a74-41fb-a975-411da4ed965c","groupBy":["environment","suite","subSuite","epic","feature","story"],"cacheKey":"1795257921879","ci":{"type":"github","detected":true,"repoName":"q4j","jobUid":"quokkify/q4j_Allure report","jobUrl":"https://github.com/quokkify/q4j/actions?query=workflow%3A%22Allure%20report%22","jobName":"quokkify/q4j - Allure report","pipelineRunName":"Allure report","pipelineRunUrl":"https://github.com/quokkify/q4j/actions/runs/44895646657","jobRunUid":"44895646657","jobRunUrl":"https://github.com/quokkify/q4j/actions/runs/44895646657","jobRunName":"generate #2335","jobRunBranch":"renovate/opensearchproject-opensearch-3.9.0","pullRequestUrl":"https://github.com/quokkify/q4j/pull/897","pullRequestName":"Pull request #897","commitSha":"7386718afc8e7a5e706f49f2ff994ce09f789179","provider":"github","repository":{"slug":"quokkify/q4j","url":"https://github.com/quokkify/q4j"},"sourceBranch":"renovate/opensearchproject-opensearch-3.9.0","targetBranch":"main","pullRequest":{"id":"897","url":"https://github.com/quokkify/q4j/pull/897","title":"Pull request #897"}},"git":{"commit":"51dd2a450159b43b4fff0b1b95bb259cdfaeef17"},"runSummary":{"start":1795256297898,"stop":1795257671627,"duration":1373729},"runSummaryByEnv":{"ubuntu-26-04":{"start":1795256297898,"stop":1795257671627,"duration":1373729}},"layout":"base","allureVersion":"3.33.0","sections":["charts","timeline"],"defaultSection":""}
     </script>
 </head>
 <body>
@@ -68,8 +68,9 @@
     <div id="app"></div>
     
     <script>
-      const { origin, pathname } = window.location; 
-      const url = new URL(pathname, origin);
+      const url = new URL(window.location.href);
+      url.search = "";
+      url.hash = "";
       const baseEl = document.createElement("base");
       
       baseEl.href = url.toString();
@@ -80,7 +81,7 @@
     <script>
       window.allure = window.allure || {};
     </script>
-    <script   src="app-1cf27b2f4f66161c2cd6.js"></script>
+    <script   src="app-189f0a86432a713a6a0d.js"></script>
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-LNDJ3J7WT0"></script>
     <script>
         window.dataLayer = window.dataLayer || [];
@@ -88,8 +89,8 @@
         gtag('js', new Date());
         gtag('config', 'G-LNDJ3J7WT0', {
           "report": "awesome",
-          "allureVersion": "3.22.1",
-          "reportUuid": "8544694d-2af4-4858-8052-5053a1dc7a46",
+          "allureVersion": "3.33.0",
+          "reportUuid": "f5c0b223-2a74-41fb-a975-411da4ed965c",
           "single_file": "false"
         });
     </script>

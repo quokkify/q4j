@@ -1,1 +1,1 @@
-{"id":"2454158e8cc995c81e7fe5561f5788b3.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.ApiTest.testGetMethodAndResponseHelper","name":"Verify 'GET' method and 'ResponseHelper'","status":"passed","testResultsByEnv":{"ubuntu-26-04":"493fd0da078169fd4e5dd0688c521faf"}}
+{"id":"2454158e8cc995c81e7fe5561f5788b3.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.ApiTest.testGetMethodAndResponseHelper","name":"Verify 'GET' method and 'ResponseHelper'","status":"passed","testResultsByEnv":{"ubuntu-26-04":"52a5220e4a5a323345357c27c042c0ae"}}
