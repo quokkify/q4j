@@ -1,1 +1,1 @@
-{"id":"91d5093d26018453921ee3b2bbfe3004.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.TableSnapshotTest.snapshotMakesNoPerRowDriverCalls","name":"snapshotMakesNoPerRowDriverCalls","status":"passed","testResultsByEnv":{"ubuntu-26-04":"41dcd3046762d86e9e7bf8cc724bed47"}}
+{"id":"91d5093d26018453921ee3b2bbfe3004.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.TableSnapshotTest.snapshotMakesNoPerRowDriverCalls","name":"snapshotMakesNoPerRowDriverCalls","status":"passed","testResultsByEnv":{"ubuntu-26-04":"140cb7884384ff4d6a04ce063b891294"}}
