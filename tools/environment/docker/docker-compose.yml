@@ -108,7 +108,7 @@ services:
 
   postgres:
     profiles: [sql]
-    image: postgres:18.6@sha256:e3d24f6906d0760bf4da0dae872415391ededefad23fd471c47dc53b0ddf3c42
+    image: postgres:19.0@sha256:bb6e70add742cd868fb62cb3b2f67d1dd2bdd2b65a521e778420748753687c60
     environment:
       POSTGRES_USER: q4j
       POSTGRES_PASSWORD: q4j
@@ -149,7 +149,7 @@ services:
 
   reportportal-postgres:
     profiles: [reporting]
-    image: postgres:18.6@sha256:e3d24f6906d0760bf4da0dae872415391ededefad23fd471c47dc53b0ddf3c42
+    image: postgres:19.0@sha256:bb6e70add742cd868fb62cb3b2f67d1dd2bdd2b65a521e778420748753687c60
     environment:
       POSTGRES_USER: ${REPORTPORTAL_POSTGRES_USER:-rpuser}
       POSTGRES_PASSWORD: ${REPORTPORTAL_POSTGRES_PASSWORD:-rppass}
@@ -577,7 +577,7 @@ services:
 
   testplanit-postgres:
     profiles: [testplanit]
-    image: postgres:18-alpine@sha256:1018733457011bf88d81db98cf43aac6d5150afc18787dbe204771fedf80ff95
+    image: postgres:19-alpine@sha256:8b0ff4cdf221f0c53d7fcda681d3b461be725c492cd881c5ec9c0ad25023f188
     environment:
       POSTGRES_USER: ${TESTPLANIT_POSTGRES_USER:-tpuser}
       POSTGRES_PASSWORD: ${TESTPLANIT_POSTGRES_PASSWORD:-tppass}
