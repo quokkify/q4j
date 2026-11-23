@@ -1,0 +1,1 @@
+{"id":"8021fadf0563593ecea7c6e4d0b05dfe.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.testplanit.services.TestPlanItFeignClientTest.completesRun","name":"Completing a run sets isCompleted and the DONE state with PATCH","status":"passed","testResultsByEnv":{"ubuntu-26-04":"e44a564c8634b1a5ad7ff9c46d9fcbb3"}}
