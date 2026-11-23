@@ -1,1 +1,1 @@
-{"id":"7c8b5cf32f6b39d633df79464f4d0156.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.model.JsonPojoTest.testSetFieldWithNull","name":"Verify set field with null value","status":"passed","testResultsByEnv":{"ubuntu-26-04":"0c2a7bd5a6a774b40a8886f174b5876b"}}
+{"id":"7c8b5cf32f6b39d633df79464f4d0156.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.model.JsonPojoTest.testSetFieldWithNull","name":"Verify set field with null value","status":"passed","testResultsByEnv":{"ubuntu-26-04":"01f83167b3b7049076a02aaba93b6a60"}}
