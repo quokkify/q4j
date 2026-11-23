@@ -1,1 +1,1 @@
-{"id":"463f38d3433555698dd35e7628881941.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DatabaseSqlTest.checkIterateAttachesSql","name":"Check iterate attaches executed sql to allure","status":"passed","testResultsByEnv":{"ubuntu-26-04":"e89a43daf4d4544f7fd570fd2920f05f"}}
+{"id":"463f38d3433555698dd35e7628881941.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.test.DatabaseSqlTest.checkIterateAttachesSql","name":"Check iterate attaches executed sql to allure","status":"passed","testResultsByEnv":{"ubuntu-26-04":"cef01274661b9a74aba201477042253d"}}
