@@ -62,6 +62,7 @@ jobs:
               { name: 'selenide', module: ':integrations:selenide', slug: 'integrations-selenide' },
               { name: 'selenide-proxy', module: ':integrations:selenide-proxy', slug: 'integrations-selenide-proxy' },
               { name: 'selenide-grid', module: ':integrations:selenide-grid', slug: 'integrations-selenide-grid' },
+              { name: 'selenide-flutter', module: ':integrations:selenide-flutter', slug: 'integrations-selenide-flutter' },
               { name: 'tyrus', module: ':integrations:tyrus', slug: 'integrations-tyrus' },
               { name: 'kafka', module: ':integrations:kafka', slug: 'integrations-kafka' },
               { name: 'rabbitmq', module: ':integrations:rabbitmq', slug: 'integrations-rabbitmq' },

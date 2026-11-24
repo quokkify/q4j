@@ -1,0 +1,291 @@
+{
+  "type": "MaterialApp",
+  "elementType": "StatelessElement",
+  "description": "MaterialApp",
+  "depth": 0,
+  "key": null,
+  "attributes": {
+    "text": null,
+    "semanticsLabel": null,
+    "tooltip": null,
+    "hintText": null
+  },
+  "visual": {},
+  "state": {
+    "enabled": true,
+    "focused": false,
+    "visible": true
+  },
+  "rect": {
+    "x": 0,
+    "y": 0,
+    "width": 360,
+    "height": 640
+  },
+  "children": [
+    {
+      "type": "Scaffold",
+      "elementType": "StatelessElement",
+      "description": "Scaffold",
+      "depth": 1,
+      "key": null,
+      "attributes": {
+        "text": null,
+        "semanticsLabel": null,
+        "tooltip": null,
+        "hintText": null
+      },
+      "visual": {},
+      "state": {
+        "enabled": true,
+        "focused": false,
+        "visible": true
+      },
+      "rect": {
+        "x": 0,
+        "y": 0,
+        "width": 360,
+        "height": 640
+      },
+      "children": [
+        {
+          "type": "Column",
+          "elementType": "StatelessElement",
+          "description": "Column",
+          "depth": 2,
+          "key": null,
+          "attributes": {
+            "text": null,
+            "semanticsLabel": null,
+            "tooltip": null,
+            "hintText": null
+          },
+          "visual": {},
+          "state": {
+            "enabled": true,
+            "focused": false,
+            "visible": true
+          },
+          "rect": {
+            "x": 0,
+            "y": 0,
+            "width": 360,
+            "height": 640
+          },
+          "children": [
+            {
+              "type": "Column",
+              "elementType": "StatelessElement",
+              "description": "Column",
+              "depth": 3,
+              "key": "[<'login_form'>]",
+              "attributes": {
+                "text": null,
+                "semanticsLabel": null,
+                "tooltip": null,
+                "hintText": null
+              },
+              "visual": {},
+              "state": {
+                "enabled": true,
+                "focused": false,
+                "visible": true
+              },
+              "rect": {
+                "x": 16,
+                "y": 100,
+                "width": 328,
+                "height": 188
+              },
+              "children": [
+                {
+                  "type": "TextField",
+                  "elementType": "StatelessElement",
+                  "description": "TextField",
+                  "depth": 4,
+                  "key": "[<'login_email'>]",
+                  "attributes": {
+                    "text": null,
+                    "semanticsLabel": null,
+                    "tooltip": null,
+                    "hintText": "Email"
+                  },
+                  "visual": {},
+                  "state": {
+                    "enabled": true,
+                    "focused": false,
+                    "visible": true
+                  },
+                  "rect": {
+                    "x": 16,
+                    "y": 100,
+                    "width": 328,
+                    "height": 56
+                  },
+                  "children": []
+                },
+                {
+                  "type": "TextField",
+                  "elementType": "StatelessElement",
+                  "description": "TextField",
+                  "depth": 4,
+                  "key": "[<'login_password'>]",
+                  "attributes": {
+                    "text": null,
+                    "semanticsLabel": null,
+                    "tooltip": null,
+                    "hintText": "Password"
+                  },
+                  "visual": {},
+                  "state": {
+                    "enabled": true,
+                    "focused": false,
+                    "visible": true
+                  },
+                  "rect": {
+                    "x": 16,
+                    "y": 170,
+                    "width": 328,
+                    "height": 56
+                  },
+                  "children": []
+                },
+                {
+                  "type": "ElevatedButton",
+                  "elementType": "StatelessElement",
+                  "description": "ElevatedButton",
+                  "depth": 4,
+                  "key": "[<'login_button'>]",
+                  "attributes": {
+                    "text": null,
+                    "semanticsLabel": null,
+                    "tooltip": null,
+                    "hintText": null
+                  },
+                  "visual": {},
+                  "state": {
+                    "enabled": false,
+                    "focused": false,
+                    "visible": true
+                  },
+                  "rect": {
+                    "x": 16,
+                    "y": 240,
+                    "width": 328,
+                    "height": 48
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "type": "Offstage",
+              "elementType": "StatelessElement",
+              "description": "Offstage",
+              "depth": 3,
+              "key": null,
+              "attributes": {
+                "text": null,
+                "semanticsLabel": null,
+                "tooltip": null,
+                "hintText": null
+              },
+              "visual": {},
+              "state": {
+                "enabled": true,
+                "focused": false,
+                "visible": true
+              },
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0
+              },
+              "children": [
+                {
+                  "type": "Text",
+                  "elementType": "StatelessElement",
+                  "description": "Text",
+                  "depth": 4,
+                  "key": "[<'hidden_banner'>]",
+                  "attributes": {
+                    "text": "Hidden banner",
+                    "semanticsLabel": null,
+                    "tooltip": null,
+                    "hintText": null
+                  },
+                  "visual": {},
+                  "state": {
+                    "enabled": true,
+                    "focused": false,
+                    "visible": false
+                  },
+                  "rect": {
+                    "x": 0,
+                    "y": 0,
+                    "width": 0,
+                    "height": 0
+                  },
+                  "children": []
+                }
+              ]
+            },
+            {
+              "type": "Text",
+              "elementType": "StatelessElement",
+              "description": "Text",
+              "depth": 3,
+              "key": null,
+              "attributes": {
+                "text": "Sign in",
+                "semanticsLabel": null,
+                "tooltip": null,
+                "hintText": null
+              },
+              "visual": {},
+              "state": {
+                "enabled": true,
+                "focused": false,
+                "visible": true
+              },
+              "rect": {
+                "x": 16,
+                "y": 300,
+                "width": 80,
+                "height": 20
+              },
+              "children": []
+            },
+            {
+              "type": "Icon",
+              "elementType": "StatelessElement",
+              "description": "Icon",
+              "depth": 3,
+              "key": null,
+              "attributes": {
+                "text": null,
+                "semanticsLabel": "Settings icon",
+                "tooltip": null,
+                "hintText": null
+              },
+              "visual": {},
+              "state": {
+                "enabled": true,
+                "focused": false,
+                "visible": true
+              },
+              "rect": {
+                "x": 0,
+                "y": 0,
+                "width": 0,
+                "height": 0
+              },
+              "children": []
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
