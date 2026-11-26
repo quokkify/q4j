@@ -1,0 +1,1 @@
+{"id":"c44e580126c116e08926fdafe901cbde.d41d8cd98f00b204e9800998ecf8427e","fullName":"dev.quokkify.elements.table.TableSnapshotSoftAssertTest.snapshotFailsInsteadOfReturningNullWhenRootCheckDidNotRun","name":"snapshotFailsInsteadOfReturningNullWhenRootCheckDidNotRun","status":"passed","testResultsByEnv":{"ubuntu-26-04":"170e12e360c95fdcdeaec647717b9d57"}}
