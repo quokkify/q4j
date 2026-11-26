@@ -72,7 +72,7 @@ services:
 
   zookeeper:
     profiles: [messaging]
-    image: zookeeper:3.9@sha256:bbf678337a9242fcb6e49e51193855078ec515251cf11fe0bcfabae6a10e040a
+    image: zookeeper:3.9@sha256:23f7fe549a6be53e39f9bf90cfa82542b4c7df8e8a19374ce4f3625cd11fa86b
 
   rabbitmq:
     profiles: [rabbitmq]
