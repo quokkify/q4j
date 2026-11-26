@@ -1,5 +1,44 @@
 # Changelog
 
+## [0.16.1](https://github.com/quokkify/q4j/compare/v0.16.0...v0.16.1) (2026-11-26)
+
+<!-- project-toolkit:release-notes v2 -->
+**At a glance:** 1 fixed · 19 internal
+
+### 🐛 Fixed
+
+- **selenide:** retry table checks when the table is re-rendered — `Table.shouldSatisfy()`, `shouldHave(TableCondition)` and `snapshot()` no longer fail with `InvalidSelectorException: Invalid selector` when the table is re-rendered (its root element replaced) while they read it; they read the new table and keep waiting as documented. 🤖 Generated with [Claude Code](https://claude.com/claude-code) ([#906](https://github.com/quokkify/q4j/pull/906))
+
+<details><summary>Internal changes (19 PRs)</summary>
+
+**Dependencies**
+
+- archgate 0.2.1 → 0.3.0 ([#918](https://github.com/quokkify/q4j/pull/918))
+- com.rabbitmq:amqp-client 5.37.1 → 5.38.0 ([#914](https://github.com/quokkify/q4j/pull/914))
+- docker 29.9-dind → 29.10-dind ([#902](https://github.com/quokkify/q4j/pull/902))
+- ghcr.io/testplanit/testplanit-selfhost v1.2.0 → v1.2.4 ([#900](https://github.com/quokkify/q4j/pull/900))
+- gradle 9.9.1 → 9.9.2 ([#901](https://github.com/quokkify/q4j/pull/901))
+- mockserver/mockserver 9.2.0 → 9.3.0 ([#898](https://github.com/quokkify/q4j/pull/898))
+- mongo 1444add → b0c835c ([#911](https://github.com/quokkify/q4j/pull/911))
+- nginx 1.31.8 → 1.31.9 ([#916](https://github.com/quokkify/q4j/pull/916))
+- opensearchproject/opensearch 3.9.0 → 3.10.0 ([#913](https://github.com/quokkify/q4j/pull/913))
+- org.hibernate.orm:hibernate-agroal, org.hibernate.orm:hibernate-core 7.4.16.Final → 7.4.17.Final ([#917](https://github.com/quokkify/q4j/pull/917))
+- org.mongodb:mongodb-driver-legacy, org.mongodb:mongodb-driver-sync 5.14.0 → 5.15.0 ([#919](https://github.com/quokkify/q4j/pull/919))
+- postgres 18-alpine → 19-alpine · major ([#909](https://github.com/quokkify/q4j/pull/909))
+- rabbitmq 4.4.0-management → 4.4.1-management ([#912](https://github.com/quokkify/q4j/pull/912))
+- selenide 7.19.1 → 7.19.2 ([#907](https://github.com/quokkify/q4j/pull/907))
+- selenium/hub, selenium/node-docker 4.52.0-20261101 → 4.53.0-20261120 ([#908](https://github.com/quokkify/q4j/pull/908))
+- selenium/standalone-chromium 156.0-20261101 → 156.0-20261120 ([#908](https://github.com/quokkify/q4j/pull/908))
+- zookeeper bbf6783 → 23f7fe5 ([#888](https://github.com/quokkify/q4j/pull/888))
+
+**Maintenance**
+
+- **modules:** update q4j module documentation to v0.16.0 ([#915](https://github.com/quokkify/q4j/pull/915))
+- **renovate:** adopt the supply-chain hardening and stack grouping presets ([#910](https://github.com/quokkify/q4j/pull/910))
+- **template:** update shared project template ([#899](https://github.com/quokkify/q4j/pull/899))
+
+</details>
+
 ## [0.16.0](https://github.com/quokkify/q4j/compare/v0.15.0...v0.16.0) (2026-11-20)
 
 <!-- project-toolkit:release-notes v2 -->
