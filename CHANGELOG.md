@@ -2,35 +2,42 @@
 
 ## [0.16.1](https://github.com/quokkify/q4j/compare/v0.16.0...v0.16.1) (2026-11-26)
 
+<!-- project-toolkit:release-notes v2 -->
+**At a glance:** 1 fixed · 19 internal
 
-### 🐛 Bug Fixes
+### 🐛 Fixed
 
-* **selenide:** retry table checks when the table is re-rendered ([#906](https://github.com/quokkify/q4j/issues/906)) ([1d9cc47](https://github.com/quokkify/q4j/commit/1d9cc470c97e0614c9a4dd3cbcbb2f05789d37cb))
+- **selenide:** retry table checks when the table is re-rendered — `Table.shouldSatisfy()`, `shouldHave(TableCondition)` and `snapshot()` no longer fail with `InvalidSelectorException: Invalid selector` when the table is re-rendered (its root element replaced) while they read it; they read the new table and keep waiting as documented. 🤖 Generated with [Claude Code](https://claude.com/claude-code) ([#906](https://github.com/quokkify/q4j/pull/906))
 
+<details><summary>Internal changes (19 PRs)</summary>
 
-### 📦 Dependencies
+**Dependencies**
 
-* **docker-compose:** update docker docker tag to v29.10 ([#902](https://github.com/quokkify/q4j/issues/902)) ([c8091b3](https://github.com/quokkify/q4j/commit/c8091b3e12ea0408ccd1fe831e80dfe1ca51e9ea))
-* **docker-compose:** update ghcr.io/testplanit/testplanit-selfhost docker tag to v1.2.4 ([#900](https://github.com/quokkify/q4j/issues/900)) ([b206c03](https://github.com/quokkify/q4j/commit/b206c0395e86298b95552e5378efb192e9272e18))
-* **docker-compose:** update mockserver/mockserver docker tag to v9.3.0 ([#898](https://github.com/quokkify/q4j/issues/898)) ([fad2cd3](https://github.com/quokkify/q4j/commit/fad2cd3f450f28fb13c8ba5c80c2affb158ef33c))
-* **docker-compose:** update mongo:9.0.8 docker digest to b0c835c ([#911](https://github.com/quokkify/q4j/issues/911)) ([4e47eb3](https://github.com/quokkify/q4j/commit/4e47eb30ceba48800ab0b9b78c160a0f777157a9))
-* **docker-compose:** update opensearchproject/opensearch docker tag to v3.10.0 ([#913](https://github.com/quokkify/q4j/issues/913)) ([5bcbfc4](https://github.com/quokkify/q4j/commit/5bcbfc47ced46a7f45fd99ef5668ecef8b26f2df))
-* **docker-compose:** update postgres docker tag to v19 ([#909](https://github.com/quokkify/q4j/issues/909)) ([b3b1643](https://github.com/quokkify/q4j/commit/b3b1643cbeb8743cfd654cc43da30aa17f6e2eb1))
-* **docker-compose:** update rabbitmq docker tag to v4.4.1 ([#912](https://github.com/quokkify/q4j/issues/912)) ([871abd5](https://github.com/quokkify/q4j/commit/871abd58b448585fdb99a000f31f8cc9afce0341))
-* **docker-compose:** update selenium grid images ([#908](https://github.com/quokkify/q4j/issues/908)) ([b8cde0c](https://github.com/quokkify/q4j/commit/b8cde0ccc2257acf33d45a87aef447f38b080fa5))
-* **docker-compose:** update zookeeper:3.9 docker digest to 23f7fe5 ([#888](https://github.com/quokkify/q4j/issues/888)) ([48cc4d0](https://github.com/quokkify/q4j/commit/48cc4d051dda92dbe894dd7ede1b23969ed9cdb9))
-* **dockerfile:** update nginx docker tag to v1.31.9 ([#916](https://github.com/quokkify/q4j/issues/916)) ([dc80641](https://github.com/quokkify/q4j/commit/dc8064100f734a8f6290c57fb565cd0405f16319))
-* **gradle-wrapper:** update gradle to v9.9.2 ([#901](https://github.com/quokkify/q4j/issues/901)) ([732fb67](https://github.com/quokkify/q4j/commit/732fb67030a2fa193d9e19ce6a3e40af20e71c93))
-* **gradle:** update archgate to v0.3.0 ([#918](https://github.com/quokkify/q4j/issues/918)) ([b30b9f5](https://github.com/quokkify/q4j/commit/b30b9f51dc86fec57dfdb8aae0706b485a033401))
-* **gradle:** update com.rabbitmq:amqp-client to v5.38.0 ([#914](https://github.com/quokkify/q4j/issues/914)) ([2d1b5c0](https://github.com/quokkify/q4j/commit/2d1b5c0d1740f47a9162dee3539fe080e46971d1))
-* **gradle:** update hibernate-orm monorepo to v7.4.17.final ([#917](https://github.com/quokkify/q4j/issues/917)) ([d513b8c](https://github.com/quokkify/q4j/commit/d513b8cd16690ec1bfa2dc97e465745b69a37d2f))
-* **gradle:** update mongo-java-driver monorepo to v5.15.0 ([#919](https://github.com/quokkify/q4j/issues/919)) ([65584af](https://github.com/quokkify/q4j/commit/65584af302d11abc17727980e80f58764c20fe60))
-* **gradle:** update selenide to v7.19.2 ([#907](https://github.com/quokkify/q4j/issues/907)) ([a365654](https://github.com/quokkify/q4j/commit/a36565444f000e3f4aee37ec13507db5356c4d1c))
+- archgate 0.2.1 → 0.3.0 ([#918](https://github.com/quokkify/q4j/pull/918))
+- com.rabbitmq:amqp-client 5.37.1 → 5.38.0 ([#914](https://github.com/quokkify/q4j/pull/914))
+- docker 29.9-dind → 29.10-dind ([#902](https://github.com/quokkify/q4j/pull/902))
+- ghcr.io/testplanit/testplanit-selfhost v1.2.0 → v1.2.4 ([#900](https://github.com/quokkify/q4j/pull/900))
+- gradle 9.9.1 → 9.9.2 ([#901](https://github.com/quokkify/q4j/pull/901))
+- mockserver/mockserver 9.2.0 → 9.3.0 ([#898](https://github.com/quokkify/q4j/pull/898))
+- mongo 1444add → b0c835c ([#911](https://github.com/quokkify/q4j/pull/911))
+- nginx 1.31.8 → 1.31.9 ([#916](https://github.com/quokkify/q4j/pull/916))
+- opensearchproject/opensearch 3.9.0 → 3.10.0 ([#913](https://github.com/quokkify/q4j/pull/913))
+- org.hibernate.orm:hibernate-agroal, org.hibernate.orm:hibernate-core 7.4.16.Final → 7.4.17.Final ([#917](https://github.com/quokkify/q4j/pull/917))
+- org.mongodb:mongodb-driver-legacy, org.mongodb:mongodb-driver-sync 5.14.0 → 5.15.0 ([#919](https://github.com/quokkify/q4j/pull/919))
+- postgres 18-alpine → 19-alpine · major ([#909](https://github.com/quokkify/q4j/pull/909))
+- rabbitmq 4.4.0-management → 4.4.1-management ([#912](https://github.com/quokkify/q4j/pull/912))
+- selenide 7.19.1 → 7.19.2 ([#907](https://github.com/quokkify/q4j/pull/907))
+- selenium/hub, selenium/node-docker 4.52.0-20261101 → 4.53.0-20261120 ([#908](https://github.com/quokkify/q4j/pull/908))
+- selenium/standalone-chromium 156.0-20261101 → 156.0-20261120 ([#908](https://github.com/quokkify/q4j/pull/908))
+- zookeeper bbf6783 → 23f7fe5 ([#888](https://github.com/quokkify/q4j/pull/888))
 
+**Maintenance**
 
-### 📚 Documentation
+- **modules:** update q4j module documentation to v0.16.0 ([#915](https://github.com/quokkify/q4j/pull/915))
+- **renovate:** adopt the supply-chain hardening and stack grouping presets ([#910](https://github.com/quokkify/q4j/pull/910))
+- **template:** update shared project template ([#899](https://github.com/quokkify/q4j/pull/899))
 
-* **modules:** update q4j module documentation to v0.16.0 ([#915](https://github.com/quokkify/q4j/issues/915)) ([e8bcfc0](https://github.com/quokkify/q4j/commit/e8bcfc0cd25aa929434f0e5446767ad05dbd149b))
+</details>
 
 ## [0.16.0](https://github.com/quokkify/q4j/compare/v0.15.0...v0.16.0) (2026-11-20)
 
